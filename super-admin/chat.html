@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UYEH TECH - Chat Widget</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+:root {
+    --primary: #00ff88;
+    --primary-dark: #00b359;
+    --dark: #0a0a0a;
+    --dark-light: #1a1a1a;
+    --gray: #9ca3af;
+    --gray-light: #d1d5db;
+    --success: #00ff88;
+    --error: #ff4444;
+    --warning: #ffa500;
+    --info: #0096ff;
+    --white: #ffffff;
+    --shadow: 0 4px 20px rgba(0, 255, 136, 0.1);
+    --shadow-lg: 0 8px 40px rgba(0, 255, 136, 0.15);
+    --glow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.demo-container {
+    text-align: center;
+    max-width: 600px;
+}
+
+.demo-container h1 {
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.demo-container p {
+    color: var(--gray-light);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.demo-info {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 2rem;
+}
+
+.demo-info h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.demo-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.demo-info li {
+    color: var(--gray-light);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.demo-info li:last-child {
+    border-bottom: none;
+}
+
+.demo-info li i {
+    color: var(--primary);
+    margin-right: 10px;
+}
+
+.chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.chat-toggle-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: var(--glow); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.5); }
+}
+
+.chat-toggle-btn:hover {
+    transform: scale(1.1);
+}
+
+.chat-icon {
+    font-size: 28px;
+    color: blue;
+}
+
+.unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--error);
+    color: var(--white);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--white);
+}
+
+.chat-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    height: 600px;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(15, 15, 15, 0.98));
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 15px;
+    box-shadow: var(--shadow-lg);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.chat-window.active {
+    display: flex;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: var(--dark);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.agent-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.agent-avatar {
+    position: relative;
+}
+
+.agent-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--dark);
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--dark);
+    background: var(--success);
+}
+
+.agent-details h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.status-text {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(10, 10, 10, 0.2);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--dark);
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background: rgba(10, 10, 10, 0.3);
+}
+
+.chat-welcome {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.welcome-content {
+    text-align: center;
+}
+
+.welcome-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.welcome-content h3 {
+    font-size: 20px;
+    color: var(--white);
+    margin-bottom: 10px;
+}
+
+.welcome-content p {
+    font-size: 14px;
+    color: var(--gray-light);
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    color: var(--gray-light);
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--dark-light);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 8px;
+    color: var(--white);
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-start-chat {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: var(--dark);
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-start-chat:hover {
+    transform: translateY(-2px);
+}
+
+.btn-start-chat:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.message {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.customer {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.message-content {
+    max-width: 70%;
+}
+
+.message-bubble {
+    padding: 12px 15px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.message.agent .message-bubble {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--white);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.message.customer .message-bubble {
+    background: var(--primary);
+    color: var(--dark);
+}
+
+.message.system .message-bubble {
+    background: rgba(156, 163, 175, 0.1);
+    color: var(--gray-light);
+    border: 1px solid rgba(156, 163, 175, 0.2);
+    text-align: center;
+}
+
+.message-time {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 5px;
+    display: block;
+}
+
+.typing-indicator {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: typing 1.4s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    30% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+.chat-input-container {
+    border-top: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    align-items: flex-end;
+}
+
+.attachment-btn {
+    width: 38px;
+    height: 38px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--primary);
+    transition: all 0.3s;
+}
+
+.attachment-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+#messageInput {
+    flex: 1;
+    padding: 10px 12px;
+    background: var(--dark-light);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 8px;
+    color: var(--white);
+    font-size: 14px;
+    resize: none;
+    max-height: 100px;
+    font-family: inherit;
+}
+
+#messageInput:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.send-btn {
+    width: 38px;
+    height: 38px;
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--dark);
+    transition: all 0.3s;
+}
+
+.send-btn:hover {
+    transform: scale(1.1);
+}
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .chat-window {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 100px);
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🚀 UYEH TECH Chat Widget</h1>
+        <p>Click the chat button in the bottom-right corner to start a conversation</p>
+        
+        <div class="demo-info">
+            <h3>Features</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Real-time WebSocket messaging</li>
+                <li><i class="fas fa-check"></i> File attachments support</li>
+                <li><i class="fas fa-check"></i> Typing indicators</li>
+                <li><i class="fas fa-check"></i> Auto-assign to agents</li>
+                <li><i class="fas fa-check"></i> Session persistence</li>
+                <li><i class="fas fa-check"></i> Mobile responsive</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="uyehChatWidget" class="chat-widget">
+        <button class="chat-toggle-btn" id="chatToggleBtn" onclick="UyehChat.toggle()">
+            <i class="fas fa-comments chat-icon"></i>
+            <span class="unread-badge" id="unreadBadge">0</span>
+        </button>
+
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="agent-info">
+                    <div class="agent-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Support&background=00ff88&color=0a0a0a" alt="Agent" id="agentAvatar">
+                        <span class="status-indicator" id="agentStatus"></span>
+                    </div>
+                    <div class="agent-details">
+                        <h4 id="agentName">UYEH TECH Support</h4>
+                        <span class="status-text" id="statusText">We're here to help</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="action-btn" onclick="UyehChat.minimize()" title="Minimize">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="action-btn" onclick="UyehChat.close()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-welcome" id="chatWelcome">
+                <div class="welcome-content">
+                    <div class="welcome-icon">👋</div>
+                    <h3>Welcome to UYEH TECH Support!</h3>
+                    <p>We're here to help. Please provide your details to start chatting.</p>
+                    
+                    <form id="chatStartForm" onsubmit="UyehChat.startChat(event)">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Your Name</label>
+                            <input type="text" id="customerName" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                            <input type="email" id="customerEmail" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-comment"></i> Subject</label>
+                            <input type="text" id="subject" placeholder="What can we help you with?" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-th-large"></i> Department</label>
+                            <select id="department">
+                                <option value="General">General</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Support">Support</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Billing">Billing</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-start-chat">
+                            <i class="fas fa-comment-dots"></i> Start Chat
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages" style="display: none;">
+                <div id="messagesContainer"></div>
+                
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span style="font-size: 12px; color: var(--gray);">Agent is typing...</span>
+                </div>
+            </div>
+
+            <div class="chat-input-container" id="chatInputContainer" style="display: none;">
+                <div class="input-wrapper">
+                    <button class="attachment-btn" onclick="UyehChat.attachFile()" title="Attach file">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="file" id="fileInput" style="display: none;" onchange="UyehChat.handleFileSelect(event)">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Type your message..." 
+                        rows="1"
+                        onkeydown="UyehChat.handleKeyPress(event)"
+                    ></textarea>
+                    <button class="send-btn" onclick="UyehChat.sendMessage()" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // ========================================
+// UYEH TECH - Chat Widget JavaScript
+// Complete Real-time Chat System
+// Aligned with Backend Server v7.0
+// ========================================
+
+(function() {
+    'use strict';
+
+    // Configuration
+const API_URL = 'https://uyehtechbackend.onrender.com';
+const WS_URL = 'wss://uyehtechbackend.onrender.com/wss';
+  
+    // Global State
+    let chatId = null;
+    let customerId = null;
+    let customerName = null;
+    let socket = null;
+    let unreadCount = 0;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT_ATTEMPTS = 5;
+
+    // Main Widget Object
+    const UyehChat = {
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+        init: function() {
+            console.log('🚀 UYEH TECH Chat Widget Initializing...');
+            this.checkExistingSession();
+            this.setupEventListeners();
+            this.startKeepAlive();
+            console.log('✅ Chat Widget Ready');
+        },
+
+        // ========================================
+        // SESSION MANAGEMENT
+        // ========================================
+        checkExistingSession: function() {
+            chatId = localStorage.getItem('uyehChatId');
+            customerId = localStorage.getItem('uyehCustomerId');
+            customerName = localStorage.getItem('uyehCustomerName');
+            
+            if (chatId && customerId) {
+                console.log('📂 Restoring previous session:', chatId);
+                this.restoreSession();
+            }
+        },
+
+        async restoreSession() {
+            try {
+                const response = await fetch(`${API_URL}/api/chat/${chatId}`);
+                const data = await response.json();
+                
+                if (data.success && data.chat) {
+                    console.log('✅ Session restored successfully');
+                    
+                    // Show chat interface
+                    this.showChatInterface();
+                    
+                    // Render messages
+                    if (data.chat.messages && data.chat.messages.length > 0) {
+                        this.renderMessages(data.chat.messages);
+                    }
+                    
+                    // Update agent info if assigned
+                    if (data.chat.assignedAgent) {
+                        this.updateAgentInfo(data.chat.assignedAgent);
+                    }
+                    
+                    // Connect WebSocket
+                    this.connectWebSocket();
+                    this.startKeepAlive();
+
+                } else {
+                    console.warn('⚠️ Session invalid, clearing...');
+                    this.clearSession();
+                }
+            } catch (error) {
+                console.error('❌ Error restoring session:', error);
+                this.clearSession();
+            }
+        },
+
+        clearSession: function() {
+            localStorage.removeItem('uyehChatId');
+            localStorage.removeItem('uyehCustomerId');
+            localStorage.removeItem('uyehCustomerName');
+            chatId = null;
+            customerId = null;
+            customerName = null;
+            
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        },
+
+        // ========================================
+        // EVENT LISTENERS
+        // ========================================
+
+        
+        setupEventListeners: function() {
+            // Auto-resize textarea
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+
+                // Send typing indicator
+                let typingTimeout;
+                messageInput.addEventListener('input', () => {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send(JSON.stringify({
+                            type: 'typing',
+                            userId: customerId,
+                            isTyping: true
+                        }));
+
+                        clearTimeout(typingTimeout);
+                        typingTimeout = setTimeout(() => {
+                            socket.send(JSON.stringify({
+                                type: 'typing',
+                                userId: customerId,
+                                isTyping: false
+                            }));
+                        }, 1000);
+                    }
+                });
+            }
+    
+            
+// Enhanced typing indicator
+let typingTimeout;
+let isTyping = false;
+
+messageInput.addEventListener('input', () => {
+    // Auto-resize
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+    
+    // Send typing indicator
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        if (!isTyping) {
+            isTyping = true;
+            UyehChat.sendWebSocketMessage({
+                type: 'typing',
+                chatId: chatId,
+                customerId: customerId,
+                isTyping: true
+            });
+        }
+        
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            isTyping = false;
+            UyehChat.sendWebSocketMessage({
+                type: 'typing',
+                chatId: chatId,
+                customerId: customerId,
+                isTyping: false
+            });
+        }, 3000);
+    }
+});
+
+// Stop typing on blur
+messageInput.addEventListener('blur', () => {
+    if (isTyping && socket && socket.readyState === WebSocket.OPEN) {
+        isTyping = false;
+        UyehChat.sendWebSocketMessage({
+            type: 'typing',
+            chatId: chatId,
+            customerId: customerId,
+            isTyping: false
+        });
+    }
+    clearTimeout(typingTimeout);
+});
+
+        },
+
+        // ========================================
+        // WIDGET CONTROLS
+        // ========================================
+        toggle: function() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('active');
+            
+            if (chatWindow.classList.contains('active') && chatId) {
+                this.resetUnreadBadge();
+                this.markMessagesAsRead();
+                
+                // Focus input
+                setTimeout(() => {
+                    document.getElementById('messageInput')?.focus();
+                }, 300);
+            }
+        },
+
+        minimize: function() {
+            document.getElementById('chatWindow').classList.remove('active');
+        },
+
+        close: function() {
+            if (chatId) {
+                if (confirm('Are you sure you want to end this chat session?')) {
+                    this.endChat();
+                }
+            } else {
+                this.minimize();
+            }
+        },
+
+
+
+
+    
+        // ========================================
+        // START CHAT
+        // ========================================
+        async startChat(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('customerName').value.trim();
+            const email = document.getElementById('customerEmail').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const department = document.getElementById('department').value;
+            
+            if (!name || !email || !subject) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting Chat...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/chat/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerName: name,
+                        customerEmail: email,
+                        subject: subject,
+                        department: department,
+                        priority: 'medium'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.chat) {
+                    chatId = data.chat.chatId;
+                    customerId = data.chat.customerId;
+                    customerName = name;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('uyehChatId', chatId);
+                    localStorage.setItem('uyehCustomerId', customerId);
+                    localStorage.setItem('uyehCustomerName', customerName);
+                    
+                    console.log('✅ Chat started:', chatId);
+                    
+                    // Show chat interface
+                    this.showChatInterface();
+                    
+                    // Connect WebSocket
+                    this.connectWebSocket();
+                    
+                    // Add welcome message
+                    this.addSystemMessage('Chat session started. An agent will be with you shortly.');
+                    
+                    // Focus input
+                    setTimeout(() => {
+                        document.getElementById('messageInput')?.focus();
+                    }, 300);
+                } else {
+                    alert(data.message || 'Failed to start chat. Please try again.');
+                }
+            } catch (error) {
+                console.error('❌ Error starting chat:', error);
+                alert('Network error. Please check your connection and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-comment-dots"></i> Start Chat';
+            }
+        },
+
+        showChatInterface: function() {
+            document.getElementById('chatWelcome').style.display = 'none';
+            document.getElementById('chatMessages').style.display = 'block';
+            document.getElementById('chatInputContainer').style.display = 'block';
+        },
+
+  
+
+
+sendMessage: async function() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message || !chatId) {
+        console.warn('⚠️ Cannot send: missing message or chatId');
+        return;
+    }
+    
+    console.log('📤 Sending message:', message.substring(0, 50) + '...');
+    
+    // Disable send button temporarily
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.disabled = true;
+    
+    // 🎯 OPTIMISTIC UPDATE: Show message immediately
+    const tempMessageId = 'temp-' + Date.now();
+    const optimisticMessage = {
+        messageId: tempMessageId,
+        sender: 'customer',
+        senderId: customerId,
+        senderName: customerName || 'You',
+        message: message,
+        timestamp: new Date(),
+        _temporary: true
+    };
+    
+    this.addMessage(optimisticMessage);
+    
+    // Clear input immediately for better UX
+    input.value = '';
+    input.style.height = 'auto';
+    
+    try {
+        // Send via API
+        const response = await fetch(`${API_URL}/api/chat/${chatId}/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender: 'customer',
+                senderId: customerId,
+                senderName: customerName || 'Customer',
+                message: message
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            console.log('✅ Message sent successfully via API');
+            
+            // Send via WebSocket for real-time delivery
+            this.sendWebSocketMessage({
+                type: 'chat_message',
+                chatId: chatId,
+                sender: 'customer',
+                senderId: customerId,
+                senderName: customerName,
+                message: message,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Remove temporary message (real one will come via WebSocket)
+            setTimeout(() => {
+                const container = document.getElementById('messagesContainer');
+                const tempMsg = container?.querySelector(`[data-message-id="${tempMessageId}"]`);
+                if (tempMsg) {
+                    tempMsg.remove();
+                }
+            }, 1000);
+            
+        } else {
+            console.error('❌ Failed to send message:', data.message);
+            
+            // Remove optimistic message
+            const container = document.getElementById('messagesContainer');
+            const tempMessage = container?.querySelector(`[data-message-id="${tempMessageId}"]`);
+            if (tempMessage) {
+                tempMessage.remove();
+            }
+            
+            // Show error
+            alert('Failed to send message: ' + (data.message || 'Please try again'));
+            
+            // Restore message in input
+            input.value = message;
+        }
+    } catch (error) {
+        console.error('❌ Error sending message:', error);
+        
+        // Remove optimistic message
+        const container = document.getElementById('messagesContainer');
+        const tempMessage = container?.querySelector(`[data-message-id="${tempMessageId}"]`);
+        if (tempMessage) {
+            tempMessage.remove();
+        }
+        
+        alert('Failed to send message. Please check your connection.');
+        
+        // Restore message in input
+        input.value = message;
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
+    }
+},
+
+
+
+addMessage: function(message) {
+    const container = document.getElementById('messagesContainer');
+    if (!container) {
+        console.error('❌ Messages container not found');
+        return;
+    }
+    
+    // 🎯 FIX: Prevent duplicate messages
+    if (message.messageId && !message._temporary) {
+        const existing = container.querySelector(`[data-message-id="${message.messageId}"]`);
+        if (existing) {
+            console.log('📌 Message already exists, skipping:', message.messageId);
+            return;
+        }
+        
+        // Remove temporary message if real one arrives
+        const tempMessages = container.querySelectorAll('[data-message-id^="temp-"]');
+        tempMessages.forEach(temp => {
+            const tempText = temp.querySelector('.message-bubble')?.textContent;
+            if (tempText === message.message && message.sender === 'customer') {
+                console.log('🔄 Replacing temporary message with real one');
+                temp.remove();
+            }
+        });
+    }
+    
+    // Create message element
+    const messageDiv = document.createElement('div');
+    const senderClass = message.sender === 'customer' ? 'customer' : 
+                       message.sender === 'agent' ? 'agent' : 'system';
+    
+    messageDiv.className = `message ${senderClass}`;
+    if (message.messageId) {
+        messageDiv.setAttribute('data-message-id', message.messageId);
+    }
+    
+    // Build message HTML
+    if (senderClass !== 'system') {
+        const initials = message.senderName ? 
+            message.senderName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 
+            (senderClass === 'customer' ? 'YO' : 'AG');
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${initials}</div>
+            <div class="message-content">
+                <div class="message-bubble">${this.escapeHtml(message.message)}</div>
+                <span class="message-time">${this.formatTime(message.timestamp)}</span>
+            </div>
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-bubble">${this.escapeHtml(message.message)}</div>
+            </div>
+        `;
+    }
+    
+    // Add with smooth animation
+    messageDiv.style.opacity = '0';
+    messageDiv.style.transform = 'translateY(10px)';
+    container.appendChild(messageDiv);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        messageDiv.style.transition = 'all 0.3s ease';
+        messageDiv.style.opacity = '1';
+        messageDiv.style.transform = 'translateY(0)';
+    });
+    
+    this.scrollToBottom();
+    
+    console.log('✅ Message added to UI:', {
+        id: message.messageId,
+        sender: message.sender,
+        temporary: message._temporary
+    });
+},
+
+startKeepAlive: function() {
+    // Stop existing interval if any
+    if (this.keepAliveInterval) {
+        clearInterval(this.keepAliveInterval);
+    }
+    
+    // Send ping every 30 seconds
+    this.keepAliveInterval = setInterval(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            this.sendWebSocketMessage({
+                type: 'ping',
+                timestamp: Date.now()
+            });
+            console.log('🏓 Ping sent');
+        }
+    }, 30000);
+},
+
+stopKeepAlive: function() {
+    if (this.keepAliveInterval) {
+        clearInterval(this.keepAliveInterval);
+        this.keepAliveInterval = null;
+    }
+},
+
+
+// âœ… NEW: Play notification sound
+playNotificationSound: function() {
+    try {
+        // Create a simple beep sound using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+        // Silently fail if audio not supported
+        console.log('Audio notification not supported');
+    }
+},
+
+// âœ… ENHANCED: Better typing indicator
+showTypingIndicator: function() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) {
+        indicator.style.display = 'flex';
+        this.scrollToBottom();
+    }
+},
+
+hideTypingIndicator: function() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) {
+        indicator.style.display = 'none';
+    }
+},
+
+// âœ… ENHANCED: Better scroll behavior
+scrollToBottom: function() {
+    const messagesDiv = document.getElementById('chatMessages');
+    if (messagesDiv) {
+        // Use requestAnimationFrame for smoother scrolling
+        requestAnimationFrame(() => {
+            messagesDiv.scrollTo({
+                top: messagesDiv.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+    }
+},
+
+
+// ========================================
+// WEBSOCKET - ALIGNED WITH AGENT DASHBOARD
+// ========================================
+
+connectWebSocket: function() {
+    if (!chatId || !customerId) {
+        console.warn('⚠️ Cannot connect WebSocket: missing chatId or customerId');
+        return;
+    }
+    
+    if (socket && socket.readyState !== WebSocket.CLOSED) {
+        console.log('🔄 Closing existing WebSocket connection...');
+        socket.close();
+    }
+    
+    try {
+        // ✅ ALIGNED: Same URL structure as backend expects
+        const wsUrl = `${WS_URL}?chatId=${chatId}&customerId=${customerId}`;
+        console.log('🔌 Connecting WebSocket:', wsUrl);
+        
+        socket = new WebSocket(wsUrl);
+        
+        socket.onopen = () => {
+            console.log('✅ WebSocket connected!');
+            reconnectAttempts = 0;
+            
+            // Update UI
+            const statusIndicator = document.getElementById('agentStatus');
+            const statusText = document.getElementById('statusText');
+            if (statusIndicator) statusIndicator.style.background = 'var(--success)';
+            if (statusText) statusText.textContent = 'Connected';
+            
+            // ✅ ALIGNED: Send join message in format backend expects
+            this.sendWebSocketMessage({
+                type: 'join_chat',
+                chatId: chatId,
+                userId: customerId,
+                role: 'customer'
+            });
+        };
+        
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('📨 WebSocket message:', data);
+                this.handleWebSocketMessage(data);
+            } catch (error) {
+                console.error('❌ Parse error:', error);
+            }
+        };
+        
+        socket.onerror = (error) => {
+            console.error('❌ WebSocket error:', error);
+        };
+        
+        socket.onclose = (event) => {
+            console.log('⚠️ WebSocket closed:', event.code, event.reason);
+            
+            // Update UI
+            const statusIndicator = document.getElementById('agentStatus');
+            const statusText = document.getElementById('statusText');
+            if (statusIndicator) statusIndicator.style.background = 'var(--gray)';
+            if (statusText) statusText.textContent = 'Reconnecting...';
+            
+            // Reconnect with backoff
+            if (chatId && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                reconnectAttempts++;
+                const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000);
+                
+                console.log(`🔄 Reconnecting in ${delay/1000}s (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+                
+                setTimeout(() => this.connectWebSocket(), delay);
+            }
+        };
+    } catch (error) {
+        console.error('❌ Connection error:', error);
+    }
+},
+
+// ✅ ALIGNED: Handle messages in format agent sends
+handleWebSocketMessage: function(data) {
+    console.log('🎯 Message type:', data.type);
+    
+    switch (data.type) {
+        case 'new_message':
+        case 'chat_message':
+            console.log('💬 Incoming message:', data);
+            
+            // ✅ ALIGNED: Handle both nested and flat message structures
+            let messageContent, sender, senderName, messageId, timestamp;
+            
+            if (data.message && typeof data.message === 'object') {
+                // Nested structure (from agent dashboard)
+                messageContent = data.message.message || data.message.content;
+                sender = data.message.sender || data.sender;
+                senderName = data.message.senderName || data.senderName;
+                messageId = data.message._id || data.messageId;
+                timestamp = data.message.timestamp || data.timestamp;
+            } else if (typeof data.message === 'string') {
+                // Flat structure (from other customers)
+                messageContent = data.message;
+                sender = data.sender;
+                senderName = data.senderName;
+                messageId = data.messageId || data._id;
+                timestamp = data.timestamp;
+            } else {
+                console.error('❌ Invalid message format:', data);
+                return;
+            }
+            
+            // Only show if from agent (not our own messages)
+            if (sender === 'agent' || sender !== 'customer' || data.senderId !== customerId) {
+                this.addMessage({
+                    messageId: messageId || 'ws-' + Date.now(),
+                    sender: sender || 'agent',
+                    senderId: data.senderId,
+                    senderName: senderName || 'Agent',
+                    message: messageContent,
+                    timestamp: timestamp || new Date()
+                });
+                
+                // Notify user if not focused
+                if (!document.hasFocus()) {
+                    this.playNotificationSound();
+                    this.incrementUnread();
+                }
+                
+                // Update agent info if provided
+                if (data.agentInfo) {
+                    this.updateAgentInfo(data.agentInfo);
+                }
+            }
+            break;
+        
+        case 'typing':
+            if (data.sender === 'agent' && data.isTyping) {
+                this.showTypingIndicator();
+            } else {
+                this.hideTypingIndicator();
+            }
+            break;
+        
+        case 'agent_assigned':
+            console.log('👤 Agent assigned:', data.agent);
+            if (data.agent) {
+                this.updateAgentInfo(data.agent);
+                this.addSystemMessage(`${data.agent.fullName} has joined the chat`);
+            }
+            break;
+        
+        case 'agent_joined':
+            console.log('👋 Agent joined:', data);
+            if (data.agentName) {
+                this.addSystemMessage(`${data.agentName} has joined the chat`);
+            }
+            break;
+        
+        case 'chat_ended':
+        case 'chat_closed':
+            this.addSystemMessage('This chat has been ended');
+            setTimeout(() => {
+                this.clearSession();
+                this.minimize();
+            }, 2000);
+            break;
+        
+        case 'message_read':
+            console.log('✅ Message read:', data);
+            break;
+        
+        case 'pong':
+            console.log('🏓 Pong received');
+            break;
+        
+        case 'joined':
+            console.log('✅ Successfully joined chat room');
+            break;
+        
+        case 'error':
+            console.error('❌ Server error:', data.message);
+            this.addSystemMessage('Error: ' + (data.message || 'Unknown error'));
+            break;
+        
+        default:
+            console.warn('⚠️ Unknown message type:', data.type);
+    }
+},
+
+// ✅ ALIGNED: Send message in format backend expects
+async sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message || !chatId) {
+        console.warn('⚠️ Cannot send: missing message or chatId');
+        return;
+    }
+    
+    console.log('📤 Sending message...');
+    
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.disabled = true;
+    
+    // Optimistic UI update
+    const tempId = 'temp-' + Date.now();
+    this.addMessage({
+        messageId: tempId,
+        sender: 'customer',
+        senderId: customerId,
+        senderName: customerName || 'You',
+        message: message,
+        timestamp: new Date(),
+        _temporary: true
+    });
+    
+    input.value = '';
+    input.style.height = 'auto';
+    
+    try {
+        // ✅ Send via API first
+        const response = await fetch(`${API_URL}/api/chat/${chatId}/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender: 'customer',
+                senderId: customerId,
+                senderName: customerName || 'Customer',
+                message: message
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            console.log('✅ Message sent via API');
+            
+            // ✅ ALIGNED: Broadcast via WebSocket in correct format
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                this.sendWebSocketMessage({
+                    type: 'new_message',  // ✅ Use 'new_message' for broadcast
+                    chatId: chatId,
+                    sender: 'customer',
+                    senderId: customerId,
+                    senderName: customerName,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            // Remove temporary message
+            setTimeout(() => {
+                const container = document.getElementById('messagesContainer');
+                const tempMsg = container?.querySelector(`[data-message-id="${tempId}"]`);
+                if (tempMsg) tempMsg.remove();
+            }, 1000);
+            
+        } else {
+            throw new Error(data.message || 'Failed to send');
+        }
+    } catch (error) {
+        console.error('❌ Send failed:', error);
+        
+        // Remove optimistic message
+        const container = document.getElementById('messagesContainer');
+        const tempMsg = container?.querySelector(`[data-message-id="${tempId}"]`);
+        if (tempMsg) tempMsg.remove();
+        
+        alert('Failed to send message: ' + error.message);
+        input.value = message; // Restore message
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
+    }
+},
+
+// ✅ Helper to send WebSocket messages
+sendWebSocketMessage: function(data) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        try {
+            socket.send(JSON.stringify(data));
+            console.log('📤 WebSocket sent:', data.type);
+            return true;
+        } catch (error) {
+            console.error('❌ Send error:', error);
+            return false;
+        }
+    } else {
+        console.warn('⚠️ WebSocket not connected');
+        return false;
+    }
+},
+
+        // ========================================
+        // SEND MESSAGE
+        // ========================================
+        async sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !chatId) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/chat/${chatId}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: 'customer',
+                        senderId: customerId,
+                        senderName: customerName || 'Customer',
+                        message: message
+                    })
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    input.style.height = 'auto';
+                } else {
+                    console.error('❌ Failed to send message');
+                    alert('Failed to send message. Please try again.');
+                }
+            } catch (error) {
+                console.error('❌ Error sending message:', error);
+                alert('Failed to send message. Please check your connection.');
+            }
+        },
+
+        handleKeyPress: function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                this.sendMessage();
+            }
+        },
+
+
+        renderMessages: function(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            if (messages && messages.length > 0) {
+                messages.forEach(msg => this.addMessage(msg));
+            }
+        },
+
+        addSystemMessage: function(text) {
+            this.addMessage({
+                sender: 'system',
+                message: text,
+                timestamp: new Date()
+            });
+        },
+
+        // ========================================
+        // AGENT INFO
+        // ========================================
+        updateAgentInfo: function(agent) {
+            const agentName = document.getElementById('agentName');
+            const statusText = document.getElementById('statusText');
+            const agentAvatar = document.getElementById('agentAvatar');
+            const agentStatus = document.getElementById('agentStatus');
+            
+            if (agentName) {
+                agentName.textContent = agent.fullName || 'Support Agent';
+            }
+            
+            if (statusText) {
+                statusText.textContent = 'Online';
+            }
+            
+            if (agentAvatar && agent.fullName) {
+                agentAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.fullName)}&background=00ff88&color=0a0a0a`;
+            }
+            
+            if (agentStatus) {
+                agentStatus.classList.add('online');
+            }
+        },
+
+        // ========================================
+        // TYPING INDICATOR
+        // ========================================
+        showTypingIndicator: function() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.classList.add('show');
+                this.scrollToBottom();
+            }
+        },
+
+        hideTypingIndicator: function() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.classList.remove('show');
+            }
+        },
+
+        // ========================================
+        // FILE ATTACHMENT
+        // ========================================
+        attachFile: function() {
+            document.getElementById('fileInput').click();
+        },
+
+        async handleFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/chat/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.files) {
+                    // Send message with attachments
+                    await fetch(`${API_URL}/api/chat/${chatId}/send`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sender: 'customer',
+                            senderId: customerId,
+                            senderName: customerName || 'Customer',
+                            message: '📎 Sent a file',
+                            attachments: data.files
+                        })
+                    });
+                } else {
+                    alert('Failed to upload file. Please try again.');
+                }
+            } catch (error) {
+                console.error('❌ File upload error:', error);
+                alert('Failed to upload file. Please check your connection.');
+            } finally {
+                event.target.value = '';
+            }
+        },
+
+        // ========================================
+        // MARK AS READ
+        // ========================================
+        async markMessagesAsRead() {
+            if (!chatId) return;
+            
+            try {
+                const container = document.getElementById('messagesContainer');
+                const messages = container.querySelectorAll('.message.agent');
+                const messageIds = Array.from(messages).map(m => m.dataset.messageId).filter(Boolean);
+                
+                if (messageIds.length > 0) {
+                    await fetch(`${API_URL}/api/chat/${chatId}/read`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ messageIds })
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error marking messages as read:', error);
+            }
+        },
+
+        // ========================================
+        // END CHAT
+        // ========================================
+        async endChat() {
+            try {
+                const response = await fetch(`${API_URL}/api/chat/${chatId}/end`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Chat ended');
+                    this.clearSession();
+                    
+                    // Reset UI
+                    document.getElementById('chatWelcome').style.display = 'block';
+                    document.getElementById('chatMessages').style.display = 'none';
+                    document.getElementById('chatInputContainer').style.display = 'none';
+                    document.getElementById('messagesContainer').innerHTML = '';
+                    document.getElementById('chatStartForm').reset();
+                    
+                    this.minimize();
+                }
+            } catch (error) {
+                console.error('❌ Error ending chat:', error);
+            }
+        },
+
+        // ========================================
+        // UNREAD BADGE
+        // ========================================
+        incrementUnread: function() {
+            unreadCount++;
+            this.updateUnreadBadge();
+        },
+
+        resetUnreadBadge: function() {
+            unreadCount = 0;
+            this.updateUnreadBadge();
+        },
+
+        updateUnreadBadge: function() {
+            const badge = document.getElementById('unreadBadge');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                    badge.classList.add('show');
+                } else {
+                    badge.classList.remove('show');
+                }
+            }
+        },
+
+        // ========================================
+        // UTILITY FUNCTIONS
+        // ========================================
+        scrollToBottom: function() {
+            const messagesDiv = document.getElementById('chatMessages');
+            if (messagesDiv) {
+                setTimeout(() => {
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, 100);
+            }
+        },
+
+        formatTime: function(timestamp) {
+            const date = new Date(timestamp);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        },
+
+        escapeHtml: function(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    };
+
+    // Make UyehChat globally available
+    window.UyehChat = UyehChat;
+
+    // Auto-initialize
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            UyehChat.init();
+        });
+    } else {
+        UyehChat.init();
+    }
+
+    
+    console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║     UYEH TECH - Chat Widget v7.0 Loaded Successfully         ║
+╚═══════════════════════════════════════════════════════════════╝
+
+💬 Features:
+  ✅ Real-time WebSocket messaging
+  ✅ File attachments
+  ✅ Typing indicators
+  ✅ Session persistence
+  ✅ Auto-reconnection
+  ✅ Mobile responsive
+
+🔗 Backend: ${API_URL}
+🔌 WebSocket: ${WS_URL}
+    `);
+
+})();
+{
+   console.log('🔍 Connection Diagnostics:');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('');
+    console.log('Session:');
+    console.log('  chatId:', chatId);
+    console.log('  customerId:', customerId);
+    console.log('  customerName:', customerName);
+    console.log('');
+    console.log('WebSocket:');
+    console.log('  Status:', socket ? 'Created' : 'Not created');
+    console.log('  ReadyState:', socket?.readyState);
+    console.log('  States: 0=CONNECTING, 1=OPEN, 2=CLOSING, 3=CLOSED');
+    console.log('  Reconnect attempts:', reconnectAttempts);
+    console.log('');
+    console.log('Browser:');
+    console.log('  WebSocket support:', typeof WebSocket !== 'undefined');
+    console.log('  Online:', navigator.onLine);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+}
+
+console.log('âœ… Chat Widget Real-time Updates Fixed!');
+console.log('ðŸ"Œ Features:');
+console.log('  âœ… Instant message display (no refresh needed)');
+console.log('  âœ… Optimistic UI updates');
+console.log('  âœ… Duplicate message prevention');
+console.log('  âœ… Auto-reconnection with backoff');
+console.log('  âœ… Sound notifications');
+console.log('  âœ… Typing indicators');
+
+
+</script>
+</body>
+</html>

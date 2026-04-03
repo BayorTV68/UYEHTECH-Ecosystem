@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oxygen Hotel - Case Study | UYEH TECH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            color: white;
+            line-height: 1.8;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.5rem;
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        /* Hero Section */
+        .case-hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .case-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .case-hero .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Featured Image */
+        .featured-image {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-container::before {
+            content: 'LUXURY HOSPITALITY';
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: rgba(0, 255, 136, 0.05);
+            letter-spacing: 3px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        /* Two Column Layout */
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .content-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+
+        .content-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .content-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .content-card li {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .content-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+        }
+
+        /* Before/After Metrics */
+        .comparison-section {
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.03), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-column {
+            text-align: center;
+        }
+
+        .comparison-label {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .before-label {
+            background: rgba(255, 100, 100, 0.2);
+            border: 1px solid rgba(255, 100, 100, 0.5);
+            color: #ff6464;
+        }
+
+        .after-label {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .metric-item {
+            margin-bottom: 2rem;
+        }
+
+        .metric-name {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-stat {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .before-column .metric-stat {
+            color: #ff6464;
+        }
+
+        .after-column .metric-stat {
+            color: #00ff88;
+        }
+
+        /* Performance Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-sublabel {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+        }
+
+        /* Integrations */
+        .integrations-section {
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.03), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+        }
+
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .integration-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .integration-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .integration-name {
+            color: #00ff88;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .integration-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        /* Technology Stack */
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tech-badge {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Code Implementation */
+        .code-section {
+            max-width: 900px;
+            margin: 3rem auto;
+        }
+
+        .code-header {
+            background: #1a1a1a;
+            padding: 1rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-filename {
+            color: #00ff88;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        .code-block {
+            background: #0f0f0f;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 0 0 10px 10px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-keyword { color: #ff79c6; }
+        .code-function { color: #50fa7b; }
+        .code-string { color: #f1fa8c; }
+        .code-comment { color: #6272a4; font-style: italic; }
+        .code-property { color: #8be9fd; }
+        .code-number { color: #bd93f9; }
+
+        /* Testimonial */
+        .testimonial-section {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .quote-icon {
+            font-size: 4rem;
+            color: rgba(0, 255, 136, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: #00ff88;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 255, 136, 0.02) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn-secondary {
+            background: transparent;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .case-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .two-column-grid,
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .project-meta {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="../index.html" class="logo">UYEH TECH</a>
+        <a href="index.html" class="back-btn">← Back to Case Studies</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="case-hero">
+        <span class="project-badge">Hospitality • Digital Transformation</span>
+        <h1>Oxygen Hotel</h1>
+        <p class="subtitle">
+            Complete digital ecosystem for a luxury boutique hotel featuring seamless booking experience, 
+            property management system, and guest engagement platform.
+        </p>
+        <div class="project-meta">
+            <div class="meta-item">
+                <div class="meta-label">Client</div>
+                <div class="meta-value">Oxygen Hotel Group</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Duration</div>
+                <div class="meta-value">7 Months</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Year</div>
+                <div class="meta-value">2024</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Industry</div>
+                <div class="meta-value">Hospitality</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Image -->
+    <section class="featured-image">
+        <div class="image-container">
+            <div style="text-align: center; color: rgba(0, 255, 136, 0.3);">
+                <div style="font-size: 1.2rem; margin-bottom: 1rem;">Website & Booking System Preview</div>
+                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.3);">Replace with actual hotel website screenshot</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Overview -->
+    <section class="content-section">
+        <h2 class="section-title">Project Overview</h2>
+        <p class="section-description">
+            Oxygen Hotel needed a comprehensive digital transformation to compete in the modern hospitality market. 
+            We delivered an end-to-end solution that revolutionized their online presence, operational efficiency, 
+            and guest experience.
+        </p>
+    </section>
+
+    <!-- Challenge & Solution -->
+    <section class="content-section">
+        <h2 class="section-title">Challenge & Solution</h2>
+        <div class="two-column-grid">
+            <div class="content-card">
+                <h3>The Challenge</h3>
+                <p>Oxygen Hotel faced multiple challenges that were impacting their business:</p>
+                <ul>
+                    <li>Outdated booking system with 45% abandonment rate</li>
+                    <li>No mobile-optimized experience (80% of traffic from mobile)</li>
+                    <li>Manual reservation management causing errors and inefficiency</li>
+                    <li>Limited guest engagement before and after stays</li>
+                    <li>Poor integration between different hotel systems</li>
+                    <li>Difficulty competing with OTA platforms</li>
+                </ul>
+            </div>
+            <div class="content-card">
+                <h3>Our Solution</h3>
+                <p>We developed a comprehensive digital ecosystem that addressed all pain points:</p>
+                <ul>
+                    <li>Modern, mobile-first booking platform with real-time availability</li>
+                    <li>Integrated property management system (PMS)</li>
+                    <li>Guest mobile app for enhanced stay experience</li>
+                    <li>Automated email marketing and CRM integration</li>
+                    <li>Channel manager for OTA synchronization</li>
+                    <li>Analytics dashboard for business intelligence</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="content-section">
+        <h2 class="section-title">Key Features Delivered</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🏨</span>
+                <h3>Smart Booking Engine</h3>
+                <p>
+                    Intelligent booking system with dynamic pricing, real-time availability, package deals, 
+                    and seamless payment processing. Reduced booking abandonment from 45% to 12%.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📱</span>
+                <h3>Guest Mobile App</h3>
+                <p>
+                    iOS and Android app for digital check-in/out, room service ordering, spa bookings, 
+                    concierge requests, and contactless payments for enhanced guest convenience.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🔧</span>
+                <h3>Property Management</h3>
+                <p>
+                    Comprehensive PMS for reservation management, housekeeping coordination, maintenance tracking, 
+                    inventory control, and staff scheduling.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3>Analytics Dashboard</h3>
+                <p>
+                    Real-time business intelligence with revenue metrics, occupancy rates, guest demographics, 
+                    booking sources, and performance trends for data-driven decisions.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">💌</span>
+                <h3>Guest Engagement</h3>
+                <p>
+                    Automated email campaigns for pre-arrival information, post-stay feedback, loyalty programs, 
+                    and personalized offers to increase repeat bookings.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🔗</span>
+                <h3>Channel Management</h3>
+                <p>
+                    Seamless integration with major OTAs (Booking.com, Expedia, Airbnb) with automatic rate 
+                    and availability synchronization to prevent overbooking.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Before/After Comparison -->
+    <section class="content-section">
+        <h2 class="section-title">Transformation Results</h2>
+        <div class="comparison-section">
+            <div class="comparison-grid">
+                <div class="comparison-column before-column">
+                    <span class="comparison-label before-label">BEFORE</span>
+                    <div class="metric-item">
+                        <div class="metric-name">Direct Bookings</div>
+                        <div class="metric-stat">18%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-name">Avg. Booking Time</div>
+                        <div class="metric-stat">8.5min</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-name">Abandonment Rate</div>
+                        <div class="metric-stat">45%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-name">Guest Satisfaction</div>
+                        <div class="metric-stat">3.6/5</div>
+                    </div>
+                </div>
+                <div class="comparison-column after-column">
+                    <span class="comparison-label after-label">AFTER</span>
+                    <div class="metric-item">
+                        <div class="metric-name">Direct Bookings</div>
+                        <div class="metric-stat">62%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-name">Avg. Booking Time</div>
+                        <div class="metric-stat">2.3min</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-name">Abandonment Rate</div>
+                        <div class="metric-stat">12%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-name">Guest Satisfaction</div>
+                        <div class="metric-stat">4.7/5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Integrations -->
+    <section class="content-section">
+        <h2 class="section-title">System Integrations</h2>
+        <div class="integrations-section">
+            <div class="integrations-grid">
+                <div class="integration-card">
+                    <div class="integration-icon">💳</div>
+                    <div class="integration-name">Stripe</div>
+                    <div class="integration-desc">Payment Processing</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">🏨</div>
+                    <div class="integration-name">Booking.com</div>
+                    <div class="integration-desc">OTA Channel</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">✈️</div>
+                    <div class="integration-name">Expedia</div>
+                    <div class="integration-desc">OTA Channel</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">📧</div>
+                    <div class="integration-name">Mailchimp</div>
+                    <div class="integration-desc">Email Marketing</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">📊</div>
+                    <div class="integration-name">Google Analytics</div>
+                    <div class="integration-desc">Web Analytics</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">💬</div>
+                    <div class="integration-name">Zendesk</div>
+                    <div class="integration-desc">Customer Support</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">🗺️</div>
+                    <div class="integration-name">Google Maps</div>
+                    <div class="integration-desc">Location Services</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">📱</div>
+                    <div class="integration-name">Twilio</div>
+                    <div class="integration-desc">SMS Notifications</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Implementation -->
+    <section class="content-section">
+        <h2 class="section-title">Technical Implementation</h2>
+        <p class="section-description">
+            Real-time booking availability system with advanced caching and synchronization.
+        </p>
+        <div class="code-section">
+            <div class="code-header">
+                <span class="code-filename">api/booking/availability.js</span>
+                <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            </div>
+            <div class="code-block">
+                <pre><code><span class="code-keyword">const</span> <span class="code-function">checkAvailability</span> = <span class="code-keyword">async</span> (req, res) => {
+  <span class="code-keyword">const</span> { checkIn, checkOut, roomType, guests } = req.body;
+
+  <span class="code-keyword">try</span> {
+    <span class="code-comment">// Check cache first for performance</span>
+    <span class="code-keyword">const</span> cacheKey = <span class="code-string">`availability:${roomType}:${checkIn}:${checkOut}`</span>;
+    <span class="code-keyword">const</span> cached = <span class="code-keyword">await</span> redis.<span class="code-function">get</span>(cacheKey);
+    
+    <span class="code-keyword">if</span> (cached) {
+      <span class="code-keyword">return</span> res.<span class="code-function">json</span>(JSON.<span class="code-function">parse</span>(cached));
+    }
+
+    <span class="code-comment">// Query database for available rooms</span>
+    <span class="code-keyword">const</span> availableRooms = <span class="code-keyword">await</span> Room.<span class="code-function">findAll</span>({
+      <span class="code-property">where</span>: {
+        <span class="code-property">type</span>: roomType,
+        <span class="code-property">status</span>: <span class="code-string">'available'</span>,
+        <span class="code-property">maxOccupancy</span>: { [Op.gte]: guests }
+      },
+      <span class="code-property">include</span>: [{
+        <span class="code-property">model</span>: Booking,
+        <span class="code-property">where</span>: {
+          [Op.or]: [
+            {
+              <span class="code-property">checkIn</span>: { [Op.between]: [checkIn, checkOut] }
+            },
+            {
+              <span class="code-property">checkOut</span>: { [Op.between]: [checkIn, checkOut] }
+            }
+          ]
+        },
+        <span class="code-property">required</span>: <span class="code-keyword">false</span>
+      }]
+    });
+
+    <span class="code-comment">// Filter out booked rooms</span>
+    <span class="code-keyword">const</span> available = availableRooms.<span class="code-function">filter</span>(
+      room => room.Bookings.length === <span class="code-number">0</span>
+    );
+
+    <span class="code-comment">// Calculate dynamic pricing</span>
+    <span class="code-keyword">const</span> pricing = <span class="code-keyword">await</span> <span class="code-function">calculateDynamicPrice</span>({
+      <span class="code-property">roomType</span>,
+      <span class="code-property">checkIn</span>,
+      <span class="code-property">checkOut</span>,
+      <span class="code-property">occupancyRate</span>: available.length / availableRooms.length
+    });
+
+    <span class="code-keyword">const</span> result = {
+      <span class="code-property">available</span>: available.length > <span class="code-number">0</span>,
+      <span class="code-property">roomCount</span>: available.length,
+      <span class="code-property">pricing</span>,
+      <span class="code-property">rooms</span>: available.<span class="code-function">map</span>(r => ({
+        <span class="code-property">id</span>: r.id,
+        <span class="code-property">number</span>: r.roomNumber,
+        <span class="code-property">amenities</span>: r.amenities,
+        <span class="code-property">view</span>: r.view
+      }))
+    };
+
+    <span class="code-comment">// Cache result for 5 minutes</span>
+    <span class="code-keyword">await</span> redis.<span class="code-function">setex</span>(cacheKey, <span class="code-number">300</span>, JSON.<span class="code-function">stringify</span>(result));
+
+    res.<span class="code-function">json</span>(result);
+  } <span class="code-keyword">catch</span> (error) {
+    res.<span class="code-function">status</span>(<span class="code-number">500</span>).<span class="code-function">json</span>({ <span class="code-property">error</span>: <span class="code-string">'Availability check failed'</span> });
+  }
+};</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Stack -->
+    <section class="content-section">
+        <h2 class="section-title">Technology Stack</h2>
+        <div class="tech-badges">
+            <span class="tech-badge">Next.js</span>
+            <span class="tech-badge">React Native</span>
+            <span class="tech-badge">Node.js</span>
+            <span class="tech-badge">PostgreSQL</span>
+            <span class="tech-badge">Redis</span>
+            <span class="tech-badge">AWS</span>
+            <span class="tech-badge">Stripe</span>
+            <span class="tech-badge">Socket.io</span>
+            <span class="tech-badge">Docker</span>
+            <span class="tech-badge">Nginx</span>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="content-section">
+        <h2 class="section-title">Business Impact</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">244%</div>
+                <div class="stat-label">Direct Booking Growth</div>
+                <div class="stat-sublabel">Year over Year</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">$1.8M</div>
+                <div class="stat-label">Additional Revenue</div>
+                <div class="stat-sublabel">First Year</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value">4.7/5</div>
+                <div class="stat-label">Guest Satisfaction</div>
+                <div class="stat-sublabel">Up from 3.6</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔄</div>
+                <div class="stat-value">58%</div>
+                <div class="stat-label">Repeat Guest Rate</div>
+                <div class="stat-sublabel">Industry Leading</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value">1.4s</div>
+                <div class="stat-label">Page Load Time</div>
+                <div class="stat-sublabel">70% Faster</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📱</div>
+                <div class="stat-value">15K+</div>
+                <div class="stat-label">App Downloads</div>
+                <div class="stat-sublabel">6 Months</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="testimonial-section">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-text">
+            UYEH TECH completely transformed our digital presence. The new booking system has dramatically 
+            increased our direct bookings, and the guest app has become a game-changer for our service delivery. 
+            Our guests love the seamless experience, and our staff appreciates the efficiency gains.
+        </p>
+        <div class="testimonial-author">Michael Adeyemi</div>
+        <div class="testimonial-role">General Manager, Oxygen Hotel</div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Transform Your Hotel's Digital Experience</h2>
+        <p class="cta-description">
+            Ready to revolutionize your hotel operations and guest experience? Let's discuss your project.
+        </p>
+        <div class="cta-buttons">
+            <a href="../../index.html#contact" class="cta-btn cta-btn-primary">Start Your Project</a>
+            <a href="index.html" class="cta-btn cta-btn-secondary">View More Cases</a>
+        </div>
+    </section>
+
+    <script>
+        function copyCode() {
+            const codeBlock = document.querySelector('.code-block code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .stat-card, .content-card, .integration-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

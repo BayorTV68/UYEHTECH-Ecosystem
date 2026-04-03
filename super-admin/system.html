@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UYEH TECH - System Status</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 2px solid #00ff88;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff88, #00b359);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        /* Overall Status */
+        .overall-status {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            border: 2px solid #00ff88;
+        }
+
+        .status-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .status-text {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .status-text.operational { color: #00ff88; }
+        .status-text.degraded { color: #ffa500; }
+        .status-text.outage { color: #ff4444; }
+
+        .status-subtitle {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        /* Service Cards */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .service-card.operational { border-color: #00ff88; }
+        .service-card.degraded { border-color: #ffa500; }
+        .service-card.outage { border-color: #ff4444; }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .service-name {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .service-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .service-status.operational {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .service-status.degraded {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .service-status.outage {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.operational { background: #00ff88; }
+        .status-dot.degraded { background: #ffa500; }
+        .status-dot.outage { background: #ff4444; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .service-description {
+            color: #888;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .service-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .metric-label {
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        /* Uptime History */
+        .uptime-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+
+        .uptime-bars {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 15px;
+            height: 40px;
+        }
+
+        .uptime-bar {
+            flex: 1;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .uptime-bar:hover {
+            transform: scaleY(1.2);
+        }
+
+        .uptime-bar.up-100 { background: #00ff88; }
+        .uptime-bar.up-99 { background: #33ff99; }
+        .uptime-bar.up-95 { background: #66ffaa; }
+        .uptime-bar.up-90 { background: #ffa500; }
+        .uptime-bar.up-low { background: #ff4444; }
+
+        .uptime-legend {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .uptime-average {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        .uptime-percentage {
+            font-size: 2em;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        /* Incidents */
+        .incidents-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .incident-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .incident-card.critical { border-left-color: #ff4444; }
+        .incident-card.high { border-left-color: #ff6600; }
+        .incident-card.medium { border-left-color: #ffa500; }
+        .incident-card.low { border-left-color: #00ff88; }
+
+        .incident-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .incident-title {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .incident-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .incident-badge.resolved {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .incident-badge.investigating {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .incident-info {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .incident-description {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border-top: 1px solid #333;
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            color: #888;
+        }
+
+        .refresh-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #888;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 255, 136, 0.1);
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            .overall-status {
+                padding: 30px 20px;
+            }
+
+            .status-text {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">UYEH TECH</div>
+            <div class="tagline">System Status Monitor</div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div>Loading system status...</div>
+        </div>
+
+        <!-- Main Content (hidden until loaded) -->
+        <div id="content" style="display: none;">
+            <!-- Overall Status -->
+            <div class="overall-status" id="overallStatus">
+                <div class="status-icon">✓</div>
+                <div class="status-text operational">All Systems Operational</div>
+                <div class="status-subtitle">All services are running smoothly</div>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="services-grid" id="servicesGrid">
+                <!-- Services will be loaded here -->
+            </div>
+
+            <!-- Uptime History -->
+            <div class="uptime-section">
+                <div class="section-title">90-Day Uptime History</div>
+                <div class="uptime-bars" id="uptimeBars">
+                    <!-- Uptime bars will be loaded here -->
+                </div>
+                <div class="uptime-legend">
+                    <span>90 days ago</span>
+                    <span>Today</span>
+                </div>
+                <div class="uptime-average">
+                    <div>Overall Uptime</div>
+                    <div class="uptime-percentage" id="uptimePercentage">99.99%</div>
+                </div>
+            </div>
+
+            <!-- Recent Incidents -->
+            <div class="incidents-section">
+                <div class="section-title">Recent Incidents</div>
+                <div id="incidentsList">
+                    <!-- Incidents will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>© 2026 UYEH TECH. All rights reserved.</div>
+            <div class="auto-refresh">
+                <div class="refresh-dot"></div>
+                <div>Auto-refreshes every 60 seconds</div>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.9em;">
+                Last updated: <span id="lastUpdate">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════
+        // CONFIGURATION
+        // ═══════════════════════════════════════════════════════════════════
+        
+        const API_BASE = 'https://uyehtechbackend.onrender.com'; // UYEH TECH Backend URL
+        const REFRESH_INTERVAL = 60000; // 60 seconds
+
+        // ═══════════════════════════════════════════════════════════════════
+        // FETCH FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════
+
+        async function fetchCurrentStatus() {
+            const response = await fetch(`${API_BASE}/api/status/current`);
+            return await response.json();
+        }
+
+        async function fetchUptimeHistory() {
+            const response = await fetch(`${API_BASE}/api/status/uptime-history?days=90`);
+            return await response.json();
+        }
+
+        async function fetchIncidents() {
+            const response = await fetch(`${API_BASE}/api/status/incidents?days=90&limit=5`);
+            return await response.json();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // RENDER FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function renderOverallStatus(data) {
+            const container = document.getElementById('overallStatus');
+            const { overall } = data;
+
+            const statusConfig = {
+                operational: {
+                    icon: '✓',
+                    text: 'All Systems Operational',
+                    subtitle: 'All services are running smoothly'
+                },
+                degraded: {
+                    icon: '⚠',
+                    text: 'Partial System Outage',
+                    subtitle: 'Some services are experiencing issues'
+                },
+                outage: {
+                    icon: '✗',
+                    text: 'System Outage',
+                    subtitle: 'Major service disruption detected'
+                },
+                maintenance: {
+                    icon: '🔧',
+                    text: 'Scheduled Maintenance',
+                    subtitle: 'System maintenance in progress'
+                }
+            };
+
+            const config = statusConfig[overall] || statusConfig.operational;
+
+            container.innerHTML = `
+                <div class="status-icon">${config.icon}</div>
+                <div class="status-text ${overall}">${config.text}</div>
+                <div class="status-subtitle">${config.subtitle}</div>
+            `;
+        }
+
+        function renderServices(data) {
+            const container = document.getElementById('servicesGrid');
+            const { services } = data;
+
+            container.innerHTML = Object.entries(services).map(([key, service]) => `
+                <div class="service-card ${service.status}">
+                    <div class="service-header">
+                        <div class="service-name">${service.name}</div>
+                        <div class="service-status ${service.status}">
+                            <div class="status-dot ${service.status}"></div>
+                            ${service.status.charAt(0).toUpperCase() + service.status.slice(1)}
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div class="service-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Uptime</div>
+                            <div class="metric-value">${service.uptime.toFixed(2)}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Response Time</div>
+                            <div class="metric-value">${service.responseTime}ms</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Incidents</div>
+                            <div class="metric-value">${service.incidents}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Last Checked</div>
+                            <div class="metric-value" style="font-size: 0.85em;">
+                                ${formatTime(service.lastChecked)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderUptimeHistory(data) {
+            const container = document.getElementById('uptimeBars');
+            const percentageEl = document.getElementById('uptimePercentage');
+            
+            const { history, overall } = data;
+
+            container.innerHTML = history.map(day => {
+                const uptime = day.uptime;
+                let className = 'up-100';
+                
+                if (uptime < 90) className = 'up-low';
+                else if (uptime < 95) className = 'up-90';
+                else if (uptime < 99) className = 'up-95';
+                else if (uptime < 100) className = 'up-99';
+
+                return `
+                    <div class="uptime-bar ${className}" 
+                         title="${day.date}: ${uptime.toFixed(2)}% uptime">
+                    </div>
+                `;
+            }).join('');
+
+            percentageEl.textContent = `${overall}%`;
+        }
+
+        function renderIncidents(data) {
+            const container = document.getElementById('incidentsList');
+            const { incidents } = data;
+
+            if (incidents.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #888;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">✓</div>
+                        <div>No incidents in the last 90 days</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = incidents.map(incident => `
+                <div class="incident-card ${incident.severity}">
+                    <div class="incident-header">
+                        <div class="incident-title">${incident.title}</div>
+                        <div class="incident-badge ${incident.status}">
+                            ${incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}
+                        </div>
+                    </div>
+                    <div class="incident-info">
+                        ${incident.service} • ${formatDate(incident.startTime)}
+                        ${incident.duration ? ` • Duration: ${incident.duration} minutes` : ''}
+                    </div>
+                    <div class="incident-description">${incident.description}</div>
+                </div>
+            `).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // UTILITY FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            const minutes = Math.floor(diff / 60000);
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        function updateTimestamp() {
+            const el = document.getElementById('lastUpdate');
+            el.textContent = new Date().toLocaleTimeString();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // MAIN LOAD FUNCTION
+        // ═══════════════════════════════════════════════════════════════════
+
+        async function loadStatusPage() {
+            try {
+                // Fetch all data in parallel
+                const [statusData, uptimeData, incidentsData] = await Promise.all([
+                    fetchCurrentStatus(),
+                    fetchUptimeHistory(),
+                    fetchIncidents()
+                ]);
+
+                // Render all sections
+                renderOverallStatus(statusData);
+                renderServices(statusData);
+                renderUptimeHistory(uptimeData);
+                renderIncidents(incidentsData);
+
+                // Update timestamp
+                updateTimestamp();
+
+                // Show content, hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading status page:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #ff4444;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">✗</div>
+                        <div>Failed to load system status</div>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #888;">
+                            ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════════
+
+        // Load on page load
+        loadStatusPage();
+
+        // Auto-refresh every 60 seconds
+        setInterval(() => {
+            console.log('🔄 Auto-refreshing status...');
+            loadStatusPage();
+        }, REFRESH_INTERVAL);
+    </script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="uyehtech logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+        <!-- Basic SEO -->
+    <title>UYEH TECH</title>
+    <link rel="icon" href="uyehtech logo.png" type="image/png">
+    <meta name="description" content="UYEH TECH offers web development, mobile apps, UI/UX design, and software solutions. Explore our portfolio and blog.">
+    <meta name="keywords" content="Web Development, Mobile Apps, UI/UX Design, Software Development, UYEH TECH">
+    <meta name="author" content="UYEH TECH">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="UYEH TECH Portfolio">
+    <meta property="og:description" content="Professional web, mobile, and software solutions. Check out our projects and blog.">
+    <meta property="og:image" content="https://uyehtech.com/og-image.jpg">
+    <meta property="og:url" content="https://uyehtech.com">
+    <meta property="og:type" content="website">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "UYEH TECH",
+      "url": "https://uyehtech.com",
+      "logo": "https://uyehtech.com/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/uyehtech",
+        "https:/X.com/uyehtech",
+        "https://www.linkedin.com/company/uyehtech"
+      ]
+    }
+    </script>
+
+    <!-- Performance & Optimization -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Optional: Canonical URL for SEO -->
+    <link rel="canonical" href="https://uyehtech.com">
+<style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #fff;
+            line-height: 1.7;
+            padding: 60px 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            color: #00ff88;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #d1d5db;
+            font-size: 1.3em;
+            margin-bottom: 70px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Approach Section */
+        .approach-section {
+            padding: 60px 0;
+            margin-bottom: 80px;
+        }
+
+        .approach-intro {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            font-size: 1.1em;
+            color: #d1d5db;
+            line-height: 1.9;
+        }
+
+        .approach-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 25px;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 60px rgba(0, 255, 136, 0.4);
+            border-color: rgba(0, 255, 136, 0.6);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00b359, #00ff88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+            border: 3px solid #0a0a0a;
+        }
+
+        .step-icon {
+            font-size: 3em;
+            margin: 35px 0 25px;
+            display: block;
+        }
+
+        .step-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6em;
+            color: #00ff88;
+            margin-bottom: 18px;
+            font-weight: 700;
+        }
+
+        .step-description {
+            color: #d1d5db;
+            line-height: 1.8;
+            font-size: 1em;
+        }
+
+        /* Process Flow Line */
+        .process-flow {
+            display: none;
+        }
+
+        @media (min-width: 1200px) {
+            .approach-steps {
+                position: relative;
+            }
+
+            .process-flow {
+                display: block;
+                position: absolute;
+                top: 35px;
+                left: 15%;
+                right: 15%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #00ff88, transparent);
+                z-index: -1;
+            }
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+        }
+
+        .cta-box {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            border-radius: 35px;
+            padding: 70px 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 30px 70px rgba(0, 255, 136, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            color: #00ff88;
+            margin-bottom: 25px;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            line-height: 1.3;
+        }
+
+        .cta-text {
+            font-size: 1.3em;
+            color: #d1d5db;
+            margin-bottom: 45px;
+            line-height: 1.8;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 45px;
+            flex-wrap: wrap;
+        }
+
+        .cta-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            color: #d1d5db;
+        }
+
+        .cta-feature-icon {
+            font-size: 1.5em;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 20px 45px;
+            background: linear-gradient(135deg, #00b359, #00ff88);
+            border: none;
+            border-radius: 35px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.15em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 12px 35px rgba(0, 255, 136, 0.4);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 50px rgba(0, 255, 136, 0.6);
+        }
+
+        .cta-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .cta-btn.secondary {
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .cta-btn.secondary:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .btn-icon {
+            font-size: 1.3em;
+        }
+
+        .cta-note {
+            margin-top: 30px;
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .section-title {
+                font-size: 2.5em;
+            }
+
+            .section-subtitle {
+                font-size: 1.1em;
+            }
+
+            .approach-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-box {
+                padding: 50px 30px;
+            }
+
+            .cta-title {
+                font-size: 2.2em;
+            }
+
+            .cta-text {
+                font-size: 1.1em;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .cta-btn {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 2em;
+            }
+
+            .step-card {
+                padding: 35px 25px;
+            }
+
+            .cta-title {
+                font-size: 1.8em;
+            }
+
+            .cta-features {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+  
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* ========== HEADER ========== */
+.header {
+    padding: 30px;
+    text-align: center;
+
+}
+
+.main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 50px;
+    color: #00ff88;
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+}
+
+.main-subtitle {
+    font-size: 1.3em;
+    color: #d1d5db;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+          <a href="index.html"><img src="uyehtech logo.png" width="50px" height="50px"></a>
+        <div class="container">
+            <h1 class="main-title">UYEH TECH</h1>
+        </div>
+    </header>
+
+
+    <!-- Approach Section -->
+    <section class="approach-section">
+        <div class="container">
+            <h2 class="section-title"><u>My Approach</u></h2>
+            <p class="section-subtitle">How I Turn Your Vision Into Reality</p>
+            
+            <p class="approach-intro">
+                I follow a proven, systematic approach to ensure every project is delivered on time, 
+                within budget, and exceeds your expectations. Here's how I work with you from start to finish.
+            </p>
+
+            <div class="approach-steps">
+                <div class="process-flow"></div>
+                
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <span class="step-icon">🎯</span>
+                    <h3 class="step-title">Discovery</h3>
+                    <p class="step-description">
+                        We discuss your goals, target audience, and project requirements. I listen 
+                        carefully to understand your vision and business objectives.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <span class="step-icon">📋</span>
+                    <h3 class="step-title">Planning</h3>
+                    <p class="step-description">
+                        I create a detailed roadmap with milestones, timelines, and deliverables. 
+                        You'll know exactly what to expect at every stage.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <span class="step-icon">🎨</span>
+                    <h3 class="step-title">Design</h3>
+                    <p class="step-description">
+                        I craft wireframes and visual designs that align with your brand. You'll 
+                        see and approve the design before any coding begins.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <span class="step-icon">💻</span>
+                    <h3 class="step-title">Development</h3>
+                    <p class="step-description">
+                        I build your project using clean, efficient code and best practices. 
+                        Regular updates keep you informed of progress.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <span class="step-icon">🔍</span>
+                    <h3 class="step-title">Testing</h3>
+                    <p class="step-description">
+                        Rigorous testing across devices and browsers ensures everything works 
+                        perfectly. Bugs are fixed before launch.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">6</div>
+                    <span class="step-icon">🚀</span>
+                    <h3 class="step-title">Launch</h3>
+                    <p class="step-description">
+                        Your project goes live! I handle deployment and provide training on how 
+                        to manage your new platform.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">7</div>
+                    <span class="step-icon">🛠️</span>
+                    <h3 class="step-title">Support</h3>
+                    <p class="step-description">
+                        Ongoing maintenance, updates, and support ensure your project continues 
+                        to perform at its best long after launch.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box">
+                <div class="cta-content">
+                    <h2 class="cta-title">Ready to Start Your Project?</h2>
+                    <p class="cta-text">
+                        Let's turn your ideas into reality. Get in touch today for a free consultation 
+                        and let's discuss how I can help bring your vision to life.
+                    </p>
+
+                    <div class="cta-features">
+                        <div class="cta-feature">
+                            <span class="cta-feature-icon">✓</span>
+                            <span>Free Consultation</span>
+                        </div>
+                        <div class="cta-feature">
+                            <span class="cta-feature-icon">✓</span>
+                            <span>Fast Response</span>
+                        </div>
+                        <div class="cta-feature">
+                            <span class="cta-feature-icon">✓</span>
+                            <span>Quality Guaranteed</span>
+                        </div>
+                    </div>
+
+                    <div class="cta-buttons">
+                        <a href="contact.html" class="cta-btn">
+                            <span class="btn-icon">📧</span>
+                            Get In Touch
+                        </a>
+                        <a href="https://wa.me/2349055658460?text=Hi%20UYEH%20TECH,%20I'd%20like%20to%20discuss%20a%20project" target="_blank" class="cta-btn secondary">
+                            <span class="btn-icon">💬</span>
+                            Chat on WhatsApp
+                        </a>
+                    </div>
+
+                    <p class="cta-note">
+                        I typically respond within 24 hours • Available Mon-Fri, 9AM-6PM WAT
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

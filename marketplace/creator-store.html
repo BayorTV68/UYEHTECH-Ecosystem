@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Store — UYEH TECH</title>
+  <meta name="description" content="Browse this creator's digital products on UYEH TECH Marketplace." />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       DESIGN SYSTEM — MATCHES UYEH TECH GLOBAL THEME
+       ══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary:      #00ff88;
+      --primary-dark: #00b359;
+      --dark:         #0a0a0a;
+      --dark-light:   #1a1a1a;
+      --dark-mid:     #141414;
+      --gray:         #9ca3af;
+      --gray-light:   #d1d5db;
+      --error:        #ff4444;
+      --success:      #00ff88;
+      --warning:      #ffa500;
+      --purple:       #7b61ff;
+      --card-bg:      #111111;
+      --border:       rgba(0,255,136,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--dark);
+      color: #fff;
+      line-height: 1.6;
+      padding-top: 75px;
+      min-height: 100vh;
+    }
+
+    /* ══ SCROLLBAR ══ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 3px; }
+
+    /* ══════════════════════════════════════════════════
+       NAVIGATION
+       ══════════════════════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(10,10,10,0.98);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 15px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 1000;
+      box-shadow: 0 5px 30px rgba(0,255,136,0.08);
+      animation: slideInNav 0.5s ease-out;
+    }
+
+    @keyframes slideInNav {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);      opacity: 1; }
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; transition: transform 0.3s; }
+    .logo:hover { transform: scale(1.05); }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: bold; color: #fff;
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: var(--primary);
+      text-shadow: 0 0 20px rgba(0,255,136,0.4);
+    }
+
+    .nav-links { display: flex; list-style: none; gap: 4px; align-items: center; }
+    .nav-link {
+      display: block; padding: 10px 18px;
+      color: var(--gray-light); text-decoration: none;
+      font-weight: 500; font-size: 0.9em;
+      border-radius: 8px; transition: all 0.3s;
+    }
+    .nav-link:hover { color: var(--primary); background: rgba(0,255,136,0.08); }
+
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+
+    .btn-login {
+      padding: 10px 22px; border-radius: 10px; font-weight: 600;
+      text-decoration: none; transition: all 0.3s;
+      background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3);
+      color: var(--primary); font-family: 'Montserrat', sans-serif;
+    }
+    .btn-login:hover { background: rgba(0,255,136,0.2); transform: translateY(-2px); }
+
+    .btn-signup {
+      padding: 10px 22px; border-radius: 10px; font-weight: 600;
+      text-decoration: none; transition: all 0.3s;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #0a0a0a; border: none; font-family: 'Montserrat', sans-serif;
+    }
+    .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,255,136,0.35); }
+
+    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
+    .menu-toggle span { width: 26px; height: 2.5px; background: var(--primary); border-radius: 3px; transition: all 0.3s; }
+
+    @media (max-width: 968px) {
+      nav { padding: 15px 20px; }
+      body { padding-top: 68px; }
+      .nav-links {
+        position: fixed; top: 68px; left: -100%;
+        flex-direction: column;
+        background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
+        width: 100%; height: calc(100vh - 68px);
+        padding: 30px 25px; gap: 0;
+        transition: left 0.3s ease;
+        border-top: 1px solid var(--border);
+        overflow-y: auto;
+      }
+      .nav-links.active { left: 0; }
+      .nav-links li { width: 100%; border-bottom: 1px solid rgba(0,255,136,0.08); }
+      .nav-link { width: 100%; padding: 16px 0; font-size: 1rem; }
+      .menu-toggle { display: flex; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       LOADING & ERROR STATES
+       ══════════════════════════════════════════════════ */
+    /* ══ SPLASH LOADER ══ */
+    #pageLoader {
+      position: fixed; inset: 0;
+      background: var(--dark);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    #pageLoader.hidden {
+      opacity: 0; transform: scale(1.04); pointer-events: none;
+    }
+
+    /* Neon pulsing orb */
+    .loader-orb {
+      position: relative;
+      width: 80px; height: 80px;
+      margin-bottom: 28px;
+    }
+    .loader-orb::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 38%, #00ff88, #00b359 55%, #003d1f);
+      box-shadow:
+        0 0 0   6px rgba(0,255,136,0.12),
+        0 0 0  16px rgba(0,255,136,0.07),
+        0 0 0  32px rgba(0,255,136,0.04);
+      animation: orb-pulse 1.6s ease-in-out infinite;
+    }
+    /* Orbit ring */
+    .loader-orb::after {
+      content: '';
+      position: absolute;
+      top: -10px; left: -10px; right: -10px; bottom: -10px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--primary);
+      border-right-color: rgba(0,255,136,0.3);
+      animation: orbit 0.9s linear infinite;
+    }
+    /* Inner logo letter */
+    .loader-letter {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 16px rgba(0,255,136,0.8);
+      z-index: 1;
+    }
+
+    /* Progress bar */
+    .loader-bar-wrap {
+      width: 160px; height: 2px;
+      background: rgba(0,255,136,0.1);
+      border-radius: 2px; overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .loader-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+      border-radius: 2px;
+      width: 0%;
+      animation: bar-fill 2.8s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    .loader-text {
+      color: var(--gray); font-size: 0.78rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      animation: text-fade 0.6s ease 0.3s both;
+    }
+    .loader-timeout-msg {
+      color: var(--error); font-size: 0.78rem;
+      letter-spacing: 1px; margin-top: 10px;
+      display: none; text-align: center; max-width: 220px; line-height: 1.6;
+    }
+
+    @keyframes orb-pulse {
+      0%,100% { box-shadow: 0 0 0 6px rgba(0,255,136,0.12), 0 0 0 16px rgba(0,255,136,0.07), 0 0 0 32px rgba(0,255,136,0.04); }
+      50%      { box-shadow: 0 0 0 10px rgba(0,255,136,0.18), 0 0 0 24px rgba(0,255,136,0.10), 0 0 0 44px rgba(0,255,136,0.05); }
+    }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    @keyframes bar-fill { to { width: 92%; } }
+    @keyframes text-fade { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform:none; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #errorState {
+      display: none;
+      min-height: 60vh; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; text-align: center; padding: 40px;
+    }
+    #errorState.visible { display: flex; }
+    .error-icon { font-size: 4rem; }
+    .error-title { font-size: 1.6rem; font-weight: 700; color: var(--error); }
+    .error-msg { color: var(--gray); max-width: 400px; }
+    .btn-back {
+      padding: 12px 28px; border-radius: 12px;
+      background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3);
+      color: var(--primary); text-decoration: none; font-weight: 600;
+      transition: all 0.3s; margin-top: 8px;
+    }
+    .btn-back:hover { background: rgba(0,255,136,0.2); transform: translateY(-2px); }
+
+    /* ══════════════════════════════════════════════════
+       STORE HEADER / BANNER
+       ══════════════════════════════════════════════════ */
+    #storeContent { display: none; }
+    #storeContent.visible { display: block; animation: fadeUp 0.6s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .store-banner {
+      position: relative; width: 100%;
+      height: 260px; overflow: hidden;
+      background: linear-gradient(135deg, #0d1f15 0%, #0a1a10 50%, #051009 100%);
+    }
+
+    .store-banner-img {
+      width: 100%; height: 100%; object-fit: cover; opacity: 0.55;
+    }
+
+    .store-banner-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 30%, rgba(10,10,10,0.95) 100%);
+    }
+
+    /* Animated grid lines on banner */
+    .store-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,136,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ══ PROFILE BLOCK ══ */
+    .store-profile {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 30px;
+      position: relative;
+      margin-top: -80px; z-index: 2;
+    }
+
+    .profile-row {
+      display: flex; align-items: flex-end; gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .store-logo-wrap {
+      flex-shrink: 0;
+      width: 120px; height: 120px;
+      border-radius: 20px; overflow: hidden;
+      border: 3px solid var(--primary);
+      box-shadow: 0 0 30px rgba(0,255,136,0.3);
+      background: var(--dark-light);
+    }
+
+    .store-logo-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    .store-logo-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+      background: linear-gradient(135deg, #0d2a1a, #1a3d2a);
+    }
+
+    .store-info { flex: 1; min-width: 200px; padding-bottom: 6px; }
+
+    .store-name-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .store-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700;
+      color: #fff; line-height: 1.2;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
+    }
+    .badge-verified { background: rgba(0,255,136,0.15); color: var(--primary); border: 1px solid rgba(0,255,136,0.3); }
+    .badge-featured { background: rgba(255,165,0,0.15); color: var(--warning); border: 1px solid rgba(255,165,0,0.3); }
+
+    .store-meta {
+      display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--gray); font-size: 0.85rem;
+    }
+    .meta-item i { color: var(--primary); font-size: 0.8rem; }
+    .meta-item strong { color: #fff; }
+
+    .store-desc {
+      margin-top: 12px; color: var(--gray); font-size: 0.9rem;
+      max-width: 600px; line-height: 1.7;
+    }
+
+    .store-actions {
+      display: flex; align-items: flex-end; gap: 12px;
+      padding-bottom: 6px; flex-shrink: 0;
+    }
+
+    .btn-follow {
+      padding: 12px 28px; border-radius: 12px; cursor: pointer;
+      font-weight: 600; font-size: 0.9rem; transition: all 0.3s;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #0a0a0a; border: none; font-family: 'Montserrat', sans-serif;
+    }
+    .btn-follow:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,255,136,0.4); }
+    .btn-follow.following {
+      background: rgba(0,255,136,0.1); color: var(--primary);
+      border: 1px solid rgba(0,255,136,0.3);
+    }
+
+    .btn-share {
+      padding: 12px 18px; border-radius: 12px; cursor: pointer;
+      font-weight: 600; font-size: 0.9rem; transition: all 0.3s;
+      background: rgba(255,255,255,0.05); color: var(--gray-light);
+      border: 1px solid rgba(255,255,255,0.1); font-family: 'Montserrat', sans-serif;
+    }
+    .btn-share:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+    /* Social links */
+    .social-links { display: flex; gap: 8px; margin-top: 14px; }
+    .social-link {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      color: var(--gray); text-decoration: none; font-size: 0.85rem;
+      transition: all 0.3s;
+    }
+    .social-link:hover { background: rgba(0,255,136,0.1); color: var(--primary); border-color: rgba(0,255,136,0.3); transform: translateY(-2px); }
+
+    /* ══════════════════════════════════════════════════
+       STATS BAR
+       ══════════════════════════════════════════════════ */
+    .stats-bar {
+      max-width: 1200px; margin: 28px auto 0;
+      padding: 0 30px;
+    }
+
+    .stats-inner {
+      display: flex; gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+
+    .stat-box {
+      flex: 1; padding: 18px 20px; text-align: center;
+      background: var(--dark-light);
+      transition: background 0.3s;
+    }
+    .stat-box:hover { background: #1f1f1f; }
+    .stat-number { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 0.75rem; color: var(--gray); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ══════════════════════════════════════════════════
+       PRODUCTS SECTION
+       ══════════════════════════════════════════════════ */
+    .products-section {
+      max-width: 1200px; margin: 40px auto 60px;
+      padding: 0 30px;
+    }
+
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; color: #fff;
+    }
+    .section-title span { color: var(--primary); }
+
+    /* Filters */
+    .filters-row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 18px; border-radius: 20px; cursor: pointer;
+      font-size: 0.82rem; font-weight: 600; transition: all 0.3s;
+      background: rgba(255,255,255,0.05); color: var(--gray);
+      border: 1px solid rgba(255,255,255,0.08); font-family: 'Montserrat', sans-serif;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: rgba(0,255,136,0.1); color: var(--primary);
+      border-color: rgba(0,255,136,0.35);
+    }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--dark-light); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0 14px; width: 240px;
+      transition: border-color 0.3s;
+    }
+    .search-bar:focus-within { border-color: rgba(0,255,136,0.5); }
+    .search-bar i { color: var(--gray); font-size: 0.85rem; }
+    .search-bar input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #fff; font-family: 'Montserrat', sans-serif;
+      font-size: 0.88rem; padding: 10px 0;
+    }
+    .search-bar input::placeholder { color: var(--gray); }
+
+    /* ── Grid ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Product Card ── */
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; overflow: hidden;
+      cursor: pointer; transition: all 0.3s;
+      position: relative;
+    }
+    .product-card:hover {
+      border-color: rgba(0,255,136,0.3);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,255,136,0.1);
+    }
+
+    .product-image {
+      position: relative; width: 100%; height: 200px; overflow: hidden;
+      background: linear-gradient(135deg, #0d1f15, #1a3d2a);
+    }
+    .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .product-card:hover .product-image img { transform: scale(1.05); }
+    .product-image-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+    }
+
+    .product-badge {
+      position: absolute; top: 12px; right: 12px;
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-hot { background: linear-gradient(135deg, #ff4444, #ff6666); color: #fff; }
+    .badge-new { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #0a0a0a; }
+    .badge-featured-prod { background: linear-gradient(135deg, #b8860b, var(--warning)); color: #fff; }
+
+    .product-body { padding: 18px; }
+    .product-category {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 8px;
+    }
+    .product-title {
+      font-size: 1rem; font-weight: 700; color: #fff;
+      line-height: 1.4; margin-bottom: 8px;
+    }
+    .product-desc {
+      font-size: 0.82rem; color: var(--gray); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .product-footer {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .product-price {
+      display: flex; align-items: baseline; gap: 7px;
+    }
+    .price-main { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+    .price-old { font-size: 0.85rem; color: var(--gray); text-decoration: line-through; }
+    .price-free { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+
+    .btn-add {
+      padding: 8px 18px; border-radius: 8px; cursor: pointer;
+      font-size: 0.82rem; font-weight: 600; transition: all 0.3s;
+      background: rgba(0,255,136,0.1); color: var(--primary);
+      border: 1px solid rgba(0,255,136,0.3); font-family: 'Montserrat', sans-serif;
+    }
+    .btn-add:hover {
+      background: var(--primary); color: #0a0a0a;
+      box-shadow: 0 4px 15px rgba(0,255,136,0.35);
+    }
+
+    /* ── Empty state ── */
+    .empty-products {
+      grid-column: 1/-1; text-align: center;
+      padding: 60px 20px; color: var(--gray);
+    }
+    .empty-products i { font-size: 3.5rem; color: rgba(0,255,136,0.2); margin-bottom: 16px; }
+    .empty-products p { font-size: 1rem; }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: var(--dark-light);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; overflow: hidden;
+    }
+    .skeleton-img { height: 200px; background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    .skeleton-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+    .skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    .skeleton-line.short { width: 50%; }
+    .skeleton-line.medium { width: 75%; }
+
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ══════════════════════════════════════════════════
+       PRODUCT MODAL
+       ══════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 5000;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: #111; border: 1px solid rgba(0,255,136,0.2);
+      border-radius: 20px; max-width: 700px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      transform: translateY(20px); transition: transform 0.3s;
+      box-shadow: 0 30px 80px rgba(0,255,136,0.15);
+    }
+    .modal-overlay.active .modal { transform: translateY(0); }
+
+    .modal-image {
+      width: 100%; height: 280px; object-fit: cover;
+      background: linear-gradient(135deg, #0d1f15, #1a3d2a);
+    }
+    .modal-image-placeholder {
+      width: 100%; height: 280px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0d1f15, #1a3d2a); font-size: 5rem;
+    }
+
+    .modal-body { padding: 28px; }
+    .modal-category { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--primary); margin-bottom: 10px; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #fff; margin-bottom: 14px; }
+    .modal-desc { color: var(--gray); font-size: 0.92rem; line-height: 1.8; margin-bottom: 20px; }
+
+    .modal-features { margin-bottom: 22px; }
+    .modal-features h4 { font-size: 0.85rem; color: var(--gray-light); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .features-list { display: flex; flex-direction: column; gap: 7px; }
+    .feature-item { display: flex; align-items: center; gap: 10px; color: var(--gray); font-size: 0.88rem; }
+    .feature-item i { color: var(--primary); font-size: 0.75rem; width: 14px; }
+
+    .modal-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .modal-price { display: flex; align-items: baseline; gap: 10px; }
+    .modal-price-main { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+    .modal-price-old { font-size: 1rem; color: var(--gray); text-decoration: line-through; }
+    .modal-price-free { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+
+    .modal-actions { display: flex; gap: 12px; }
+    .btn-primary-modal {
+      padding: 13px 30px; border-radius: 12px; cursor: pointer;
+      font-weight: 700; font-size: 0.95rem;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #0a0a0a; border: none; font-family: 'Montserrat', sans-serif;
+      transition: all 0.3s;
+    }
+    .btn-primary-modal:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,255,136,0.4); }
+
+    .btn-close-modal {
+      padding: 13px 18px; border-radius: 12px; cursor: pointer;
+      font-weight: 600; font-size: 0.95rem;
+      background: rgba(255,255,255,0.05); color: var(--gray);
+      border: 1px solid rgba(255,255,255,0.1); font-family: 'Montserrat', sans-serif;
+      transition: all 0.3s;
+    }
+    .btn-close-modal:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ══════════════════════════════════════════════════
+       NOTIFICATION TOAST
+       ══════════════════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; z-index: 9000;
+      background: #1a1a1a; border: 1px solid rgba(0,255,136,0.3);
+      border-radius: 12px; padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      transform: translateY(20px); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-width: 340px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-msg { font-size: 0.88rem; color: var(--gray-light); }
+
+    /* ══════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════ */
+    footer {
+      background: var(--dark-light); border-top: 1px solid var(--border);
+      padding: 24px 30px; text-align: center;
+      color: var(--gray); font-size: 0.82rem;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE PRODUCT GRID
+       ══════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+      .store-profile { padding: 0 16px; margin-top: -60px; }
+      .store-name { font-size: 1.4rem; }
+      .store-logo-wrap { width: 90px; height: 90px; }
+      .profile-row { gap: 14px; }
+      .store-actions { width: 100%; }
+      .stats-inner { flex-wrap: wrap; }
+      .stat-box { min-width: 50%; }
+      .products-section { padding: 0 16px; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .search-bar { width: 100%; }
+      .store-banner { height: 180px; }
+    }
+
+    @media (max-width: 480px) {
+      .products-grid { grid-template-columns: 1fr; }
+      .modal-footer { flex-direction: column; align-items: flex-start; }
+      .modal-actions { width: 100%; }
+      .btn-primary-modal, .btn-close-modal { flex: 1; text-align: center; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       AFFILIATE LINK PANEL (inside product modal)
+       ══════════════════════════════════════════════════ */
+    .aff-divider {
+      height: 1px; background: rgba(255,255,255,0.07);
+      margin: 20px 0;
+    }
+
+    .aff-section { margin-bottom: 4px; }
+
+    .aff-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--primary);
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 10px;
+    }
+    .aff-label i { font-size: 0.8rem; }
+
+    .aff-commission-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px;
+      background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.25);
+      font-size: 0.75rem; font-weight: 700; color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .aff-link-box {
+      display: flex; align-items: center; gap: 0;
+      background: #0d0d0d;
+      border: 1px solid rgba(0,255,136,0.2);
+      border-radius: 10px; overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .aff-link-box:focus-within,
+    .aff-link-box:hover { border-color: rgba(0,255,136,0.5); }
+
+    .aff-link-input {
+      flex: 1; background: none; border: none; outline: none;
+      color: var(--gray-light); font-family: 'Montserrat', monospace;
+      font-size: 0.78rem; padding: 11px 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      cursor: text;
+    }
+
+    .aff-copy-btn {
+      flex-shrink: 0;
+      padding: 11px 16px; cursor: pointer;
+      background: rgba(0,255,136,0.08);
+      border: none; border-left: 1px solid rgba(0,255,136,0.15);
+      color: var(--primary); font-size: 0.82rem; font-weight: 600;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.25s; display: flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .aff-copy-btn:hover { background: rgba(0,255,136,0.18); }
+    .aff-copy-btn.copied {
+      background: rgba(0,255,136,0.25); color: #fff;
+    }
+
+    .aff-hint {
+      font-size: 0.74rem; color: var(--gray);
+      margin-top: 8px; line-height: 1.6;
+    }
+    .aff-hint strong { color: var(--primary); }
+
+    /* Share row */
+    .aff-share-row {
+      display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+    }
+    .aff-share-btn {
+      padding: 7px 14px; border-radius: 8px; cursor: pointer;
+      font-size: 0.78rem; font-weight: 600; transition: all 0.25s;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); color: var(--gray-light);
+      font-family: 'Montserrat', sans-serif;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .aff-share-btn:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-1px); }
+    .aff-share-btn.whatsapp:hover { background: rgba(37,211,102,0.15); color: #25d366; border-color: rgba(37,211,102,0.3); }
+    .aff-share-btn.twitter:hover  { background: rgba(29,161,242,0.12); color: #1da1f2; border-color: rgba(29,161,242,0.3); }
+    .aff-share-btn.telegram:hover { background: rgba(0,136,204,0.12); color: #0088cc; border-color: rgba(0,136,204,0.3); }
+
+    /* Earning preview */
+    .aff-earn-preview {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.12);
+      border-radius: 8px; padding: 10px 14px; margin-top: 12px;
+    }
+    .aff-earn-label { font-size: 0.78rem; color: var(--gray); }
+    .aff-earn-amount { font-size: 1rem; font-weight: 700; color: var(--primary); }
+
+
+    /* ══ CART NAV BUTTON ══ */
+    .nav-cart-btn {
+      position: relative; display: flex; align-items: center;
+      gap: 8px; padding: 9px 18px;
+      background: rgba(0,255,136,0.1);
+      border: 1px solid rgba(0,255,136,0.3);
+      border-radius: 25px; cursor: pointer;
+      color: var(--primary); font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      text-decoration: none; transition: all 0.25s;
+    }
+    .nav-cart-btn:hover {
+      background: rgba(0,255,136,0.2);
+      box-shadow: 0 0 16px rgba(0,255,136,0.25);
+      transform: translateY(-1px);
+    }
+    .cart-badge {
+      position: absolute; top: -7px; right: -7px;
+      background: var(--primary); color: #000;
+      font-size: 0.65rem; font-weight: 900;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0);
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .cart-badge.visible { opacity: 1; transform: scale(1); }
+
+    /* ══ CART TOAST (bottom-right checkout nudge) ══ */
+    .cart-nudge {
+      position: fixed; bottom: 28px; right: 24px; z-index: 9999;
+      background: #111; border: 1px solid rgba(0,255,136,0.35);
+      border-radius: 16px; padding: 14px 18px;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transform: translateY(120px); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      max-width: 320px;
+    }
+    .cart-nudge.show { transform: translateY(0); opacity: 1; }
+    .cart-nudge-text { flex: 1; }
+    .cart-nudge-title {
+      font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 2px;
+    }
+    .cart-nudge-sub { font-size: 0.75rem; color: var(--gray); }
+    .cart-nudge-btn {
+      padding: 8px 16px; border-radius: 20px; cursor: pointer;
+      background: var(--primary); color: #000;
+      border: none; font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem; font-weight: 800;
+      white-space: nowrap; transition: all 0.2s;
+    }
+    .cart-nudge-btn:hover { background: #00e07a; transform: scale(1.05); }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── PAGE LOADER ── -->
+  <div id="pageLoader">
+    <div class="loader-orb"><span class="loader-letter">U</span></div>
+    <div class="loader-bar-wrap"><div class="loader-bar" id="loaderBar"></div></div>
+    <p class="loader-text">Loading store…</p>
+    <p class="loader-timeout-msg" id="loaderTimeoutMsg">Taking longer than usual…<br>Check your connection or try again.</p>
+  </div>
+
+  <!-- ══════════════════════ NAVIGATION ══════════════════════ -->
+  <nav>
+    <a href="/" class="logo">
+      <div class="logo-icon">U</div>
+      <span class="logo-text">UYEH TECH</span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/about.html"     class="nav-link">About</a></li>
+      <li><a href="/services.html"  class="nav-link">Service</a></li>
+      <li><a href="/projects.html"  class="nav-link">Projects</a></li>
+      <li><a href="/store/index.html" class="nav-link">Store</a></li>
+      <li><a href="/blog/index.html"  class="nav-link">Blogs</a></li>
+      <li><a href="/contact.html"   class="nav-link">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <!-- Cart button — always visible -->
+      <a href="/store/checkout.html" class="nav-cart-btn" id="navCartBtn" title="Go to cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="navCartLabel">Cart</span>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </a>
+
+      <div id="guestButtons" style="display:flex;gap:10px;">
+        <a href="/store/login.html"  class="btn-login">Login</a>
+        <a href="/store/signup.html" class="btn-signup">Sign Up</a>
+      </div>
+      <div id="userDropdown" style="display:none;">
+        <span id="navUserName" style="color:var(--primary);font-weight:600;font-size:0.9rem;"></span>
+      </div>
+    </div>
+
+    <div class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════ ERROR STATE ══════════════════════ -->
+  <div id="errorState">
+    <div class="error-icon">🏪</div>
+    <div class="error-title" id="errorTitle">Store Not Found</div>
+    <p class="error-msg" id="errorMsg">This store doesn't exist or hasn't been approved yet.</p>
+    <a href="/store/index.html" class="btn-back">← Browse All Products</a>
+  </div>
+
+  <!-- ══════════════════════ STORE CONTENT ══════════════════════ -->
+  <div id="storeContent">
+
+    <!-- Banner -->
+    <div class="store-banner" id="storeBanner">
+      <img class="store-banner-img" id="bannerImg" src="" alt="" style="display:none;" />
+      <div class="store-banner-overlay"></div>
+    </div>
+
+    <!-- Profile -->
+    <div class="store-profile">
+      <div class="profile-row">
+        <!-- Logo -->
+        <div class="store-logo-wrap">
+          <img id="storeLogo" src="" alt="" style="display:none;" />
+          <div class="store-logo-placeholder" id="storeLogoPlaceholder">🏪</div>
+        </div>
+
+        <!-- Info -->
+        <div class="store-info">
+          <div class="store-name-row">
+            <h1 class="store-name" id="storeName">Loading…</h1>
+            <span class="badge badge-verified" id="verifiedBadge" style="display:none;">✅ Verified</span>
+            <span class="badge badge-featured" id="featuredBadge" style="display:none;">⭐ Featured</span>
+          </div>
+
+          <div class="store-meta" id="storeMeta"></div>
+          <p class="store-desc" id="storeDesc"></p>
+          <div class="social-links" id="socialLinks"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="store-actions">
+          <button class="btn-follow" id="followBtn" onclick="handleFollow()">
+            <i class="fas fa-plus"></i> Follow
+          </button>
+          <button class="btn-share" onclick="handleShare()">
+            <i class="fas fa-share-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stats-inner">
+        <div class="stat-box">
+          <div class="stat-number" id="statProducts">—</div>
+          <div class="stat-label">Products</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="statSales">—</div>
+          <div class="stat-label">Sales</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="statFollowers">—</div>
+          <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="statRating">—</div>
+          <div class="stat-label">Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products -->
+    <section class="products-section">
+      <div class="section-header">
+        <h2 class="section-title">Products <span id="productCount"></span></h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search products…" oninput="filterProducts()" />
+          </div>
+          <div class="filters-row" id="filtersRow">
+            <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="products-grid" id="productsGrid">
+        <!-- skeleton cards -->
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══════════════════════ PRODUCT MODAL ══════════════════════ -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="productModal">
+      <div id="modalImageWrap"></div>
+      <div class="modal-body">
+        <div class="modal-category" id="modalCategory"></div>
+        <h2 class="modal-title"    id="modalTitle"></h2>
+        <p  class="modal-desc"     id="modalDesc"></p>
+        <div class="modal-features" id="modalFeatures" style="display:none;">
+          <h4>What's Included</h4>
+          <div class="features-list" id="featuresList"></div>
+        </div>
+        <!-- ── AFFILIATE LINK SECTION ── -->
+        <div class="aff-divider"></div>
+        <div class="aff-section" id="affSection">
+          <div class="aff-label"><i class="fas fa-link"></i> Your Affiliate Link</div>
+          <div class="aff-commission-badge" id="affCommissionBadge">
+            <i class="fas fa-percent"></i> <span id="affCommissionPct">10</span>% commission per sale
+          </div>
+          <div class="aff-link-box" id="affLinkBox">
+            <input class="aff-link-input" id="affLinkInput" readonly value="Loading…" onclick="this.select()" />
+            <button class="aff-copy-btn" id="affCopyBtn" onclick="copyAffLink()">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+          <div class="aff-earn-preview" id="affEarnPreview">
+            <span class="aff-earn-label">You earn per sale</span>
+            <span class="aff-earn-amount" id="affEarnAmount">—</span>
+          </div>
+          <div class="aff-share-row" id="affShareRow">
+            <button class="aff-share-btn whatsapp" onclick="shareAff('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+            <button class="aff-share-btn twitter"  onclick="shareAff('twitter')"><i class="fab fa-twitter"></i> Twitter</button>
+            <button class="aff-share-btn telegram" onclick="shareAff('telegram')"><i class="fab fa-telegram-plane"></i> Telegram</button>
+            <button class="aff-share-btn"          onclick="shareAff('native')"><i class="fas fa-share-alt"></i> Share</button>
+          </div>
+          <!-- Join prompt (shown when user is not a registered affiliate) -->
+          <div id="affJoinPrompt" style="display:none; margin-top:10px; padding:12px 14px;
+               background:rgba(123,97,255,0.08); border:1px solid rgba(123,97,255,0.25);
+               border-radius:10px; font-size:0.8rem; color:#9ca3af; line-height:1.7;">
+            🔗 <strong style="color:#7b61ff;">Want to earn commissions?</strong><br>
+            Join the affiliate program to get your unique link for this product.<br>
+            <a href="/store/affiliate.html" style="color:#00ff88; font-weight:700; text-decoration:none;">
+              → Join Affiliate Program
+            </a>
+          </div>
+
+          <p class="aff-hint" id="affHintText">Share your link. When someone buys through it, <strong>you earn your commission automatically</strong>.</p>
+        </div>
+
+        <div class="modal-footer">
+          <div class="modal-price" id="modalPrice"></div>
+          <div class="modal-actions">
+            <button class="btn-close-modal" onclick="closeProductModal()">Close</button>
+            <button class="btn-primary-modal" id="modalAddBtn" onclick="addToCartFromModal()">
+              <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TOAST ══════════════════════ -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon">✅</span>
+    <span class="toast-msg"  id="toastMsg">Done!</span>
+  </div>
+
+  <!-- ══════════════════════ CART NUDGE ══════════════════════ -->
+  <div class="cart-nudge" id="cartNudge">
+    <div class="cart-nudge-text">
+      <div class="cart-nudge-title">🛒 Item added to cart</div>
+      <div class="cart-nudge-sub" id="nudgeCount">1 item · ready to checkout</div>
+    </div>
+    <button class="cart-nudge-btn" onclick="window.location.href='/store/checkout.html'">
+      Checkout →
+    </button>
+  </div>
+
+  <!-- ══════════════════════ FOOTER ══════════════════════ -->
+  <footer>
+    <p>© 2025 <a href="/">UYEH TECH</a> · <a href="/store/index.html">Marketplace</a> · <a href="/contact.html">Contact</a></p>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════════
+       JAVASCRIPT
+       ════════════════════════════════════════════════════════ -->
+  <script>
+    /* ── CONFIG ── */
+    const API_URL = 'https://uyehtechbackend.onrender.com';
+
+    /* ── STATE ── */
+    let allProducts   = [];
+    let filteredProds = [];
+    let activeFilter  = 'all';
+    let currentSlug   = '';
+    let creatorData   = null;
+    let isFollowing   = false;
+    let activeProductId = null;
+
+    /* ══════════════════════════════════════════════════
+       1. SLUG RESOLUTION
+       Read slug from ?slug=, ?store=, or the URL path itself
+       ══════════════════════════════════════════════════ */
+    function resolveSlug() {
+      const params = new URLSearchParams(window.location.search);
+      let slug = params.get('slug') || params.get('store') || '';
+
+      if (!slug) {
+        // Fallback: read from path  e.g. /techshop  or  /store/creator-store.html  (won't match)
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        // If the last segment is not a known static filename, treat it as a slug
+        const last = parts[parts.length - 1] || '';
+        if (last && !last.includes('.html') && !last.includes('.') ) {
+          slug = last;
+        }
+      }
+
+      return slug.trim().toLowerCase();
+    }
+
+    /* ══════════════════════════════════════════════════
+       2. BOOT
+       ══════════════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', async () => {
+      checkAuth();
+
+      currentSlug = resolveSlug();
+      if (!currentSlug) {
+        showError('No store specified', 'Please provide a valid store name in the URL.');
+        return;
+      }
+
+      await loadStore(currentSlug);
+    });
+
+    /* ══════════════════════════════════════════════════
+       3. AUTH (lightweight — just show/hide nav)
+       ══════════════════════════════════════════════════ */
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      const user  = JSON.parse(localStorage.getItem('user') || 'null');
+      if (token && user) {
+        document.getElementById('guestButtons').style.display  = 'none';
+        document.getElementById('userDropdown').style.display  = 'block';
+        document.getElementById('navUserName').textContent = user.fullName?.split(' ')[0] || user.name || 'Account';
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       4. LOAD STORE DATA
+       ══════════════════════════════════════════════════ */
+    async function loadStore(slug) {
+      // Hard timeout: show warning after 7s, kill loader after 14s
+      const timeoutWarning = setTimeout(() => {
+        const msg = document.getElementById('loaderTimeoutMsg');
+        if (msg) msg.style.display = 'block';
+      }, 7000);
+
+      const timeoutKill = setTimeout(() => {
+        showError('Request Timed Out', 'The server took too long to respond. Please refresh the page or try again later.');
+      }, 14000);
+
+      try {
+        const controller = new AbortController();
+        const res  = await fetch(`${API_URL}/api/stores/${encodeURIComponent(slug)}`, { signal: controller.signal });
+        const data = await res.json();
+        clearTimeout(timeoutWarning);
+        clearTimeout(timeoutKill);
+
+        if (!data.success || !data.creator) {
+          showError('Store Not Found', data.message || "This store doesn't exist or hasn't been approved yet.");
+          return;
+        }
+
+        creatorData = data.creator;
+        allProducts = data.products || [];
+        filteredProds = [...allProducts];
+
+        renderStoreHeader(creatorData);
+        renderStats(creatorData);
+        renderProducts(filteredProds);
+        buildCategoryFilters(allProducts);
+        checkFollowStatus();
+
+        document.title = `${creatorData.storeName} — UYEH TECH`;
+
+        // Hide loader, show content
+        hideLoader();
+        document.getElementById('storeContent').classList.add('visible');
+
+      } catch (err) {
+        console.error('Store load error:', err);
+        showError('Connection Error', 'Could not reach the server. Please try again shortly.');
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       5. RENDER STORE HEADER
+       ══════════════════════════════════════════════════ */
+    function renderStoreHeader(c) {
+      // Banner
+      if (c.storeBanner) {
+        const img = document.getElementById('bannerImg');
+        img.src = c.storeBanner; img.style.display = 'block';
+      }
+
+      // Logo
+      if (c.storeLogo) {
+        const logo = document.getElementById('storeLogo');
+        logo.src = c.storeLogo; logo.style.display = 'block';
+        document.getElementById('storeLogoPlaceholder').style.display = 'none';
+      }
+
+      // Name & badges
+      document.getElementById('storeName').textContent = c.storeName;
+      if (c.isVerified) document.getElementById('verifiedBadge').style.display = 'inline-flex';
+      if (c.isFeatured) document.getElementById('featuredBadge').style.display = 'inline-flex';
+
+      // Meta row
+      const metaItems = [];
+      if (c.country)       metaItems.push(`<div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${esc(c.country)}</div>`);
+      if (c.businessType)  metaItems.push(`<div class="meta-item"><i class="fas fa-briefcase"></i> ${capitalize(c.businessType)}</div>`);
+      if (c.approvedAt)    metaItems.push(`<div class="meta-item"><i class="fas fa-calendar"></i> Since ${new Date(c.approvedAt).getFullYear()}</div>`);
+      if (c.categories?.length) metaItems.push(`<div class="meta-item"><i class="fas fa-tag"></i> ${c.categories.slice(0,3).join(', ')}</div>`);
+      document.getElementById('storeMeta').innerHTML = metaItems.join('');
+
+      // Description
+      if (c.storeDescription) {
+        document.getElementById('storeDesc').textContent = c.storeDescription;
+      }
+
+      // Social links
+      const socials = c.socialLinks || {};
+      const socialMap = {
+        twitter:   { icon: 'fab fa-twitter',   url: u => `https://twitter.com/${u}`   },
+        instagram: { icon: 'fab fa-instagram',  url: u => `https://instagram.com/${u}` },
+        linkedin:  { icon: 'fab fa-linkedin-in',url: u => `https://linkedin.com/in/${u}`},
+        youtube:   { icon: 'fab fa-youtube',    url: u => `https://youtube.com/@${u}` },
+        website:   { icon: 'fas fa-globe',      url: u => u }
+      };
+      if (c.website) socials.website = c.website;
+
+      const socialHTML = Object.entries(socialMap)
+        .filter(([k]) => socials[k])
+        .map(([k, v]) => `<a href="${v.url(socials[k])}" target="_blank" rel="noopener" class="social-link"><i class="${v.icon}"></i></a>`)
+        .join('');
+      document.getElementById('socialLinks').innerHTML = socialHTML;
+    }
+
+    /* ══════════════════════════════════════════════════
+       6. STATS
+       ══════════════════════════════════════════════════ */
+    function renderStats(c) {
+      document.getElementById('statProducts').textContent  = (c.totalProducts || allProducts.length).toLocaleString();
+      document.getElementById('statSales').textContent     = (c.totalSales || 0).toLocaleString();
+      document.getElementById('statFollowers').textContent = (c.followerCount || 0).toLocaleString();
+      document.getElementById('statRating').textContent    = c.rating ? `${c.rating.toFixed(1)} ★` : 'New';
+    }
+
+    /* ══════════════════════════════════════════════════
+       7. CATEGORY FILTERS
+       ══════════════════════════════════════════════════ */
+    function buildCategoryFilters(products) {
+      const cats = [...new Set(products.map(p => p.category).filter(Boolean))];
+      const row  = document.getElementById('filtersRow');
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.textContent = cat;
+        btn.onclick = () => setFilter(cat, btn);
+        row.appendChild(btn);
+      });
+    }
+
+    function setFilter(cat, btn) {
+      activeFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    }
+
+    function filterProducts() { applyFilters(); }
+
+    function applyFilters() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      filteredProds = allProducts.filter(p => {
+        const matchCat = activeFilter === 'all' || p.category === activeFilter;
+        const matchQ   = !query ||
+          p.title?.toLowerCase().includes(query) ||
+          p.description?.toLowerCase().includes(query) ||
+          (p.tags || []).some(t => t.toLowerCase().includes(query));
+        return matchCat && matchQ;
+      });
+      renderProducts(filteredProds);
+    }
+
+    /* ══════════════════════════════════════════════════
+       8. RENDER PRODUCTS
+       ══════════════════════════════════════════════════ */
+    function renderProducts(products) {
+      const grid = document.getElementById('productsGrid');
+      const count = document.getElementById('productCount');
+
+      count.textContent = products.length ? `(${products.length})` : '';
+
+      if (!products.length) {
+        grid.innerHTML = `
+          <div class="empty-products">
+            <i class="fas fa-box-open"></i>
+            <p>No products found in this store yet.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = products.map(p => productCardHTML(p)).join('');
+
+      // Auto-open product if arriving via affiliate link
+      if (window._autoOpenProduct) {
+        const targetId = window._autoOpenProduct;
+        window._autoOpenProduct = null;
+        const exists = products.find(p => p._id === targetId);
+        if (exists) setTimeout(() => openProduct(targetId), 400);
+      }
+    }
+
+    function productCardHTML(p) {
+      const price = p.approvedPrice ?? p.price ?? 0;
+      const origPrice = p.price ?? 0;
+      const discount = origPrice && p.approvedPrice && p.approvedPrice < origPrice
+        ? Math.round(((origPrice - p.approvedPrice) / origPrice) * 100)
+        : 0;
+
+      const priceHTML = price === 0
+        ? `<span class="price-free">Free</span>`
+        : `<span class="price-main">$${price.toFixed(2)}</span>${discount > 0 ? `<span class="price-old">$${origPrice.toFixed(2)}</span>` : ''}`;
+
+      const daysAgo = p.approvedAt
+        ? Math.floor((Date.now() - new Date(p.approvedAt)) / 86400000)
+        : 999;
+      const badgeHTML = p.isFeatured
+        ? `<span class="product-badge badge-featured-prod">Featured</span>`
+        : discount > 0 ? `<span class="product-badge badge-hot">-${discount}%</span>`
+        : daysAgo < 7  ? `<span class="product-badge badge-new">New</span>` : '';
+
+      const imgHTML = p.image
+        ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy" />`
+        : `<div class="product-image-placeholder">${p.icon || '📦'}</div>`;
+
+      return `
+        <div class="product-card" onclick="openProduct('${p._id}')">
+          <div class="product-image">${imgHTML}${badgeHTML}</div>
+          <div class="product-body">
+            <div class="product-category">${esc(p.category || '')}</div>
+            <h3 class="product-title">${esc(p.title)}</h3>
+            <p class="product-desc">${esc(p.description || '')}</p>
+            <div class="product-footer">
+              <div class="product-price">${priceHTML}</div>
+              <button class="btn-add" onclick="event.stopPropagation(); addToCart('${p._id}')">
+                <i class="fas fa-cart-plus"></i> Add
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ══════════════════════════════════════════════════
+       9. PRODUCT MODAL
+       ══════════════════════════════════════════════════ */
+    function openProduct(id) {
+      const p = allProducts.find(x => x._id === id);
+      if (!p) return;
+      activeProductId = id;
+
+      const price = p.approvedPrice ?? p.price ?? 0;
+      const origPrice = p.price ?? 0;
+
+      // Image
+      const imgWrap = document.getElementById('modalImageWrap');
+      imgWrap.innerHTML = p.image
+        ? `<img class="modal-image" src="${esc(p.image)}" alt="${esc(p.title)}" />`
+        : `<div class="modal-image-placeholder">${p.icon || '📦'}</div>`;
+
+      document.getElementById('modalCategory').textContent = p.category || '';
+      document.getElementById('modalTitle').textContent    = p.title || '';
+      document.getElementById('modalDesc').textContent     = p.description || '';
+
+      // Features
+      const features = p.features || [];
+      const featWrap  = document.getElementById('modalFeatures');
+      const featList  = document.getElementById('featuresList');
+      if (features.length) {
+        featList.innerHTML = features.map(f =>
+          `<div class="feature-item"><i class="fas fa-check-circle"></i> ${esc(f)}</div>`).join('');
+        featWrap.style.display = 'block';
+      } else {
+        featWrap.style.display = 'none';
+      }
+
+      // Price
+      const priceDiv = document.getElementById('modalPrice');
+      if (price === 0) {
+        priceDiv.innerHTML = `<span class="modal-price-free">Free</span>`;
+      } else {
+        priceDiv.innerHTML = `<span class="modal-price-main">$${price.toFixed(2)}</span>
+          ${origPrice > price ? `<span class="modal-price-old">$${origPrice.toFixed(2)}</span>` : ''}`;
+      }
+
+      document.getElementById('modalAddBtn').textContent = price === 0 ? '🎁 Get Free' : '🛒 Add to Cart';
+
+      // Populate affiliate link section
+      populateAffSection(p);
+
+      document.getElementById('modalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProductModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+      activeProductId = null;
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'modalOverlay') closeProductModal();
+    }
+
+    function addToCartFromModal() {
+      if (activeProductId) addToCart(activeProductId);
+      closeProductModal();
+    }
+
+    /* ══════════════════════════════════════════════════
+       10. CART (uses same localStorage format as index.html)
+       ══════════════════════════════════════════════════ */
+    function addToCart(id) {
+      const p = allProducts.find(x => x._id === id);
+      if (!p) return;
+
+      // ✅ Use 'uyehtech_cart' — matches Checkout.html key
+      let cart = JSON.parse(localStorage.getItem('uyehtech_cart') || '[]');
+      const exists = cart.find(i => i._id === id);
+      if (exists) {
+        showToast('⚠️', `${p.title} is already in your cart`);
+        showCartNudge(cart.length, true);
+        return;
+      }
+
+      cart.push({
+        _id: p._id,
+        title: p.title,
+        price: p.approvedPrice ?? p.price ?? 0,
+        category: p.category || 'Digital Product',
+        image: p.image || '',
+        icon: p.icon || '📦'
+      });
+      localStorage.setItem('uyehtech_cart', JSON.stringify(cart));
+      updateCartBadge(cart.length);
+      showCartNudge(cart.length, false);
+    }
+
+    /* ── Update cart count badge in nav ── */
+    function updateCartBadge(count) {
+      const badge = document.getElementById('cartBadge');
+      const label = document.getElementById('navCartLabel');
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : count;
+        badge.classList.add('visible');
+        if (label) label.textContent = count === 1 ? '1 item' : count + ' items';
+      } else {
+        badge.classList.remove('visible');
+        if (label) label.textContent = 'Cart';
+      }
+    }
+
+    /* ── Show the bottom-right checkout nudge ── */
+    let nudgeTimer;
+    function showCartNudge(count, alreadyIn) {
+      const nudge = document.getElementById('cartNudge');
+      const sub   = document.getElementById('nudgeCount');
+      if (!nudge) return;
+      if (alreadyIn) {
+        sub.textContent = 'Already in cart — ready to checkout';
+      } else {
+        sub.textContent = count + (count === 1 ? ' item' : ' items') + ' · tap to checkout';
+      }
+      nudge.classList.add('show');
+      clearTimeout(nudgeTimer);
+      nudgeTimer = setTimeout(() => nudge.classList.remove('show'), 4000);
+    }
+
+    /* ── Read cart count on page load ── */
+    (function initCartBadge() {
+      try {
+        const stored = localStorage.getItem('uyehtech_cart');
+        const items  = stored ? JSON.parse(stored) : [];
+        if (items.length > 0) updateCartBadge(items.length);
+      } catch (_) {}
+    })();
+
+    /* ══════════════════════════════════════════════════
+       11. FOLLOW / UNFOLLOW
+       ══════════════════════════════════════════════════ */
+    async function checkFollowStatus() {
+      const token = localStorage.getItem('token');
+      if (!token || !creatorData?._id) return;
+      try {
+        const res  = await fetch(`${API_URL}/api/creators/${creatorData._id}/follow-status`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.isFollowing) setFollowingUI(true);
+      } catch (_) {}
+    }
+
+    async function handleFollow() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showToast('🔐', 'Please log in to follow this store');
+        setTimeout(() => window.location.href = '/store/login.html', 1200);
+        return;
+      }
+      if (!creatorData?._id) return;
+
+      const endpoint = isFollowing ? 'unfollow' : 'follow';
+      try {
+        const res  = await fetch(`${API_URL}/api/creators/${creatorData._id}/${endpoint}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setFollowingUI(!isFollowing);
+          document.getElementById('statFollowers').textContent = (data.followerCount || 0).toLocaleString();
+          showToast('✅', data.message || (isFollowing ? 'Unfollowed' : 'Following!'));
+        } else {
+          showToast('⚠️', data.message || 'Could not update follow status');
+        }
+      } catch (err) {
+        showToast('❌', 'Network error. Please try again.');
+      }
+    }
+
+    function setFollowingUI(following) {
+      isFollowing = following;
+      const btn   = document.getElementById('followBtn');
+      if (following) {
+        btn.innerHTML = '<i class="fas fa-check"></i> Following';
+        btn.classList.add('following');
+      } else {
+        btn.innerHTML = '<i class="fas fa-plus"></i> Follow';
+        btn.classList.remove('following');
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       12. SHARE
+       ══════════════════════════════════════════════════ */
+    async function handleShare() {
+      const url  = window.location.origin + '/' + currentSlug;
+      const text = `Check out ${creatorData?.storeName || 'this creator'} on UYEH TECH Marketplace!`;
+
+      if (navigator.share) {
+        try { await navigator.share({ title: creatorData?.storeName, text, url }); return; } catch (_) {}
+      }
+
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast('🔗', 'Store link copied to clipboard!');
+      } catch (_) {
+        showToast('🔗', `Share: ${url}`);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       13. UI HELPERS
+       ══════════════════════════════════════════════════ */
+    function showError(title, msg) {
+      hideLoader();
+      document.getElementById('errorTitle').textContent = title;
+      document.getElementById('errorMsg').textContent   = msg;
+      document.getElementById('errorState').classList.add('visible');
+    }
+
+    function hideLoader() {
+      const loader = document.getElementById('pageLoader');
+      if (!loader) return;
+      // Fill bar to 100% instantly before fading out
+      const bar = document.getElementById('loaderBar');
+      if (bar) { bar.style.animation = 'none'; bar.style.width = '100%'; bar.style.transition = 'width 0.25s ease'; }
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 500);
+      }, 260);
+    }
+
+    let toastTimer;
+    function showToast(icon, msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon;
+      document.getElementById('toastMsg').textContent  = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+    /* ══ Mobile Menu ══ */
+    function toggleMobileMenu() {
+      document.getElementById('navLinks').classList.toggle('active');
+      document.getElementById('menuToggle').classList.toggle('active');
+    }
+
+    /* ══ Close modal on Escape ══ */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeProductModal();
+    });
+
+    /* ══════════════════════════════════════════════════
+       AFFILIATE LINK SYSTEM
+       ══════════════════════════════════════════════════
+       Only logged-in, registered affiliates get a real
+       affiliate link. Non-affiliates see a prompt to
+       join the program at /store/affiliate.html
+       ══════════════════════════════════════════════════ */
+
+    /* ── Get this user's registered affiliateCode from localStorage ── */
+    function getMyAffiliateCode() {
+      try {
+        const aff = JSON.parse(localStorage.getItem('uyeh_affiliate') || 'null');
+        if (aff?.affiliateCode) return aff.affiliateCode;
+      } catch (_) {}
+      return null;
+    }
+
+    /* ── Build the affiliate link for a product ── */
+    function buildAffLink(productId) {
+      const code = getMyAffiliateCode();
+      const base = window.location.origin + '/store/' + currentSlug;
+      if (!code) return null; // not registered
+      return base + '?product=' + productId + '&ref=' + code;
+    }
+
+    /* ── Populate affiliate section when a product modal opens ── */
+    function populateAffSection(product) {
+      const price      = product.approvedPrice ?? product.price ?? 0;
+      const commPct    = product.affiliateCommission ?? 10;
+      const earnAmount = price > 0 ? (price * commPct / 100).toFixed(2) : null;
+      const affLink    = buildAffLink(product._id);
+
+      document.getElementById('affCommissionPct').textContent = commPct;
+
+      const earnEl = document.getElementById('affEarnAmount');
+      earnEl.textContent = earnAmount ? '$' + earnAmount + ' / sale' : 'N/A (free product)';
+
+      const copyBtn = document.getElementById('affCopyBtn');
+      const input   = document.getElementById('affLinkInput');
+
+      if (affLink) {
+        // Registered affiliate — show their real link
+        input.value = affLink;
+        input.dataset.url = affLink;
+        input.style.opacity = '1';
+        copyBtn.disabled = false;
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+
+        // Hide the join prompt if showing
+        const joinPrompt = document.getElementById('affJoinPrompt');
+        if (joinPrompt) joinPrompt.style.display = 'none';
+        document.getElementById('affLinkBox').style.display = 'flex';
+        document.getElementById('affShareRow').style.display = 'flex';
+        document.getElementById('affEarnPreview').style.display = 'flex';
+
+      } else {
+        // Not registered — show join prompt instead of link
+        input.value = 'Join the affiliate program to get your link';
+        input.dataset.url = '';
+        input.style.opacity = '0.45';
+        copyBtn.disabled = true;
+
+        const joinPrompt = document.getElementById('affJoinPrompt');
+        if (joinPrompt) joinPrompt.style.display = 'block';
+        document.getElementById('affShareRow').style.display = 'none';
+        document.getElementById('affEarnPreview').style.display = 'none';
+      }
+    }
+
+    /* ── Copy affiliate link ── */
+    function copyAffLink() {
+      const input = document.getElementById('affLinkInput');
+      const url   = input.dataset.url || input.value;
+      const btn   = document.getElementById('affCopyBtn');
+
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        showToast('🔗', 'Affiliate link copied! Share it to earn commissions.');
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        }, 3000);
+      }).catch(() => {
+        // Fallback for older browsers
+        input.select();
+        document.execCommand('copy');
+        showToast('🔗', 'Link copied!');
+      });
+    }
+
+    /* ── Share affiliate link via platform ── */
+    function shareAff(platform) {
+      const input   = document.getElementById('affLinkInput');
+      const url     = input.dataset.url || input.value;
+      const product = allProducts.find(p => p._id === activeProductId);
+      const title   = product?.title || 'Check this out';
+      const store   = creatorData?.storeName || 'this creator';
+      const text    = `Check out "${title}" on ${store} — UYEH TECH Marketplace`;
+
+      const encoded = encodeURIComponent(url);
+      const encText = encodeURIComponent(text + ' ' + url);
+
+      const urls = {
+        whatsapp: `https://wa.me/?text=${encText}`,
+        twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encoded}`,
+        telegram: `https://t.me/share/url?url=${encoded}&text=${encodeURIComponent(text)}`,
+        native:   null
+      };
+
+      if (platform === 'native' && navigator.share) {
+        navigator.share({ title, text, url }).catch(() => copyAffLink());
+        return;
+      }
+      if (platform === 'native') { copyAffLink(); return; }
+
+      window.open(urls[platform], '_blank', 'noopener,width=600,height=500');
+    }
+
+    /* ══════════════════════════════════════════════════
+       READ ?ref= AND ?product= ON PAGE LOAD
+       When someone follows an affiliate link, we:
+       1. Save the ref code to localStorage (30-day cookie-like)
+       2. Ping the server's track-click endpoint
+       3. If ?product= is in the URL, auto-open that product
+       ══════════════════════════════════════════════════ */
+    (function readAffiliateRef() {
+      const params    = new URLSearchParams(window.location.search);
+      const ref       = params.get('ref');
+      const productId = params.get('product');
+
+      if (ref) {
+        // Save with 30-day expiry
+        localStorage.setItem('uyeh_ref',        ref);
+        localStorage.setItem('uyeh_ref_expiry',  Date.now() + 30 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('uyeh_ref_product', productId || '');
+
+        // Track the click silently
+        fetch(API_URL + '/api/affiliate/track-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ affiliateCode: ref, productId: productId || null })
+        }).catch(() => {});
+
+        // Clean the URL without reloading
+        const clean = window.location.pathname +
+          (productId ? '?product=' + productId : '');
+        history.replaceState(null, '', clean);
+      }
+
+      // Auto-open the product if ?product= is present (even without ref)
+      if (productId) {
+        // Wait for products to load, then open modal
+        window._autoOpenProduct = productId;
+      }
+    })();
+
+    /* ── Helper used by checkout pages — get stored affiliate ref ── */
+    function getStoredRef() {
+      const expiry = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
+      if (Date.now() > expiry) {
+        localStorage.removeItem('uyeh_ref');
+        localStorage.removeItem('uyeh_ref_expiry');
+        localStorage.removeItem('uyeh_ref_product');
+        return null;
+      }
+      return localStorage.getItem('uyeh_ref') || null;
+    }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - UYEH TECH</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <style>
+      /* ========== UYEH TECH - SETTINGS PAGE CSS ========== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+    border-right: 1px solid rgba(0, 255, 136, 0.2);
+    padding: 30px 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.sidebar-logo {
+    padding: 0 30px 30px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.sidebar-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 30px 15px;
+}
+
+.menu-item {
+    margin-bottom: 5px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    color: #d1d5db;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.menu-link:hover,
+.menu-link.active {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+    transform: translateX(5px);
+}
+
+.menu-icon {
+    font-size: 1.3rem;
+}
+
+.sidebar-footer {
+    padding: 20px 30px;
+    border-top: 1px solid rgba(0, 255, 136, 0.2);
+    margin-top: auto;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 10px;
+    color: #ff4444;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 68, 68, 0.2);
+    transform: scale(1.02);
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 40px;
+    transition: all 0.3s;
+    max-width: 1400px;
+}
+
+/* ========== PAGE HEADER ========== */
+.page-header {
+    margin-bottom: 40px;
+}
+
+.page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #00ff88;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    color: #9ca3af;
+    font-size: 1.1rem;
+}
+
+/* ========== SETTINGS TABS ========== */
+.settings-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid rgba(0, 255, 136, 0.2);
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 15px 25px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Montserrat', sans-serif;
+    border-bottom: 3px solid transparent;
+    font-size: 1rem;
+}
+
+.tab-btn:hover {
+    color: #00ff88;
+}
+
+.tab-btn.active {
+    color: #00ff88;
+    border-bottom-color: #00ff88;
+}
+
+/* ========== SETTINGS PANELS ========== */
+.settings-panel {
+    display: none;
+}
+
+.settings-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== SETTINGS CARD ========== */
+.settings-card {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 30px;
+}
+
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #00ff88;
+    margin-bottom: 10px;
+}
+
+.card-description {
+    color: #9ca3af;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* ========== PROFILE PICTURE UPLOAD ========== */
+.profile-picture-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.current-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    border: 3px solid rgba(0, 255, 136, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.current-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-actions {
+    flex: 1;
+}
+
+.file-input-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.file-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+}
+
+.file-info {
+    margin-top: 10px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+/* ========== FORM STYLES ========== */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    color: #00ff88;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.form-input::placeholder {
+    color: #6b7280;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    color: #00ff88;
+}
+
+.btn-secondary:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.btn-danger {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    color: #ff4444;
+}
+
+.btn-danger:hover {
+    background: rgba(255, 68, 68, 0.2);
+}
+
+.btn-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* ========== PASSWORD STRENGTH ========== */
+.password-strength {
+    margin-top: 10px;
+    height: 4px;
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: all 0.3s;
+    border-radius: 2px;
+}
+
+.password-strength-text {
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+/* ========== NOTIFICATION PREFERENCES ========== */
+.preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.preference-info h3 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.preference-info p {
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+/* ========== TOGGLE SWITCH ========== */
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-input {
+    display: none;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 3px;
+    background: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    border-color: #00ff88;
+}
+
+.toggle-input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+}
+
+.toggle-input:disabled + .toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== DANGER ZONE ========== */
+.danger-zone {
+    background: rgba(255, 68, 68, 0.05);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    margin-top: 30px;
+}
+
+.danger-zone .card-title {
+    color: #ff4444;
+}
+
+/* ========== PAYMENT METHODS ========== */
+.payment-method-card {
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.payment-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.payment-icon {
+    font-size: 2rem;
+}
+
+.payment-details h3 {
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.payment-details p {
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.badge-primary {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ========== MOBILE MENU ========== */
+.mobile-menu-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+}
+
+/* ========== LOADING SPINNER ========== */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== EMPTY STATE ========== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 15px;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+
+.empty-state h3 {
+    font-family: 'Playfair Display', serif;
+    color: #00ff88;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.empty-state p {
+    color: #9ca3af;
+    margin-bottom: 20px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 968px) {
+    .sidebar {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .sidebar.active {
+        width: 280px;
+        padding: 30px 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .settings-card {
+        padding: 25px;
+    }
+
+    .settings-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .tab-btn {
+        white-space: nowrap;
+    }
+
+    .profile-picture-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-method-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 15px;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+    }
+
+    .settings-card {
+        padding: 20px;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-text"> <img src="uyehtech logo.png" width="100px" height="100px" alt="UYEH TECH"></div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="dashboard.html" class="menu-link">
+                    <span class="menu-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="my-products.html" class="menu-link">
+                    <span class="menu-icon">🛍️</span>
+                    <span>My Products</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="orders.html" class="menu-link">
+                    <span class="menu-icon">📋</span>
+                    <span>Order History</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="settings.html" class="menu-link active">
+                    <span class="menu-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="store.html" class="menu-link">
+                    <span class="menu-icon">🛒</span>
+                    <span>Browse Store</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="logoutBtn">
+                🚪 Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">Manage your account settings and preferences</p>
+        </div>
+
+        <!-- Settings Tabs -->
+        <div class="settings-tabs">
+            <button class="tab-btn active" data-tab="profile">👤 Profile</button>
+            <button class="tab-btn" data-tab="security">🔒 Security</button>
+            <button class="tab-btn" data-tab="notifications">🔔 Notifications</button>
+            <button class="tab-btn" data-tab="payment">💳 Payment</button>
+            <button class="tab-btn" data-tab="account">⚠️ Account</button>
+        </div>
+
+        <!-- Profile Settings Panel -->
+        <div id="profile-panel" class="settings-panel active">
+            <div class="settings-card">
+                <h2 class="card-title">Profile Information</h2>
+                <p class="card-description">Update your profile picture and personal information</p>
+
+                <!-- Profile Picture -->
+                <div class="profile-picture-section">
+                    <div class="current-avatar" id="currentAvatar">U</div>
+                    <div class="avatar-actions">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="profilePictureInput" class="file-input" accept="image/*">
+                            <label for="profilePictureInput" class="file-label">📷 Upload New Picture</label>
+                        </div>
+                        <p class="file-info">JPG, PNG or GIF. Max size 5MB</p>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="fullName" class="form-input" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-input" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number (Optional)</label>
+                            <input type="tel" id="phone" class="form-input" placeholder="+1 (234) 567-8900">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <input type="text" id="country" class="form-input" placeholder="Nigeria">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                            💾 Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="resetProfileBtn">
+                            ↺ Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Security Settings Panel -->
+        <div id="security-panel" class="settings-panel">
+            <div class="settings-card">
+                <h2 class="card-title">Change Password</h2>
+                <p class="card-description">Update your password to keep your account secure</p>
+
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" id="currentPassword" class="form-input" placeholder="Enter current password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" required>
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                        </div>
+                        <p class="password-strength-text" id="passwordStrengthText"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm new password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn">
+                        🔒 Change Password
+                    </button>
+                </form>
+            </div>
+
+            <div class="settings-card">
+                <h2 class="card-title">Two-Factor Authentication</h2>
+                <p class="card-description">Add an extra layer of security to your account</p>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Enable 2FA</h3>
+                        <p>Require a verification code in addition to your password</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" id="twoFactorToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Settings Panel -->
+        <div id="notifications-panel" class="settings-panel">
+            <div class="settings-card">
+                <h2 class="card-title">Notification Preferences</h2>
+                <p class="card-description">Choose what notifications you want to receive</p>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Email Notifications</h3>
+                        <p>Receive order updates and promotional emails</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input notification-toggle" id="emailNotifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Order Updates</h3>
+                        <p>Get notified about your order status</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input notification-toggle" id="orderNotifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Marketing Emails</h3>
+                        <p>Receive news about products and special offers</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input notification-toggle" id="marketingNotifications">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Security Alerts</h3>
+                        <p>Get alerted about security-related activities</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" id="securityNotifications" checked disabled>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Settings Panel -->
+        <div id="payment-panel" class="settings-panel">
+            <div class="settings-card">
+                <h2 class="card-title">Payment Methods</h2>
+                <p class="card-description">Manage your payment methods for faster checkout</p>
+
+                <div id="paymentMethodsList"></div>
+
+                <button class="btn btn-primary" id="showAddPaymentBtn">
+                    💳 Add Payment Method
+                </button>
+            </div>
+
+            <!-- Add Payment Method Form -->
+            <div class="settings-card" id="addPaymentCard" style="display: none;">
+                <h2 class="card-title">Add Payment Method</h2>
+                <p class="card-description">Add a new card for payments</p>
+
+                <form id="paymentMethodForm">
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" id="cardNumber" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="text" id="expiryDate" class="form-input" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="text" id="cvv" class="form-input" placeholder="123" maxlength="4" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" id="cardholderName" class="form-input" placeholder="Name on card" required>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">💾 Save Card</button>
+                        <button type="button" class="btn btn-secondary" id="cancelAddPaymentBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Account Settings Panel -->
+        <div id="account-panel" class="settings-panel">
+            <div class="settings-card">
+                <h2 class="card-title">Account Information</h2>
+                <p class="card-description">View your account details</p>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Account Status</h3>
+                        <p id="accountStatus">Active</p>
+                    </div>
+                    <span class="badge-primary" id="verifiedBadge">✓ Verified</span>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Member Since</h3>
+                        <p id="memberSince">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <h3>Total Purchases</h3>
+                        <p id="totalPurchases">0 orders</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+                <h2 class="card-title">Danger Zone</h2>
+                <p class="card-description">Irreversible and destructive actions</p>
+
+                <button class="btn btn-danger" id="deleteAccountBtn">
+                    🗑️ Delete Account
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+      // ========== UYEH TECH - SETTINGS PAGE JAVASCRIPT ==========
+
+const API_URL = 'https://uyehtechbackend.onrender.com'; // Change to your deployed backend URL
+
+// ========== INITIALIZE PAGE ==========
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadUserData();
+    initializeEventListeners();
+    loadNotificationPreferences();
+    loadPaymentMethods();
+    console.log('✅ Settings page initialized');
+});
+
+// ========== CHECK AUTHENTICATION ==========
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+        window.location.href = 'login.html';
+        return null;
+    }
+    
+    try {
+        return JSON.parse(user);
+    } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+        return null;
+    }
+}
+
+// ========== LOAD USER DATA ==========
+async function loadUserData() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/api/profile`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            displayUserData(data.user);
+        } else {
+            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+            displayUserData(localUser);
+        }
+        
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+        displayUserData(localUser);
+    }
+}
+
+// ========== DISPLAY USER DATA ==========
+function displayUserData(user) {
+    // Profile Information
+    document.getElementById('fullName').value = user.name || '';
+    document.getElementById('email').value = user.email || '';
+    document.getElementById('phone').value = user.phone || '';
+    document.getElementById('country').value = user.country || '';
+    
+    // Profile Avatar
+    const avatarElement = document.getElementById('currentAvatar');
+    if (user.profileImage) {
+        avatarElement.innerHTML = `<img src="${user.profileImage}" alt="Profile">`;
+    } else {
+        const initial = (user.name || 'U').charAt(0).toUpperCase();
+        avatarElement.textContent = initial;
+    }
+    
+    // Account Information
+    document.getElementById('accountStatus').textContent = user.status || 'Active';
+    
+    const verifiedBadge = document.getElementById('verifiedBadge');
+    if (user.emailVerified) {
+        verifiedBadge.textContent = '✓ Verified';
+    } else {
+        verifiedBadge.textContent = '⚠️ Not Verified';
+        verifiedBadge.style.background = 'rgba(255, 165, 0, 0.2)';
+        verifiedBadge.style.color = '#ffa500';
+    }
+    
+    if (user.createdAt) {
+        const date = new Date(user.createdAt);
+        document.getElementById('memberSince').textContent = date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    
+    // Load orders count
+    const orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+    document.getElementById('totalPurchases').textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''}`;
+    
+    // Load 2FA status
+    const twoFactorToggle = document.getElementById('twoFactorToggle');
+    if (user.twoFactorEnabled) {
+        twoFactorToggle.checked = true;
+    }
+}
+
+// ========== INITIALIZE EVENT LISTENERS ==========
+function initializeEventListeners() {
+    // Mobile menu toggle
+    document.getElementById('mobileMenuBtn').addEventListener('click', toggleSidebar);
+    
+    // Logout button
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    
+    // Tab switching
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            switchTab(this.dataset.tab);
+        });
+    });
+    
+    // Profile form
+    document.getElementById('profileForm').addEventListener('submit', updateProfile);
+    document.getElementById('resetProfileBtn').addEventListener('click', loadUserData);
+    document.getElementById('profilePictureInput').addEventListener('change', handleProfilePictureChange);
+    
+    // Password form
+    document.getElementById('passwordForm').addEventListener('submit', changePassword);
+    document.getElementById('newPassword').addEventListener('input', checkPasswordStrength);
+    
+    // Two-factor authentication
+    document.getElementById('twoFactorToggle').addEventListener('change', toggle2FA);
+    
+    // Notification toggles
+    const notificationToggles = document.querySelectorAll('.notification-toggle');
+    notificationToggles.forEach(toggle => {
+        toggle.addEventListener('change', saveNotificationPreferences);
+    });
+    
+    // Payment methods
+    document.getElementById('showAddPaymentBtn').addEventListener('click', showAddPaymentMethod);
+    document.getElementById('cancelAddPaymentBtn').addEventListener('click', hideAddPaymentMethod);
+    document.getElementById('paymentMethodForm').addEventListener('submit', addPaymentMethod);
+    
+    // Card number formatting
+    document.getElementById('cardNumber').addEventListener('input', formatCardNumber);
+    document.getElementById('expiryDate').addEventListener('input', formatExpiryDate);
+    document.getElementById('cvv').addEventListener('input', formatCVV);
+    
+    // Delete account
+    document.getElementById('deleteAccountBtn').addEventListener('click', deleteAccount);
+    
+    // Close sidebar on outside click (mobile)
+    document.addEventListener('click', handleOutsideClick);
+}
+
+// ========== TAB SWITCHING ==========
+function switchTab(tabName) {
+    // Remove active class from all tabs and panels
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.settings-panel').forEach(panel => panel.classList.remove('active'));
+    
+    // Add active class to selected tab and panel
+    const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
+    const selectedPanel = document.getElementById(`${tabName}-panel`);
+    
+    if (selectedTab && selectedPanel) {
+        selectedTab.classList.add('active');
+        selectedPanel.classList.add('active');
+    }
+}
+
+// ========== UPDATE PROFILE ==========
+async function updateProfile(e) {
+    e.preventDefault();
+    
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+    
+    const profileData = {
+        name: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        country: document.getElementById('country').value
+    };
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/api/profile/update`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(profileData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            showNotification('✅ Profile updated successfully!', 'success');
+            displayUserData(data.user);
+        } else {
+            showNotification('❌ ' + (data.message || 'Failed to update profile'), 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        
+        // Fallback: Update localStorage directly
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { ...user, ...profileData };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        showNotification('✅ Profile updated locally!', 'success');
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+    }
+}
+
+// ========== HANDLE PROFILE PICTURE CHANGE ==========
+function handleProfilePictureChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+        showNotification('❌ File size must be less than 5MB', 'error');
+        return;
+    }
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+        showNotification('❌ Please select an image file', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+        const imageData = event.target.result;
+        
+        // Update preview
+        const avatarElement = document.getElementById('currentAvatar');
+        avatarElement.innerHTML = `<img src="${imageData}" alt="Profile">`;
+        
+        // Upload to server
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/api/profile/upload-picture`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: imageData })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                user.profileImage = imageData;
+                localStorage.setItem('user', JSON.stringify(user));
+                showNotification('✅ Profile picture updated!', 'success');
+            } else {
+                showNotification('⚠️ Picture saved locally', 'info');
+            }
+            
+        } catch (error) {
+            console.error('Error uploading picture:', error);
+            // Save to localStorage as fallback
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.profileImage = imageData;
+            localStorage.setItem('user', JSON.stringify(user));
+            showNotification('✅ Picture saved locally!', 'success');
+        }
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// ========== CHANGE PASSWORD ==========
+async function changePassword(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Validate passwords match
+    if (newPassword !== confirmPassword) {
+        showNotification('❌ Passwords do not match!', 'error');
+        return;
+    }
+    
+    // Validate password strength
+    if (newPassword.length < 8) {
+        showNotification('❌ Password must be at least 8 characters long', 'error');
+        return;
+    }
+    
+    const changeBtn = document.getElementById('changePasswordBtn');
+    const originalText = changeBtn.innerHTML;
+    changeBtn.disabled = true;
+    changeBtn.innerHTML = '<span class="spinner"></span> Changing...';
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/api/auth/change-password`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currentPassword,
+                newPassword
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('✅ Password changed successfully!', 'success');
+            document.getElementById('passwordForm').reset();
+            document.getElementById('passwordStrengthBar').style.width = '0%';
+            document.getElementById('passwordStrengthText').textContent = '';
+        } else {
+            showNotification('❌ ' + (data.message || 'Failed to change password'), 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error changing password:', error);
+        showNotification('❌ Error connecting to server. Please try again.', 'error');
+    } finally {
+        changeBtn.disabled = false;
+        changeBtn.innerHTML = originalText;
+    }
+}
+
+// ========== CHECK PASSWORD STRENGTH ==========
+function checkPasswordStrength() {
+    const password = document.getElementById('newPassword').value;
+    const strengthBar = document.getElementById('passwordStrengthBar');
+    const strengthText = document.getElementById('passwordStrengthText');
+    
+    if (password.length === 0) {
+        strengthBar.style.width = '0%';
+        strengthText.textContent = '';
+        return;
+    }
+    
+    let strength = 0;
+    
+    // Length check
+    if (password.length >= 8) strength += 25;
+    if (password.length >= 12) strength += 25;
+    
+    // Character variety
+    if (/[a-z]/.test(password)) strength += 15;
+    if (/[A-Z]/.test(password)) strength += 15;
+    if (/[0-9]/.test(password)) strength += 10;
+    if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+    
+    strengthBar.style.width = strength + '%';
+    
+    if (strength < 40) {
+        strengthBar.style.background = '#ff4444';
+        strengthText.textContent = 'Weak password';
+        strengthText.style.color = '#ff4444';
+    } else if (strength < 70) {
+        strengthBar.style.background = '#ffa500';
+        strengthText.textContent = 'Medium strength';
+        strengthText.style.color = '#ffa500';
+    } else {
+        strengthBar.style.background = '#00ff88';
+        strengthText.textContent = 'Strong password';
+        strengthText.style.color = '#00ff88';
+    }
+}
+
+// ========== TOGGLE 2FA ==========
+async function toggle2FA() {
+    const toggle = document.getElementById('twoFactorToggle');
+    const enabled = toggle.checked;
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/api/auth/toggle-2fa`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enabled })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.twoFactorEnabled = enabled;
+            localStorage.setItem('user', JSON.stringify(user));
+            showNotification(enabled ? '✅ 2FA enabled' : '✅ 2FA disabled', 'success');
+        } else {
+            toggle.checked = !enabled;
+            showNotification('❌ Failed to update 2FA settings', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error toggling 2FA:', error);
+        toggle.checked = !enabled;
+        showNotification('❌ Error connecting to server', 'error');
+    }
+}
+
+// ========== NOTIFICATION PREFERENCES ==========
+function loadNotificationPreferences() {
+    const preferences = JSON.parse(localStorage.getItem('notification_preferences') || '{}');
+    
+    document.getElementById('emailNotifications').checked = preferences.email !== false;
+    document.getElementById('orderNotifications').checked = preferences.orders !== false;
+    document.getElementById('marketingNotifications').checked = preferences.marketing === true;
+}
+
+function saveNotificationPreferences() {
+    const preferences = {
+        email: document.getElementById('emailNotifications').checked,
+        orders: document.getElementById('orderNotifications').checked,
+        marketing: document.getElementById('marketingNotifications').checked
+    };
+    
+    localStorage.setItem('notification_preferences', JSON.stringify(preferences));
+    showNotification('✅ Notification preferences saved', 'success');
+}
+
+// ========== PAYMENT METHODS ==========
+function loadPaymentMethods() {
+    const methods = JSON.parse(localStorage.getItem('payment_methods') || '[]');
+    const container = document.getElementById('paymentMethodsList');
+    
+    if (methods.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">💳</div>
+                <h3>No Payment Methods</h3>
+                <p>Add a payment method for faster checkout</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = methods.map((method, index) => `
+        <div class="payment-method-card">
+            <div class="payment-info">
+                <div class="payment-icon">${getCardIcon(method.type)}</div>
+                <div class="payment-details">
+                    <h3>${method.type} •••• ${method.lastFour}</h3>
+                    <p>Expires ${method.expiry}</p>
+                </div>
+            </div>
+            <div class="payment-actions">
+                ${method.isDefault ? '<span class="badge-primary">Default</span>' : ''}
+                <button class="btn btn-secondary" onclick="setDefaultPayment(${index})">
+                    ${method.isDefault ? '✓ Default' : 'Set Default'}
+                </button>
+                <button class="btn btn-danger" onclick="removePaymentMethod(${index})">Remove</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getCardIcon(type) {
+    const icons = {
+        'Visa': '💳',
+        'Mastercard': '💳',
+        'American Express': '💳',
+        'Discover': '💳'
+    };
+    return icons[type] || '💳';
+}
+
+function showAddPaymentMethod() {
+    document.getElementById('addPaymentCard').style.display = 'block';
+    document.getElementById('addPaymentCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideAddPaymentMethod() {
+    document.getElementById('addPaymentCard').style.display = 'none';
+    document.getElementById('paymentMethodForm').reset();
+}
+
+async function addPaymentMethod(e) {
+    e.preventDefault();
+    
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const expiryDate = document.getElementById('expiryDate').value;
+    const cvv = document.getElementById('cvv').value;
+    const cardholderName = document.getElementById('cardholderName').value;
+    
+    // Basic validation
+    if (cardNumber.length < 13 || cardNumber.length > 19) {
+        showNotification('❌ Invalid card number', 'error');
+        return;
+    }
+    
+    const cardType = detectCardType(cardNumber);
+    const lastFour = cardNumber.slice(-4);
+    
+    const newMethod = {
+        type: cardType,
+        lastFour: lastFour,
+        expiry: expiryDate,
+        cardholderName: cardholderName,
+        isDefault: false,
+        addedAt: new Date().toISOString()
+    };
+    
+    const methods = JSON.parse(localStorage.getItem('payment_methods') || '[]');
+    
+    // Set as default if it's the first card
+    if (methods.length === 0) {
+        newMethod.isDefault = true;
+    }
+    
+    methods.push(newMethod);
+    localStorage.setItem('payment_methods', JSON.stringify(methods));
+    
+    showNotification('✅ Payment method added successfully!', 'success');
+    hideAddPaymentMethod();
+    loadPaymentMethods();
+}
+
+function detectCardType(number) {
+    if (/^4/.test(number)) return 'Visa';
+    if (/^5[1-5]/.test(number)) return 'Mastercard';
+    if (/^3[47]/.test(number)) return 'American Express';
+    if (/^6(?:011|5)/.test(number)) return 'Discover';
+    return 'Credit Card';
+}
+
+function setDefaultPayment(index) {
+    const methods = JSON.parse(localStorage.getItem('payment_methods') || '[]');
+    
+    methods.forEach((method, i) => {
+        method.isDefault = i === index;
+    });
+    
+    localStorage.setItem('payment_methods', JSON.stringify(methods));
+    showNotification('✅ Default payment method updated', 'success');
+    loadPaymentMethods();
+}
+
+function removePaymentMethod(index) {
+    if (!confirm('Are you sure you want to remove this payment method?')) return;
+    
+    const methods = JSON.parse(localStorage.getItem('payment_methods') || '[]');
+    methods.splice(index, 1);
+    
+    // If removed card was default and there are other cards, set first as default
+    if (methods.length > 0 && !methods.some(m => m.isDefault)) {
+        methods[0].isDefault = true;
+    }
+    
+    localStorage.setItem('payment_methods', JSON.stringify(methods));
+    showNotification('✅ Payment method removed', 'success');
+    loadPaymentMethods();
+}
+
+// ========== FORMAT CARD INPUTS ==========
+function formatCardNumber(e) {
+    let value = e.target.value.replace(/\s/g, '');
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+    e.target.value = formattedValue;
+}
+
+function formatExpiryDate(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    e.target.value = value;
+}
+
+function formatCVV(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+}
+
+// ========== DELETE ACCOUNT ==========
+async function deleteAccount() {
+    const confirmed = confirm(
+        '⚠️ WARNING: This will permanently delete your account and all associated data. This action cannot be undone.\n\nAre you absolutely sure?'
+    );
+    
+    if (!confirmed) return;
+    
+    const doubleConfirm = prompt('Type "DELETE" to confirm account deletion:');
+    
+    if (doubleConfirm !== 'DELETE') {
+        showNotification('❌ Account deletion cancelled', 'info');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/api/auth/delete-account`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('✅ Account deleted successfully', 'success');
+            localStorage.clear();
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        } else {
+            showNotification('❌ Failed to delete account', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        showNotification('❌ Error connecting to server', 'error');
+    }
+}
+
+// ========== TOGGLE SIDEBAR (MOBILE) ==========
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+}
+
+// ========== HANDLE OUTSIDE CLICK ==========
+function handleOutsideClick(event) {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (sidebar && menuBtn) {
+        if (!sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
+            if (window.innerWidth <= 968 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        }
+    }
+}
+
+// ========== LOGOUT ==========
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        showNotification('👋 Logged out successfully', 'success');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 500);
+    }
+}
+
+// ========== SHOW NOTIFICATION ==========
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    
+    const colors = {
+        success: 'linear-gradient(135deg, #00b359, #00ff88)',
+        error: 'linear-gradient(135deg, #ff4444, #ff6666)',
+        info: 'linear-gradient(135deg, #00b359, #00ff88)'
+    };
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 18px 25px;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        z-index: 10000;
+        max-width: 400px;
+        font-family: 'Montserrat', sans-serif;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(400px)';
+        notification.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 300);
+    }, 4000);
+}
+
+// ========== HANDLE WINDOW RESIZE ==========
+window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth > 968) {
+        sidebar.classList.remove('active');
+    }
+});
+    </script>
+</body>
+</html>

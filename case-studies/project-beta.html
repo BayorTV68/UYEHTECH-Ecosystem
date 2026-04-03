@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Beta - Case Study | UYEH TECH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            color: white;
+            line-height: 1.8;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.5rem;
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        /* Hero Section */
+        .case-hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .case-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .case-hero .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Mobile Mockup Showcase */
+        .mobile-showcase {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .phone-mockups {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .phone-frame {
+            width: 280px;
+            height: 570px;
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 8px solid #2a2a2a;
+            border-radius: 40px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 30px;
+            background: #2a2a2a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.03) 0%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+
+        .screen-title {
+            font-size: 0.9rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .screen-icon {
+            font-size: 4rem;
+            margin: 1rem 0;
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+        }
+
+        /* User Journey Timeline */
+        .timeline {
+            max-width: 900px;
+            margin: 3rem auto;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, #00ff88 0%, rgba(0, 255, 136, 0.2) 100%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 2rem;
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 15px;
+            margin: 0 2rem;
+        }
+
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            background: #00ff88;
+            border: 4px solid #0a0a0a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #0a0a0a;
+            z-index: 1;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .timeline-content h3 {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .timeline-content p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Performance Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88 0%, transparent 100%);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        .stat-sublabel {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Code Implementation */
+        .code-section {
+            max-width: 900px;
+            margin: 3rem auto;
+        }
+
+        .code-header {
+            background: #1a1a1a;
+            padding: 1rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-filename {
+            color: #00ff88;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        .code-block {
+            background: #0f0f0f;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 0 0 10px 10px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-keyword { color: #ff79c6; }
+        .code-function { color: #50fa7b; }
+        .code-string { color: #f1fa8c; }
+        .code-comment { color: #6272a4; font-style: italic; }
+        .code-property { color: #8be9fd; }
+
+        /* App Store Badges */
+        .app-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .app-badge {
+            padding: 1rem 2rem;
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .app-badge:hover {
+            transform: translateY(-3px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .app-badge-icon {
+            font-size: 2.5rem;
+        }
+
+        .app-badge-text {
+            text-align: left;
+        }
+
+        .app-badge-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+        }
+
+        .app-badge-name {
+            font-size: 1.1rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Testimonial */
+        .testimonial-section {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .quote-icon {
+            font-size: 4rem;
+            color: rgba(0, 255, 136, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: #00ff88;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 255, 136, 0.02) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn-secondary {
+            background: transparent;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .case-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .phone-mockups {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                flex-direction: row;
+            }
+
+            .timeline-marker {
+                left: 20px;
+            }
+
+            .timeline-content {
+                margin-left: 60px;
+                margin-right: 0;
+            }
+
+            .project-meta {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="../index.html" class="logo">UYEH TECH</a>
+        <a href="index.html" class="back-btn">← Back to Case Studies</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="case-hero">
+        <span class="project-badge">Mobile App • UI/UX Design</span>
+        <h1>Project Beta</h1>
+        <p class="subtitle">
+            An AI-powered fitness revolution that transforms how people approach personal training with 
+            intelligent workout plans, real-time tracking, and community engagement.
+        </p>
+        <div class="project-meta">
+            <div class="meta-item">
+                <div class="meta-label">Client</div>
+                <div class="meta-value">FitPulse Technologies</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Duration</div>
+                <div class="meta-value">6 Months</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Year</div>
+                <div class="meta-value">2024</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Platform</div>
+                <div class="meta-value">iOS & Android</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Mockup Showcase -->
+    <section class="mobile-showcase">
+        <div class="phone-mockups">
+            <div class="phone-frame">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <div class="screen-title">Home Dashboard</div>
+                    <div class="screen-icon">📊</div>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">Personalized Metrics</p>
+                </div>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <div class="screen-title">Workout Tracker</div>
+                    <div class="screen-icon">💪</div>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">Real-time Progress</p>
+                </div>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <div class="screen-title">AI Coach</div>
+                    <div class="screen-icon">🤖</div>
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">Smart Recommendations</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem & Solution -->
+    <section class="content-section">
+        <h2 class="section-title">The Challenge</h2>
+        <p class="section-description">
+            FitPulse wanted to disrupt the saturated fitness app market with an intelligent, user-centric solution 
+            that combines AI-powered personalization with an engaging, motivating user experience.
+        </p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>User Pain Points</h3>
+                <p>Generic workout plans that don't adapt to individual progress, confusing interfaces, 
+                   lack of motivation, and no proper progress tracking mechanisms.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3>Our Approach</h3>
+                <p>AI-driven personalization engine, intuitive gesture-based UI, gamification elements, 
+                   and comprehensive analytics to keep users engaged and motivated.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Innovation</h3>
+                <p>First-to-market AI coach that learns from user behavior, adapts workout difficulty in real-time, 
+                   and provides form correction through computer vision.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Journey -->
+    <section class="content-section">
+        <h2 class="section-title">User Journey</h2>
+        <p class="section-description">
+            Crafting a seamless experience from onboarding to achieving fitness goals.
+        </p>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker">1</div>
+                <div class="timeline-content">
+                    <h3>Smart Onboarding</h3>
+                    <p>AI-powered questionnaire assesses fitness level, goals, and preferences to create 
+                       a personalized baseline in under 2 minutes.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker">2</div>
+                <div class="timeline-content">
+                    <h3>Custom Workout Plans</h3>
+                    <p>Algorithm generates adaptive workout plans that evolve based on performance, 
+                       recovery time, and progress metrics.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker">3</div>
+                <div class="timeline-content">
+                    <h3>Real-time Coaching</h3>
+                    <p>Live form feedback using computer vision, voice guidance, and motivational cues 
+                       to ensure proper technique and maximum results.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker">4</div>
+                <div class="timeline-content">
+                    <h3>Progress Tracking</h3>
+                    <p>Comprehensive analytics dashboard with visual progress indicators, achievement badges, 
+                       and social sharing capabilities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="content-section">
+        <h2 class="section-title">Key Features</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Personal Trainer</h3>
+                <p>Machine learning algorithms that adapt to your fitness level, learn from your performance, 
+                   and optimize workout plans for maximum results.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📹</div>
+                <h3>Form Analysis</h3>
+                <p>Computer vision technology analyzes exercise form in real-time, providing instant feedback 
+                   to prevent injuries and improve technique.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Advanced Analytics</h3>
+                <p>Detailed progress tracking with charts, trends, and insights. Monitor calories, reps, sets, 
+                   personal records, and overall performance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Gamification</h3>
+                <p>Achievement system with badges, streaks, leaderboards, and challenges to keep users 
+                   motivated and engaged long-term.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Social Features</h3>
+                <p>Connect with friends, join challenges, share achievements, and find workout buddies 
+                   in your area for added motivation.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Offline Mode</h3>
+                <p>Full functionality without internet connection. Workouts sync automatically when 
+                   back online - perfect for gym environments.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="content-section">
+        <h2 class="section-title">App Performance & Success Metrics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Downloads</div>
+                <div class="stat-sublabel">First 3 months</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4.9/5</div>
+                <div class="stat-label">App Store Rating</div>
+                <div class="stat-sublabel">iOS & Android</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">92%</div>
+                <div class="stat-label">Retention Rate</div>
+                <div class="stat-sublabel">30-day retention</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">35min</div>
+                <div class="stat-label">Avg. Session Time</div>
+                <div class="stat-sublabel">Daily engagement</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">78%</div>
+                <div class="stat-label">Goal Completion</div>
+                <div class="stat-sublabel">User success rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">98ms</div>
+                <div class="stat-label">Load Time</div>
+                <div class="stat-sublabel">Lightning fast</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Implementation -->
+    <section class="content-section">
+        <h2 class="section-title">Technical Implementation</h2>
+        <p class="section-description">
+            Built with Flutter for cross-platform consistency and powered by TensorFlow for AI capabilities.
+        </p>
+        <div class="code-section">
+            <div class="code-header">
+                <span class="code-filename">lib/services/ai_coach.dart</span>
+                <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            </div>
+            <div class="code-block">
+                <pre><code><span class="code-keyword">class</span> <span class="code-function">AICoach</span> {
+  <span class="code-keyword">final</span> TensorFlowModel _model;
+  <span class="code-keyword">final</span> UserDataService _userService;
+
+  <span class="code-comment">// Generate personalized workout based on user data</span>
+  <span class="code-keyword">Future</span>&lt;WorkoutPlan&gt; <span class="code-function">generateWorkout</span>({
+    <span class="code-keyword">required</span> UserProfile profile,
+    <span class="code-keyword">required</span> PerformanceHistory history,
+  }) <span class="code-keyword">async</span> {
+    <span class="code-comment">// Analyze user's fitness level and goals</span>
+    <span class="code-keyword">final</span> fitnessLevel = <span class="code-keyword">await</span> <span class="code-function">_analyzeFitnessLevel</span>(history);
+    
+    <span class="code-comment">// Get AI recommendations</span>
+    <span class="code-keyword">final</span> recommendations = <span class="code-keyword">await</span> _model.<span class="code-function">predict</span>({
+      <span class="code-string">'fitness_level'</span>: fitnessLevel,
+      <span class="code-string">'goal'</span>: profile.goal,
+      <span class="code-string">'available_time'</span>: profile.availableTime,
+      <span class="code-string">'equipment'</span>: profile.equipment,
+      <span class="code-string">'recovery_rate'</span>: <span class="code-keyword">await</span> <span class="code-function">_calculateRecoveryRate</span>(history),
+    });
+
+    <span class="code-comment">// Build adaptive workout plan</span>
+    <span class="code-keyword">return</span> WorkoutPlan.<span class="code-function">fromAIRecommendations</span>(
+      recommendations,
+      difficulty: fitnessLevel,
+      progressionRate: <span class="code-function">_calculateProgressionRate</span>(history),
+    );
+  }
+
+  <span class="code-comment">// Real-time form correction using computer vision</span>
+  <span class="code-keyword">Stream</span>&lt;FormFeedback&gt; <span class="code-function">analyzeForm</span>(CameraImage image) {
+    <span class="code-keyword">return</span> _model.<span class="code-function">analyzeExerciseForm</span>(image).<span class="code-function">map</span>((result) {
+      <span class="code-keyword">return</span> FormFeedback(
+        accuracy: result.accuracy,
+        corrections: result.suggestions,
+        isCorrect: result.accuracy &gt; <span class="code-number">0.85</span>,
+      );
+    });
+  }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Store Downloads -->
+    <section class="content-section">
+        <h2 class="section-title">Download The App</h2>
+        <div class="app-badges">
+            <a href="#" class="app-badge">
+                <div class="app-badge-icon">📱</div>
+                <div class="app-badge-text">
+                    <div class="app-badge-label">Download on the</div>
+                    <div class="app-badge-name">App Store</div>
+                </div>
+            </a>
+            <a href="#" class="app-badge">
+                <div class="app-badge-icon">🤖</div>
+                <div class="app-badge-text">
+                    <div class="app-badge-label">Get it on</div>
+                    <div class="app-badge-name">Google Play</div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="testimonial-section">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-text">
+            UYEH TECH transformed our vision into reality with an app that exceeds all expectations. 
+            The AI-powered features are incredibly accurate, and the user experience is seamless. 
+            Our users love it, and we've seen unprecedented engagement and retention rates.
+        </p>
+        <div class="testimonial-author">Marcus Chen</div>
+        <div class="testimonial-role">CEO, FitPulse Technologies</div>
+    </section>
+
+    <!-- Results Summary -->
+    <section class="content-section">
+        <h2 class="section-title">Impact & Results</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">427%</div>
+                <div class="stat-label">ROI Increase</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">#3</div>
+                <div class="stat-label">App Store Ranking</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">125K</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$2.4M</div>
+                <div class="stat-label">Revenue (Year 1)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Build Your App?</h2>
+        <p class="cta-description">
+            Let's create a mobile experience that users love and that drives real business results.
+        </p>
+        <div class="cta-buttons">
+            <a href="../../index.html#contact" class="cta-btn cta-btn-primary">Start Your Project</a>
+            <a href="index.html" class="cta-btn cta-btn-secondary">View More Cases</a>
+        </div>
+    </section>
+
+    <script>
+        function copyCode() {
+            const codeBlock = document.querySelector('.code-block code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .stat-card, .phone-frame, .timeline-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

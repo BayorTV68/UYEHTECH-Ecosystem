@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UYEH SUBS - Case Study | UYEH TECH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            color: white;
+            line-height: 1.8;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.5rem;
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        /* Hero Section */
+        .case-hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .case-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .case-hero .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Featured Image */
+        .featured-image {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-container::before {
+            content: 'DIGITAL SERVICES PLATFORM';
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(0, 255, 136, 0.05);
+            letter-spacing: 3px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88 0%, transparent 100%);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .service-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .service-features li {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .service-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Platform Features */
+        .platform-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.03), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-number {
+            width: 50px;
+            height: 50px;
+            background: #00ff88;
+            color: #0a0a0a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+        }
+
+        /* Performance Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .metric-sublabel {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+        }
+
+        /* Technology Stack */
+        .tech-stack-section {
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.03), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+        }
+
+        .tech-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        .tech-category h4 {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .tech-badge {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Code Implementation */
+        .code-section {
+            max-width: 900px;
+            margin: 3rem auto;
+        }
+
+        .code-header {
+            background: #1a1a1a;
+            padding: 1rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-filename {
+            color: #00ff88;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        .code-block {
+            background: #0f0f0f;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 0 0 10px 10px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-keyword { color: #ff79c6; }
+        .code-function { color: #50fa7b; }
+        .code-string { color: #f1fa8c; }
+        .code-comment { color: #6272a4; font-style: italic; }
+        .code-property { color: #8be9fd; }
+        .code-number { color: #bd93f9; }
+
+        /* Client Testimonial */
+        .testimonial-section {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .quote-icon {
+            font-size: 4rem;
+            color: rgba(0, 255, 136, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: #00ff88;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Results Highlights */
+        .results-section {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-item {
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 255, 136, 0.02) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn-secondary {
+            background: transparent;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .case-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .platform-features {
+                grid-template-columns: 1fr;
+            }
+
+            .project-meta {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="../index.html" class="logo">UYEH TECH</a>
+        <a href="index.html" class="back-btn">← Back to Case Studies</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="case-hero">
+        <span class="project-badge">Digital Services • Full-Stack Platform</span>
+        <h1>UYEH SUBS</h1>
+        <p class="subtitle">
+            A comprehensive digital services marketplace connecting businesses with top-tier professionals 
+            for web development, design, content creation, and digital marketing solutions.
+        </p>
+        <div class="project-meta">
+            <div class="meta-item">
+                <div class="meta-label">Project Type</div>
+                <div class="meta-value">Service Platform</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Duration</div>
+                <div class="meta-value">8 Months</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Year</div>
+                <div class="meta-value">2024</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Industry</div>
+                <div class="meta-value">Digital Services</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Image -->
+    <section class="featured-image">
+        <div class="image-container">
+            <div style="text-align: center; color: rgba(0, 255, 136, 0.3);">
+                <div style="font-size: 1.2rem; margin-bottom: 1rem;">Platform Dashboard Preview</div>
+                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.3);">Replace with actual platform screenshot</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview -->
+    <section class="content-section">
+        <h2 class="section-title">Project Overview</h2>
+        <p class="section-description">
+            UYEH SUBS is a revolutionary digital services platform that streamlines the process of finding, 
+            hiring, and managing professional services. From initial concept to full-scale deployment, we built 
+            a robust ecosystem that serves both service providers and clients with exceptional user experience.
+        </p>
+    </section>
+
+    <!-- Core Services -->
+    <section class="content-section">
+        <h2 class="section-title">Core Service Offerings</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <span class="service-icon">💻</span>
+                <h3>Web Development</h3>
+                <p>Full-stack development services from landing pages to complex web applications.</p>
+                <ul class="service-features">
+                    <li>Custom website development</li>
+                    <li>E-commerce solutions</li>
+                    <li>Web application development</li>
+                    <li>CMS integration</li>
+                    <li>API development</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <span class="service-icon">🎨</span>
+                <h3>UI/UX Design</h3>
+                <p>Creative design solutions that blend aesthetics with functionality.</p>
+                <ul class="service-features">
+                    <li>User interface design</li>
+                    <li>User experience research</li>
+                    <li>Wireframing & prototyping</li>
+                    <li>Brand identity design</li>
+                    <li>Design systems</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <span class="service-icon">📱</span>
+                <h3>Mobile Development</h3>
+                <p>Native and cross-platform mobile applications for iOS and Android.</p>
+                <ul class="service-features">
+                    <li>iOS app development</li>
+                    <li>Android app development</li>
+                    <li>Flutter/React Native apps</li>
+                    <li>App store optimization</li>
+                    <li>Mobile UI/UX</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <span class="service-icon">📊</span>
+                <h3>Digital Marketing</h3>
+                <p>Comprehensive marketing strategies to grow your digital presence.</p>
+                <ul class="service-features">
+                    <li>SEO optimization</li>
+                    <li>Social media marketing</li>
+                    <li>Content marketing</li>
+                    <li>Email campaigns</li>
+                    <li>Analytics & reporting</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <span class="service-icon">✍️</span>
+                <h3>Content Creation</h3>
+                <p>High-quality content that engages audiences and drives results.</p>
+                <ul class="service-features">
+                    <li>Blog writing & articles</li>
+                    <li>Copywriting</li>
+                    <li>Video production</li>
+                    <li>Graphic design</li>
+                    <li>Social media content</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <span class="service-icon">🔧</span>
+                <h3>Technical Support</h3>
+                <p>Ongoing maintenance and support for your digital assets.</p>
+                <ul class="service-features">
+                    <li>Website maintenance</li>
+                    <li>Security updates</li>
+                    <li>Performance optimization</li>
+                    <li>Bug fixes</li>
+                    <li>24/7 support</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Features -->
+    <section class="content-section">
+        <h2 class="section-title">Platform Features</h2>
+        <div class="platform-features">
+            <div class="feature-card">
+                <h3>
+                    <span class="feature-number">1</span>
+                    Smart Matching System
+                </h3>
+                <p>
+                    AI-powered algorithm that matches clients with the most suitable service providers based on 
+                    project requirements, budget, timeline, and provider expertise. The system learns from successful 
+                    matches to continuously improve recommendations.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <span class="feature-number">2</span>
+                    Secure Payment Gateway
+                </h3>
+                <p>
+                    Integrated escrow system with milestone-based payments, ensuring secure transactions for both 
+                    clients and service providers. Support for multiple payment methods including cards, bank transfers, 
+                    and digital wallets.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <span class="feature-number">3</span>
+                    Project Management Tools
+                </h3>
+                <p>
+                    Built-in collaboration suite with task management, file sharing, real-time messaging, and progress 
+                    tracking. Clients can monitor project status and communicate directly with their team.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <span class="feature-number">4</span>
+                    Quality Assurance
+                </h3>
+                <p>
+                    Comprehensive review system with verified ratings, portfolio showcases, and skill assessments. 
+                    All service providers undergo vetting to ensure quality standards are maintained.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Implementation -->
+    <section class="content-section">
+        <h2 class="section-title">Technical Architecture</h2>
+        <p class="section-description">
+            Built on a modern microservices architecture for scalability, reliability, and performance.
+        </p>
+        <div class="code-section">
+            <div class="code-header">
+                <span class="code-filename">services/matching-engine/algorithm.js</span>
+                <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            </div>
+            <div class="code-block">
+                <pre><code><span class="code-keyword">class</span> <span class="code-function">ServiceMatchingEngine</span> {
+  <span class="code-keyword">constructor</span>(database, mlModel) {
+    <span class="code-keyword">this</span>.db = database;
+    <span class="code-keyword">this</span>.model = mlModel;
+  }
+
+  <span class="code-keyword">async</span> <span class="code-function">findBestMatches</span>(projectRequirements) {
+    <span class="code-comment">// Extract key features from project requirements</span>
+    <span class="code-keyword">const</span> features = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.<span class="code-function">extractFeatures</span>(projectRequirements);
+    
+    <span class="code-comment">// Get all available service providers</span>
+    <span class="code-keyword">const</span> providers = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.db.<span class="code-function">getAvailableProviders</span>({
+      <span class="code-property">category</span>: projectRequirements.category,
+      <span class="code-property">minRating</span>: <span class="code-number">4.0</span>,
+      <span class="code-property">verified</span>: <span class="code-keyword">true</span>
+    });
+
+    <span class="code-comment">// Calculate match scores using ML model</span>
+    <span class="code-keyword">const</span> matches = <span class="code-keyword">await</span> Promise.<span class="code-function">all</span>(
+      providers.<span class="code-function">map</span>(<span class="code-keyword">async</span> provider => {
+        <span class="code-keyword">const</span> score = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.model.<span class="code-function">predict</span>({
+          features,
+          <span class="code-property">providerProfile</span>: provider.profile,
+          <span class="code-property">historicalSuccess</span>: provider.completionRate,
+          <span class="code-property">expertise</span>: provider.skills
+        });
+
+        <span class="code-keyword">return</span> {
+          provider,
+          <span class="code-property">matchScore</span>: score,
+          <span class="code-property">estimatedCost</span>: <span class="code-keyword">this</span>.<span class="code-function">calculateCost</span>(provider, projectRequirements),
+          <span class="code-property">estimatedDuration</span>: <span class="code-keyword">this</span>.<span class="code-function">estimateDuration</span>(provider, projectRequirements)
+        };
+      })
+    );
+
+    <span class="code-comment">// Sort by match score and return top matches</span>
+    <span class="code-keyword">return</span> matches
+      .<span class="code-function">sort</span>((a, b) => b.matchScore - a.matchScore)
+      .<span class="code-function">slice</span>(<span class="code-number">0</span>, <span class="code-number">10</span>);
+  }
+
+  <span class="code-keyword">async</span> <span class="code-function">extractFeatures</span>(requirements) {
+    <span class="code-comment">// Feature extraction logic</span>
+    <span class="code-keyword">return</span> {
+      <span class="code-property">complexity</span>: <span class="code-keyword">this</span>.<span class="code-function">assessComplexity</span>(requirements),
+      <span class="code-property">budget</span>: requirements.budget,
+      <span class="code-property">timeline</span>: requirements.deadline,
+      <span class="code-property">technologies</span>: requirements.techStack,
+      <span class="code-property">industry</span>: requirements.industry
+    };
+  }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Stack -->
+    <section class="content-section">
+        <h2 class="section-title">Technology Stack</h2>
+        <div class="tech-stack-section">
+            <div class="tech-categories">
+                <div class="tech-category">
+                    <h4>Frontend</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">React</span>
+                        <span class="tech-badge">Next.js</span>
+                        <span class="tech-badge">TypeScript</span>
+                        <span class="tech-badge">Tailwind CSS</span>
+                        <span class="tech-badge">Redux</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>Backend</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">Node.js</span>
+                        <span class="tech-badge">Express</span>
+                        <span class="tech-badge">GraphQL</span>
+                        <span class="tech-badge">Socket.io</span>
+                        <span class="tech-badge">Redis</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>Database</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">PostgreSQL</span>
+                        <span class="tech-badge">MongoDB</span>
+                        <span class="tech-badge">Elasticsearch</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>Infrastructure</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">AWS</span>
+                        <span class="tech-badge">Docker</span>
+                        <span class="tech-badge">Kubernetes</span>
+                        <span class="tech-badge">Nginx</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>AI/ML</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">TensorFlow</span>
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">scikit-learn</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>DevOps</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">Jenkins</span>
+                        <span class="tech-badge">GitHub Actions</span>
+                        <span class="tech-badge">Terraform</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="content-section">
+        <h2 class="section-title">Platform Performance</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">⚡</div>
+                <div class="metric-value">1.2s</div>
+                <div class="metric-label">Avg Load Time</div>
+                <div class="metric-sublabel">99.9% Uptime</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">👥</div>
+                <div class="metric-value">15K+</div>
+                <div class="metric-label">Active Users</div>
+                <div class="metric-sublabel">Monthly</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">💼</div>
+                <div class="metric-value">2,500+</div>
+                <div class="metric-label">Projects Completed</div>
+                <div class="metric-sublabel">Since Launch</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">⭐</div>
+                <div class="metric-value">4.8/5</div>
+                <div class="metric-label">Client Satisfaction</div>
+                <div class="metric-sublabel">Average Rating</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">🚀</div>
+                <div class="metric-value">97</div>
+                <div class="metric-label">Lighthouse Score</div>
+                <div class="metric-sublabel">Performance</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">🔒</div>
+                <div class="metric-value">100%</div>
+                <div class="metric-label">Secure Payments</div>
+                <div class="metric-sublabel">PCI Compliant</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="testimonial-section">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-text">
+            UYEH SUBS has transformed how we source and manage digital services. The platform's intelligent 
+            matching system connects us with the perfect professionals every time, and the built-in project 
+            management tools make collaboration seamless. It's become an essential part of our workflow.
+        </p>
+        <div class="testimonial-author">Jennifer Martinez</div>
+        <div class="testimonial-role">Digital Director, TechCorp Solutions</div>
+    </section>
+
+    <!-- Results & Impact -->
+    <section class="content-section">
+        <h2 class="section-title">Business Impact</h2>
+        <div class="results-section">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-value">450%</div>
+                    <div class="result-label">User Growth</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value">$3.2M</div>
+                    <div class="result-label">GMV (Yr 1)</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value">94%</div>
+                    <div class="result-label">Project Success Rate</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value">85%</div>
+                    <div class="result-label">Client Retention</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Need Digital Services?</h2>
+        <p class="cta-description">
+            Discover how UYEH SUBS can connect you with top-tier professionals for your next project.
+        </p>
+        <div class="cta-buttons">
+            <a href="https://uyehsubs.com" class="cta-btn cta-btn-primary">Visit UYEH SUBS</a>
+            <a href="index.html" class="cta-btn cta-btn-secondary">View More Cases</a>
+        </div>
+    </section>
+
+    <script>
+        function copyCode() {
+            const codeBlock = document.querySelector('.code-block code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.service-card, .metric-card, .feature-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

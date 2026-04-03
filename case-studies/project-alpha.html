@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Alpha - Case Study | UYEH TECH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            color: white;
+            line-height: 1.8;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.5rem;
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        /* Hero Section */
+        .case-hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .case-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .case-hero .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Featured Image */
+        .featured-image {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-container::before {
+            content: 'FINTECH PLATFORM';
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: rgba(0, 255, 136, 0.05);
+            letter-spacing: 3px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        /* Challenge & Solution Grid */
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .content-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+
+        .content-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .content-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .content-card li {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .content-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Before/After Slider */
+        .comparison-slider {
+            position: relative;
+            max-width: 900px;
+            margin: 3rem auto;
+            height: 500px;
+            background: #1a1a1a;
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .before-after-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
+        .before-section,
+        .after-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .before-section {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.05) 0%, transparent 100%);
+        }
+
+        .after-section {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, transparent 100%);
+        }
+
+        .comparison-label {
+            position: absolute;
+            top: 2rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .before-label {
+            background: rgba(255, 100, 100, 0.2);
+            border: 1px solid rgba(255, 100, 100, 0.5);
+            color: #ff6464;
+        }
+
+        .after-label {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .comparison-content {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .comparison-stat {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .before-section .comparison-stat {
+            color: #ff6464;
+        }
+
+        .after-section .comparison-stat {
+            color: #00ff88;
+        }
+
+        /* Performance Metrics */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .metric-sublabel {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+        }
+
+        /* Code Snippet */
+        .code-section {
+            max-width: 900px;
+            margin: 3rem auto;
+        }
+
+        .code-header {
+            background: #1a1a1a;
+            padding: 1rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-filename {
+            color: #00ff88;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+
+        .code-block {
+            background: #0f0f0f;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 0 0 10px 10px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-keyword { color: #ff79c6; }
+        .code-function { color: #50fa7b; }
+        .code-string { color: #f1fa8c; }
+        .code-comment { color: #6272a4; font-style: italic; }
+        .code-number { color: #bd93f9; }
+
+        /* Technologies Used */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tech-badge {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Testimonial */
+        .testimonial-section {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .quote-icon {
+            font-size: 4rem;
+            color: rgba(0, 255, 136, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: #00ff88;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 255, 136, 0.02) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn-secondary {
+            background: transparent;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .case-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .two-column-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .before-after-container {
+                flex-direction: column;
+            }
+
+            .comparison-slider {
+                height: auto;
+                min-height: 600px;
+            }
+
+            .project-meta {
+                gap: 1.5rem;
+            }
+
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="../index.html" class="logo">UYEH TECH</a>
+        <a href="index.html" class="back-btn">← Back to Case Studies</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="case-hero">
+        <span class="project-badge">Fintech • Web Development</span>
+        <h1>Project Alpha</h1>
+        <p class="subtitle">
+            Complete digital transformation for a modern fintech startup, featuring cutting-edge security, 
+            seamless UX, and lightning-fast performance.
+        </p>
+        <div class="project-meta">
+            <div class="meta-item">
+                <div class="meta-label">Client</div>
+                <div class="meta-value">SecureFinance Inc.</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Duration</div>
+                <div class="meta-value">4 Months</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Year</div>
+                <div class="meta-value">2024</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Industry</div>
+                <div class="meta-value">Fintech</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Image -->
+    <section class="featured-image">
+        <div class="image-container">
+            <div style="text-align: center; color: rgba(0, 255, 136, 0.3);">
+                <div style="font-size: 1.2rem; margin-bottom: 1rem;">Hero Image / Website Mockup</div>
+                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.3);">Replace with actual project screenshot</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Challenge & Solution -->
+    <section class="content-section">
+        <h2 class="section-title">The Challenge</h2>
+        <p class="section-description">
+            SecureFinance needed to completely overhaul their outdated platform to compete in the modern fintech space 
+            while maintaining stringent security standards and regulatory compliance.
+        </p>
+        <div class="two-column-grid">
+            <div class="content-card">
+                <h3>Problems Identified</h3>
+                <ul>
+                    <li>Legacy codebase causing frequent crashes and security vulnerabilities</li>
+                    <li>Poor mobile experience with 78% bounce rate on mobile devices</li>
+                    <li>Slow page load times averaging 8.5 seconds</li>
+                    <li>Complex user flows leading to low conversion rates (1.2%)</li>
+                    <li>Non-compliant with modern accessibility standards</li>
+                </ul>
+            </div>
+            <div class="content-card">
+                <h3>Our Solution</h3>
+                <ul>
+                    <li>Complete rebuild using React and Node.js with TypeScript</li>
+                    <li>Mobile-first responsive design with progressive web app capabilities</li>
+                    <li>Optimized performance with code splitting and lazy loading</li>
+                    <li>Streamlined user journey with reduced steps and clear CTAs</li>
+                    <li>WCAG 2.1 AA compliance with comprehensive accessibility features</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Before/After Comparison -->
+    <section class="content-section">
+        <h2 class="section-title">Before & After</h2>
+        <p class="section-description">
+            Transforming user experience and performance metrics through strategic redesign and optimization.
+        </p>
+        <div class="comparison-slider">
+            <div class="before-after-container">
+                <div class="before-section">
+                    <span class="comparison-label before-label">BEFORE</span>
+                    <div class="comparison-content">
+                        <div>Page Load Time</div>
+                        <div class="comparison-stat">8.5s</div>
+                        <div>Bounce Rate</div>
+                        <div class="comparison-stat">78%</div>
+                        <div>Conversion Rate</div>
+                        <div class="comparison-stat">1.2%</div>
+                    </div>
+                </div>
+                <div class="after-section">
+                    <span class="comparison-label after-label">AFTER</span>
+                    <div class="comparison-content">
+                        <div>Page Load Time</div>
+                        <div class="comparison-stat">1.8s</div>
+                        <div>Bounce Rate</div>
+                        <div class="comparison-stat">32%</div>
+                        <div>Conversion Rate</div>
+                        <div class="comparison-stat">4.7%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="content-section">
+        <h2 class="section-title">Performance Metrics</h2>
+        <p class="section-description">
+            Google Lighthouse scores showcase our commitment to exceptional performance, accessibility, and best practices.
+        </p>
+        <div class="performance-grid">
+            <div class="metric-card">
+                <div class="metric-icon">🚀</div>
+                <div class="metric-value">95</div>
+                <div class="metric-label">Performance</div>
+                <div class="metric-sublabel">Lighthouse Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">♿</div>
+                <div class="metric-value">100</div>
+                <div class="metric-label">Accessibility</div>
+                <div class="metric-sublabel">WCAG 2.1 AA Compliant</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">✅</div>
+                <div class="metric-value">98</div>
+                <div class="metric-label">Best Practices</div>
+                <div class="metric-sublabel">Industry Standards</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">🔍</div>
+                <div class="metric-value">100</div>
+                <div class="metric-label">SEO</div>
+                <div class="metric-sublabel">Search Optimized</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Snippet -->
+    <section class="content-section">
+        <h2 class="section-title">Technical Implementation</h2>
+        <p class="section-description">
+            A glimpse into our optimized React architecture with TypeScript for type safety and maintainability.
+        </p>
+        <div class="code-section">
+            <div class="code-header">
+                <span class="code-filename">components/SecureTransaction.tsx</span>
+                <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            </div>
+            <div class="code-block">
+                <pre><code><span class="code-keyword">import</span> React, { useState, useEffect } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;
+<span class="code-keyword">import</span> { useAuth } <span class="code-keyword">from</span> <span class="code-string">'@/hooks/useAuth'</span>;
+
+<span class="code-keyword">interface</span> TransactionProps {
+  amount: <span class="code-keyword">number</span>;
+  recipient: <span class="code-keyword">string</span>;
+  onSuccess: () => <span class="code-keyword">void</span>;
+}
+
+<span class="code-keyword">export const</span> <span class="code-function">SecureTransaction</span>: React.FC&lt;TransactionProps&gt; = ({
+  amount,
+  recipient,
+  onSuccess
+}) => {
+  <span class="code-keyword">const</span> { user, validateSession } = <span class="code-function">useAuth</span>();
+  <span class="code-keyword">const</span> [loading, setLoading] = <span class="code-function">useState</span>(<span class="code-keyword">false</span>);
+
+  <span class="code-comment">// Validate session before transaction</span>
+  <span class="code-function">useEffect</span>(() => {
+    <span class="code-function">validateSession</span>();
+  }, []);
+
+  <span class="code-keyword">const</span> <span class="code-function">handleTransaction</span> = <span class="code-keyword">async</span> () => {
+    <span class="code-function">setLoading</span>(<span class="code-keyword">true</span>);
+    <span class="code-keyword">try</span> {
+      <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> <span class="code-function">secureAPI</span>.<span class="code-function">processTransaction</span>({
+        amount,
+        recipient,
+        userId: user.id
+      });
+      <span class="code-function">onSuccess</span>();
+    } <span class="code-keyword">catch</span> (error) {
+      <span class="code-function">console.error</span>(<span class="code-string">'Transaction failed:'</span>, error);
+    } <span class="code-keyword">finally</span> {
+      <span class="code-function">setLoading</span>(<span class="code-keyword">false</span>);
+    }
+  };
+
+  <span class="code-keyword">return</span> <span class="code-comment">/* Component JSX */</span>;
+};</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technologies Used -->
+    <section class="content-section">
+        <h2 class="section-title">Technologies Used</h2>
+        <div class="tech-stack">
+            <span class="tech-badge">React 18</span>
+            <span class="tech-badge">TypeScript</span>
+            <span class="tech-badge">Node.js</span>
+            <span class="tech-badge">Express</span>
+            <span class="tech-badge">PostgreSQL</span>
+            <span class="tech-badge">Redis</span>
+            <span class="tech-badge">AWS</span>
+            <span class="tech-badge">Docker</span>
+            <span class="tech-badge">Tailwind CSS</span>
+            <span class="tech-badge">Jest</span>
+            <span class="tech-badge">Cypress</span>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="testimonial-section">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-text">
+            UYEH TECH transformed our outdated platform into a modern, secure, and lightning-fast fintech solution. 
+            Our user engagement has skyrocketed, and we've seen a 200% increase in conversions. Their technical 
+            expertise and attention to detail is unmatched.
+        </p>
+        <div class="testimonial-author">Sarah Johnson</div>
+        <div class="testimonial-role">CTO, SecureFinance Inc.</div>
+    </section>
+
+    <!-- Results Summary -->
+    <section class="content-section">
+        <h2 class="section-title">Results & Impact</h2>
+        <div class="performance-grid">
+            <div class="metric-card">
+                <div class="metric-value">200%</div>
+                <div class="metric-label">Traffic Increase</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">291%</div>
+                <div class="metric-label">Conversion Boost</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">79%</div>
+                <div class="metric-label">Faster Load Time</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">4.8/5</div>
+                <div class="metric-label">User Satisfaction</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Transform Your Platform?</h2>
+        <p class="cta-description">
+            Let's discuss how we can help you achieve similar results with your digital project.
+        </p>
+        <div class="cta-buttons">
+            <a href="../../index.html#contact" class="cta-btn cta-btn-primary">Start Your Project</a>
+            <a href="index.html" class="cta-btn cta-btn-secondary">View More Cases</a>
+        </div>
+    </section>
+
+    <script>
+        function copyCode() {
+            const codeBlock = document.querySelector('.code-block code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.content-card, .metric-card, .testimonial-section').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

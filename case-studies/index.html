@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Studies - UYEH TECH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header Section */
+        .hero-section {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            line-height: 1.2;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            max-width: 1400px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #00ff88;
+            color: #0a0a0a;
+            border-color: #00ff88;
+            transform: translateY(-2px);
+        }
+
+        /* Case Studies Grid */
+        .case-studies-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .case-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .case-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .case-card:hover {
+            transform: translateY(-10px);
+            border-color: #00ff88;
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.2);
+        }
+
+        .case-card:hover::before {
+            opacity: 1;
+        }
+
+        .case-image {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-image::after {
+            content: 'UYEH TECH';
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(0, 255, 136, 0.05);
+            letter-spacing: 2px;
+        }
+
+        .mockup-placeholder {
+            width: 85%;
+            height: 85%;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: rgba(0, 255, 136, 0.6);
+        }
+
+        .case-content {
+            padding: 2rem;
+            position: relative;
+        }
+
+        .case-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .case-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .case-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .case-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 255, 136, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+
+        .view-case-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-case-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+            transform: translateX(5px);
+        }
+
+        .view-case-btn::after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+
+        .view-case-btn:hover::after {
+            transform: translateX(5px);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 255, 136, 0.02) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.5rem;
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .case-studies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .case-studies-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .case-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-section {
+                gap: 0.5rem;
+            }
+
+            .filter-btn {
+                font-size: 0.85rem;
+                padding: 0.6rem 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .cta-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <span class="badge">Our Work</span>
+            <h1>Case Studies</h1>
+            <p class="hero-description">
+                Discover how we've helped businesses transform their digital presence through innovative web development, 
+                stunning UI/UX design, and mobile-first solutions.
+            </p>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <button class="filter-btn active" data-filter="all">All Projects</button>
+        <button class="filter-btn" data-filter="webdev">Web Development</button>
+        <button class="filter-btn" data-filter="uiux">UI/UX Design</button>
+        <button class="filter-btn" data-filter="mobile">Mobile Apps</button>
+        <button class="filter-btn" data-filter="ecommerce">E-Commerce</button>
+    </section>
+
+    <!-- Case Studies Grid -->
+    <section class="case-studies-grid">
+        <!-- Project Alpha -->
+        <article class="case-card" data-category="webdev uiux">
+            <div class="case-image">
+                <div class="mockup-placeholder">Website Mockup Preview</div>
+            </div>
+            <div class="case-content">
+                <div class="case-tags">
+                    <span class="tag">#WebDev</span>
+                    <span class="tag">#UI/UX</span>
+                    <span class="tag">#React</span>
+                </div>
+                <h2 class="case-title">Project Alpha</h2>
+                <p class="case-description">
+                    A complete digital transformation for a fintech startup, featuring a modern web platform 
+                    with seamless user experience and cutting-edge security features.
+                </p>
+                <div class="case-stats">
+                    <div class="stat">
+                        <span class="stat-value">95</span>
+                        <span class="stat-label">Performance</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">200%</span>
+                        <span class="stat-label">Traffic ↑</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">4.8/5</span>
+                        <span class="stat-label">User Rating</span>
+                    </div>
+                </div>
+                <a href="project-alpha.html" class="view-case-btn">View Case Study</a>
+            </div>
+        </article>
+
+        <!-- Project Beta -->
+        <article class="case-card" data-category="mobile uiux">
+            <div class="case-image">
+                <div class="mockup-placeholder">Mobile App Preview</div>
+            </div>
+            <div class="case-content">
+                <div class="case-tags">
+                    <span class="tag">#MobileApp</span>
+                    <span class="tag">#UI/UX</span>
+                    <span class="tag">#Flutter</span>
+                </div>
+                <h2 class="case-title">Project Beta</h2>
+                <p class="case-description">
+                    An innovative mobile fitness application designed to revolutionize personal training 
+                    with AI-powered workout plans and real-time progress tracking.
+                </p>
+                <div class="case-stats">
+                    <div class="stat">
+                        <span class="stat-value">50K+</span>
+                        <span class="stat-label">Downloads</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">4.9/5</span>
+                        <span class="stat-label">App Rating</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">92%</span>
+                        <span class="stat-label">Retention</span>
+                    </div>
+                </div>
+                <a href="project-beta.html" class="view-case-btn">View Case Study</a>
+            </div>
+        </article>
+
+        <!-- UYEH SUBS -->
+        <article class="case-card" data-category="webdev">
+            <div class="case-image">
+                <div class="mockup-placeholder">Digital Services Platform</div>
+            </div>
+            <div class="case-content">
+                <div class="case-tags">
+                    <span class="tag">#Platform</span>
+                    <span class="tag">#WebDev</span>
+                    <span class="tag">#AI/ML</span>
+                </div>
+                <h2 class="case-title">UYEH SUBS</h2>
+                <p class="case-description">
+                    A comprehensive digital services marketplace connecting businesses with top-tier professionals 
+                    for web development, design, and digital marketing solutions.
+                </p>
+                <div class="case-stats">
+                    <div class="stat">
+                        <span class="stat-value">15K+</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">2,500+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">4.8/5</span>
+                        <span class="stat-label">Rating</span>
+                    </div>
+                </div>
+                <a href="uyeh-subs.html" class="view-case-btn">View Case Study</a>
+            </div>
+        </article>
+
+        <!-- Oxygen Hotel -->
+        <article class="case-card" data-category="webdev mobile">
+            <div class="case-image">
+                <div class="mockup-placeholder">Hotel Booking System</div>
+            </div>
+            <div class="case-content">
+                <div class="case-tags">
+                    <span class="tag">#Hospitality</span>
+                    <span class="tag">#WebDev</span>
+                    <span class="tag">#Mobile</span>
+                </div>
+                <h2 class="case-title">Oxygen Hotel</h2>
+                <p class="case-description">
+                    Complete digital ecosystem for a luxury boutique hotel featuring seamless booking, 
+                    property management, and guest engagement platform.
+                </p>
+                <div class="case-stats">
+                    <div class="stat">
+                        <span class="stat-value">244%</span>
+                        <span class="stat-label">Booking ↑</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">$1.8M</span>
+                        <span class="stat-label">Revenue</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">4.7/5</span>
+                        <span class="stat-label">Satisfaction</span>
+                    </div>
+                </div>
+                <a href="oxygen-hotel.html" class="view-case-btn">View Case Study</a>
+            </div>
+        </article>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Start Your Project?</h2>
+        <p class="cta-description">
+            Let's collaborate to build exceptional digital experiences that drive results. 
+            Get in touch with us today and transform your vision into reality.
+        </p>
+        <a href="/contact" class="cta-btn">
+            Get Started
+            <span>→</span>
+        </a>
+    </section>
+
+    <script>
+        // Filter Functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const caseCards = document.querySelectorAll('.case-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                caseCards.forEach(card => {
+                    if (filterValue === 'all') {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'scale(1)';
+                        }, 10);
+                    } else {
+                        const categories = card.getAttribute('data-category');
+                        if (categories.includes(filterValue)) {
+                            card.style.display = 'block';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'scale(1)';
+                            }, 10);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    }
+                });
+            });
+        });
+
+        // Scroll Animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        caseCards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   🍪 COMPLETE COOKIE CONSENT SYSTEM - v2.0
+   Includes: Banner, Modal, Backend Integration, GDPR Compliance
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ========== COOKIE BANNER ========== */
+.cookie-consent {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(20px);
+    border-top: 2px solid #00ff88;
+    padding: 25px 30px;
+    z-index: 9999;
+    box-shadow: 0 -5px 30px rgba(0, 255, 136, 0.3);
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.cookie-consent.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.cookie-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.cookie-icon {
+    font-size: 3em;
+    flex-shrink: 0;
+    animation: cookieBounce 2s ease-in-out infinite;
+}
+
+@keyframes cookieBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.cookie-text {
+    flex: 1;
+}
+
+.cookie-text h3 {
+    color: #00ff88;
+    font-size: 1.3em;
+    margin-bottom: 8px;
+    font-family: 'Playfair Display', serif;
+}
+
+.cookie-text p {
+    color: #d1d5db;
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.cookie-link {
+    color: #00ff88;
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+
+.cookie-link:hover {
+    color: #00cc66;
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.cookie-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.accept-btn, .accept-all-btn {
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    color: #fff;
+}
+
+.accept-btn:hover, .accept-all-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+}
+
+.settings-btn {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    color: #00ff88;
+}
+
+.settings-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.reject-btn {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    color: #ff4444;
+}
+
+.reject-btn:hover {
+    background: rgba(255, 68, 68, 0.2);
+}
+
+/* ========== COOKIE SETTINGS MODAL ========== */
+.cookie-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.cookie-modal.show {
+    display: flex;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.cookie-modal-content {
+    background: #0a0a0a;
+    border: 2px solid #00ff88;
+    border-radius: 20px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 255, 136, 0.4);
+    animation: modalSlideUp 0.4s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cookie-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    background: rgba(0, 255, 136, 0.1);
+    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.cookie-modal-header h2 {
+    color: #00ff88;
+    font-size: 1.8em;
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.close-modal {
+    background: rgba(255, 68, 68, 0.2);
+    border: 1px solid rgba(255, 68, 68, 0.4);
+    color: #ff4444;
+    font-size: 1.8em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    background: rgba(255, 68, 68, 0.3);
+    transform: rotate(90deg);
+}
+
+.cookie-modal-body {
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.cookie-modal-body > p {
+    color: #d1d5db;
+    margin-bottom: 25px;
+    line-height: 1.7;
+}
+
+.cookie-category {
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.cookie-category:hover {
+    border-color: rgba(0, 255, 136, 0.4);
+    background: rgba(0, 255, 136, 0.08);
+}
+
+.cookie-toggle-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.cookie-category-info {
+    flex: 1;
+}
+
+.cookie-category-info h3 {
+    color: #00ff88;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.always-active {
+    font-size: 0.7em;
+    background: rgba(0, 255, 136, 0.2);
+    padding: 3px 10px;
+    border-radius: 12px;
+    color: #00ff88;
+}
+
+.cookie-category-info p {
+    color: #d1d5db;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.cookie-details {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.cookie-details p {
+    color: #d1d5db;
+    font-size: 0.85em;
+    margin: 5px 0;
+}
+
+/* ========== TOGGLE SWITCH ========== */
+.cookie-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.cookie-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cookie-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.cookie-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .cookie-slider {
+    background-color: #00ff88;
+}
+
+input:checked + .cookie-slider:before {
+    transform: translateX(24px);
+}
+
+input:disabled + .cookie-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cookie-modal-footer {
+    padding: 20px 30px;
+    background: rgba(0, 255, 136, 0.05);
+    border-top: 1px solid rgba(0, 255, 136, 0.2);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.save-btn {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    color: #00ff88;
+}
+
+.save-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+/* ========== AUTH STATUS INDICATOR ========== */
+.auth-cookie-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 15px;
+    font-size: 0.75em;
+    color: #00ff88;
+}
+
+.auth-cookie-status.active {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.auth-cookie-status.inactive {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .cookie-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .cookie-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .cookie-btn {
+        width: 100%;
+    }
+
+    .cookie-modal-content {
+        max-height: 95vh;
+    }
+
+    .cookie-modal-header {
+        padding: 20px;
+    }
+
+    .cookie-modal-body {
+        padding: 20px;
+    }
+
+    .cookie-modal-footer {
+        flex-direction: column;
+        padding: 15px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cookie-consent {
+        padding: 20px 15px;
+    }
+
+    .cookie-icon {
+        font-size: 2em;
+    }
+
+    .cookie-text h3 {
+        font-size: 1.1em;
+    }
+
+    .cookie-text p {
+        font-size: 0.85em;
+    }
+
+    .cookie-modal-header h2 {
+        font-size: 1.4em;
+    }
+}
+
+</style>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     🍪 COOKIE CONSENT BANNER & MODAL
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Cookie Consent Banner -->
+<div id="cookieConsent" class="cookie-consent">
+    <div class="cookie-content">
+        <div class="cookie-icon">🍪</div>
+        <div class="cookie-text">
+            <h3>We Value Your Privacy</h3>
+            <p>We use cookies to enhance your browsing experience, analyze site traffic, personalize content, and maintain secure sessions. By clicking "Accept All", you consent to our use of cookies. <a href="/privacy.html" class="cookie-link">Learn more</a></p>
+        </div>
+        <div class="cookie-buttons">
+            <button onclick="cookieSystem.acceptAll()" class="cookie-btn accept-btn">Accept All</button>
+            <button onclick="cookieSystem.showSettings()" class="cookie-btn settings-btn">Customize</button>
+            <button onclick="cookieSystem.rejectAll()" class="cookie-btn reject-btn">Reject All</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cookie Settings Modal -->
+<div id="cookieSettings" class="cookie-modal">
+    <div class="cookie-modal-content">
+        <div class="cookie-modal-header">
+            <h2>🍪 Cookie Preferences</h2>
+            <button onclick="cookieSystem.closeSettings()" class="close-modal">&times;</button>
+        </div>
+        
+        <div class="cookie-modal-body">
+            <p>We use different types of cookies to optimize your experience. Choose which categories to enable:</p>
+            
+            <!-- Essential Cookies -->
+            <div class="cookie-category">
+                <div class="cookie-toggle-wrapper">
+                    <label class="cookie-switch">
+                        <input type="checkbox" id="essentialCookies" checked disabled>
+                        <span class="cookie-slider"></span>
+                    </label>
+                    <div class="cookie-category-info">
+                        <h3>✅ Essential Cookies <span class="always-active">Always Active</span></h3>
+                        <p>Required for basic website functionality and security. Cannot be disabled.</p>
+                    </div>
+                </div>
+                <div class="cookie-details">
+                    <p><strong>Purpose:</strong> Authentication, session management, security</p>
+                    <p><strong>Backend Cookies:</strong> uyeh_auth_token (7 days), uyeh_user (7 days)</p>
+                    <p><strong>Access Cookies:</strong> uyeh_access_session (30 minutes)</p>
+                </div>
+            </div>
+
+            <!-- Analytics Cookies -->
+            <div class="cookie-category">
+                <div class="cookie-toggle-wrapper">
+                    <label class="cookie-switch">
+                        <input type="checkbox" id="analyticsCookies">
+                        <span class="cookie-slider"></span>
+                    </label>
+                    <div class="cookie-category-info">
+                        <h3>📊 Analytics Cookies</h3>
+                        <p>Help us understand how visitors interact with our website.</p>
+                    </div>
+                </div>
+                <div class="cookie-details">
+                    <p><strong>Purpose:</strong> Google Analytics, page views, user behavior analysis</p>
+                    <p><strong>Cookies:</strong> _ga (2 years), _gid (24 hours), _gat (1 minute)</p>
+                    <p><strong>Provider:</strong> Google Analytics</p>
+                </div>
+            </div>
+
+            <!-- Marketing Cookies -->
+            <div class="cookie-category">
+                <div class="cookie-toggle-wrapper">
+                    <label class="cookie-switch">
+                        <input type="checkbox" id="marketingCookies">
+                        <span class="cookie-slider"></span>
+                    </label>
+                    <div class="cookie-category-info">
+                        <h3>📢 Marketing Cookies</h3>
+                        <p>Track visitors across websites to display relevant ads.</p>
+                    </div>
+                </div>
+                <div class="cookie-details">
+                    <p><strong>Purpose:</strong> Facebook Pixel, advertising, retargeting campaigns</p>
+                    <p><strong>Cookies:</strong> _fbp (90 days), fr (90 days)</p>
+                    <p><strong>Provider:</strong> Facebook/Meta</p>
+                </div>
+            </div>
+
+            <!-- Preference Cookies -->
+            <div class="cookie-category">
+                <div class="cookie-toggle-wrapper">
+                    <label class="cookie-switch">
+                        <input type="checkbox" id="preferenceCookies">
+                        <span class="cookie-slider"></span>
+                    </label>
+                    <div class="cookie-category-info">
+                        <h3>⚙️ Preference Cookies</h3>
+                        <p>Remember your preferences and settings for a better experience.</p>
+                    </div>
+                </div>
+                <div class="cookie-details">
+                    <p><strong>Purpose:</strong> Language preferences, theme settings, user customizations</p>
+                    <p><strong>Storage:</strong> localStorage (persistent)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cookie-modal-footer">
+            <button onclick="cookieSystem.saveSettings()" class="cookie-btn save-btn">Save Settings</button>
+            <button onclick="cookieSystem.acceptAll()" class="cookie-btn accept-all-btn">Accept All</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// 🍪 COMPLETE COOKIE CONSENT SYSTEM v2.0
+// Includes: LocalStorage + Backend Cookie Integration + GDPR Compliance
+// ═══════════════════════════════════════════════════════════════════════════
+
+const cookieSystem = {
+    // Configuration
+    config: {
+        consentKey: 'uyeh_cookie_consent',
+        consentDateKey: 'uyeh_cookie_consent_date',
+        backendCookies: ['uyeh_auth_token', 'uyeh_user', 'uyeh_access_session'],
+        expiryDays: 365
+    },
+
+    // Initialize on page load
+    init() {
+        console.log('🍪 Cookie System Initializing...');
+        
+        // Check for existing consent
+        const consent = this.getConsent();
+        
+        if (!consent) {
+            // No consent yet - show banner after 2 seconds
+            setTimeout(() => {
+                this.showBanner();
+            }, 2000);
+        } else {
+            // Apply saved preferences
+            this.applyPreferences(consent);
+            console.log('✅ Cookie preferences applied:', consent);
+        }
+
+        // Check for backend authentication cookies
+        this.checkBackendAuth();
+
+        // Listen for backend cookie changes
+        this.monitorBackendCookies();
+    },
+
+    // Show cookie banner
+    showBanner() {
+        const banner = document.getElementById('cookieConsent');
+        if (banner) {
+            banner.classList.add('show');
+            console.log('📢 Cookie banner displayed');
+        }
+    },
+
+    // Hide cookie banner
+    hideBanner() {
+        const banner = document.getElementById('cookieConsent');
+        if (banner) {
+            banner.classList.remove('show');
+        }
+    },
+
+    // Accept all cookies
+    acceptAll() {
+        const preferences = {
+            essential: true,
+            analytics: true,
+            marketing: true,
+            preference: true
+        };
+        this.saveConsent(preferences);
+        this.hideBanner();
+        this.closeSettings();
+        console.log('✅ All cookies accepted');
+    },
+
+    // Reject non-essential cookies
+    rejectAll() {
+        const preferences = {
+            essential: true,
+            analytics: false,
+            marketing: false,
+            preference: false
+        };
+        this.saveConsent(preferences);
+        this.hideBanner();
+        console.log('❌ Non-essential cookies rejected');
+    },
+
+    // Show settings modal
+    showSettings() {
+        const modal = document.getElementById('cookieSettings');
+        if (modal) {
+            modal.classList.add('show');
+            
+            // Load saved preferences
+            const consent = this.getConsent();
+            if (consent) {
+                document.getElementById('analyticsCookies').checked = consent.analytics;
+                document.getElementById('marketingCookies').checked = consent.marketing;
+                document.getElementById('preferenceCookies').checked = consent.preference;
+            }
+        }
+    },
+
+    // Close settings modal
+    closeSettings() {
+        const modal = document.getElementById('cookieSettings');
+        if (modal) {
+            modal.classList.remove('show');
+        }
+    },
+
+    // Save custom settings
+    saveSettings() {
+        const preferences = {
+            essential: true,
+            analytics: document.getElementById('analyticsCookies').checked,
+            marketing: document.getElementById('marketingCookies').checked,
+            preference: document.getElementById('preferenceCookies').checked
+        };
+        this.saveConsent(preferences);
+        this.closeSettings();
+        this.hideBanner();
+        console.log('💾 Cookie settings saved:', preferences);
+    },
+
+    // Save consent to localStorage
+    saveConsent(preferences) {
+        localStorage.setItem(this.config.consentKey, JSON.stringify(preferences));
+        localStorage.setItem(this.config.consentDateKey, new Date().toISOString());
+        this.applyPreferences(preferences);
+    },
+
+    // Get consent from localStorage
+    getConsent() {
+        const consent = localStorage.getItem(this.config.consentKey);
+        return consent ? JSON.parse(consent) : null;
+    },
+
+    // Apply cookie preferences
+    applyPreferences(preferences) {
+        // Essential cookies (always enabled)
+        console.log('🔐 Essential cookies: ACTIVE');
+
+        // Analytics cookies
+        if (preferences.analytics) {
+            this.enableAnalytics();
+        } else {
+            this.disableAnalytics();
+        }
+
+        // Marketing cookies
+        if (preferences.marketing) {
+            this.enableMarketing();
+        } else {
+            this.disableMarketing();
+        }
+
+        // Preference cookies
+        if (preferences.preference) {
+            this.enablePreferences();
+        }
+    },
+
+    // Enable Google Analytics
+    enableAnalytics() {
+        if (typeof gtag !== 'undefined') {
+            gtag('consent', 'update', {
+                'analytics_storage': 'granted'
+            });
+            console.log('📊 Analytics cookies: ENABLED');
+        } else {
+            // Load Google Analytics script if not already loaded
+            console.log('📊 Analytics cookies: ENABLED (gtag not loaded yet)');
+        }
+    },
+
+    // Disable Google Analytics
+    disableAnalytics() {
+        if (typeof gtag !== 'undefined') {
+            gtag('consent', 'update', {
+                'analytics_storage': 'denied'
+            });
+        }
+        console.log('📊 Analytics cookies: DISABLED');
+    },
+
+    // Enable Marketing/Facebook Pixel
+    enableMarketing() {
+        if (typeof fbq !== 'undefined') {
+            fbq('consent', 'grant');
+            console.log('📢 Marketing cookies: ENABLED');
+        } else {
+            console.log('📢 Marketing cookies: ENABLED (fbq not loaded yet)');
+        }
+    },
+
+    // Disable Marketing
+    disableMarketing() {
+        if (typeof fbq !== 'undefined') {
+            fbq('consent', 'revoke');
+        }
+        console.log('📢 Marketing cookies: DISABLED');
+    },
+
+    // Enable Preference cookies
+    enablePreferences() {
+        console.log('⚙️ Preference cookies: ENABLED');
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // 🔐 BACKEND COOKIE INTEGRATION
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // Get cookie value by name
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            return parts.pop().split(';').shift();
+        }
+        return null;
+    },
+
+    // Check for backend authentication cookies
+    checkBackendAuth() {
+        const authToken = this.getCookie('uyeh_auth_token');
+        const userData = this.getCookie('uyeh_user');
+        const accessSession = this.getCookie('uyeh_access_session');
+
+        if (authToken) {
+            console.log('✅ Backend Auth Cookie Found: uyeh_auth_token');
+            
+            try {
+                if (userData) {
+                    const user = JSON.parse(decodeURIComponent(userData));
+                    console.log('👤 User Data:', {
+                        name: user.fullName || user.name,
+                        email: user.email,
+                        isAdmin: user.isAdmin,
+                        isAgent: user.isAgent
+                    });
+
+                    // Update UI for logged-in user
+                    this.updateUIForLoggedInUser(user);
+                }
+            } catch (error) {
+                console.error('Error parsing user cookie:', error);
+            }
+        } else {
+            console.log('ℹ️ No backend authentication cookies found');
+        }
+
+        if (accessSession) {
+            console.log('🔐 Access Session Active:', accessSession);
+        }
+    },
+
+    // Monitor backend cookies for changes
+    monitorBackendCookies() {
+        let lastAuthToken = this.getCookie('uyeh_auth_token');
+
+        setInterval(() => {
+            const currentAuthToken = this.getCookie('uyeh_auth_token');
+            
+            if (currentAuthToken !== lastAuthToken) {
+                if (currentAuthToken) {
+                    console.log('🔄 User logged in - Backend cookie detected');
+                    this.checkBackendAuth();
+                } else {
+                    console.log('🔄 User logged out - Backend cookie removed');
+                    this.updateUIForLoggedOutUser();
+                }
+                lastAuthToken = currentAuthToken;
+            }
+        }, 2000); // Check every 2 seconds
+    },
+
+    // Update UI for logged-in user
+    updateUIForLoggedInUser(user) {
+        // Example: Update navigation or show user menu
+        console.log('🎨 UI Updated for logged-in user');
+        
+        // You can add custom UI updates here
+        // Example: Show "My Account" link, hide "Login" button, etc.
+    },
+
+    // Update UI for logged-out user
+    updateUIForLoggedOutUser() {
+        console.log('🎨 UI Updated for logged-out user');
+        
+        // Reset UI to logged-out state
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // 🛠️ UTILITY FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // Reset all cookie consent (for testing)
+    reset() {
+        localStorage.removeItem(this.config.consentKey);
+        localStorage.removeItem(this.config.consentDateKey);
+        console.log('🔄 Cookie consent reset');
+        location.reload();
+    },
+
+    // Get consent status
+    getStatus() {
+        const consent = this.getConsent();
+        const backendAuth = this.getCookie('uyeh_auth_token') ? 'Active' : 'Inactive';
+        
+        console.log('📊 Cookie Status Report:');
+        console.log('  Consent Given:', !!consent);
+        console.log('  Analytics:', consent?.analytics ? 'ON' : 'OFF');
+        console.log('  Marketing:', consent?.marketing ? 'ON' : 'OFF');
+        console.log('  Preferences:', consent?.preference ? 'ON' : 'OFF');
+        console.log('  Backend Auth:', backendAuth);
+        
+        return {
+            consent,
+            backendAuth,
+            cookies: document.cookie
+        };
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🚀 AUTO-INITIALIZE ON PAGE LOAD
+// ═══════════════════════════════════════════════════════════════════════════
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => cookieSystem.init());
+} else {
+    cookieSystem.init();
+}
+
+// Make cookieSystem globally accessible
+window.cookieSystem = cookieSystem;
+
+console.log('✅ Cookie System v2.0 Loaded');
+console.log('💡 Commands: cookieSystem.getStatus(), cookieSystem.reset()');
+</script>
+
+</body>
+</html>

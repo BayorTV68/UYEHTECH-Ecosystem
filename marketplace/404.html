@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | UYEH TECH</title>
+    <meta name="description" content="Sorry, the page you're looking for doesn't exist.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+   <style>
+     /* ========================================
+   404 ERROR PAGE STYLESHEET
+   File: 404-style.css
+   ======================================== */
+
+/* ========== RESET & BASE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #0a0a0a;
+    color: #d1d5db;
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+/* ========== ERROR CONTAINER ========== */
+.error-container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* ========== ANIMATED BACKGROUND (STARS) ========== */
+.stars,
+.stars2,
+.stars3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars {
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 60px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 50px 50px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 130px 80px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 90px 10px, #fff, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: zoom 20s alternate infinite;
+    opacity: 0.3;
+}
+
+.stars2 {
+    background-image: 
+        radial-gradient(1px 1px at 100px 150px, #00ff88, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 200px 50px, #00ff88, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 50px 200px, #00ff88, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    animation: zoom 15s alternate infinite;
+    opacity: 0.2;
+}
+
+.stars3 {
+    background-image: 
+        radial-gradient(1px 1px at 150px 100px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 250px 200px, #fff, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 300px 300px;
+    animation: zoom 25s alternate infinite;
+    opacity: 0.1;
+}
+
+@keyframes zoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.3); }
+}
+.error-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+}
+
+/* ========== GLITCH EFFECT 404 ========== */
+.glitch-wrapper {
+    margin-bottom: 30px;
+}
+
+.glitch {
+    font-family: 'Playfair Display', serif;
+    font-size: 10em;
+    font-weight: 900;
+    color: #00ff88;
+    position: relative;
+    text-shadow: 
+        0 0 30px rgba(0, 255, 136, 0.5),
+        0 0 60px rgba(0, 255, 136, 0.3);
+    animation: glitch 2s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch::before {
+    animation: glitchTop 3s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+
+.glitch::after {
+    animation: glitchBottom 2.5s infinite;
+    clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+    -webkit-clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitchTop {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-5px, -5px); }
+    40% { transform: translate(-5px, 5px); }
+    60% { transform: translate(5px, -5px); }
+    80% { transform: translate(5px, 5px); }
+}
+
+@keyframes glitchBottom {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(5px, 5px); }
+    40% { transform: translate(5px, -5px); }
+    60% { transform: translate(-5px, 5px); }
+    80% { transform: translate(-5px, -5px); }
+}
+
+/* ========== ERROR MESSAGE ========== */
+.error-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5em;
+    color: #00ff88;
+    margin-bottom: 20px;
+    animation: fadeInUp 1s ease;
+}
+
+.error-description {
+    font-size: 1.1em;
+    color: #d1d5db;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    animation: fadeInUp 1.2s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== SEARCH CONTAINER ========== */
+.search-container {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    gap: 10px;
+    animation: fadeInUp 1.4s ease;
+}
+
+.search-input {
+    flex: 1;
+    padding: 15px 20px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 2px solid rgba(0, 255, 136, 0.3);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1em;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search-btn {
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
+}
+
+/* ========== ACTION BUTTONS ========== */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 50px;
+    flex-wrap: wrap;
+    animation: fadeInUp 1.6s ease;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    color: #fff;
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
+}
+
+.btn-secondary {
+    background: rgba(0, 255, 136, 0.1);
+    border: 2px solid rgba(0, 255, 136, 0.3);
+    color: #00ff88;
+}
+
+.btn-secondary:hover {
+    background: rgba(0, 255, 136, 0.2);
+    border-color: #00ff88;
+}
+
+.btn-tertiary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #d1d5db;
+}
+
+.btn-tertiary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ========== QUICK LINKS ========== */
+.quick-links {
+    margin-bottom: 30px;
+    animation: fadeInUp 1.8s ease;
+}
+
+.quick-links h3 {
+    color: #00ff88;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.links-grid {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.quick-link {
+    padding: 10px 20px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 8px;
+    color: #00ff88;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 0.9em;
+}
+
+.quick-link:hover {
+    background: rgba(0, 255, 136, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ========== ERROR CODE ========== */
+.error-code {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.85em;
+    margin-top: 40px;
+    animation: fadeInUp 2s ease;
+}
+
+.error-code span {
+    color: #00ff88;
+    font-weight: 600;
+}
+
+/* ========== FLOATING ELEMENTS ========== */
+.floating-element {
+    position: absolute;
+    font-size: 3em;
+    opacity: 0.2;
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-element:nth-child(2) {
+    animation-delay: 1s;
+    animation-duration: 7s;
+}
+
+.floating-element:nth-child(3) {
+    animation-delay: 2s;
+    animation-duration: 8s;
+}
+
+.floating-element:nth-child(4) {
+    animation-delay: 3s;
+    animation-duration: 9s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-30px) rotate(180deg);
+    }
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+    .glitch {
+        font-size: 6em;
+    }
+
+    .error-title {
+        font-size: 1.8em;
+    }
+
+    .error-description {
+        font-size: 1em;
+    }
+
+    .search-container {
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .floating-element {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .glitch {
+        font-size: 4em;
+    }
+
+    .error-title {
+        font-size: 1.5em;
+    }
+
+    .error-description {
+        font-size: 0.9em;
+    }
+
+    .error-container {
+        padding: 20px 15px;
+    }
+}
+   </style>
+</head>
+<body>
+
+    <!-- 404 Container -->
+
+  <div class="error-container">
+        <!-- Animated Background -->
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+
+        <!-- Content -->
+        <div class="error-content">
+            <!-- Glitch Effect 404 -->
+            <div class="glitch-wrapper">
+                <h1 class="glitch" data-text="404">404</h1>
+            </div>
+
+            <!-- Error Message -->
+            <h2 class="error-title">Oops! Page Not Found</h2>
+            <p class="error-description">
+                The page you're looking for seems to have vanished into the digital void. 
+                It might have been moved, deleted, or never existed in the first place.
+            </p>
+
+    
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="index.html" class="btn btn-primary">
+                    <span>🏠</span> Go Home
+                </a>
+                <a href="javascript:history.back()" class="btn btn-secondary">
+                    <span>←</span> Go Back
+                </a>
+                <a href="contact.html" class="btn btn-tertiary">
+                    <span>📧</span> Contact Us
+                </a>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="quick-links">
+                <h3>Popular Pages</h3>
+                <div class="links-grid">
+                    <a href="about.html" class="quick-link">About</a>
+                    <a href="services.html" class="quick-link">Services</a>
+                    <a href="projects.html" class="quick-link">Projects</a>
+                    <a href="blogs.html" class="quick-link">Blog</a>
+                </div>
+            </div>
+
+            <!-- Error Code -->
+            <div class="error-code">
+                Error Code: <span id="errorCode">404</span> | 
+                Time: <span id="errorTime"></span>
+            </div>
+        </div>
+
+        <!-- Floating Elements -->
+        <div class="floating-element" style="top: 10%; left: 10%;">💻</div>
+        <div class="floating-element" style="top: 20%; right: 15%;">🌐</div>
+        <div class="floating-element" style="bottom: 15%; left: 20%;">⚡</div>
+        <div class="floating-element" style="bottom: 25%; right: 10%;">🚀</div>
+    </div>
+
+    <!-- Link to external JavaScript -->
+    <script>
+      // ========================================
+// 404 ERROR PAGE JAVASCRIPT
+// File: 404-script.js
+// ========================================
+
+// ========== DISPLAY CURRENT TIME ==========
+function displayTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    document.getElementById('errorTime').textContent = timeString;
+}
+
+// Update time every second
+setInterval(displayTime, 1000);
+displayTime();
+
+// ========== SHAKE ANIMATION ==========
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);
+
+// ========== LOG 404 ERROR (Analytics) ==========
+function log404Error() {
+    const errorData = {
+        url: window.location.href,
+        referrer: document.referrer || 'Direct',
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Send to Google Analytics if available
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'exception', {
+            'description': '404 Error',
+            'fatal': false,
+            'page_location': window.location.href,
+            'page_referrer': document.referrer
+        });
+        console.log('📊 404 error logged to Google Analytics');
+    }
+    
+    // Log to console
+    console.error('404 Error:', errorData);
+    
+    // Optional: Send to your backend
+    // fetch('/api/log-404', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(errorData)
+    // });
+}
+
+// Log the error
+log404Error();
+
+// ========== SMART REDIRECT SUGGESTIONS ==========
+function suggestRedirect() {
+    const currentUrl = window.location.pathname.toLowerCase();
+    const suggestions = {
+        'about': 'about.html',
+        'service': 'services.html',
+        'portfolio': 'projects.html',
+        'project': 'projects.html',
+        'blog': 'blogs.html',
+        'article': 'blogs.html',
+        'contact': 'contacts.html',
+        'reach': 'contacts.html',
+        'privacy': 'privacy.html',
+        'terms': 'terms.html',
+        'sitemap': 'sitemap.html'
+    };
+    
+    // Check if URL contains any keywords
+    for (const [keyword, page] of Object.entries(suggestions)) {
+        if (currentUrl.includes(keyword)) {
+            showSuggestion(page, keyword);
+            return;
+        }
+    }
+}
+
+function showSuggestion(page, keyword) {
+    const suggestionDiv = document.createElement('div');
+    suggestionDiv.style.cssText = `
+        background: rgba(0, 255, 136, 0.1);
+        border: 2px solid rgba(0, 255, 136, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 30px auto;
+        max-width: 500px;
+        text-align: center;
+        animation: fadeInUp 1s ease;
+    `;
+    
+    suggestionDiv.innerHTML = `
+        <p style="color: #00ff88; margin-bottom: 15px; font-weight: 600;">
+            💡 Did you mean to visit our ${keyword} page?
+        </p>
+        <a href="${page}" style="
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #00b359, #00ff88);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        ">Go to ${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Page →</a>
+    `;
+    
+    document.querySelector('.error-content').insertBefore(
+        suggestionDiv,
+        document.querySelector('.quick-links')
+    );
+}
+
+// Run suggestion check
+suggestRedirect();
+
+// ========== EASTER EGG: KONAMI CODE ==========
+let konamiCode = [];
+const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+document.addEventListener('keydown', function(e) {
+    konamiCode.push(e.key);
+    konamiCode = konamiCode.slice(-10);
+    
+    if (konamiCode.join(',') === konamiSequence.join(',')) {
+        activateEasterEgg();
+    }
+});
+
+function activateEasterEgg() {
+    // Change colors and add confetti effect
+    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    
+    // Show message
+    alert('🎉 Konami Code Activated! You found the secret! 🎮');
+    
+    // Add rainbow effect to 404
+    const glitch = document.querySelector('.glitch');
+    glitch.style.animation = 'rainbow 2s linear infinite';
+    
+    const rainbowStyle = document.createElement('style');
+    rainbowStyle.textContent = `
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            14% { color: #ff7f00; }
+            28% { color: #ffff00; }
+            42% { color: #00ff00; }
+            57% { color: #0000ff; }
+            71% { color: #4b0082; }
+            85% { color: #9400d3; }
+            100% { color: #ff0000; }
+        }
+    `;
+    document.head.appendChild(rainbowStyle);
+    
+    console.log('🎮 Easter egg activated!');
+}
+
+// ========== AUTO REDIRECT AFTER TIMER (OPTIONAL) ==========
+// Uncomment to enable automatic redirect after 10 seconds
+/*
+let countdown = 10;
+const redirectTimer = setInterval(() => {
+    countdown--;
+    if (countdown <= 0) {
+        clearInterval(redirectTimer);
+        window.location.href = 'index.html';
+    }
+}, 1000);
+
+// Display countdown (add to HTML)
+const countdownDiv = document.createElement('div');
+countdownDiv.style.cssText = `
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9em;
+    margin-top: 20px;
+`;
+countdownDiv.innerHTML = `Redirecting to home in <span id="countdown">${countdown}</span> seconds...`;
+document.querySelector('.error-content').appendChild(countdownDiv);
+
+const countdownInterval = setInterval(() => {
+    document.getElementById('countdown').textContent = countdown;
+}, 1000);
+*/
+
+// ========== PREVENT BACK BUTTON LOOP ==========
+// If user came from 404, redirect to home instead of going back
+window.addEventListener('popstate', function(e) {
+    if (document.referrer.includes('404')) {
+        window.location.href = 'index.html';
+    }
+});
+
+// ========== CONSOLE MESSAGES ==========
+console.log('%c404 Error Page Loaded', 'color: #00ff88; font-size: 20px; font-weight: bold;');
+console.log('%cTry the Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A', 'color: #00ff88; font-size: 14px;');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('Page:', window.location.href);
+console.log('Referrer:', document.referrer || 'None');
+console.log('User Agent:', navigator.userAgent);
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+// ========== MOUSE TRAIL EFFECT (OPTIONAL) ==========
+document.addEventListener('mousemove', function(e) {
+    const trail = document.createElement('div');
+    trail.style.cssText = `
+        position: fixed;
+        width: 5px;
+        height: 5px;
+        background: #00ff88;
+        border-radius: 50%;
+        pointer-events: none;
+        left: ${e.pageX}px;
+        top: ${e.pageY}px;
+        opacity: 0.7;
+        z-index: 9999;
+        animation: fadeOutTrail 1s ease;
+    `;
+    document.body.appendChild(trail);
+    
+    setTimeout(() => trail.remove(), 1000);
+});
+
+const trailStyle = document.createElement('style');
+trailStyle.textContent = `
+    @keyframes fadeOutTrail {
+        to {
+            opacity: 0;
+            transform: scale(0);
+        }
+    }
+`;
+document.head.appendChild(trailStyle);
+
+console.log('✅ 404 Page Script Loaded Successfully');
+    </script>
+</body>
+</html>

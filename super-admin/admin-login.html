@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - UYEH TECH</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* BACKGROUND ANIMATION - FIXED Z-INDEX */
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none; /* This prevents the background from blocking clicks */
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 136, 0.15), transparent);
+    animation: float 20s infinite;
+}
+
+.circle-1 {
+    width: 300px;
+    height: 300px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.circle-2 {
+    width: 200px;
+    height: 200px;
+    bottom: 20%;
+    right: 15%;
+    animation-delay: 5s;
+}
+
+.circle-3 {
+    width: 250px;
+    height: 250px;
+    top: 50%;
+    left: 60%;
+    animation-delay: 10s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(50px, -50px) scale(1.1);
+        opacity: 0.5;
+    }
+}
+
+/* LOGIN CONTAINER - HIGHER Z-INDEX */
+.login-container {
+    position: relative;
+    z-index: 100;
+    width: 100%;
+    max-width: 480px;
+    padding: 20px;
+}
+
+.login-card {
+    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95), rgba(10, 10, 10, 0.95));
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 20px;
+    padding: 50px 40px;
+    box-shadow: 0 20px 60px rgba(0, 255, 136, 0.2);
+    backdrop-filter: blur(10px);
+    animation: slideUp 0.5s ease;
+    position: relative;
+    z-index: 101;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* LOGIN HEADER */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.admin-logo {
+    margin-bottom: 20px;
+    animation: glow 2s ease-in-out infinite;
+}
+
+.logo-placeholder {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.8));
+    }
+}
+
+.login-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #00ff88;
+    margin-bottom: 10px;
+    text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+}
+
+.login-subtitle {
+    color: #9ca3af;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* FORM - ENSURE INPUTS ARE CLICKABLE */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: relative;
+    z-index: 102;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-label {
+    color: #00ff88;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.label-icon {
+    font-size: 1.2rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 18px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 103;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* PASSWORD INPUT */
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 5px;
+    z-index: 104;
+}
+
+.toggle-password:hover {
+    color: #00ff88;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* FORM OPTIONS */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #d1d5db;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #00ff88;
+}
+
+/* LOGIN BUTTON */
+.login-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    position: relative;
+    z-index: 103;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* SECURITY NOTICE */
+.security-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 10px;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin-top: 10px;
+}
+
+.security-icon {
+    font-size: 1.2rem;
+}
+
+/* NOTIFICATION STYLES */
+@keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(400px); opacity: 0; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 576px) {
+    .login-card {
+        padding: 40px 30px;
+    }
+
+    .login-title {
+        font-size: 2rem;
+    }
+
+    .form-input {
+        padding: 12px 15px;
+    }
+
+    .login-btn {
+        padding: 15px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .login-card {
+        padding: 30px 20px;
+    }
+
+    .login-title {
+        font-size: 1.75rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="background-animation">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="admin-logo"><img src="CropUyeh.png" width="100px" height="70px" alt="UT" >
+                </div>
+                <h1 class="login-title">Admin Panel</h1>
+                <p class="login-subtitle">UYEH TECH Management System</p>
+            </div>
+
+            <form id="adminLoginForm" class="login-form">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">👤</span>
+                        Admin Email
+                    </label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="adminEmail" 
+                        placeholder="your email.com"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🔒</span>
+                        Password
+                    </label>
+                    <div class="password-input-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            id="adminPassword" 
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginBtnText">🔐 Login to Admin Panel</span>
+                    <span id="loginSpinner" class="spinner" style="display: none;"></span>
+                </button>
+
+                <div class="security-notice">
+                    <span class="security-icon">🛡️</span>
+                    <span>Secure Admin Access - Authorized Personnel Only</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+const API_URL = 'https://uyehtechbackend.onrender.com';
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Admin login page initialized');
+    
+    // Check if already logged in
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken) {
+        verifyAdminToken(adminToken);
+    }
+
+    initializeEventListeners();
+    checkRememberMe();
+    
+    // Test that inputs are working
+    testInputs();
+});
+
+// Test inputs are clickable
+function testInputs() {
+    const emailInput = document.getElementById('adminEmail');
+    const passwordInput = document.getElementById('adminPassword');
+    
+    if (emailInput && passwordInput) {
+        console.log('✅ Input fields found and should be clickable');
+        
+        // Add focus events to verify they work
+        emailInput.addEventListener('focus', () => {
+            console.log('✅ Email input focused');
+        });
+        
+        passwordInput.addEventListener('focus', () => {
+            console.log('✅ Password input focused');
+        });
+    }
+}
+
+// Event listeners
+function initializeEventListeners() {
+    const loginForm = document.getElementById('adminLoginForm');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('adminPassword');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+    }
+
+    // Enter key navigation
+    const emailInput = document.getElementById('adminEmail');
+    if (emailInput) {
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordInput?.focus();
+            }
+        });
+    }
+}
+
+// Check remember me
+function checkRememberMe() {
+    const rememberedEmail = localStorage.getItem('admin_remember_email');
+    if (rememberedEmail) {
+        document.getElementById('adminEmail').value = rememberedEmail;
+        document.getElementById('rememberMe').checked = true;
+    }
+}
+
+// Handle login
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    const rememberMe = document.getElementById('rememberMe').checked;
+
+    if (!email || !password) {
+        showNotification('❌ Please fill in all fields', 'error');
+        return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showNotification('❌ Invalid email format', 'error');
+        return;
+    }
+
+    setLoading(true);
+
+    try {
+        const response = await fetch(`${API_URL}/api/auth/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.token && data.isAdmin) {
+            console.log('✅ Admin login successful');
+
+            localStorage.setItem('admin_token', data.token);
+            localStorage.setItem('admin_user', JSON.stringify(data.user));
+
+            if (rememberMe) {
+                localStorage.setItem('admin_remember_email', email);
+            } else {
+                localStorage.removeItem('admin_remember_email');
+            }
+
+            showNotification('✅ Login successful! Redirecting...', 'success');
+
+            setTimeout(() => {
+                window.location.href = 'admin-dashboard.html';
+            }, 1000);
+
+        } else {
+            throw new Error(data.message || 'Login failed');
+        }
+
+    } catch (error) {
+        console.error('❌ Login error:', error);
+        showNotification('❌ ' + error.message, 'error');
+    } finally {
+        setLoading(false);
+    }
+}
+
+// Verify admin token
+async function verifyAdminToken(token) {
+    try {
+        const response = await fetch(`${API_URL}/api/auth/admin/verify`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.isAdmin) {
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+        }
+    } catch (error) {
+        console.error('Token verification failed:', error);
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+    }
+}
+
+// Set loading state
+function setLoading(loading) {
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('loginBtnText');
+    const spinner = document.getElementById('loginSpinner');
+
+    if (loading) {
+        loginBtn.disabled = true;
+        btnText.style.display = 'none';
+        spinner.style.display = 'block';
+    } else {
+        loginBtn.disabled = false;
+        btnText.style.display = 'block';
+        spinner.style.display = 'none';
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const existing = document.querySelectorAll('.notification');
+    existing.forEach(n => n.remove());
+
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    
+    const colors = {
+        success: 'linear-gradient(135deg, #00b359, #00ff88)',
+        error: 'linear-gradient(135deg, #ff4444, #ff6666)',
+        info: 'linear-gradient(135deg, #0096ff, #00d4ff)'
+    };
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 18px 25px;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        max-width: 400px;
+        font-family: 'Montserrat', sans-serif;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
+console.log('✅ Admin login script loaded');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - UYEH TECH</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+       <style>
+         /* ========== UYEH TECH - SIGNUP PAGE COMPLETE STYLES ========== */
+
+/* ========== RESET ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* ========== PARTICLES BACKGROUND ========== */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #00ff88;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: float 15s infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* ========== CONTAINER ========== */
+.signup-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px;
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== LOGO SECTION ========== */
+.auth-logo {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.auth-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.auth-logo-tagline {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+/* ========== SIGNUP BOX ========== */
+.signup-box {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 25px;
+    padding: 50px 40px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.signup-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.signup-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #00ff88;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.signup-subtitle {
+    color: #9ca3af;
+    font-size: 0.95rem;
+}
+
+/* ========== FORM ELEMENTS ========== */
+.form-group {
+    margin-bottom: 22px;
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    color: #00ff88;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    background: rgba(0, 255, 136, 0.08);
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.form-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========== VERIFICATION BUTTONS ========== */
+.verify-phone-btn,
+.resend-code-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 10px;
+    color: #00ff88;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 10px;
+}
+
+.verify-phone-btn:hover,
+.resend-code-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+    border-color: #00ff88;
+    transform: translateY(-2px);
+}
+
+.verify-phone-btn:disabled,
+.resend-code-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.verify-phone-btn.sent {
+    background: rgba(0, 255, 136, 0.2);
+    border-color: #00ff88;
+}
+
+.resend-code-btn {
+    background: rgba(0, 255, 136, 0.05);
+    font-size: 0.85rem;
+    padding: 10px 15px;
+}
+
+/* ========== VERIFICATION GROUP ========== */
+.verification-group {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.verification-input {
+    text-align: center;
+    letter-spacing: 8px;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.verification-status {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+}
+
+.verification-status.success {
+    display: block;
+    background: rgba(0, 255, 136, 0.2);
+    border: 1px solid rgba(0, 255, 136, 0.4);
+    color: #00ff88;
+}
+
+.verification-status.error {
+    display: block;
+    background: rgba(255, 68, 68, 0.2);
+    border: 1px solid rgba(255, 68, 68, 0.4);
+    color: #ff4444;
+}
+
+/* ========== PASSWORD WRAPPER ========== */
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #00ff88;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    padding: 5px;
+}
+
+.password-toggle:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* ========== PASSWORD STRENGTH ========== */
+.password-strength {
+    margin-top: 10px;
+    height: 4px;
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    display: none;
+}
+
+.password-strength.show {
+    display: block;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.password-strength.weak .password-strength-bar {
+    width: 33%;
+    background: #ff4444;
+}
+
+.password-strength.medium .password-strength-bar {
+    width: 66%;
+    background: #ffa500;
+}
+
+.password-strength.strong .password-strength-bar {
+    width: 100%;
+    background: #00ff88;
+}
+
+.password-hint {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 5px;
+}
+
+/* ========== TERMS CHECKBOX ========== */
+.terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.terms-checkbox input[type="checkbox"] {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #00ff88;
+    flex-shrink: 0;
+}
+
+.terms-text {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.terms-text a {
+    color: #00ff88;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.terms-text a:hover {
+    color: #00cc66;
+    text-decoration: underline;
+}
+
+/* ========== BUTTONS ========== */
+.signup-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #00b359, #00ff88);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+
+.signup-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
+}
+
+.signup-btn:active {
+    transform: translateY(-1px);
+}
+
+.signup-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========== MESSAGES ========== */
+.success-message {
+    background: rgba(0, 255, 136, 0.2);
+    border: 1px solid rgba(0, 255, 136, 0.4);
+    color: #00ff88;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.3s ease;
+}
+
+.success-message.show {
+    display: flex;
+}
+
+.error-message {
+    background: rgba(255, 68, 68, 0.2);
+    border: 1px solid rgba(255, 68, 68, 0.4);
+    color: #ff4444;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.3s ease;
+}
+
+.error-message.show {
+    display: flex;
+}
+
+/* ========== LINKS ========== */
+.login-link {
+    text-align: center;
+    color: #9ca3af;
+    margin-top: 20px;
+    font-size: 0.95rem;
+}
+
+.login-link a {
+    color: #00ff88;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #00cc66;
+    text-decoration: underline;
+}
+
+/* ========== BACK TO STORE ========== */
+.back-to-store {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.back-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.back-link:hover {
+    color: #00ff88;
+    transform: translateX(-3px);
+}
+
+/* ========== LOADING STATE ========== */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { 
+        transform: translate(-50%, -50%) rotate(360deg); 
+    }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+
+    .signup-container {
+        max-width: 100%;
+    }
+
+    .signup-box {
+        padding: 40px 25px;
+        border-radius: 20px;
+    }
+
+    .auth-logo {
+        margin-bottom: 30px;
+    }
+
+    .auth-logo-text {
+        font-size: 2.5rem;
+    }
+
+    .auth-logo-tagline {
+        font-size: 0.85rem;
+    }
+
+    .signup-title {
+        font-size: 1.8rem;
+    }
+
+    .signup-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        padding: 13px 18px;
+        font-size: 0.95rem;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .signup-btn {
+        padding: 16px;
+        font-size: 1rem;
+    }
+
+    .verification-input {
+        letter-spacing: 6px;
+        font-size: 1.2rem;
+    }
+
+    .password-toggle {
+        font-size: 1.1rem;
+        right: 12px;
+    }
+
+    .terms-text {
+        font-size: 0.85rem;
+    }
+
+    .verify-phone-btn,
+    .resend-code-btn {
+        font-size: 0.9rem;
+        padding: 11px 18px;
+    }
+}
+
+@media (max-width: 400px) {
+    .signup-box {
+        padding: 35px 20px;
+    }
+
+    .auth-logo-text {
+        font-size: 2.2rem;
+    }
+
+    .signup-title {
+        font-size: 1.6rem;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+}
+
+/* ========== FOCUS STYLES ========== */
+*:focus {
+    outline: 2px solid rgba(0, 255, 136, 0.5);
+    outline-offset: 2px;
+}
+
+button:focus,
+input:focus {
+    outline: 2px solid rgba(0, 255, 136, 0.5);
+    outline-offset: 2px;
+}
+
+/* ========== SMOOTH SCROLLING ========== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ========== SELECTION STYLES ========== */
+::selection {
+    background: rgba(0, 255, 136, 0.3);
+    color: #fff;
+}
+
+::-moz-selection {
+    background: rgba(0, 255, 136, 0.3);
+    color: #fff;
+}
+       </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+    </div>
+
+    <!-- Signup Container -->
+    <div class="signup-container">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="auth-logo-text">UYEH TECH</div>
+            <div class="auth-logo-tagline">Digital Products Store</div>
+        </div>
+
+        <!-- Signup Box -->
+        <div class="signup-box">
+            <div class="signup-header">
+                <h1 class="signup-title">Create Account</h1>
+                <p class="signup-subtitle">Join us and start your digital journey</p>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+                <span>⚠️</span>
+                <span id="errorText">Error message</span>
+            </div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <span>✅</span>
+                <span>Account created! Redirecting...</span>
+            </div>
+
+            <!-- Signup Form -->
+            <form id="signupForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="fullName"
+                        placeholder="Your full name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="email"
+                        placeholder="your.email@example.com"
+                        required
+                    >
+                    <button type="button" class="verify-phone-btn" id="verifyEmailBtn">
+                        📧 Send Verification Code
+                    </button>
+                </div>
+
+                <div class="form-group verification-group" id="verificationGroup" style="display: none;">
+                    <label class="form-label">Verification Code</label>
+                    <input 
+                        type="text" 
+                        class="form-input verification-input" 
+                        id="verificationCode"
+                        placeholder="Enter 6-digit code"
+                        maxlength="6"
+                        pattern="\d{6}"
+                    >
+                    <div class="verification-status" id="verificationStatus"></div>
+                    <button type="button" class="resend-code-btn" id="resendBtn">
+                        Resend Code
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            id="password"
+                            placeholder="Create a strong password"
+                            required
+                        >
+                        <button 
+                            type="button" 
+                            class="password-toggle" 
+                            id="passwordToggle"
+                        >
+                            👁️
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength-bar"></div>
+                    </div>
+                    <div class="password-hint">
+                        Use 8+ characters with letters, numbers & symbols
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            id="confirmPassword"
+                            placeholder="Re-enter your password"
+                            required
+                        >
+                        <button 
+                            type="button" 
+                            class="password-toggle" 
+                            id="confirmPasswordToggle"
+                        >
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="agreeTerms" required>
+                    <label class="terms-text" for="agreeTerms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="signup-btn" id="signupBtn">
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="login-link">
+                Already have an account? <a href="login.html">Sign In</a>
+            </div>
+        </div>
+
+        <!-- Back to Store -->
+        <div class="back-to-store">
+            <a href="index.html" class="back-link">
+                ← Back to Store
+            </a>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // ========== UYEH TECH - SIGNUP PAGE (EMAIL OTP VERSION) ==========
+
+// Configuration
+const API_URL = 'https://uyehtechbackend.onrender.com'; // Change to your deployed backend URL
+
+// State variables
+let emailVerified = false;
+let verificationCodeSent = false;
+let currentEmail = '';
+
+// DOM Elements
+const verifyEmailBtn = document.getElementById('verifyEmailBtn');
+const resendBtn = document.getElementById('resendBtn');
+const verificationGroup = document.getElementById('verificationGroup');
+const verificationCode = document.getElementById('verificationCode');
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirmPassword');
+const passwordToggle = document.getElementById('passwordToggle');
+const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+const signupForm = document.getElementById('signupForm');
+
+// ========== SEND EMAIL VERIFICATION CODE ==========
+verifyEmailBtn.addEventListener('click', async function() {
+    const email = document.getElementById('email').value.trim();
+    
+    if (!email) {
+        showError('Please enter your email address');
+        return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+    
+    currentEmail = email;
+    
+    verifyEmailBtn.disabled = true;
+    verifyEmailBtn.textContent = '📧 Sending...';
+    
+    try {
+        const response = await fetch(`${API_URL}/api/auth/send-email-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: currentEmail })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            verifyEmailBtn.textContent = '✅ Code Sent!';
+            verifyEmailBtn.classList.add('sent');
+            verificationCodeSent = true;
+            
+            verificationGroup.style.display = 'block';
+            
+            setTimeout(() => {
+                verificationCode.focus();
+            }, 300);
+            
+            showNotification(`📧 Verification code sent to ${currentEmail}`);
+        } else {
+            throw new Error(data.message || 'Failed to send code');
+        }
+        
+    } catch (error) {
+        console.error('Send Email OTP Error:', error);
+        showError(error.message || 'Failed to send verification code');
+        verifyEmailBtn.disabled = false;
+        verifyEmailBtn.textContent = '📧 Send Verification Code';
+    }
+});
+
+// ========== RESEND CODE ==========
+resendBtn.addEventListener('click', function() {
+    verifyEmailBtn.click();
+});
+
+// ========== AUTO-VERIFY CODE WHEN 6 DIGITS ENTERED ==========
+verificationCode.addEventListener('input', async function() {
+    const code = this.value.replace(/\D/g, ''); // Only allow digits
+    this.value = code;
+    
+    if (code.length === 6) {
+        await verifyCode(code);
+    }
+});
+
+// ========== VERIFY CODE ==========
+async function verifyCode(code) {
+    const statusDiv = document.getElementById('verificationStatus');
+    
+    try {
+        const response = await fetch(`${API_URL}/api/auth/verify-email-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                email: currentEmail, 
+                code: code 
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            emailVerified = true;
+            statusDiv.className = 'verification-status success';
+            statusDiv.textContent = '✅ Email verified!';
+            verificationCode.disabled = true;
+            showNotification('✅ Email verified successfully!');
+        } else {
+            throw new Error(data.message || 'Verification failed');
+        }
+        
+    } catch (error) {
+        console.error('Verify Error:', error);
+        emailVerified = false;
+        statusDiv.className = 'verification-status error';
+        statusDiv.textContent = '❌ ' + (error.message || 'Invalid code');
+    }
+}
+
+// ========== TOGGLE PASSWORD VISIBILITY ==========
+passwordToggle.addEventListener('click', function() {
+    togglePasswordField(passwordInput, this);
+});
+
+confirmPasswordToggle.addEventListener('click', function() {
+    togglePasswordField(confirmPasswordInput, this);
+});
+
+function togglePasswordField(field, button) {
+    if (field.type === 'password') {
+        field.type = 'text';
+        button.textContent = '🙈';
+    } else {
+        field.type = 'password';
+        button.textContent = '👁️';
+    }
+}
+
+// ========== CHECK PASSWORD STRENGTH ==========
+passwordInput.addEventListener('input', function() {
+    const password = this.value;
+    const strengthDiv = document.getElementById('passwordStrength');
+    
+    if (password.length === 0) {
+        strengthDiv.classList.remove('show', 'weak', 'medium', 'strong');
+        return;
+    }
+    
+    strengthDiv.classList.add('show');
+    
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z\d]/.test(password)) strength++;
+    
+    strengthDiv.classList.remove('weak', 'medium', 'strong');
+    
+    if (strength <= 2) {
+        strengthDiv.classList.add('weak');
+    } else if (strength === 3) {
+        strengthDiv.classList.add('medium');
+    } else {
+        strengthDiv.classList.add('strong');
+    }
+});
+
+// ========== HANDLE SIGNUP FORM SUBMISSION ==========
+signupForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    const agreeTerms = document.getElementById('agreeTerms').checked;
+    
+    // Validate all fields
+    if (!fullName || !email || !password || !confirmPassword) {
+        showError('Please fill in all fields');
+        return;
+    }
+
+    // Check if verification code was sent
+    if (!verificationCodeSent) {
+        showError('Please verify your email first');
+        document.getElementById('verifyEmailBtn').focus();
+        return;
+    }
+
+    // Check if email is verified
+    if (!emailVerified) {
+        showError('Please enter the correct verification code');
+        verificationCode.focus();
+        return;
+    }
+    
+    // Check password match
+    if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+    }
+    
+    // Check password length
+    if (password.length < 8) {
+        showError('Password must be at least 8 characters');
+        return;
+    }
+    
+    // Check terms agreement
+    if (!agreeTerms) {
+        showError('Please agree to the Terms of Service');
+        return;
+    }
+    
+    // Show loading state
+    const signupBtn = document.getElementById('signupBtn');
+    signupBtn.disabled = true;
+    signupBtn.classList.add('btn-loading');
+    
+    try {
+        const response = await fetch(`${API_URL}/api/auth/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fullName,
+                email: currentEmail,
+                password,
+                emailVerified: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Save authentication token and user data
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Show success message
+            document.getElementById('successMessage').classList.add('show');
+            
+            // Redirect to dashboard/profile after 1.5 seconds
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'Signup failed');
+        }
+        
+    } catch (error) {
+        console.error('Signup Error:', error);
+        showError(error.message || 'Signup failed. Please try again.');
+        signupBtn.disabled = false;
+        signupBtn.classList.remove('btn-loading');
+    }
+});
+
+// ========== SHOW ERROR MESSAGE ==========
+function showError(message) {
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    errorText.textContent = message;
+    errorMessage.classList.add('show');
+    
+    setTimeout(() => {
+        errorMessage.classList.remove('show');
+    }, 5000);
+}
+
+// ========== SHOW NOTIFICATION ==========
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #00b359, #00ff88);
+        color: white;
+        padding: 18px 25px;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        z-index: 10000;
+        max-width: 400px;
+        white-space: pre-line;
+        font-family: 'Montserrat', sans-serif;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 5 seconds with animation
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(400px)';
+        notification.style.transition = 'all 0.3s';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// ========== CHECK IF USER IS ALREADY LOGGED IN ==========
+window.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+        // User is already logged in, redirect to dashboard
+        window.location.href = 'dashboard.html';
+    }
+});
+    </script>
+</body>
+</html>
