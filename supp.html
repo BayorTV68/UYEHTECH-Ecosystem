@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Content - UYEH TECH</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Loading/Verification Screen */
+        #verificationScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+        .verification-content {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 255, 136, 0.1);
+            border-top-color: #00ff88;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .verification-text {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .verification-subtext {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* Unauthorized Screen */
+        #unauthorizedScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            z-index: 99998;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .unauthorized-container {
+            max-width: 600px;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(15, 15, 15, 0.95));
+            border: 2px solid #ff4444;
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(255, 68, 68, 0.2);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .unauthorized-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .unauthorized-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+
+        .unauthorized-message {
+            color: #ccc;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .unauthorized-code {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .unauthorized-code strong {
+            color: #ff4444;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b359, #00ff88);
+            color: #0a0a0a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        /* Protected Content */
+        #protectedContent {
+            display: none;
+            padding: 80px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .premium-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .premium-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00b359, #00ff88);
+            color: #0a0a0a;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .premium-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #00ff88;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .premium-subtitle {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .content-card h3 {
+            color: #00ff88;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .content-card p {
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        .logout-section {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 68, 68, 0.05);
+            border: 1px solid rgba(255, 68, 68, 0.2);
+            border-radius: 15px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 68, 68, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .premium-title {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         VERIFICATION SCREEN (Shown while checking access)
+         ═══════════════════════════════════════════════════════════════════════════-->
+    
+    <div id="verificationScreen">
+        <div class="verification-content">
+            <div class="spinner"></div>
+            <div class="verification-text">Verifying Access...</div>
+            <div class="verification-subtext">Please wait while we verify your credentials</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         UNAUTHORIZED SCREEN (Shown if access is denied)
+         ═══════════════════════════════════════════════════════════════════════════-->
+    
+    <div id="unauthorizedScreen">
+        <div class="unauthorized-container">
+            <div class="unauthorized-icon">🚫</div>
+            <h1 class="unauthorized-title">Access Denied</h1>
+            <p class="unauthorized-message">
+                You don't have permission to view this page. This content is restricted to authorized users only.
+            </p>
+            
+            <div class="unauthorized-code" id="unauthorizedReason">
+                <strong>Reason:</strong> <span id="reasonText">No valid access token found</span>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn btn-primary">
+                    🏠 Go to Homepage
+                </a>
+                <button class="btn btn-secondary" onclick="requestAccess()">
+                    🔐 Enter Access Code
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         PROTECTED CONTENT (Shown only if access is verified)
+         ═══════════════════════════════════════════════════════════════════════════-->
+    
+    <div id="protectedContent">
+        <div class="premium-header">
+            <div class="premium-badge">✨ PREMIUM MEMBER</div>
+            <h1 class="premium-title">Welcome to Premium Content</h1>
+            <p class="premium-subtitle">Exclusive access granted - Enjoy your premium features!</p>
+        </div>
+
+        <div class="content-grid">
+            <div class="content-card">
+                <h3>🎓 Advanced Tutorials</h3>
+                <p>Access our comprehensive library of advanced web development tutorials, covering React, Node.js, MongoDB, and more cutting-edge technologies.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>📚 Premium Resources</h3>
+                <p>Download exclusive templates, code snippets, UI kits, and design assets that are only available to premium members.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>💬 Priority Support</h3>
+                <p>Get direct access to our support team with priority response times for all your technical questions and issues.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>🚀 Early Access</h3>
+                <p>Be the first to try new features, tools, and services before they're released to the general public.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>🎯 Expert Guidance</h3>
+                <p>One-on-one consultations with industry experts to help you achieve your development goals faster.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>🌟 Community Access</h3>
+                <p>Join our exclusive community of developers, network with professionals, and collaborate on exciting projects.</p>
+            </div>
+        </div>
+
+        <div class="logout-section">
+            <h3 style="color: #ff4444; margin-bottom: 15px;">Session Management</h3>
+            <p style="color: #888; margin-bottom: 20px;">Your session will expire in <strong id="sessionTimer">30:00</strong></p>
+            <button class="btn logout-btn" onclick="logout()">
+                🚪 Logout & Lock Content
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ═════════════════════════════════════════════════════════════════════════════
+        // 🔐 PROTECTED PAGE ACCESS VERIFICATION
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        // CRITICAL: Update this to match your backend URL
+        const API_BASE_URL = 'https://your-backend.onrender.com'; // ⚠️ CHANGE THIS!
+        
+        const SESSION_KEY = 'uyeh_access_session';
+        let sessionCheckInterval;
+        let sessionTimerInterval;
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // VERIFY ACCESS ON PAGE LOAD
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        async function verifyPageAccess() {
+            console.log('🔍 Verifying page access...');
+
+            // Get session from localStorage
+            const sessionData = localStorage.getItem(SESSION_KEY);
+
+            if (!sessionData) {
+                console.error('❌ No session found');
+                denyAccess('No access token found. Please enter your access code.');
+                return;
+            }
+
+            let session;
+            try {
+                session = JSON.parse(sessionData);
+            } catch (error) {
+                console.error('❌ Invalid session data');
+                localStorage.removeItem(SESSION_KEY);
+                denyAccess('Invalid access token. Please login again.');
+                return;
+            }
+
+            // Check if session has required fields
+            if (!session.token || !session.sessionId) {
+                console.error('❌ Incomplete session data');
+                localStorage.removeItem(SESSION_KEY);
+                denyAccess('Incomplete access credentials. Please login again.');
+                return;
+            }
+
+            // Check if session expired (30 minutes)
+            const sessionAge = Date.now() - (session.timestamp || 0);
+            const maxAge = 30 * 60 * 1000; // 30 minutes
+
+            if (sessionAge > maxAge) {
+                console.error('❌ Session expired');
+                localStorage.removeItem(SESSION_KEY);
+                denyAccess('Your session has expired. Please enter your access code again.');
+                return;
+            }
+
+            // Verify with backend
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/access/verify-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: session.token,
+                        sessionId: session.sessionId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    console.log('✅ Access verified!');
+                    grantAccess(session);
+                } else {
+                    console.error('❌ Backend verification failed:', data.message);
+                    localStorage.removeItem(SESSION_KEY);
+                    denyAccess(data.message || 'Access verification failed. Please login again.');
+                }
+
+            } catch (error) {
+                console.error('❌ Verification request failed:', error);
+                
+                // If backend is unreachable, check local session age only
+                if (sessionAge < maxAge) {
+                    console.warn('⚠️ Backend unreachable, using local verification');
+                    grantAccess(session);
+                } else {
+                    denyAccess('Unable to verify access. Please check your connection and try again.');
+                }
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // GRANT ACCESS
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        function grantAccess(session) {
+            console.log('✅ Access Granted');
+
+            // Hide verification screen
+            document.getElementById('verificationScreen').style.display = 'none';
+
+            // Show protected content
+            document.getElementById('protectedContent').style.display = 'block';
+
+            // Start session monitoring
+            startSessionMonitoring(session);
+
+            // Start session timer display
+            startSessionTimer(session);
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // DENY ACCESS
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        function denyAccess(reason) {
+            console.error('❌ Access Denied:', reason);
+
+            // Hide verification screen
+            document.getElementById('verificationScreen').style.display = 'none';
+
+            // Show unauthorized screen
+            document.getElementById('unauthorizedScreen').style.display = 'flex';
+
+            // Display reason
+            document.getElementById('reasonText').textContent = reason;
+
+            // Clear any stored session
+            localStorage.removeItem(SESSION_KEY);
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // SESSION MONITORING
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        function startSessionMonitoring(session) {
+            // Check session every minute
+            sessionCheckInterval = setInterval(() => {
+                const sessionAge = Date.now() - (session.timestamp || 0);
+                const maxAge = 30 * 60 * 1000; // 30 minutes
+
+                if (sessionAge > maxAge) {
+                    console.warn('⏰ Session expired');
+                    alert('Your session has expired. Please login again.');
+                    logout();
+                }
+            }, 60000); // Check every minute
+        }
+
+        function startSessionTimer(session) {
+            const updateTimer = () => {
+                const sessionAge = Date.now() - (session.timestamp || 0);
+                const maxAge = 30 * 60 * 1000; // 30 minutes
+                const remaining = Math.max(0, maxAge - sessionAge);
+
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+
+                const timerElement = document.getElementById('sessionTimer');
+                if (timerElement) {
+                    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    // Warning color when less than 5 minutes
+                    if (minutes < 5) {
+                        timerElement.style.color = '#ff4444';
+                    }
+                }
+
+                if (remaining === 0) {
+                    clearInterval(sessionTimerInterval);
+                }
+            };
+
+            updateTimer();
+            sessionTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // LOGOUT
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        async function logout() {
+            if (!confirm('Are you sure you want to logout?')) {
+                return;
+            }
+
+            const sessionData = localStorage.getItem(SESSION_KEY);
+            
+            if (sessionData) {
+                try {
+                    const session = JSON.parse(sessionData);
+                    
+                    // Notify backend
+                    await fetch(`${API_BASE_URL}/api/access/logout`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sessionId: session.sessionId
+                        })
+                    });
+                } catch (error) {
+                    console.error('Logout notification failed:', error);
+                }
+            }
+
+            // Clear session
+            localStorage.removeItem(SESSION_KEY);
+
+            // Clear intervals
+            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+            // Redirect to homepage
+            window.location.href = '/';
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // REQUEST ACCESS (From unauthorized screen)
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        function requestAccess() {
+            // Redirect to homepage with auto-open modal
+            window.location.href = '/?openAccess=true';
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // PREVENT BACK BUTTON BYPASS
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // PREVENT INSPECT ELEMENT / DEV TOOLS (Optional - Can be bypassed)
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        // Disable right-click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Detect DevTools
+        const devToolsCheck = () => {
+            const threshold = 160;
+            if (window.outerWidth - window.innerWidth > threshold || 
+                window.outerHeight - window.innerHeight > threshold) {
+                console.warn('⚠️ Developer tools detected');
+                // Optional: logout or show warning
+            }
+        };
+
+        setInterval(devToolsCheck, 1000);
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // INITIALIZE ON PAGE LOAD
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🔐 Protected Page Loaded');
+            console.log('📍 Current URL:', window.location.href);
+            
+            // Start verification
+            verifyPageAccess();
+        });
+
+        // Prevent page from being cached
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                console.log('🔄 Page loaded from cache, re-verifying...');
+                verifyPageAccess();
+            }
+        });
+
+        console.log('✅ Security System Initialized');
+    </script>
+</body>
+</html>
