@@ -4,672 +4,1133 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Affiliate Dashboard — UYEH TECH</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
   :root {
-    --g:#00ff88;--g2:#00c96a;--g3:#00ff8820;--ink:#0a0a0a;--ink2:#111;--ink3:#181818;
-    --muted:#9ca3af;--dim:#6b7280;--line:rgba(255,255,255,0.07);--card:rgba(255,255,255,0.03);
-    --glow:0 0 40px rgba(0,255,136,0.18);--r:16px;--sidebar-w:260px;
+    --g:#00ff88;--g2:#00c96a;--g3:#00ff8814;--g4:#00ff8808;
+    --ink:#080a0d;--ink2:#0d1117;--ink3:#141b24;--ink4:#1c2634;
+    --muted:#4a5568;--dim:#718096;--soft:#a0aec0;--bright:#e2e8f0;
+    --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.12);
+    --red:#fc8181;--amber:#f6ad55;--blue:#63b3ed;--purple:#b794f4;
+    --glow:0 0 40px rgba(0,255,136,.15);
+    --r:12px;--rl:18px;--sidebar-w:260px;--header-h:64px;
   }
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{font-family:'DM Sans',sans-serif;background:var(--ink);color:#e5e7eb;display:flex;min-height:100vh;overflow-x:hidden}
-  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--g2);border-radius:2px}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
-  /* SIDEBAR */
-  .sidebar{width:var(--sidebar-w);background:rgba(10,10,10,.97);border-right:1px solid var(--line);padding:28px 0;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;backdrop-filter:blur(20px)}
-  .sidebar-logo{padding:0 24px 24px;text-align:center;border-bottom:1px solid var(--line);margin-bottom:8px}
-  .sidebar-logo img{width:80px;height:80px}
+  body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--bright);display:flex;min-height:100vh;overflow-x:hidden}
+  ::-webkit-scrollbar{width:4px;height:4px}
+  ::-webkit-scrollbar-track{background:var(--ink2)}
+  ::-webkit-scrollbar-thumb{background:var(--ink4);border-radius:2px}
+
+  /* ── SIDEBAR ── */
+  .sidebar{width:var(--sidebar-w);background:var(--ink2);border-right:1px solid var(--line);padding:28px 0;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+  .sidebar-logo{padding:0 24px 24px;border-bottom:1px solid var(--line);margin-bottom:8px;display:flex;align-items:center;gap:10px;text-decoration:none}
+  .logo-mark{width:36px;height:36px;background:linear-gradient(135deg,#00b359,var(--g));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.82rem;color:var(--ink);flex-shrink:0}
+  .logo-text-wrap .logo-main{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff}
+  .logo-text-wrap .logo-sub{font-size:.6rem;color:var(--g);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
   .sidebar-menu{list-style:none;padding:12px}
-  .menu-link{display:flex;align-items:center;gap:13px;padding:12px 16px;color:var(--muted);text-decoration:none;border-radius:10px;font-size:.88rem;font-weight:500;transition:all .2s;margin-bottom:2px}
-  .menu-link:hover{background:var(--g3);color:#fff}
-  .menu-link.active{background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.15)}
-  .menu-icon{width:18px;text-align:center;font-size:1rem}
-  .sidebar-footer{padding:16px 24px;border-top:1px solid var(--line);margin-top:12px}
-  .logout-btn{width:100%;padding:10px;background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.2);border-radius:10px;color:#ff6060;font-size:.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-  .logout-btn:hover{background:rgba(255,68,68,.14)}
-  /* MAIN */
-  .main{flex:1;margin-left:var(--sidebar-w);position:relative;z-index:1}
-  /* TOPBAR */
-  .topbar{padding:20px 40px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,10,.7);backdrop-filter:blur(16px);position:sticky;top:0;z-index:50}
-  .topbar-left h1{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.5px}
-  .topbar-left p{font-size:.8rem;color:var(--muted);margin-top:2px}
-  .topbar-right{display:flex;align-items:center;gap:14px}
-  .status-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;font-size:.78rem;font-weight:600;border:1px solid rgba(0,255,136,.25);background:rgba(0,255,136,.07);color:var(--g)}
-  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--g);animation:blink 2s ease-in-out infinite}
+  .menu-link{display:flex;align-items:center;gap:12px;padding:11px 14px;color:var(--dim);text-decoration:none;border-radius:9px;font-size:.87rem;font-weight:500;transition:all .2s;margin-bottom:2px;position:relative}
+  .menu-link:hover{background:var(--ink3);color:var(--bright)}
+  .menu-link.active{background:var(--g3);color:var(--g);border:1px solid rgba(0,255,136,.15)}
+  .menu-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--g);border-radius:0 2px 2px 0}
+  .menu-icon{width:16px;text-align:center;font-size:.9rem;flex-shrink:0}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--line);margin-top:8px}
+  .logout-btn{width:100%;padding:10px;background:rgba(252,129,129,.06);border:1px solid rgba(252,129,129,.2);border-radius:9px;color:var(--red);font-size:.83rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+  .logout-btn:hover{background:rgba(252,129,129,.12)}
+
+  /* ── MAIN ── */
+  .main{flex:1;margin-left:var(--sidebar-w);position:relative}
+
+  /* ── TOPBAR ── */
+  .topbar{padding:0 36px;height:var(--header-h);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(8,10,13,.9);backdrop-filter:blur(20px);position:sticky;top:0;z-index:50}
+  .topbar-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:#fff}
+  .topbar-sub{font-size:.72rem;color:var(--muted);margin-top:1px;font-family:'JetBrains Mono',monospace}
+  .topbar-right{display:flex;align-items:center;gap:12px}
+  .status-pill{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:20px;font-size:.72rem;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.3px;text-transform:uppercase;border:1px solid rgba(0,255,136,.25);background:rgba(0,255,136,.07);color:var(--g);display:none}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:blink 2s ease-in-out infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-  .status-pill.suspended{border-color:rgba(255,165,0,.3);background:rgba(255,165,0,.07);color:#ffa500}
-  .status-pill.suspended .status-dot{background:#ffa500}
-  .btn-refresh{width:36px;height:36px;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;transition:all .2s;display:flex;align-items:center;justify-content:center}
-  .btn-refresh:hover{color:var(--g);border-color:rgba(0,255,136,.3)}
-  .btn-refresh.spinning i{animation:spin .6s linear infinite}
+  .status-pill.suspended{border-color:rgba(246,173,85,.3);background:rgba(246,173,85,.07);color:var(--amber)}
+  .status-pill.suspended .status-dot{background:var(--amber)}
+  .btn-icon{width:36px;height:36px;border-radius:9px;background:var(--ink3);border:1px solid var(--line);color:var(--soft);cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .btn-icon:hover{color:var(--g);border-color:rgba(0,255,136,.3)}
+  .btn-icon.spinning i{animation:spin .7s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  /* CONTENT */
-  .content{padding:36px 40px 60px}
-  /* JOIN */
-  .join-hero{min-height:calc(100vh - 80px);display:flex;align-items:center;justify-content:center;padding:60px 40px}
-  .join-card{max-width:580px;width:100%;background:rgba(17,17,17,.9);border:1px solid rgba(0,255,136,.2);border-radius:24px;padding:56px 48px;text-align:center;backdrop-filter:blur(20px);box-shadow:var(--glow),0 40px 80px rgba(0,0,0,.4);position:relative;overflow:hidden}
-  .join-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
-  .join-glyph{width:80px;height:80px;background:linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,255,136,.05));border:1px solid rgba(0,255,136,.2);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 28px}
-  .join-card h2{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-.5px}
-  .join-card p{color:var(--muted);line-height:1.8;margin-bottom:32px;font-size:.95rem}
-  .join-features{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:36px;text-align:left}
-  .join-feature{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1);border-radius:12px}
-  .join-feature-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
-  .join-feature-text strong{display:block;font-size:.82rem;color:#fff;font-weight:600;margin-bottom:2px}
-  .join-feature-text span{font-size:.75rem;color:var(--muted)}
-  .btn-join{width:100%;padding:17px;background:linear-gradient(135deg,var(--g2),var(--g));color:#000;border:none;border-radius:14px;font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
-  .btn-join:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,255,136,.4)}
-  .btn-join:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
-  /* SECTION LABEL */
-  .section-label{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
-  .section-label::after{content:'';flex:1;height:1px;background:var(--line)}
-  /* KPIs */
-  .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:36px}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;transition:all .25s;position:relative;overflow:hidden}
-  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent,var(--g)),transparent);opacity:0;transition:opacity .3s}
-  .kpi:hover{border-color:rgba(255,255,255,.12);transform:translateY(-2px)}
-  .kpi:hover::before{opacity:1}
-  .kpi-icon{font-size:1.3rem;margin-bottom:12px}
-  .kpi-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-  .kpi-value{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--g);line-height:1}
-  .kpi-value.neutral{color:#fff}
-  .kpi-sub{font-size:.7rem;color:var(--dim);margin-top:4px}
-  /* TWO-COL */
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
-  .full-col{margin-bottom:28px}
-  /* PANEL */
-  .panel{background:rgba(14,14,14,.8);border:1px solid var(--line);border-radius:20px;overflow:hidden;backdrop-filter:blur(8px)}
-  .panel-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(0,255,136,.02)}
-  .panel-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:9px}
-  .panel-title i{color:var(--g);font-size:.85rem}
-  .panel-body{padding:22px}
-  /* CODE */
-  .code-hero{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-  .code-value-wrap{flex:1}
-  .code-label-sm{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
-  .code-display{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--g);letter-spacing:4px;line-height:1}
-  .code-sub{font-size:.75rem;color:var(--dim);margin-top:6px}
-  /* LINK ROW */
-  .link-row{display:flex;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px;transition:border-color .2s}
-  .link-row:hover{border-color:rgba(0,255,136,.25)}
-  .link-row-label{padding:12px 14px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;border-right:1px solid var(--line);background:rgba(0,0,0,.2)}
-  .link-row-url{flex:1;padding:12px 14px;background:none;border:none;outline:none;color:#c5cbcf;font-size:.8rem;font-family:'DM Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .link-row-copy{padding:12px 16px;background:rgba(0,255,136,.06);border:none;border-left:1px solid var(--line);color:var(--g);font-size:.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
-  .link-row-copy:hover{background:rgba(0,255,136,.14)}
-  .link-row-copy.ok{background:rgba(0,255,136,.2);color:#fff}
-  /* SHARE */
-  .share-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-  .share-btn{padding:8px 15px;border-radius:8px;cursor:pointer;font-size:.76rem;font-weight:600;font-family:'DM Sans',sans-serif;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .2s}
-  .share-btn:hover{background:rgba(255,255,255,.08);color:#fff}
-  .share-wa:hover{border-color:rgba(37,211,102,.35);color:#25d366;background:rgba(37,211,102,.08)}
-  .share-tw:hover{border-color:rgba(29,161,242,.35);color:#1da1f2;background:rgba(29,161,242,.08)}
-  .share-tg:hover{border-color:rgba(0,136,204,.35);color:#0088cc;background:rgba(0,136,204,.08)}
-  .share-li:hover{border-color:rgba(0,119,181,.35);color:#0077b5;background:rgba(0,119,181,.08)}
-  /* PRODUCT CARDS */
-  .product-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-  .product-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;transition:all .25s;display:flex;flex-direction:column;gap:12px}
-  .product-card:hover{border-color:rgba(0,255,136,.22);transform:translateY(-2px)}
-  .product-card-top{display:flex;align-items:flex-start;gap:12px}
-  .product-thumb{width:46px;height:46px;border-radius:11px;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
-  .product-meta{flex:1;min-width:0}
-  .product-name{font-weight:600;font-size:.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-  .product-price{font-size:.78rem;color:var(--muted)}
-  .product-card-mid{display:flex;align-items:center;gap:8px}
-  .comm-badge{padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:var(--g)}
-  .earn-badge{padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600;background:rgba(255,255,255,.04);color:var(--muted)}
-  .product-card-link{display:flex;align-items:center;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-  .product-link-url{flex:1;padding:8px 10px;background:none;border:none;outline:none;color:var(--dim);font-size:.72rem;font-family:'DM Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .product-copy-btn{padding:8px 12px;background:rgba(0,255,136,.06);border:none;border-left:1px solid var(--line);color:var(--g);font-size:.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
-  .product-copy-btn:hover{background:rgba(0,255,136,.14)}
-  .product-copy-btn.ok{background:rgba(0,255,136,.22);color:#fff}
-  /* TABLE */
-  .table-scroll{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:.85rem}
-  thead th{padding:12px 16px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);background:rgba(0,0,0,.2);white-space:nowrap}
-  tbody td{padding:13px 16px;color:#c5cbcf;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+
+  /* ── CONTENT ── */
+  .content{padding:32px 36px 64px}
+
+  /* ── JOIN ── */
+  .join-wrap{min-height:calc(100vh - var(--header-h));display:flex;align-items:center;justify-content:center;padding:60px 36px;display:none}
+  .join-card{max-width:540px;width:100%;background:var(--ink2);border:1px solid rgba(0,255,136,.18);border-radius:24px;padding:52px 44px;text-align:center;box-shadow:var(--glow),0 40px 80px rgba(0,0,0,.4);position:relative;overflow:hidden}
+  .join-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:160px;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+  .join-glyph{width:72px;height:72px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.18);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 26px}
+  .join-card h2{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:-.4px}
+  .join-card p{color:var(--soft);line-height:1.75;margin-bottom:28px;font-size:.9rem}
+  .join-features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px;text-align:left}
+  .join-feat{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1);border-radius:10px}
+  .join-feat-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+  .join-feat strong{display:block;font-size:.8rem;color:#fff;font-weight:600;margin-bottom:2px}
+  .join-feat span{font-size:.72rem;color:var(--muted)}
+  .btn-join{width:100%;padding:16px;background:linear-gradient(135deg,var(--g2),var(--g));color:#000;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;transition:all .3s}
+  .btn-join:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,255,136,.4)}
+  .btn-join:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* ── SECTION LABEL ── */
+  .sec-label{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+  .sec-label::after{content:'';flex:1;height:1px;background:var(--line)}
+  .sec-label i{color:var(--g);font-size:.7rem}
+
+  /* ── KPI STRIP ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:32px}
+  .kpi{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);padding:18px;transition:all .25s;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent,var(--g)),transparent);opacity:0;transition:opacity .3s}
+  .kpi:hover{border-color:var(--line2);transform:translateY(-2px)}
+  .kpi:hover::after{opacity:1}
+  .kpi-icon{font-size:1.2rem;margin-bottom:10px}
+  .kpi-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-family:'JetBrains Mono',monospace}
+  .kpi-value{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--g);line-height:1}
+  .kpi-value.white{color:#fff}
+  .kpi-sub{font-size:.68rem;color:var(--dim);margin-top:3px}
+
+  /* ── GRID ── */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+  .full-col{margin-bottom:24px}
+
+  /* ── PANEL ── */
+  .panel{background:var(--ink2);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
+  .panel-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(0,255,136,.02)}
+  .panel-title{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+  .panel-title i{color:var(--g);font-size:.8rem}
+  .panel-badge{font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .panel-body{padding:20px}
+
+  /* ── CODE ── */
+  .code-big{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--g);letter-spacing:5px;line-height:1;margin-bottom:4px}
+  .code-sub{font-size:.72rem;color:var(--dim);font-family:'JetBrains Mono',monospace}
+
+  /* ── LINK ROW ── */
+  .link-row{display:flex;align-items:center;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:8px;transition:border-color .2s}
+  .link-row:hover{border-color:rgba(0,255,136,.2)}
+  .link-label{padding:10px 12px;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;border-right:1px solid var(--line);background:rgba(0,0,0,.2);font-family:'JetBrains Mono',monospace}
+  .link-url{flex:1;padding:10px 12px;background:none;border:none;outline:none;color:var(--soft);font-size:.76rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .link-copy{padding:10px 14px;background:rgba(0,255,136,.06);border:none;border-left:1px solid var(--line);color:var(--g);font-size:.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .link-copy:hover{background:rgba(0,255,136,.14)}
+  .link-copy.ok{background:rgba(0,255,136,.2);color:#fff}
+
+  /* ── SHARE BAR ── */
+  .share-bar{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .share-btn{padding:7px 13px;border-radius:7px;cursor:pointer;font-size:.73rem;font-weight:600;font-family:'DM Sans',sans-serif;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .2s}
+  .share-btn:hover{background:rgba(255,255,255,.07);color:#fff}
+  .s-wa:hover{border-color:rgba(37,211,102,.35);color:#25d366;background:rgba(37,211,102,.07)}
+  .s-tw:hover{border-color:rgba(29,161,242,.35);color:#1da1f2;background:rgba(29,161,242,.07)}
+  .s-tg:hover{border-color:rgba(0,136,204,.35);color:#0088cc;background:rgba(0,136,204,.07)}
+  .s-li:hover{border-color:rgba(0,119,181,.35);color:#0077b5;background:rgba(0,119,181,.07)}
+
+  /* ── PRODUCT CARDS ── */
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+  .pc{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:12px;padding:16px;transition:all .25s;display:flex;flex-direction:column;gap:11px}
+  .pc:hover{border-color:rgba(0,255,136,.2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .pc-top{display:flex;align-items:flex-start;gap:11px}
+  .pc-thumb{width:44px;height:44px;border-radius:10px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+  .pc-name{font-weight:600;font-size:.86rem;color:#fff;margin-bottom:2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pc-store{font-size:.7rem;color:var(--g);font-family:'JetBrains Mono',monospace}
+  .pc-price{font-size:.75rem;color:var(--muted);margin-top:2px}
+  .pc-badges{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+  .badge-comm{padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:700;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.18);color:var(--g)}
+  .badge-earn{padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;background:rgba(255,255,255,.04);color:var(--dim);border:1px solid var(--line)}
+  .pc-link-row{display:flex;align-items:center;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .pc-url{flex:1;padding:7px 9px;background:none;border:none;outline:none;color:var(--dim);font-size:.68rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc-copy{padding:7px 11px;background:rgba(0,255,136,.05);border:none;border-left:1px solid var(--line);color:var(--g);font-size:.68rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+  .pc-copy:hover{background:rgba(0,255,136,.14)}
+  .pc-copy.ok{background:rgba(0,255,136,.2);color:#fff}
+  .pc-share{display:flex;gap:5px}
+  .pc-share-btn{flex:1;padding:6px 0;border-radius:6px;cursor:pointer;font-size:.7rem;font-family:'DM Sans',sans-serif;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:4px;transition:all .2s}
+  .pc-share-btn:hover{background:rgba(255,255,255,.06);color:#fff}
+
+  /* ── TABLE ── */
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.83rem}
+  thead th{padding:11px 14px;text-align:left;font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);background:rgba(0,0,0,.15);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+  tbody td{padding:12px 14px;color:var(--soft);border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
   tbody tr:last-child td{border-bottom:none}
   tbody tr:hover td{background:rgba(0,255,136,.02)}
-  .converted-row td:first-child{border-left:2px solid var(--g)}
-  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}
-  .badge::before{content:'';width:5px;height:5px;border-radius:50%}
-  .badge-confirmed{background:rgba(0,255,136,.12);color:var(--g)}.badge-confirmed::before{background:var(--g)}
-  .badge-pending{background:rgba(255,165,0,.12);color:#ffa500}.badge-pending::before{background:#ffa500}
-  .badge-paid{background:rgba(96,165,250,.12);color:#60a5fa}.badge-paid::before{background:#60a5fa}
-  .badge-converted{background:rgba(0,255,136,.12);color:var(--g)}.badge-converted::before{background:var(--g)}
-  .badge-no-sale{background:rgba(107,114,128,.15);color:var(--dim)}.badge-no-sale::before{background:var(--dim)}
-  .badge-processing{background:rgba(167,139,250,.12);color:#a78bfa}.badge-processing::before{background:#a78bfa}
-  .badge-completed{background:rgba(96,165,250,.12);color:#60a5fa}.badge-completed::before{background:#60a5fa}
-  .badge-rejected{background:rgba(255,68,68,.12);color:#ff6060}.badge-rejected::before{background:#ff6060}
-  .empty-row td{text-align:center;padding:48px 20px;color:var(--dim)}
-  .empty-row i{display:block;font-size:1.8rem;margin-bottom:10px;opacity:.3}
-  /* PAYOUT */
-  .payout-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .balance-panel{background:linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,255,136,.02));border:1px solid rgba(0,255,136,.18);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px}
-  .balance-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
-  .balance-amount{font-family:'Syne',sans-serif;font-size:3.2rem;font-weight:800;color:var(--g);line-height:1;display:flex;align-items:flex-start;gap:4px}
-  .balance-currency{font-size:1.5rem;margin-top:8px}
-  .balance-threshold{font-size:.78rem;padding:8px 14px;background:rgba(0,0,0,.3);border-radius:8px;color:var(--muted);line-height:1.6}
-  .balance-threshold strong{color:#fff}
-  .balance-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .breakdown-item{background:rgba(0,0,0,.25);border-radius:10px;padding:12px}
-  .breakdown-label{font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-  .breakdown-value{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#fff}
-  .payout-form-panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
-  .payout-form-panel h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:8px}
-  .payout-form-panel h3 i{color:var(--g)}
-  .form-stack{display:flex;flex-direction:column;gap:16px}
-  .form-field label{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;font-weight:600}
-  .form-input,.form-select{width:100%;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:#e5e7eb;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
-  .form-input:focus,.form-select:focus{border-color:rgba(0,255,136,.4)}
-  .form-select option{background:#1a1a1a}
-  .btn-payout{width:100%;padding:15px;background:linear-gradient(135deg,var(--g2),var(--g));color:#000;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;transition:all .3s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px}
-  .btn-payout:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,255,136,.35)}
-  .btn-payout:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
-  /* PROGRESS */
-  .prog-bar-wrap{margin-top:10px}
-  .prog-bar-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:6px}
-  .prog-bar-track{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
-  .prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));border-radius:3px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
-  /* HOW IT WORKS */
-  .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  .how-step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 16px;text-align:center;position:relative}
-  .how-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--g);font-size:.9rem;opacity:.5}
+  .tr-converted td:first-child{border-left:2px solid var(--g)}
+  .empty-row td{text-align:center;padding:44px 20px;color:var(--dim)}
+  .empty-row i{display:block;font-size:1.6rem;margin-bottom:10px;opacity:.25}
+
+  /* ── BADGES ── */
+  .bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:700;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+  .bdg::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .bdg-green{background:rgba(0,255,136,.1);color:var(--g)}.bdg-green::before{background:var(--g)}
+  .bdg-amber{background:rgba(246,173,85,.1);color:var(--amber)}.bdg-amber::before{background:var(--amber)}
+  .bdg-blue{background:rgba(99,179,237,.1);color:var(--blue)}.bdg-blue::before{background:var(--blue)}
+  .bdg-red{background:rgba(252,129,129,.1);color:var(--red)}.bdg-red::before{background:var(--red)}
+  .bdg-muted{background:rgba(255,255,255,.05);color:var(--dim)}.bdg-muted::before{background:var(--dim)}
+
+  /* ── PAYOUT LAYOUT ── */
+  .payout-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:20px;margin-bottom:24px}
+  .balance-card{background:linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,255,136,.02));border:1px solid rgba(0,255,136,.18);border-radius:var(--rl);padding:26px;display:flex;flex-direction:column;gap:18px}
+  .bal-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+  .bal-amount{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--g);line-height:1}
+  .bal-currency{font-size:1.4rem;vertical-align:super;margin-right:2px}
+  .bal-threshold{font-size:.76rem;padding:8px 12px;background:rgba(0,0,0,.25);border-radius:8px;color:var(--muted);line-height:1.6}
+  .bal-threshold strong{color:#fff}
+  .prog-wrap{margin-top:8px}
+  .prog-labels{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:5px;font-family:'JetBrains Mono',monospace}
+  .prog-track{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+  .prog-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));border-radius:3px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
+  .bal-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .bk-item{background:rgba(0,0,0,.25);border-radius:9px;padding:11px}
+  .bk-label{font-size:.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-family:'JetBrains Mono',monospace}
+  .bk-value{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:#fff}
+
+  /* ── PAYOUT FORM CARD ── */
+  .payout-form-card{background:var(--ink2);border:1px solid var(--line);border-radius:var(--rl);padding:26px}
+  .payout-form-card h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .payout-form-card h3 i{color:var(--g)}
+  .payout-form-card .sub{font-size:.75rem;color:var(--muted);margin-bottom:20px}
+
+  /* ── PAYOUT METHOD TABS ── */
+  .method-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+  .method-tab{border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;background:var(--ink3);text-align:center;user-select:none}
+  .method-tab:hover{border-color:rgba(0,255,136,.3);background:var(--ink4)}
+  .method-tab.active{border-color:var(--g);background:rgba(0,255,136,.07);box-shadow:0 0 0 3px rgba(0,255,136,.06)}
+  .method-tab .tab-icon{font-size:1.4rem;margin-bottom:5px}
+  .method-tab .tab-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;color:#fff}
+  .method-tab.active .tab-name{color:var(--g)}
+  .method-tab .tab-sub{font-size:.63rem;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+
+  /* ── PAYOUT SECTIONS ── */
+  .payout-section{display:none;animation:fadeIn .2s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  .payout-section.active{display:block}
+  .method-hint{padding:10px 13px;background:var(--ink3);border:1px solid var(--line);border-radius:8px;margin-bottom:14px;font-size:.76rem;color:var(--soft);line-height:1.6}
+  .method-hint strong{color:#fff}
+
+  /* ── FORM ELEMENTS ── */
+  .form-stack{display:flex;flex-direction:column;gap:13px}
+  .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-field label{display:block;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600;font-family:'JetBrains Mono',monospace}
+  .form-input,.form-select{width:100%;padding:10px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:9px;color:var(--bright);font-size:.86rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+  .form-input:focus,.form-select:focus{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.03)}
+  .form-input::placeholder{color:var(--muted)}
+  .form-select option{background:var(--ink3)}
+  .form-hint{font-size:.68rem;color:var(--dim);margin-top:4px;line-height:1.5}
+  .form-hint.danger{color:var(--red)}
+  .saved-badge{display:none;font-size:.68rem;padding:3px 9px;border-radius:20px;background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.2);font-family:'JetBrains Mono',monospace}
+
+  /* ── SAVE DETAILS BTN ── */
+  .btn-save-details{width:100%;padding:12px;background:var(--ink3);border:1px solid var(--line);border-radius:10px;color:var(--bright);font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px}
+  .btn-save-details:hover{background:var(--ink4);border-color:var(--line2)}
+
+  /* ── SUBMIT BTN ── */
+  .btn-payout{width:100%;padding:14px;background:linear-gradient(135deg,var(--g2),var(--g));color:#000;border:none;border-radius:11px;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+  .btn-payout:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,136,.35)}
+  .btn-payout:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* ── HOW IT WORKS ── */
+  .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+  .how-step{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:18px 14px;text-align:center;position:relative}
+  .how-step::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--g);font-size:.85rem;opacity:.4}
   .how-grid .how-step:last-child::after{display:none}
-  .how-num{width:32px;height:32px;border-radius:50%;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:800;color:var(--g);margin:0 auto 12px}
-  .how-icon{font-size:1.6rem;margin-bottom:10px}
-  .how-title{font-size:.82rem;font-weight:700;color:#fff;margin-bottom:5px}
-  .how-desc{font-size:.75rem;color:var(--muted);line-height:1.6}
-  /* TOAST */
-  .toast{position:fixed;bottom:28px;right:28px;z-index:9999;padding:14px 20px;border-radius:12px;font-size:.88rem;font-weight:600;max-width:360px;font-family:'DM Sans',sans-serif;transform:translateY(120%);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+  .how-num{width:28px;height:28px;border-radius:50%;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.18);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;color:var(--g);margin:0 auto 10px}
+  .how-icon{font-size:1.5rem;margin-bottom:8px}
+  .how-title{font-size:.8rem;font-weight:700;color:#fff;margin-bottom:4px}
+  .how-desc{font-size:.72rem;color:var(--muted);line-height:1.6}
+
+  /* ── TOAST ── */
+  .toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 18px;border-radius:11px;font-size:.85rem;font-weight:600;max-width:340px;font-family:'DM Sans',sans-serif;transform:translateY(120%);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:9px;box-shadow:0 8px 28px rgba(0,0,0,.5)}
   .toast.show{transform:translateY(0);opacity:1}
   .toast.success{background:linear-gradient(135deg,#00b359,#00ff88);color:#000}
   .toast.error{background:linear-gradient(135deg,#c0392b,#ff4444);color:#fff}
-  .toast.info{background:rgba(30,30,30,.98);color:#fff;border:1px solid var(--line)}
-  /* LOADER */
+  .toast.info{background:var(--ink4);color:#fff;border:1px solid var(--line2)}
+
+  /* ── LOADER ── */
   .page-loader{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .4s}
   .page-loader.gone{opacity:0;pointer-events:none}
-  .loader-ring{width:52px;height:52px;border:3px solid rgba(0,255,136,.12);border-top-color:var(--g);border-radius:50%;animation:spin .9s linear infinite}
-  .loader-text{color:var(--muted);font-size:.82rem;margin-top:16px}
-  /* MOB */
-  .mob-btn{display:none;position:fixed;top:16px;left:16px;z-index:200;width:44px;height:44px;background:linear-gradient(135deg,var(--g2),var(--g));border:none;border-radius:10px;color:#000;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,255,136,.3);align-items:center;justify-content:center;transition:all .2s}
-  /* RESPONSIVE */
-  @media(max-width:1200px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.how-grid{grid-template-columns:repeat(2,1fr)}.how-step::after{display:none!important}}
-  @media(max-width:968px){.mob-btn{display:flex}.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.7)}.main{margin-left:0}.topbar{padding:16px 20px;padding-left:72px}.content{padding:24px 20px 48px}.two-col{grid-template-columns:1fr}.payout-grid{grid-template-columns:1fr}.kpi-strip{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:560px){.kpi-strip{grid-template-columns:1fr 1fr}.join-features{grid-template-columns:1fr}.product-cards{grid-template-columns:1fr}.balance-breakdown{grid-template-columns:1fr}.balance-amount{font-size:2.4rem}}
+  .loader-ring{width:48px;height:48px;border:3px solid rgba(0,255,136,.1);border-top-color:var(--g);border-radius:50%;animation:spin .9s linear infinite}
+  .loader-text{color:var(--muted);font-size:.78rem;margin-top:14px;font-family:'JetBrains Mono',monospace}
+
+  /* ── MOBILE ── */
+  .mob-btn{display:none;position:fixed;top:14px;left:14px;z-index:200;width:42px;height:42px;background:linear-gradient(135deg,var(--g2),var(--g));border:none;border-radius:10px;color:#000;font-size:1.1rem;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,255,136,.3)}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:1200px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.how-grid{grid-template-columns:repeat(2,1fr)}.how-step::after{display:none!important}.payout-layout{grid-template-columns:1fr}}
+  @media(max-width:968px){.mob-btn{display:flex}.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.7)}.main{margin-left:0}.topbar{padding:0 20px 0 68px}.content{padding:24px 18px 48px}.two-col{grid-template-columns:1fr}.kpi-strip{grid-template-columns:repeat(2,1fr)}.method-tabs{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.kpi-strip{grid-template-columns:1fr 1fr}.join-features{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}.form-row-2{grid-template-columns:1fr}.bal-breakdown{grid-template-columns:1fr}.bal-amount{font-size:2.4rem}}
   </style>
 </head>
 <body>
-<div class="page-loader" id="loader"><div class="loader-ring"></div><p class="loader-text">Loading your affiliate dashboard…</p></div>
+
+<div class="page-loader" id="loader">
+  <div class="loader-ring"></div>
+  <p class="loader-text">Loading affiliate dashboard…</p>
+</div>
 <div class="toast" id="toast"></div>
 <button class="mob-btn" id="mobBtn">☰</button>
+
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo"><img src="/store/uyehtech logo.png" alt="UYEH TECH" onerror="this.outerHTML='<div style=\'font-family:Syne,sans-serif;font-size:1.1rem;font-weight:800;color:#00ff88;\'>UYEH TECH</div>'" /></div>
+  <a href="/marketplace/dashboard" class="sidebar-logo">
+    <div class="logo-mark">UT</div>
+    <div class="logo-text-wrap">
+      <div class="logo-main">UYEH TECH</div>
+      <div class="logo-sub">Affiliate</div>
+    </div>
+  </a>
   <ul class="sidebar-menu">
-    <li><a href="/store/dashboard.html"   class="menu-link"><span class="menu-icon">📊</span>Dashboard</a></li>
-    <li><a href="/store/my-products.html" class="menu-link"><span class="menu-icon">🛍️</span>My Products</a></li>
-    <li><a href="/store/orders.html"      class="menu-link"><span class="menu-icon">📋</span>Order History</a></li>
-    <li><a href="/store/affiliate.html"   class="menu-link active"><span class="menu-icon">🔗</span>Affiliate</a></li>
-    <li><a href="/store/settings.html"    class="menu-link"><span class="menu-icon">⚙️</span>Settings</a></li>
-    <li><a href="/store/index.html"       class="menu-link"><span class="menu-icon">🛒</span>Browse Store</a></li>
+    <li><a href="/marketplace/dashboard"   class="menu-link"><span class="menu-icon">📊</span>Dashboard</a></li>
+    <li><a href="/marketplace/my-products" class="menu-link"><span class="menu-icon">🛍️</span>My Products</a></li>
+    <li><a href="/marketplace/orders"      class="menu-link"><span class="menu-icon">📋</span>Order History</a></li>
+    <li><a href="/marketplace/affiliate"   class="menu-link active"><span class="menu-icon">🔗</span>Affiliate</a></li>
+    <li><a href="/marketplace/settings"    class="menu-link"><span class="menu-icon">⚙️</span>Settings</a></li>
+    <li><a href="/marketplace/"       class="menu-link"><span class="menu-icon">🛒</span>Browse Store</a></li>
   </ul>
-  <div class="sidebar-footer"><button class="logout-btn" id="logoutBtn">🚪 Logout</button></div>
+  <div class="sidebar-footer">
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
 </aside>
+
 <main class="main">
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-left">
-      <h1>🔗 Affiliate Dashboard</h1>
-      <p>Earn commissions promoting UYEH TECH creator products</p>
+    <div>
+      <div class="topbar-title">🔗 Affiliate Dashboard</div>
+      <div class="topbar-sub">Earn commissions promoting UYEH TECH products</div>
     </div>
     <div class="topbar-right">
-      <div class="status-pill" id="statusPill" style="display:none;"><span class="status-dot"></span><span id="statusText">Active</span></div>
-      <button class="btn-refresh" id="refreshBtn" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      <div class="status-pill" id="statusPill"><span class="status-dot"></span><span id="statusText">Active</span></div>
+      <button class="btn-icon" id="refreshBtn" title="Refresh data"><i class="fas fa-sync-alt"></i></button>
     </div>
   </div>
 
-  <!-- JOIN -->
-  <div id="joinSection" style="display:none;">
-    <div class="join-hero">
-      <div class="join-card">
-        <div class="join-glyph">🤝</div>
-        <h2>Join the Affiliate Program</h2>
-        <p>Promote products from UYEH TECH creators with your unique link. Every purchase made through your link earns you a commission — instantly tracked, automatically credited.</p>
-        <div class="join-features">
-          <div class="join-feature"><div class="join-feature-icon">🔗</div><div class="join-feature-text"><strong>Unique affiliate code</strong><span>Your own code & links per product</span></div></div>
-          <div class="join-feature"><div class="join-feature-icon">💰</div><div class="join-feature-text"><strong>Real commissions</strong><span>Earn % of every referred sale</span></div></div>
-          <div class="join-feature"><div class="join-feature-icon">📊</div><div class="join-feature-text"><strong>Live tracking</strong><span>See every click & conversion</span></div></div>
-          <div class="join-feature"><div class="join-feature-icon">💳</div><div class="join-feature-text"><strong>Request payout</strong><span>Bank, PayPal, crypto & more</span></div></div>
-        </div>
-        <button class="btn-join" id="joinBtn"><i class="fas fa-rocket"></i>&nbsp; Join Now — It's Free</button>
+  <!-- JOIN SCREEN -->
+  <div class="join-wrap" id="joinSection">
+    <div class="join-card">
+      <div class="join-glyph">🤝</div>
+      <h2>Join the Affiliate Program</h2>
+      <p>Promote digital products from UYEH TECH creators. Every purchase through your unique link earns you a commission — automatically tracked and credited to your account.</p>
+      <div class="join-features">
+        <div class="join-feat"><div class="join-feat-icon">🔗</div><div class="join-feat-text"><strong>Unique link per product</strong><span>Clean store URLs with your code</span></div></div>
+        <div class="join-feat"><div class="join-feat-icon">💰</div><div class="join-feat-text"><strong>Real commissions</strong><span>Earn % of every referred sale</span></div></div>
+        <div class="join-feat"><div class="join-feat-icon">📊</div><div class="join-feat-text"><strong>Live tracking</strong><span>Every click & conversion logged</span></div></div>
+        <div class="join-feat"><div class="join-feat-icon">💳</div><div class="join-feat-text"><strong>Flexible payout</strong><span>Bank, PayPal, crypto & more</span></div></div>
       </div>
+      <button class="btn-join" id="joinBtn"><i class="fas fa-rocket"></i>&nbsp; Join Now — It's Free</button>
     </div>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD SCREEN -->
   <div id="dashSection" style="display:none;">
     <div class="content">
 
       <!-- HOW IT WORKS -->
-      <div class="section-label"><i class="fas fa-map"></i> How It Works</div>
-      <div class="how-grid" style="margin-bottom:36px;">
+      <div class="sec-label"><i class="fas fa-map"></i> How It Works</div>
+      <div class="how-grid">
         <div class="how-step"><div class="how-num">1</div><div class="how-icon">🔗</div><div class="how-title">Copy your link</div><div class="how-desc">Pick any product and copy your unique affiliate link</div></div>
         <div class="how-step"><div class="how-num">2</div><div class="how-icon">📣</div><div class="how-title">Share it</div><div class="how-desc">Post on WhatsApp, Twitter, Telegram — anywhere your audience is</div></div>
-        <div class="how-step"><div class="how-num">3</div><div class="how-icon">🛒</div><div class="how-title">Someone buys</div><div class="how-desc">A visitor clicks your link and makes a purchase — it's tracked</div></div>
-        <div class="how-step"><div class="how-num">4</div><div class="how-icon">💸</div><div class="how-title">You earn</div><div class="how-desc">Commission credited to your balance. Request payout above $20</div></div>
+        <div class="how-step"><div class="how-num">3</div><div class="how-icon">🛒</div><div class="how-title">Someone buys</div><div class="how-desc">Visitor clicks your link, visits the store, makes a purchase</div></div>
+        <div class="how-step"><div class="how-num">4</div><div class="how-icon">💸</div><div class="how-title">You earn</div><div class="how-desc">Commission credited automatically. Request payout above $20</div></div>
       </div>
 
       <!-- KPI STRIP -->
-      <div class="section-label"><i class="fas fa-chart-bar"></i> Your Numbers</div>
+      <div class="sec-label"><i class="fas fa-chart-bar"></i> Your Numbers</div>
       <div class="kpi-strip">
         <div class="kpi" style="--accent:#00ff88;"><div class="kpi-icon">🖱️</div><div class="kpi-label">Total Clicks</div><div class="kpi-value" id="kpiClicks">0</div><div class="kpi-sub">All time</div></div>
-        <div class="kpi" style="--accent:#60a5fa;"><div class="kpi-icon">✅</div><div class="kpi-label">Conversions</div><div class="kpi-value" id="kpiConversions">0</div><div class="kpi-sub">Clicks → sales</div></div>
-        <div class="kpi" style="--accent:#a78bfa;"><div class="kpi-icon">📈</div><div class="kpi-label">Conv. Rate</div><div class="kpi-value neutral" id="kpiRate">0%</div><div class="kpi-sub">Clicks turned to sales</div></div>
-        <div class="kpi" style="--accent:#00ff88;"><div class="kpi-icon">💰</div><div class="kpi-label">Total Earned</div><div class="kpi-value" id="kpiTotal">$0</div><div class="kpi-sub">Lifetime commissions</div></div>
-        <div class="kpi" style="--accent:#ffa500;"><div class="kpi-icon">⏳</div><div class="kpi-label">Available</div><div class="kpi-value" id="kpiAvailable">$0</div><div class="kpi-sub">Confirmed, withdrawable</div></div>
-        <div class="kpi" style="--accent:#60a5fa;"><div class="kpi-icon">🏦</div><div class="kpi-label">Paid Out</div><div class="kpi-value" id="kpiPaid">$0</div><div class="kpi-sub">Sent to your account</div></div>
+        <div class="kpi" style="--accent:#63b3ed;"><div class="kpi-icon">✅</div><div class="kpi-label">Conversions</div><div class="kpi-value white" id="kpiConversions">0</div><div class="kpi-sub">Clicks → sales</div></div>
+        <div class="kpi" style="--accent:#b794f4;"><div class="kpi-icon">📈</div><div class="kpi-label">Conv. Rate</div><div class="kpi-value white" id="kpiRate">0%</div><div class="kpi-sub">Conversion ratio</div></div>
+        <div class="kpi" style="--accent:#00ff88;"><div class="kpi-icon">💰</div><div class="kpi-label">Total Earned</div><div class="kpi-value" id="kpiTotal">$0.00</div><div class="kpi-sub">Lifetime commissions</div></div>
+        <div class="kpi" style="--accent:#f6ad55;"><div class="kpi-icon">⏳</div><div class="kpi-label">Available</div><div class="kpi-value" id="kpiAvailable">$0.00</div><div class="kpi-sub">Ready to withdraw</div></div>
+        <div class="kpi" style="--accent:#63b3ed;"><div class="kpi-icon">🏦</div><div class="kpi-label">Paid Out</div><div class="kpi-value white" id="kpiPaid">$0.00</div><div class="kpi-sub">Sent to your account</div></div>
       </div>
 
-      <!-- CODE + GENERAL LINK -->
-      <div class="section-label"><i class="fas fa-fingerprint"></i> Your Affiliate Code & Links</div>
+      <!-- CODE & GENERAL LINK -->
+      <div class="sec-label"><i class="fas fa-fingerprint"></i> Your Affiliate Code & Store Link</div>
       <div class="two-col">
         <div class="panel">
-          <div class="panel-head"><div class="panel-title"><i class="fas fa-id-badge"></i> Your Unique Code</div></div>
+          <div class="panel-head">
+            <div class="panel-title"><i class="fas fa-id-badge"></i> Your Unique Code</div>
+          </div>
           <div class="panel-body">
-            <div class="code-hero">
-              <div class="code-value-wrap">
-                <div class="code-label-sm">Affiliate Code</div>
-                <div class="code-display" id="myCode">———</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:.62rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Affiliate Code</div>
+                <div class="code-big" id="myCode">———</div>
                 <div class="code-sub">Embedded in every link you share</div>
               </div>
-              <div>
-                <button class="share-btn" style="padding:10px 18px;font-size:.82rem;" onclick="copyCode()"><i class="fas fa-copy"></i> Copy Code</button>
-              </div>
+              <button class="share-btn" style="padding:9px 16px;" onclick="copyCode()"><i class="fas fa-copy"></i> Copy Code</button>
             </div>
           </div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title"><i class="fas fa-store"></i> General Store Link</div><span style="font-size:.72rem;color:var(--muted);">Any product purchase counts</span></div>
+          <div class="panel-head">
+            <div class="panel-title"><i class="fas fa-store"></i> General Store Link</div>
+            <span class="panel-badge">Any purchase counts</span>
+          </div>
           <div class="panel-body">
             <div class="link-row">
-              <span class="link-row-label">Store</span>
-              <input class="link-row-url" id="generalLink" readonly />
-              <button class="link-row-copy" id="generalCopyBtn" onclick="copyLink()"><i class="fas fa-copy"></i> Copy</button>
+              <span class="link-label">Store</span>
+              <input class="link-url" id="generalLink" readonly />
+              <button class="link-copy" id="generalCopyBtn" onclick="copyLink()"><i class="fas fa-copy"></i> Copy</button>
             </div>
             <div class="share-bar">
-              <button class="share-btn share-wa" onclick="share('wa')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-              <button class="share-btn share-tw" onclick="share('tw')"><i class="fab fa-twitter"></i> Twitter</button>
-              <button class="share-btn share-tg" onclick="share('tg')"><i class="fab fa-telegram-plane"></i> Telegram</button>
-              <button class="share-btn share-li" onclick="share('li')"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
+              <button class="share-btn s-wa" onclick="share('wa')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+              <button class="share-btn s-tw" onclick="share('tw')"><i class="fab fa-twitter"></i> Twitter</button>
+              <button class="share-btn s-tg" onclick="share('tg')"><i class="fab fa-telegram-plane"></i> Telegram</button>
+              <button class="share-btn s-li" onclick="share('li')"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
               <button class="share-btn" onclick="share('native')"><i class="fas fa-share-alt"></i> Share</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PRODUCTS -->
-      <div class="section-label"><i class="fas fa-boxes"></i> Products to Promote</div>
+      <!-- PRODUCT LINKS -->
+      <div class="sec-label"><i class="fas fa-boxes"></i> Products to Promote</div>
       <div class="full-col panel">
-        <div class="panel-head"><div class="panel-title"><i class="fas fa-tag"></i> Creator Products with Affiliate Commission</div><span id="productCount" style="font-size:.75rem;color:var(--muted);"></span></div>
-        <div class="panel-body"><div class="product-cards" id="productsGrid"><div style="color:var(--dim);font-size:.85rem;">Loading…</div></div></div>
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-tag"></i> Creator Products — Unique Store Links</div>
+          <span class="panel-badge" id="productCount"></span>
+        </div>
+        <div class="panel-body">
+          <div class="product-grid" id="productsGrid">
+            <div style="color:var(--dim);font-size:.82rem;">Loading products…</div>
+          </div>
+        </div>
       </div>
 
       <!-- RECENT CLICKS -->
-      <div class="section-label" style="margin-top:28px;"><i class="fas fa-mouse-pointer"></i> Recent Clicks</div>
+      <div class="sec-label" style="margin-top:28px;"><i class="fas fa-mouse-pointer"></i> Recent Clicks</div>
       <div class="full-col panel">
-        <div class="panel-head"><div class="panel-title"><i class="fas fa-stream"></i> Last 20 Link Clicks</div><span style="font-size:.72rem;color:var(--muted);">Green row = converted to a sale</span></div>
-        <div class="table-scroll">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-stream"></i> Last 20 Link Clicks</div>
+          <span class="panel-badge" style="color:var(--g);">Green = converted to sale</span>
+        </div>
+        <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Date & Time</th><th>Product</th><th>Status</th><th>Commission Earned</th><th>Sale Amount</th></tr></thead>
+            <thead><tr><th>Date & Time</th><th>Product</th><th>Status</th><th>Sale Amount</th><th>Commission Earned</th></tr></thead>
             <tbody id="clicksBody"></tbody>
           </table>
         </div>
       </div>
 
       <!-- EARNINGS LEDGER -->
-      <div class="section-label" style="margin-top:28px;"><i class="fas fa-receipt"></i> Earnings Ledger</div>
+      <div class="sec-label" style="margin-top:28px;"><i class="fas fa-receipt"></i> Commission History</div>
       <div class="full-col panel">
-        <div class="panel-head"><div class="panel-title"><i class="fas fa-coins"></i> Commission Records</div><span style="font-size:.72rem;color:var(--muted);">Confirmed = ready to withdraw</span></div>
-        <div class="table-scroll">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-coins"></i> All Commission Records</div>
+          <span class="panel-badge">Confirmed = ready to withdraw</span>
+        </div>
+        <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Date</th><th>Product</th><th>Sale Price</th><th>Commission %</th><th>You Earned</th><th>Status</th></tr></thead>
+            <thead><tr><th>Date</th><th>Product</th><th>Order Ref</th><th>Sale Price</th><th>Commission %</th><th>You Earned</th><th>Status</th></tr></thead>
             <tbody id="earningsBody"></tbody>
           </table>
         </div>
       </div>
 
       <!-- PAYOUT -->
-      <div class="section-label" style="margin-top:28px;"><i class="fas fa-wallet"></i> Payout</div>
-      <div class="payout-grid">
-        <div class="balance-panel">
+      <div class="sec-label" style="margin-top:28px;"><i class="fas fa-wallet"></i> Payout</div>
+      <div class="payout-layout">
+
+        <!-- Balance card -->
+        <div class="balance-card">
           <div>
-            <div class="balance-label">Available to Withdraw</div>
-            <div class="balance-amount"><span class="balance-currency">$</span><span id="balanceDisplay">0.00</span></div>
-            <div class="prog-bar-wrap" id="progWrap" style="margin-top:12px;">
-              <div class="prog-bar-label"><span>Progress to $20 minimum</span><span id="progPct">0%</span></div>
-              <div class="prog-bar-track"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
+            <div class="bal-label">Available to Withdraw</div>
+            <div class="bal-amount"><span class="bal-currency">$</span><span id="balDisplay">0.00</span></div>
+            <div class="prog-wrap" id="progWrap" style="margin-top:10px;">
+              <div class="prog-labels"><span>Progress to minimum</span><span id="progPct">0%</span></div>
+              <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
             </div>
-            <div class="balance-threshold" id="thresholdMsg" style="margin-top:12px;">Minimum payout is <strong>$20</strong>. Keep sharing to unlock withdrawal.</div>
+            <div class="bal-threshold" id="threshMsg" style="margin-top:10px;">Minimum payout is <strong>$20</strong>. Keep sharing to unlock withdrawal.</div>
           </div>
-          <div class="balance-breakdown">
-            <div class="breakdown-item"><div class="breakdown-label">Pending</div><div class="breakdown-value" id="bkPending">$0.00</div></div>
-            <div class="breakdown-item"><div class="breakdown-label">Confirmed</div><div class="breakdown-value" id="bkConfirmed">$0.00</div></div>
-            <div class="breakdown-item"><div class="breakdown-label">Total Earned</div><div class="breakdown-value" id="bkTotal">$0.00</div></div>
-            <div class="breakdown-item"><div class="breakdown-label">Paid Out</div><div class="breakdown-value" id="bkPaid">$0.00</div></div>
+          <div class="bal-breakdown">
+            <div class="bk-item"><div class="bk-label">Pending</div><div class="bk-value" id="bkPending">$0.00</div></div>
+            <div class="bk-item"><div class="bk-label">Confirmed</div><div class="bk-value" id="bkConfirmed">$0.00</div></div>
+            <div class="bk-item"><div class="bk-label">Total Earned</div><div class="bk-value" id="bkTotal">$0.00</div></div>
+            <div class="bk-item"><div class="bk-label">Paid Out</div><div class="bk-value" id="bkPaid">$0.00</div></div>
           </div>
         </div>
-        <div class="payout-form-panel">
-          <h3><i class="fas fa-paper-plane"></i> Request Payout</h3>
-          <div class="form-stack">
-            <div class="form-field"><label>Payout Method</label><select class="form-select" id="payoutMethod" onchange="onMethodChange()"><option value="">— Select method —</option><option value="bank_transfer">🏦 Bank Transfer</option><option value="paypal">💙 PayPal</option><option value="crypto">₿ Crypto (USDT / BTC)</option><option value="mobile_money">📱 Mobile Money</option></select></div>
-            <div class="form-field" id="acctField" style="display:none;"><label id="acctLabel">Account Number</label><input class="form-input" id="acctValue" placeholder="Enter account details" /></div>
-            <div class="form-field" id="nameField" style="display:none;"><label>Account / Wallet Name</label><input class="form-input" id="acctName" placeholder="Name on account" /></div>
-            <div class="form-field" id="bankField" style="display:none;"><label>Bank Name</label><input class="form-input" id="bankName" placeholder="e.g. Zenith Bank" /></div>
-            <button class="btn-payout" id="payoutBtn" disabled onclick="requestPayout()"><i class="fas fa-paper-plane"></i> Request Payout</button>
-            <p style="font-size:.72rem;color:var(--dim);text-align:center;line-height:1.6;">Processing takes 3–5 business days after approval.<br>You will be notified via email.</p>
+
+        <!-- Payout form -->
+        <div class="payout-form-card">
+          <h3><i class="fas fa-paper-plane"></i> Payout Details & Request</h3>
+          <p class="sub">Save your payment details once — reuse for all future payout requests.</p>
+
+          <!-- Method tabs -->
+          <div class="method-tabs">
+            <div class="method-tab" data-method="bank_transfer" onclick="selectMethod('bank_transfer')">
+              <div class="tab-icon">🏦</div>
+              <div class="tab-name">Bank Transfer</div>
+              <div class="tab-sub">Local & International</div>
+            </div>
+            <div class="method-tab" data-method="paypal" onclick="selectMethod('paypal')">
+              <div class="tab-icon">🅿️</div>
+              <div class="tab-name">PayPal</div>
+              <div class="tab-sub">Worldwide</div>
+            </div>
+            <div class="method-tab" data-method="flutterwave" onclick="selectMethod('flutterwave')">
+              <div class="tab-icon">🌊</div>
+              <div class="tab-name">Flutterwave</div>
+              <div class="tab-sub">Africa & Global</div>
+            </div>
+            <div class="method-tab" data-method="crypto" onclick="selectMethod('crypto')">
+              <div class="tab-icon">₿</div>
+              <div class="tab-name">Crypto (USDT)</div>
+              <div class="tab-sub">TRC20 / ERC20</div>
+            </div>
           </div>
+          <input type="hidden" id="payoutMethodInput" value="">
+
+          <!-- BANK TRANSFER -->
+          <div class="payout-section" id="ps_bank_transfer">
+            <div class="method-hint"><strong>Works for:</strong> Nigeria, Ghana, Kenya, USA, UK, Europe and most countries. Include SWIFT/BIC for international transfers.</div>
+            <div class="form-stack">
+              <div class="form-field">
+                <label>Country / Region</label>
+                <select class="form-select" id="bankCountry" onchange="toggleBankFields()">
+                  <option value="nigeria">🇳🇬 Nigeria</option>
+                  <option value="ghana">🇬🇭 Ghana</option>
+                  <option value="kenya">🇰🇪 Kenya</option>
+                  <option value="southafrica">🇿🇦 South Africa</option>
+                  <option value="usa">🇺🇸 United States</option>
+                  <option value="uk">🇬🇧 United Kingdom</option>
+                  <option value="europe">🇪🇺 Europe (SEPA)</option>
+                  <option value="other">🌍 Other Country</option>
+                </select>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field"><label>Bank Name</label><input class="form-input" id="bankName" placeholder="e.g. First Bank, Chase, Barclays" /></div>
+                <div class="form-field"><label>Account Name</label><input class="form-input" id="accName" placeholder="Name exactly as on account" /></div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field"><label id="accNumLabel">Account Number</label><input class="form-input" id="accNum" placeholder="Account number" /></div>
+                <div class="form-field" id="sortGroup" style="display:none;"><label>Sort Code / Branch</label><input class="form-input" id="sortCode" placeholder="e.g. 040043" /></div>
+                <div class="form-field" id="swiftGroup" style="display:none;"><label>SWIFT / BIC Code</label><input class="form-input" id="swiftCode" placeholder="e.g. GTBINGLA" /></div>
+              </div>
+              <div class="form-field" id="ibanGroup" style="display:none;"><label>IBAN</label><input class="form-input" id="ibanNum" placeholder="e.g. GB29 NWBK 6016 1331 9268 19" /></div>
+              <div class="form-field" id="routingGroup" style="display:none;"><label>Routing Number (ABA)</label><input class="form-input" id="routingNum" placeholder="9-digit routing number" /></div>
+              <div class="form-field" id="otherGroup" style="display:none;"><label>Additional Details</label><textarea class="form-input" id="otherBank" rows="2" placeholder="Any extra info your bank requires" style="resize:vertical;"></textarea></div>
+            </div>
+          </div>
+
+          <!-- PAYPAL -->
+          <div class="payout-section" id="ps_paypal">
+            <div class="method-hint"><strong>Works worldwide.</strong> Funds sent directly to your verified PayPal account. Make sure your account can receive USD.</div>
+            <div class="form-stack">
+              <div class="form-field"><label>PayPal Email Address</label><input class="form-input" id="paypalEmail" type="email" placeholder="your@paypal.com" /></div>
+              <div class="form-field"><label>PayPal Account Name</label><input class="form-input" id="paypalName" placeholder="Name on your PayPal account" /></div>
+            </div>
+          </div>
+
+          <!-- FLUTTERWAVE -->
+          <div class="payout-section" id="ps_flutterwave">
+            <div class="method-hint"><strong>Best for Africa.</strong> Nigeria, Ghana, Kenya, Rwanda, Uganda, South Africa, Egypt and more.</div>
+            <div class="form-stack">
+              <div class="form-row-2">
+                <div class="form-field"><label>Flutterwave Email / Phone</label><input class="form-input" id="flwEmail" placeholder="Email or phone on Flutterwave" /></div>
+                <div class="form-field"><label>Bank Account Number</label><input class="form-input" id="flwAccount" placeholder="Account linked to Flutterwave" /></div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-field"><label>Bank Name</label><input class="form-input" id="flwBank" placeholder="Your bank name" /></div>
+                <div class="form-field"><label>Country</label><input class="form-input" id="flwCountry" placeholder="e.g. Nigeria, Ghana" /></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CRYPTO -->
+          <div class="payout-section" id="ps_crypto">
+            <div class="method-hint"><strong>Global.</strong> We support USDT. Double-check your wallet address and network — wrong network = permanent loss.</div>
+            <div class="form-stack">
+              <div class="form-field">
+                <label>Network / Chain</label>
+                <select class="form-select" id="cryptoType">
+                  <option value="USDT_TRC20">USDT — TRC20 (Tron) — recommended, low fees</option>
+                  <option value="USDT_ERC20">USDT — ERC20 (Ethereum)</option>
+                  <option value="USDT_BEP20">USDT — BEP20 (BSC)</option>
+                  <option value="BTC">Bitcoin (BTC)</option>
+                  <option value="ETH">Ethereum (ETH)</option>
+                  <option value="USDC">USDC</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Wallet Address</label>
+                <input class="form-input" id="cryptoAddress" placeholder="Your wallet address — verify carefully" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;" />
+                <div class="form-hint danger">⚠️ Always verify this address. Crypto payments cannot be reversed.</div>
+              </div>
+              <div class="form-field"><label>Wallet Label (optional)</label><input class="form-input" id="cryptoName" placeholder="Name to identify this wallet" /></div>
+            </div>
+          </div>
+
+          <!-- Save + Submit -->
+          <div style="display:flex;align-items:center;gap:10px;margin-top:16px;margin-bottom:4px;">
+            <span class="saved-badge" id="savedBadge">✅ Details Saved</span>
+          </div>
+          <button class="btn-save-details" onclick="savePayoutDetails()"><i class="fas fa-floppy-disk"></i> Save Payment Details</button>
+          <button class="btn-payout" id="payoutBtn" disabled onclick="requestPayout()">
+            <i class="fas fa-paper-plane"></i> Request Payout
+          </button>
+          <p style="font-size:.68rem;color:var(--dim);text-align:center;margin-top:8px;line-height:1.6;">Processing takes 3–5 business days after approval. You will be notified by email.</p>
         </div>
       </div>
 
       <!-- PAYOUT HISTORY -->
-      <div class="section-label" style="margin-top:28px;"><i class="fas fa-history"></i> Payout History</div>
+      <div class="sec-label" style="margin-top:28px;"><i class="fas fa-history"></i> Payout History</div>
       <div class="full-col panel">
-        <div class="panel-head"><div class="panel-title"><i class="fas fa-clipboard-list"></i> Past Payout Requests</div></div>
-        <div class="table-scroll">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-clipboard-list"></i> Past Payout Requests</div>
+        </div>
+        <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Requested</th><th>Amount</th><th>Method</th><th>Account</th><th>Status</th></tr></thead>
+            <thead><tr><th>Requested</th><th>Amount</th><th>Method</th><th>Payment Details</th><th>Status</th><th>Processed</th></tr></thead>
             <tbody id="payoutBody"></tbody>
           </table>
         </div>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /content -->
+  </div><!-- /dashSection -->
 </main>
+
 <script>
 'use strict';
-const API='https://uyehtechbackend.onrender.com';
-const SITE='https://uyeh.netlify.app';
-let D=null;
-document.addEventListener('DOMContentLoaded',()=>{
-  if(!localStorage.getItem('token')){location.href='/store/login.html';return;}
-  const mob=document.getElementById('mobBtn');
-  const sb=document.getElementById('sidebar');
-  mob.style.display='flex';
-  mob.addEventListener('click',()=>sb.classList.toggle('open'));
-  document.addEventListener('click',e=>{if(!sb.contains(e.target)&&!mob.contains(e.target))sb.classList.remove('open');});
-  document.getElementById('logoutBtn').addEventListener('click',()=>{if(confirm('Log out?')){['token','user','user_orders','uyeh_affiliate'].forEach(k=>localStorage.removeItem(k));location.href='/store/login.html';}});
-  document.getElementById('refreshBtn').addEventListener('click',()=>loadDashboard(true));
-  document.getElementById('joinBtn').addEventListener('click',joinAffiliate);
-  // Instantly show cached code while API loads — prevents stuck join screen for returning users
-  const initCached=tryGetCachedAffiliate();
-  if(initCached){renderFromCache(initCached);show('dashSection');hide('joinSection');}
+const API  = 'https://uyehtechbackend.onrender.com';
+const SITE = 'https://uyehtech.com';
+let D = null;
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('token')) { location.href = '/marketplace/login'; return; }
+
+  const mob = document.getElementById('mobBtn');
+  const sb  = document.getElementById('sidebar');
+  mob.addEventListener('click', () => sb.classList.toggle('open'));
+  document.addEventListener('click', e => { if (!sb.contains(e.target) && !mob.contains(e.target)) sb.classList.remove('open'); });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    if (confirm('Log out?')) {
+      ['token','user','user_orders','uyeh_affiliate'].forEach(k => localStorage.removeItem(k));
+      location.href = '/marketplace/login';
+    }
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', () => loadDashboard(true));
+  document.getElementById('joinBtn').addEventListener('click', joinAffiliate);
+
+  // Show cached state instantly
+  const cached = getCachedAffiliate();
+  if (cached) { renderFromCache(cached); show('dashSection'); hide('joinSection'); }
+
   loadDashboard();
 });
-async function loadDashboard(manual=false){
-  const btn=document.getElementById('refreshBtn');
+
+// ── LOAD DASHBOARD ────────────────────────────────────────────────
+async function loadDashboard(manual = false) {
+  const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
-  try{
-    const res=await apiFetch('/api/affiliate/dashboard');
-    const data=await res.json();
-    if(data.success){
-      D=data;
-      localStorage.setItem('uyeh_affiliate',JSON.stringify({affiliateCode:D.affiliate.affiliateCode,status:D.affiliate.status}));
-      renderAll();show('dashSection');hide('joinSection');
-      if(manual)toast('✅ Data refreshed','success');
-      return true;
-    }else{
-      // Not registered — but check if we have a cached code from a just-completed join
-      const cached=tryGetCachedAffiliate();
-      if(cached){renderFromCache(cached);show('dashSection');hide('joinSection');}
-      else{show('joinSection');hide('dashSection');}
-      return false;
+  try {
+    const [dashRes, earningsRes, payoutsRes] = await Promise.all([
+      apiFetch('/api/affiliate/dashboard'),
+      apiFetch('/api/affiliate/earnings'),
+      apiFetch('/api/affiliate/payout/history')
+    ]);
+    const [dashData, earningsData, payoutsData] = await Promise.all([
+      dashRes.json(), earningsRes.json(), payoutsRes.json()
+    ]);
+
+    if (dashData.success) {
+      D = { ...dashData, ledger: earningsData.ledger || [], payouts: payoutsData.payouts || [] };
+      localStorage.setItem('uyeh_affiliate', JSON.stringify({
+        affiliateCode: D.affiliate.affiliateCode,
+        status: D.affiliate.status
+      }));
+      renderAll();
+      show('dashSection'); hide('joinSection');
+      if (manual) toast('✅ Data refreshed', 'success');
+    } else {
+      const cached = getCachedAffiliate();
+      if (cached) { renderFromCache(cached); show('dashSection'); hide('joinSection'); }
+      else { show('joinSection'); hide('dashSection'); }
     }
-  }catch(e){
-    // Server error (e.g. 500) — still check cache so a fresh join isn't lost
-    const cached=tryGetCachedAffiliate();
-    if(cached){renderFromCache(cached);show('dashSection');hide('joinSection');}
-    else{show('joinSection');hide('dashSection');}
-    if(manual)toast('Server error — showing cached data','error');
-    return false;
-  }finally{
+  } catch(e) {
+    const cached = getCachedAffiliate();
+    if (cached) { renderFromCache(cached); show('dashSection'); hide('joinSection'); }
+    else { show('joinSection'); hide('dashSection'); }
+    if (manual) toast('Server error — showing cached data', 'error');
+  } finally {
     btn.classList.remove('spinning');
     document.getElementById('loader').classList.add('gone');
   }
 }
 
-function tryGetCachedAffiliate(){
-  try{
-    const raw=localStorage.getItem('uyeh_affiliate');
-    if(!raw)return null;
-    const obj=JSON.parse(raw);
-    return obj&&obj.affiliateCode?obj:null;
-  }catch(e){return null;}
+function getCachedAffiliate() {
+  try {
+    const obj = JSON.parse(localStorage.getItem('uyeh_affiliate') || 'null');
+    return obj?.affiliateCode ? obj : null;
+  } catch(e) { return null; }
 }
 
-// Minimal render when the server dashboard fails but we know the code (e.g. just joined)
-function renderFromCache(cached){
-  const code=cached.affiliateCode;
-  // Topbar status
-  const pill=document.getElementById('statusPill');const st=document.getElementById('statusText');
-  pill.style.display='flex';const ok=cached.status==='active';
-  pill.className='status-pill'+(ok?'':' suspended');st.textContent=ok?'Active':cap(cached.status||'active');
-  // Code + link
-  setText('myCode',code);
-  const url=SITE+'/store/index.html?ref='+code;
-  const gi=document.getElementById('generalLink');gi.value=url;gi.dataset.url=url;
-  // Zero-state KPIs
-  ['kpiClicks','kpiConversions'].forEach(id=>setText(id,'0'));
-  setText('kpiRate','0%');
-  ['kpiTotal','kpiAvailable','kpiPaid'].forEach(id=>setText(id,'$0.00'));
-  ['bkPending','bkConfirmed','bkTotal','bkPaid'].forEach(id=>setText(id,'$0.00'));
-  setText('balanceDisplay','0.00');
-  document.getElementById('progFill').style.width='0%';
-  document.getElementById('progPct').textContent='0%';
-  document.getElementById('thresholdMsg').innerHTML='Minimum payout is <strong>$20</strong>. You need <strong>$20.00</strong> more.';
-  document.getElementById('payoutBtn').disabled=true;
-  // Empty tables + products
-  document.getElementById('productsGrid').innerHTML='<div style="color:var(--dim);font-size:.85rem;padding:20px 0;grid-column:1/-1;">Products loading — <a href="javascript:loadDashboard(true)" style="color:var(--g);">refresh</a> in a moment.</div>';
-  document.getElementById('clicksBody').innerHTML='<tr class="empty-row"><td colspan="5"><i class="fas fa-mouse-pointer"></i>No clicks yet</td></tr>';
-  document.getElementById('earningsBody').innerHTML='<tr class="empty-row"><td colspan="6"><i class="fas fa-coins"></i>No commissions yet</td></tr>';
-  document.getElementById('payoutBody').innerHTML='<tr class="empty-row"><td colspan="5"><i class="fas fa-clock"></i>No payout requests yet</td></tr>';
-  setText('productCount','');
-}
-
-async function joinAffiliate(){
-  const btn=document.getElementById('joinBtn');
-  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Joining…';
-  try{
-    const res=await apiFetch('/api/affiliate/register','POST');
-    const data=await res.json();
-    if(data.success){
-      // Cache immediately so the dashboard can render even if the server 500s
-      const cached={affiliateCode:data.affiliate.affiliateCode,status:'active'};
-      localStorage.setItem('uyeh_affiliate',JSON.stringify(cached));
-      toast('🎉 '+data.message,'success');
-      // Try to load full dashboard; if it fails, renderFromCache handles it
-      const ok=await loadDashboard();
-      if(!ok){
-        // Server returned error but join worked — show dashboard from cache
-        renderFromCache(cached);
-        show('dashSection');hide('joinSection');
-        toast('✅ Joined! Refresh the page in a moment to see full stats.','info');
-      }
-    }else if(data.message&&data.message.includes('already registered')){
-      // Already registered — just load the dashboard
-      toast('Already registered — loading your dashboard…','info');
-      await loadDashboard();
-      show('dashSection');hide('joinSection');
-    }else{
-      toast(data.message||'Registration failed','error');
-      btn.disabled=false;
-      btn.innerHTML='<i class="fas fa-rocket"></i> Join Now — It\'s Free';
+// ── JOIN ──────────────────────────────────────────────────────────
+async function joinAffiliate() {
+  const btn = document.getElementById('joinBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining…';
+  try {
+    const res  = await apiFetch('/api/affiliate/register', 'POST');
+    const data = await res.json();
+    if (data.success) {
+      const cached = { affiliateCode: data.affiliate.affiliateCode, status: 'active' };
+      localStorage.setItem('uyeh_affiliate', JSON.stringify(cached));
+      toast('🎉 ' + data.message, 'success');
+      const ok = await loadDashboard();
+      if (!ok) { renderFromCache(cached); show('dashSection'); hide('joinSection'); }
+    } else if (data.message?.includes('already registered')) {
+      toast('Already registered — loading dashboard…', 'info');
+      await loadDashboard(); show('dashSection'); hide('joinSection');
+    } else {
+      toast(data.message || 'Registration failed', 'error');
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> Join Now — It\'s Free';
     }
-  }catch(e){
-    toast('Network error. Try again.','error');
-    btn.disabled=false;
-    btn.innerHTML='<i class="fas fa-rocket"></i> Join Now — It\'s Free';
+  } catch(e) {
+    toast('Network error. Try again.', 'error');
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> Join Now — It\'s Free';
   }
 }
-function renderAll(){renderTopbar();renderKPIs();renderCode();renderProducts();renderClicks();renderEarnings();}
-function renderTopbar(){
-  const pill=document.getElementById('statusPill');const st=document.getElementById('statusText');
-  pill.style.display='flex';const ok=D.affiliate.status==='active';
-  pill.className='status-pill'+(ok?'':' suspended');st.textContent=ok?'Active':cap(D.affiliate.status);
-}
-function renderKPIs(){
-  const a=D.affiliate,e=D.earnings;
-  const available=+(e.confirmed||0),total=+(a.totalEarnings||0),paid=+(e.paid||0),pending=+(e.pending||0);
-  setText('kpiClicks',a.totalClicks);setText('kpiConversions',a.totalConversions);
-  setText('kpiRate',a.conversionRate||'0%');setText('kpiTotal','$'+total.toFixed(2));
-  setText('kpiAvailable','$'+available.toFixed(2));setText('kpiPaid','$'+paid.toFixed(2));
-  setText('bkPending','$'+pending.toFixed(2));setText('bkConfirmed','$'+available.toFixed(2));
-  setText('bkTotal','$'+total.toFixed(2));setText('bkPaid','$'+paid.toFixed(2));
-  setText('balanceDisplay',available.toFixed(2));
-  const pct=Math.min(100,(available/20)*100);
-  document.getElementById('progFill').style.width=pct+'%';
-  document.getElementById('progPct').textContent=pct.toFixed(0)+'%';
-  if(available>=20){
-    document.getElementById('thresholdMsg').innerHTML='<span style="color:var(--g);font-weight:700;">✅ Ready to withdraw!</span> You have $'+available.toFixed(2)+' available.';
-    document.getElementById('progWrap').style.display='none';
-    document.getElementById('payoutBtn').disabled=false;
-  }else{
-    document.getElementById('thresholdMsg').innerHTML='Minimum payout is <strong>$20</strong>. You need <strong>$'+(20-available).toFixed(2)+'</strong> more.';
-    document.getElementById('payoutBtn').disabled=true;
+
+// ── RENDER ALL ────────────────────────────────────────────────────
+function renderAll() {
+  renderTopbar();
+  renderKPIs();
+  renderCode();
+  renderProducts();
+  renderClicks();
+  renderEarnings();
+  renderPayouts();
+  // Restore saved payout details
+  if (D.affiliate.payoutMethod) {
+    restorePayoutDetails(D.affiliate.payoutMethod, D.affiliate.payoutDetails || {});
   }
 }
-function renderCode(){
-  const code=D.affiliate.affiliateCode;
-  setText('myCode',code);
-  const url=SITE+'/store/index.html?ref='+code;
-  const gi=document.getElementById('generalLink');gi.value=url;gi.dataset.url=url;
+
+function renderFromCache(cached) {
+  const code = cached.affiliateCode;
+  const pill = document.getElementById('statusPill');
+  pill.style.display = 'flex';
+  const ok = cached.status === 'active';
+  pill.className = 'status-pill' + (ok ? '' : ' suspended');
+  setText('statusText', ok ? 'Active' : cap(cached.status || 'active'));
+  setText('myCode', code);
+  const url = SITE + '/marketplace/index.html?ref=' + code;
+  setLink('generalLink', url);
+  ['kpiClicks','kpiConversions'].forEach(id => setText(id, '0'));
+  setText('kpiRate', '0%'); setText('kpiTotal', '$0.00'); setText('kpiAvailable', '$0.00'); setText('kpiPaid', '$0.00');
+  ['bkPending','bkConfirmed','bkTotal','bkPaid'].forEach(id => setText(id, '$0.00'));
+  setText('balDisplay', '0.00');
+  document.getElementById('progFill').style.width = '0%';
+  setText('progPct', '0%');
+  document.getElementById('threshMsg').innerHTML = 'Minimum payout is <strong>$20</strong>. Keep sharing to unlock withdrawal.';
+  document.getElementById('payoutBtn').disabled = true;
+  document.getElementById('productsGrid').innerHTML = '<div style="color:var(--dim);font-size:.82rem;padding:16px 0;grid-column:1/-1;">Products loading — <a href="javascript:loadDashboard(true)" style="color:var(--g);">refresh</a> in a moment.</div>';
+  ['clicksBody','earningsBody','payoutBody'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = emptyRow('Loading…', 5);
+  });
 }
-function renderProducts(){
-  const grid=document.getElementById('productsGrid');
-  const list=D.availableProducts||[];
-  setText('productCount',list.length+' product'+(list.length!==1?'s':''));
-  if(!list.length){grid.innerHTML='<div style="color:var(--dim);font-size:.85rem;padding:20px 0;grid-column:1/-1;">No approved products available yet.</div>';return;}
-  const code=D.affiliate.affiliateCode;
-  grid.innerHTML=list.map((p,i)=>{
-    // Build correct absolute URL — use creator store page if storeSlug available,
-    // otherwise fall back to main store with product param (both honour ?ref= tracking)
-    const url = p.storeSlug && p.productId
-        ? SITE+'/store/creator-store.html?store='+p.storeSlug+'&product='+p.productId+'&ref='+code
-        : p.productId
-            ? SITE+'/store/index.html?product='+p.productId+'&ref='+code
-            : SITE+'/store/index.html?ref='+code;
-    const earn=p.commissionAmount?'$'+p.commissionAmount+' / sale':p.commission+'%';
-    const price=p.price?'$'+Number(p.price).toFixed(2):'Free';
-    return`<div class="product-card">
-      <div class="product-card-top"><div class="product-thumb">📦</div><div class="product-meta"><div class="product-name" title="${esc(p.title)}">${esc(p.title)}</div><div class="product-price">${price}</div></div></div>
-      <div class="product-card-mid"><span class="comm-badge">${p.commission}% commission</span><span class="earn-badge">${earn}</span></div>
-      <div class="product-card-link"><input class="product-link-url" readonly value="${url}" data-url="${url}"/><button class="product-copy-btn" id="pBtn${i}" onclick="clipCopy('${url}','pBtn${i}')"><i class="fas fa-copy"></i> Copy</button></div>
-      <div class="share-bar" style="margin-top:0;">
-        <button class="share-btn share-wa" style="flex:1;justify-content:center;" onclick="shareUrl('wa','${url}','${esc(p.title)}')"><i class="fab fa-whatsapp"></i></button>
-        <button class="share-btn share-tw" style="flex:1;justify-content:center;" onclick="shareUrl('tw','${url}','${esc(p.title)}')"><i class="fab fa-twitter"></i></button>
-        <button class="share-btn share-tg" style="flex:1;justify-content:center;" onclick="shareUrl('tg','${url}','${esc(p.title)}')"><i class="fab fa-telegram-plane"></i></button>
-        <button class="share-btn" style="flex:1;justify-content:center;" onclick="shareUrl('native','${url}','${esc(p.title)}')"><i class="fas fa-share-alt"></i></button>
+
+// ── TOPBAR ────────────────────────────────────────────────────────
+function renderTopbar() {
+  const pill = document.getElementById('statusPill');
+  pill.style.display = 'flex';
+  const ok = D.affiliate.status === 'active';
+  pill.className = 'status-pill' + (ok ? '' : ' suspended');
+  setText('statusText', ok ? 'Active' : cap(D.affiliate.status));
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────
+function renderKPIs() {
+  const a = D.affiliate, e = D.earnings;
+  const available = +(e.confirmed || 0), total = +(a.totalEarnings || 0),
+        paid = +(e.paid || 0), pending = +(e.pending || 0);
+  const threshold = a.payoutThreshold || 20;
+
+  setText('kpiClicks', a.totalClicks);
+  setText('kpiConversions', a.totalConversions);
+  setText('kpiRate', a.conversionRate || '0%');
+  setText('kpiTotal', '$' + total.toFixed(2));
+  setText('kpiAvailable', '$' + available.toFixed(2));
+  setText('kpiPaid', '$' + paid.toFixed(2));
+  setText('bkPending', '$' + pending.toFixed(2));
+  setText('bkConfirmed', '$' + available.toFixed(2));
+  setText('bkTotal', '$' + total.toFixed(2));
+  setText('bkPaid', '$' + paid.toFixed(2));
+  setText('balDisplay', available.toFixed(2));
+
+  const pct = Math.min(100, (available / threshold) * 100);
+  document.getElementById('progFill').style.width = pct + '%';
+  setText('progPct', pct.toFixed(0) + '%');
+
+  if (available >= threshold) {
+    document.getElementById('threshMsg').innerHTML = '<span style="color:var(--g);font-weight:700;">✅ Ready to withdraw!</span> You have $' + available.toFixed(2) + ' available.';
+    document.getElementById('progWrap').style.display = 'none';
+    document.getElementById('payoutBtn').disabled = false;
+  } else {
+    document.getElementById('threshMsg').innerHTML = 'Minimum payout is <strong>$' + threshold + '</strong>. You need <strong>$' + (threshold - available).toFixed(2) + '</strong> more.';
+    document.getElementById('payoutBtn').disabled = true;
+  }
+}
+
+// ── CODE & LINK ───────────────────────────────────────────────────
+function renderCode() {
+  const code = D.affiliate.affiliateCode;
+  setText('myCode', code);
+  const url = SITE + '/marketplace/index.html?ref=' + code;
+  setLink('generalLink', url);
+}
+
+// ── PRODUCTS ──────────────────────────────────────────────────────
+function renderProducts() {
+  const grid = document.getElementById('productsGrid');
+  const list = D.availableProducts || [];
+  setText('productCount', list.length + ' product' + (list.length !== 1 ? 's' : ''));
+  if (!list.length) {
+    grid.innerHTML = '<div style="color:var(--dim);font-size:.82rem;padding:16px 0;grid-column:1/-1;">No approved products available yet.</div>';
+    return;
+  }
+  const code = D.affiliate.affiliateCode;
+  grid.innerHTML = list.map((p, i) => {
+   
+    const productIdStr = (p.productId?._id || p.productId || '').toString();
+    const url = p.storeSlug && productIdStr
+      ? `${SITE}/marketplace/creator-store.html?store=${encodeURIComponent(p.storeSlug)}&product=${productIdStr}&ref=${code}`
+      : productIdStr
+        ? `${SITE}/marketplace/creator-store.html?product=${productIdStr}&ref=${code}`
+        : `${SITE}/marketplace/index.html?ref=${code}`;
+
+    const earn = p.commissionAmount ? '$' + p.commissionAmount + ' / sale' : p.commission + '%';
+    const price = p.price ? '$' + Number(p.price).toFixed(2) : 'Free';
+    const storeName = p.storeName || p.storeSlug || 'Creator Store';
+
+    return `<div class="pc">
+      <div class="pc-top">
+        <div class="pc-thumb">📦</div>
+        <div style="flex:1;min-width:0;">
+          <div class="pc-name" title="${esc(p.title)}">${esc(p.title)}</div>
+          <div class="pc-store">🏪 ${esc(storeName)}</div>
+          <div class="pc-price">${price}</div>
+        </div>
+      </div>
+      <div class="pc-badges">
+        <span class="badge-comm">${p.commission}% commission</span>
+        <span class="badge-earn">${earn}</span>
+      </div>
+      <div class="pc-link-row">
+        <input class="pc-url" readonly value="${url}" data-url="${url}" />
+        <button class="pc-copy" id="pb${i}" onclick="clipCopy('${url}','pb${i}')"><i class="fas fa-copy"></i> Copy</button>
+      </div>
+      <div class="pc-share">
+        <button class="pc-share-btn s-wa" onclick="shareUrl('wa','${url}','${esc(p.title)}')"><i class="fab fa-whatsapp"></i></button>
+        <button class="pc-share-btn s-tw" onclick="shareUrl('tw','${url}','${esc(p.title)}')"><i class="fab fa-twitter"></i></button>
+        <button class="pc-share-btn s-tg" onclick="shareUrl('tg','${url}','${esc(p.title)}')"><i class="fab fa-telegram-plane"></i></button>
+        <button class="pc-share-btn" onclick="shareUrl('native','${url}','${esc(p.title)}')"><i class="fas fa-share-alt"></i></button>
       </div>
     </div>`;
   }).join('');
 }
-function renderClicks(){
-  const tbody=document.getElementById('clicksBody');
-  const list=D.recentClicks||[];
-  if(!list.length){tbody.innerHTML='<tr class="empty-row"><td colspan="5"><i class="fas fa-mouse-pointer"></i>No clicks yet — share your links to start tracking</td></tr>';return;}
-  tbody.innerHTML=list.map(c=>{
-    const dt=fmtDate(c.clickedAt);const prod=c.productId&&c.productId.title?c.productId.title:'—';
-    const conv=c.converted?'<span class="badge badge-converted">Converted</span>':'<span class="badge badge-no-sale">No sale yet</span>';
-    const comm=c.commissionEarned?'$'+c.commissionEarned.toFixed(2):'—';
-    const sale=c.conversionAmount?'$'+c.conversionAmount.toFixed(2):'—';
-    const cls=c.converted?'converted-row':'';
-    return`<tr class="${cls}"><td style="color:var(--muted);font-size:.8rem;">${dt}</td><td>${esc(prod)}</td><td>${conv}</td><td style="color:var(--g);font-weight:700;">${comm}</td><td>${sale}</td></tr>`;
+
+// ── CLICKS ────────────────────────────────────────────────────────
+function renderClicks() {
+  const tbody = document.getElementById('clicksBody');
+  const list  = D.recentClicks || [];
+  if (!list.length) { tbody.innerHTML = emptyRow('No clicks yet — share your links to start tracking', 5, 'fas fa-mouse-pointer'); return; }
+  tbody.innerHTML = list.map(c => {
+    const prod = c.productId?.title || '—';
+    const conv = c.converted
+      ? '<span class="bdg bdg-green">Converted</span>'
+      : '<span class="bdg bdg-muted">No sale yet</span>';
+    const sale = c.conversionAmount ? '$' + c.conversionAmount.toFixed(2) : '—';
+    const comm = c.commissionEarned  ? '<strong style="color:var(--g);">$' + c.commissionEarned.toFixed(2) + '</strong>' : '—';
+    return `<tr class="${c.converted ? 'tr-converted' : ''}">
+      <td style="color:var(--muted);font-size:.76rem;white-space:nowrap;">${fmtDate(c.clickedAt)}</td>
+      <td>${esc(prod)}</td>
+      <td>${conv}</td>
+      <td>${sale}</td>
+      <td>${comm}</td>
+    </tr>`;
   }).join('');
 }
-function renderEarnings(){
-  const tbody=document.getElementById('earningsBody');
-  const converted=(D.recentClicks||[]).filter(c=>c.converted&&c.commissionEarned);
-  if(!converted.length){tbody.innerHTML='<tr class="empty-row"><td colspan="6"><i class="fas fa-coins"></i>No commissions yet — keep sharing!</td></tr>';}
-  else{
-    tbody.innerHTML=converted.map(c=>{
-      const dt=fmtDate(c.convertedAt||c.clickedAt);const prod=c.productId&&c.productId.title?c.productId.title:'Product';
-      const sale=c.conversionAmount?'$'+c.conversionAmount.toFixed(2):'—';
-      const rate=c.commissionEarned&&c.conversionAmount?((c.commissionEarned/c.conversionAmount)*100).toFixed(0)+'%':'—';
-      return`<tr><td style="color:var(--muted);font-size:.8rem;">${dt}</td><td>${esc(prod)}</td><td>${sale}</td><td>${rate}</td><td style="color:var(--g);font-weight:800;font-size:1rem;">$${c.commissionEarned.toFixed(2)}</td><td><span class="badge badge-confirmed">Confirmed</span></td></tr>`;
-    }).join('');
+
+// ── EARNINGS LEDGER ───────────────────────────────────────────────
+function renderEarnings() {
+  const tbody = document.getElementById('earningsBody');
+  const list  = D.ledger || [];
+  if (!list.length) { tbody.innerHTML = emptyRow('No commission records yet — keep sharing!', 7, 'fas fa-coins'); return; }
+  tbody.innerHTML = list.map(e => {
+    const prod   = e.productId?.title || e.description?.split('"')[1] || 'Product';
+    const orderRef = e.orderId?.orderReference || '—';
+    const sale   = e.saleAmount   ? '$' + e.saleAmount.toFixed(2)   : '—';
+    const rate   = e.commissionRate ? e.commissionRate + '%' : '—';
+    const earned = e.earningAmount  ? '$' + e.earningAmount.toFixed(2) : '—';
+    const stMap  = { confirmed: 'bdg-green', pending: 'bdg-amber', paid: 'bdg-blue', reversed: 'bdg-red' };
+    const bdg    = stMap[e.status] || 'bdg-muted';
+    return `<tr>
+      <td style="color:var(--muted);font-size:.76rem;white-space:nowrap;">${fmtDate(e.createdAt)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(prod)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);">${esc(orderRef)}</td>
+      <td>${sale}</td>
+      <td style="color:var(--muted);">${rate}</td>
+      <td style="font-weight:700;color:var(--g);font-size:.95rem;">${earned}</td>
+      <td><span class="bdg ${bdg}">${e.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PAYOUT HISTORY ────────────────────────────────────────────────
+function renderPayouts() {
+  const tbody = document.getElementById('payoutBody');
+  const list  = D.payouts || [];
+  if (!list.length) { tbody.innerHTML = emptyRow('No payout requests yet', 6, 'fas fa-history'); return; }
+  const stMap = { pending: 'bdg-amber', processing: 'bdg-blue', completed: 'bdg-green', rejected: 'bdg-red' };
+  tbody.innerHTML = list.map(p => {
+    const pd = p.payoutDetails || {};
+    const method = (p.payoutMethod || '—').replace(/_/g,' ');
+    // Build a concise payment detail summary for admin reference
+    let detail = '—';
+    if (pd.bankName && pd.accountNumber) detail = pd.bankName + ' ···' + String(pd.accountNumber).slice(-4);
+    else if (pd.paypalEmail) detail = pd.paypalEmail;
+    else if (pd.cryptoAddress) detail = pd.cryptoType + ': ···' + String(pd.cryptoAddress).slice(-6);
+    else if (pd.flwEmail) detail = pd.flwEmail;
+    else if (pd.account) detail = pd.account;
+    const bdg = stMap[p.status] || 'bdg-muted';
+    const processed = p.processedAt ? fmtDate(p.processedAt) : '—';
+    return `<tr>
+      <td style="color:var(--muted);font-size:.76rem;white-space:nowrap;">${fmtDate(p.requestedAt)}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:800;color:var(--g);font-size:1rem;">$${(p.amount||0).toFixed(2)}</td>
+      <td style="text-transform:capitalize;">${esc(method)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);">${esc(detail)}</td>
+      <td><span class="bdg ${bdg}">${p.status}</span></td>
+      <td style="color:var(--muted);font-size:.76rem;">${processed}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PAYOUT METHOD SELECTION ───────────────────────────────────────
+function selectMethod(method) {
+  document.querySelectorAll('.method-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.method === method));
+  document.getElementById('payoutMethodInput').value = method;
+  document.querySelectorAll('.payout-section').forEach(s => s.classList.remove('active'));
+  const sec = document.getElementById('ps_' + method);
+  if (sec) sec.classList.add('active');
+}
+
+function toggleBankFields() {
+  const country = document.getElementById('bankCountry')?.value;
+  const usa    = country === 'usa';
+  const europe = country === 'uk' || country === 'europe';
+  const intl   = !['nigeria','ghana','kenya','southafrica'].includes(country);
+  const other  = country === 'other';
+
+  const numLabel = document.getElementById('accNumLabel');
+  if (numLabel) numLabel.textContent = usa ? 'Account Number' : europe ? 'Account Number / IBAN' : 'Account Number';
+
+  setDisplay('swiftGroup',   intl && !europe && !other ? 'block' : 'none');
+  setDisplay('sortGroup',    country === 'uk' ? 'block' : 'none');
+  setDisplay('ibanGroup',    europe ? 'block' : 'none');
+  setDisplay('routingGroup', usa ? 'block' : 'none');
+  setDisplay('otherGroup',   other ? 'block' : 'none');
+}
+
+// ── RESTORE SAVED PAYOUT DETAILS ─────────────────────────────────
+function restorePayoutDetails(method, pd) {
+  selectMethod(method);
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  if (method === 'bank_transfer') {
+    setVal('bankCountry', pd.country); toggleBankFields();
+    setVal('bankName', pd.bankName); setVal('accName', pd.accountName);
+    setVal('accNum', pd.accountNumber); setVal('sortCode', pd.sortCode);
+    setVal('swiftCode', pd.swift); setVal('ibanNum', pd.iban);
+    setVal('routingNum', pd.routingNumber); setVal('otherBank', pd.otherDetails);
+  } else if (method === 'paypal') {
+    setVal('paypalEmail', pd.paypalEmail); setVal('paypalName', pd.paypalName);
+  } else if (method === 'flutterwave') {
+    setVal('flwEmail', pd.flwEmail); setVal('flwAccount', pd.flwAccount);
+    setVal('flwBank', pd.flwBank); setVal('flwCountry', pd.flwCountry);
+  } else if (method === 'crypto') {
+    setVal('cryptoType', pd.cryptoType); setVal('cryptoAddress', pd.cryptoAddress);
+    setVal('cryptoName', pd.cryptoName);
   }
-  const ptbody=document.getElementById('payoutBody');
-  ptbody.innerHTML='<tr class="empty-row"><td colspan="5"><i class="fas fa-clock"></i>Past payout requests will appear here</td></tr>';
+  const badge = document.getElementById('savedBadge');
+  if (badge) badge.style.display = 'inline-flex';
 }
-function onMethodChange(){
-  const m=document.getElementById('payoutMethod').value;
-  const af=document.getElementById('acctField'),nf=document.getElementById('nameField'),bf=document.getElementById('bankField');
-  const al=document.getElementById('acctLabel'),ai=document.getElementById('acctValue');
-  af.style.display=m?'block':'none';nf.style.display=m?'block':'none';bf.style.display=m==='bank_transfer'?'block':'none';
-  const cfg={bank_transfer:{label:'Account Number',ph:'Enter bank account number'},paypal:{label:'PayPal Email',ph:'your@paypal.com'},crypto:{label:'Wallet Address',ph:'USDT / BTC wallet address'},mobile_money:{label:'Mobile Money Number',ph:'+234 XXX XXX XXXX'}};
-  if(cfg[m]){al.textContent=cfg[m].label;ai.placeholder=cfg[m].ph;}
+
+// ── SAVE PAYOUT DETAILS ───────────────────────────────────────────
+async function savePayoutDetails() {
+  const method = document.getElementById('payoutMethodInput').value;
+  if (!method) { toast('⚠️ Please select a payout method first', 'error'); return; }
+
+  let payoutDetails = {}, valid = true;
+
+  if (method === 'bank_transfer') {
+    const bankName = document.getElementById('bankName')?.value.trim();
+    const accNum   = document.getElementById('accNum')?.value.trim();
+    const accName  = document.getElementById('accName')?.value.trim();
+    if (!bankName || !accNum || !accName) { toast('⚠️ Bank name, account number and account name are required', 'error'); valid = false; }
+    payoutDetails = {
+      country:       document.getElementById('bankCountry')?.value || 'nigeria',
+      bankName, accountNumber: accNum, accountName: accName,
+      sortCode:      document.getElementById('sortCode')?.value.trim()  || '',
+      swift:         document.getElementById('swiftCode')?.value.trim() || '',
+      iban:          document.getElementById('ibanNum')?.value.trim()   || '',
+      routingNumber: document.getElementById('routingNum')?.value.trim()|| '',
+      otherDetails:  document.getElementById('otherBank')?.value.trim() || '',
+    };
+  } else if (method === 'paypal') {
+    const email = document.getElementById('paypalEmail')?.value.trim();
+    if (!email) { toast('⚠️ PayPal email is required', 'error'); valid = false; }
+    payoutDetails = { paypalEmail: email, paypalName: document.getElementById('paypalName')?.value.trim() || '' };
+  } else if (method === 'flutterwave') {
+    const flwEmail = document.getElementById('flwEmail')?.value.trim();
+    const flwAcct  = document.getElementById('flwAccount')?.value.trim();
+    if (!flwEmail && !flwAcct) { toast('⚠️ Provide at least your Flutterwave email or account number', 'error'); valid = false; }
+    payoutDetails = {
+      flwEmail, flwAccount: flwAcct,
+      flwBank: document.getElementById('flwBank')?.value.trim()    || '',
+      flwCountry: document.getElementById('flwCountry')?.value.trim() || '',
+    };
+  } else if (method === 'crypto') {
+    const addr = document.getElementById('cryptoAddress')?.value.trim();
+    if (!addr) { toast('⚠️ Wallet address is required', 'error'); valid = false; }
+    payoutDetails = {
+      cryptoType:    document.getElementById('cryptoType')?.value    || 'USDT_TRC20',
+      cryptoAddress: addr,
+      cryptoName:    document.getElementById('cryptoName')?.value.trim() || '',
+    };
+  }
+
+  if (!valid) return;
+
+  try {
+    const res  = await apiFetch('/api/affiliate/payout/details', 'PUT', { payoutMethod: method, payoutDetails });
+    const data = await res.json();
+    if (data.success) {
+      toast('✅ Payment details saved!', 'success');
+      const badge = document.getElementById('savedBadge');
+      if (badge) badge.style.display = 'inline-flex';
+      // Update local D
+      if (D?.affiliate) { D.affiliate.payoutMethod = method; D.affiliate.payoutDetails = payoutDetails; }
+    } else {
+      toast('❌ ' + (data.message || 'Save failed'), 'error');
+    }
+  } catch(e) { toast('❌ Network error', 'error'); }
 }
-async function requestPayout(){
-  const method=document.getElementById('payoutMethod').value;
-  const acct=document.getElementById('acctValue').value.trim();
-  const name=document.getElementById('acctName').value.trim();
-  const bank=document.getElementById('bankName').value.trim();
-  if(!method){toast('Please select a payout method','error');return;}
-  if(!acct){toast('Please enter your account details','error');return;}
-  if(!name){toast('Please enter the account name','error');return;}
-  const btn=document.getElementById('payoutBtn');
-  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Requesting…';
-  try{
-    const res=await apiFetch('/api/affiliate/payout/request','POST',{payoutMethod:method,payoutDetails:{account:acct,name,method,bank:bank||undefined}});
-    const data=await res.json();
-    if(data.success){
-      toast('✅ '+data.message,'success');
-      ['payoutMethod','acctValue','acctName','bankName'].forEach(id=>document.getElementById(id).value='');
-      ['acctField','nameField','bankField'].forEach(id=>document.getElementById(id).style.display='none');
-      setTimeout(()=>loadDashboard(),1800);
-    }else{toast(data.message||'Payout request failed','error');}
-  }catch(e){toast('Network error. Try again.','error');}
-  finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Request Payout';}
+
+// ── REQUEST PAYOUT ────────────────────────────────────────────────
+async function requestPayout() {
+  const method = document.getElementById('payoutMethodInput').value;
+  const pd     = D?.affiliate?.payoutDetails;
+  if (!method || !pd) {
+    toast('⚠️ Please save your payment details first, then request payout', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('payoutBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Requesting…';
+  try {
+    const res  = await apiFetch('/api/affiliate/payout/request', 'POST', {
+      payoutMethod: method,
+      payoutDetails: pd
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('✅ ' + data.message, 'success');
+      setTimeout(() => loadDashboard(), 1800);
+    } else {
+      toast(data.message || 'Payout request failed', 'error');
+    }
+  } catch(e) { toast('❌ Network error. Try again.', 'error'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Payout';
+  }
 }
-function copyCode(){navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(()=>toast('✅ Code copied!','success'));}
-function copyLink(){
-  const input=document.getElementById('generalLink');
-  clipCopy(input.dataset.url||input.value,'generalCopyBtn');
+
+// ── LINK / COPY / SHARE ───────────────────────────────────────────
+function copyCode() {
+  const code = document.getElementById('myCode').textContent;
+  navigator.clipboard.writeText(code).then(() => toast('✅ Code copied!', 'success'));
 }
-function share(platform){
-  const input=document.getElementById('generalLink');
-  shareUrl(platform,input.dataset.url||input.value,'UYEH TECH Digital Products');
+function copyLink() {
+  const el = document.getElementById('generalLink');
+  clipCopy(el.dataset.url || el.value, 'generalCopyBtn');
 }
-function shareUrl(platform,url,title){
-  const text='Check out "'+title+'" on UYEH TECH 🔥';
-  const enc=encodeURIComponent(url),encT=encodeURIComponent(text+'\n'+url);
-  if(platform==='native'){if(navigator.share){navigator.share({title:'UYEH TECH',text,url}).catch(()=>{});return;}clipCopy(url,null);toast('🔗 Link copied','info');return;}
-  const map={wa:'https://wa.me/?text='+encT,tw:'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+enc,tg:'https://t.me/share/url?url='+enc+'&text='+encodeURIComponent(text),li:'https://www.linkedin.com/sharing/share-offsite/?url='+enc};
-  window.open(map[platform],'_blank','noopener,width=620,height=500');
+function share(platform) {
+  const el = document.getElementById('generalLink');
+  shareUrl(platform, el.dataset.url || el.value, 'UYEH TECH Digital Products');
 }
-function clipCopy(text,btnId){
-  navigator.clipboard.writeText(text).then(()=>{
-    toast('🔗 Link copied!','success');
-    if(btnId){const btn=document.getElementById(btnId);if(btn){btn.classList.add('ok');const orig=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Copied!';setTimeout(()=>{btn.classList.remove('ok');btn.innerHTML=orig;},2800);}}
-  }).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('🔗 Copied!','success');});
+function shareUrl(platform, url, title) {
+  const text = 'Check out "' + title + '" on UYEH TECH 🔥';
+  const enc = encodeURIComponent(url), encT = encodeURIComponent(text + '\n' + url);
+  if (platform === 'native') {
+    if (navigator.share) { navigator.share({ title: 'UYEH TECH', text, url }).catch(() => {}); return; }
+    clipCopy(url, null); toast('🔗 Link copied', 'info'); return;
+  }
+  const map = {
+    wa: 'https://wa.me/?text=' + encT,
+    tw: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + enc,
+    tg: 'https://t.me/share/url?url=' + enc + '&text=' + encodeURIComponent(text),
+    li: 'https://www.linkedin.com/sharing/share-offsite/?url=' + enc
+  };
+  window.open(map[platform], '_blank', 'noopener,width=620,height=500');
 }
-function apiFetch(path,method='GET',body=null){
-  const opts={method,headers:{'Authorization':'Bearer '+localStorage.getItem('token'),'Content-Type':'application/json'}};
-  if(body)opts.body=JSON.stringify(body);
-  return fetch(API+path,opts);
+function clipCopy(text, btnId) {
+  navigator.clipboard.writeText(text).then(() => {
+    toast('🔗 Link copied!', 'success');
+    if (btnId) {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.classList.add('ok');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = orig; }, 2800);
+      }
+    }
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('🔗 Copied!', 'success');
+  });
 }
-function show(id){document.getElementById(id).style.display='block';}
-function hide(id){document.getElementById(id).style.display='none';}
-function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val??'';}
-function cap(s){return s?s[0].toUpperCase()+s.slice(1):'';}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function fmtDate(d){if(!d)return'—';const dt=new Date(d);return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function apiFetch(path, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(API + path, opts);
+}
+function show(id)    { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+function hide(id)    { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val ?? ''; }
+function setLink(id, url) { const el = document.getElementById(id); if (el) { el.value = url; el.dataset.url = url; } }
+function setDisplay(id, val) { const el = document.getElementById(id); if (el) el.style.display = val; }
+function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+    + ' ' + dt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+function emptyRow(msg, cols, icon = null) {
+  return `<tr class="empty-row"><td colspan="${cols}">${icon ? `<i class="${icon}"></i>` : ''}${esc(msg)}</td></tr>`;
+}
 let toastTimer;
-function toast(msg,type='info'){
-  const el=document.getElementById('toast');
-  const icons={success:'<i class="fas fa-check-circle"></i> ',error:'<i class="fas fa-times-circle"></i> ',info:'<i class="fas fa-info-circle"></i> '};
-  el.className='toast '+type;el.innerHTML=(icons[type]||'')+msg;el.classList.add('show');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),4500);
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  const icons = { success: '<i class="fas fa-check-circle"></i> ', error: '<i class="fas fa-times-circle"></i> ', info: '<i class="fas fa-info-circle"></i> ' };
+  el.className = 'toast ' + type;
+  el.innerHTML = (icons[type] || '') + msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4500);
 }
 </script>
 </body>

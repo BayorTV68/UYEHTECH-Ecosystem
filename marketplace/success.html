@@ -395,11 +395,11 @@
         </div>
 
         <div class="action-buttons">
-            <a href="orders.html" class="action-btn action-btn-primary">
+            <a href="/marketplace/orders" class="action-btn action-btn-primary">
                 <i class="fas fa-box"></i>
                 View My Orders
             </a>
-            <a href="store.html" class="action-btn action-btn-secondary">
+            <a href="/marketplace/" class="action-btn action-btn-secondary">
                 <i class="fas fa-shopping-bag"></i>
                 Continue Shopping
             </a>
@@ -407,7 +407,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000';
+        const API_URL = 'https://uyehtechbackend.onrender.com';
 
         document.addEventListener('DOMContentLoaded', async () => {
             await loadOrderDetails();
@@ -533,7 +533,7 @@
                 <div style="text-align: center; padding: 40px; color: #ff4444;">
                     <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 20px;"></i>
                     <p>${message}</p>
-                    <a href="store.html" class="action-btn action-btn-primary" style="margin-top: 20px; display: inline-flex;">
+                    <a href="/marketplace/" class="action-btn action-btn-primary" style="margin-top: 20px; display: inline-flex;">
                         Return to Store
                     </a>
                 </div>

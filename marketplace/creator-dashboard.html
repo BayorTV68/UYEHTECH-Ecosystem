@@ -1837,7 +1837,7 @@ select.form-control option { background: var(--ink-3); }
 
 <!-- ════════ SIDEBAR ════════ -->
 <aside class="sidebar" id="sidebar">
-  <a href="/store/index.html" class="sidebar-brand">
+  <a href="/marketplace/" class="sidebar-brand">
     <div class="brand-icon">UT</div>
     <div>
       <div class="brand-text">UYEH TECH</div>
@@ -1918,7 +1918,7 @@ select.form-control option { background: var(--ink-3); }
   </nav>
 
   <div class="sidebar-bottom">
-    <a class="nav-item" href="/store/index.html">
+    <a class="nav-item" href="/marketplace/">
       <span class="nav-icon"><i class="fas fa-arrow-up-right-from-square"></i></span>
       View My Store
     </a>
@@ -2721,7 +2721,7 @@ select.form-control option { background: var(--ink-3); }
           </div>
           <div style="margin-top:16px;padding:14px;background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);text-align:center;">
             <div style="font-size:0.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:6px;">Your Store Link</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--green);word-break:break-all;" id="storeLink">uyehtechbackend.onrender.com/stores/...</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--green);word-break:break-all;" id="storeLink">uyehtech.com/marketplace/...</div>
             <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="copyStoreLink()"><i class="fas fa-copy"></i> Copy Link</button>
           </div>
         </div>
@@ -2882,7 +2882,7 @@ select.form-control option { background: var(--ink-3); }
               <!-- ─── Store name + slug + hint ─── -->
               <div style="flex:1;min-width:0;">
                 <div class="store-name-display" id="storeNamePreview">My Store</div>
-                <div class="store-slug-display" id="storeSlugPreview">uyehtech.com/stores/my-store</div>
+                <div class="store-slug-display" id="storeSlugPreview">uyehtech.com/marketplace/my-store</div>
                 <div style="font-size:0.68rem;color:var(--muted);margin-top:5px;
                             display:flex;align-items:center;gap:5px;">
                   <span>📷</span> Click avatar to change profile photo
@@ -3398,7 +3398,7 @@ function checkAuth() {
   const token = localStorage.getItem('token');
   const user  = localStorage.getItem('user');
   if (!token || !user) {
-    window.location.href = '/store/creator-login.html';
+    window.location.href = '/marketplace/creator-login';
     return false;
   }
   try {
@@ -3414,7 +3414,7 @@ function handleLogout() {
   if (confirm('Log out of Creator Studio?')) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/store/creator-login.html';
+    window.location.href = '/marketplace/creator-login';
   }
 }
 
@@ -3537,7 +3537,7 @@ async function apiFetch(url, options = {}) {
   if (res.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/store/creator-login.html';
+    window.location.href = '/marketplace/creator-login';
     throw new Error('Unauthorized');
   }
   return res;
@@ -3816,10 +3816,10 @@ function populateProfile(c) {
   document.getElementById('storeNamePreview').textContent  = c.storeName || 'My Store';
   document.getElementById('storeAvatarLetter').textContent = (c.storeName||'U').charAt(0).toUpperCase();
   document.getElementById('storeSlugPreview').textContent  =
-    `uyehtech.com/store/?store=${c.storeSlug || 'my-store'}`;
+    `uyehtech.com/marketplace/?store=${c.storeSlug || 'my-store'}`;
   document.getElementById('storeDescPreview').textContent  = c.storeDescription || 'Your store description.';
   const slug = c.storeSlug || 'my-store';
-document.getElementById('storeLink').textContent = `uyehtech.com/store/${slug}`;
+document.getElementById('storeLink').textContent = `uyehtech.com/marketplace/${slug}`;
 
 }
 
@@ -5018,7 +5018,7 @@ document.getElementById('profileStoreName')?.addEventListener('input', function(
   document.getElementById('storeNamePreview').textContent  = this.value || 'My Store';
   document.getElementById('storeAvatarLetter').textContent = (this.value || 'U').charAt(0).toUpperCase();
   const slug = (this.value || 'my-store').toLowerCase().replace(/\s+/g,'-');
-  document.getElementById('storeSlugPreview').textContent  = `uyehtech.com/stores/${slug}`;
+  document.getElementById('storeSlugPreview').textContent  = `uyehtech.com/marketplace/${slug}`;
 });
 
 document.getElementById('profileDescription')?.addEventListener('input', function() {

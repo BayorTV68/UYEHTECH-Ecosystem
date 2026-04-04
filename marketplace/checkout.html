@@ -7,6 +7,8 @@
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
     <!-- Flutterwave SDK -->
     <script src="https://checkout.flutterwave.com/v3.js"></script>
@@ -274,6 +276,33 @@ nav {
     display: block;
 }
 
+.coupon-hints {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 150, 255, 0.1);
+    border-radius: 8px;
+}
+
+.coupon-hints p {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.hint-code {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.hint-code:hover {
+    background: rgba(0, 255, 136, 0.3);
+    transform: scale(1.05);
+}
 
 /* ========== PAYMENT INFO BOX ========== */
 .payment-info-box {
@@ -656,16 +685,34 @@ nav {
         font-size: 1.5rem;
     }
 }
+
+/* ========== AFFILIATE BANNER ========== */
+.affiliate-notice {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: rgba(0, 255, 136, 0.07);
+    border: 1px solid rgba(0, 255, 136, 0.25);
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+    color: #d1d5db;
+    line-height: 1.5;
+}
+.affiliate-notice.visible { display: flex; }
+.affiliate-notice i { color: #00ff88; font-size: 1.1rem; flex-shrink: 0; }
+.affiliate-notice strong { color: #00ff88; }
+
     </style>
 </head>
 <body>
     <!-- NAVIGATION -->
     <nav>
-        <a href="/store/index.html" class="logo">
-            <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH"
-                 onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=\'font-family:Playfair Display,serif;color:#00ff88;font-size:1.4rem;font-weight:900;\'>UYEH TECH</span>')">
+        <a href="/index.html" class="logo">
+            <img src="uyehtech logo.png" width="50px" height="50px" alt="UYEH TECH">
         </a>
-        <a href="/store/index.html" class="back-link">← Back to Store</a>
+        <a href="/marketplace/" class="back-link">← Back to Store</a>
     </nav>
 
     <!-- LOADING OVERLAY -->
@@ -683,7 +730,7 @@ nav {
             <div class="empty-cart-icon">🛒</div>
             <h2>Your Cart is Empty</h2>
             <p style="color: #9ca3af;">Add some products before checking out</p>
-            <a href="/store/index.html" class="empty-cart-btn">Browse Products</a>
+            <a href="/marketplace/" class="empty-cart-btn">Browse Products</a>
         </div>
 
         <!-- Checkout Content -->
@@ -719,6 +766,12 @@ nav {
             <div class="checkout-grid">
                 <!-- LEFT: Checkout Form -->
                 <div class="checkout-form-section">
+                    <!-- AFFILIATE NOTICE — shown when buyer arrived via affiliate link -->
+                    <div class="affiliate-notice" id="affiliateNotice">
+                        <i class="fas fa-link"></i>
+                        <span>You arrived via an affiliate link. The promoter earns a small commission on this purchase — <strong>at no extra cost to you</strong>.</span>
+                    </div>
+
                     <h2 class="form-section-title">📋 Billing Information</h2>
                     
                     <form id="checkoutForm">
@@ -758,11 +811,13 @@ nav {
                         <div class="coupon-section">
                             <h3 class="subsection-title">💰 Have a Coupon Code?</h3>
                             <div class="coupon-input-group">
-                                <input type="text" class="form-input" id="couponCode" placeholder="Enter coupon code">
+                                <input type="text" class="form-input" id="couponCode" placeholder="Enter coupon code (e.g., WELCOME10, FREE100)">
                                 <button type="button" class="btn-apply-coupon" id="applyCouponBtn">Apply</button>
                             </div>
                             <div id="couponMessage" class="coupon-message"></div>
-
+                            <div class="coupon-hints">
+                                <p>💡 Try these codes: <span class="hint-code">WELCOME10</span> <span class="hint-code">SAVE20</span> <span class="hint-code">FREE100</span></p>
+                            </div>
                         </div>
 
                         <h2 class="form-section-title" style="margin-top: 40px;">💳 Payment Method</h2>
@@ -872,27 +927,16 @@ let appliedCoupon = null;
 let isFreeOrder = false;
 
 // ========== AFFILIATE REF HELPER ==========
-// Reads the affiliate ref code saved by creator-store.html when a visitor
-// arrived via an affiliate link.  Returns null if expired or not present.
-function getStoredAffiliateRef() {
-    try {
-        const expiry = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
-        if (expiry && Date.now() > expiry) {
-            localStorage.removeItem('uyeh_ref');
-            localStorage.removeItem('uyeh_ref_expiry');
-            localStorage.removeItem('uyeh_ref_product');
-            return null;
-        }
-        return localStorage.getItem('uyeh_ref') || null;
-    } catch (_) { return null; }
-}
-
-// Clears the stored affiliate ref after a successful order so it isn't
-// double-counted on a future purchase.
-function clearStoredAffiliateRef() {
-    localStorage.removeItem('uyeh_ref');
-    localStorage.removeItem('uyeh_ref_expiry');
-    localStorage.removeItem('uyeh_ref_product');
+// Reads the ref code stored by creator-store.html when a buyer clicks an affiliate link.
+// Returns null if no ref is stored or if it has expired (30-day TTL).
+function getAffiliateRef() {
+    const expiry = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
+    if (Date.now() > expiry) {
+        localStorage.removeItem('uyeh_ref');
+        localStorage.removeItem('uyeh_ref_expiry');
+        return null;
+    }
+    return localStorage.getItem('uyeh_ref') || null;
 }
 
 // ========== INITIALIZE PAGE ==========
@@ -907,7 +951,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     loadCart();
     initializeEventListeners();
-
+    setupCouponHints();
+    showAffiliateBanner(); // ✅ NEW
 });
 
 // ========== CHECK AUTHENTICATION ==========
@@ -916,8 +961,8 @@ async function checkAuthentication() {
     
     if (!token) {
         showNotification('Please login to complete your purchase', 'error');
-        sessionStorage.setItem('redirect_after_login', '/store/checkout.html');
-        setTimeout(() => window.location.href = '/store/login.html', 2000);
+        sessionStorage.setItem('redirect_after_login', 'checkout.html');
+        setTimeout(() => window.location.href = 'login.html', 2000);
         return null;
     }
     
@@ -947,7 +992,7 @@ async function checkAuthentication() {
         console.error('❌ Auth check failed:', error);
         showNotification('Session expired. Please login again.', 'error');
         localStorage.removeItem('token');
-        setTimeout(() => window.location.href = '/store/login.html', 2000);
+        setTimeout(() => window.location.href = 'login.html', 2000);
         return null;
     }
 }
@@ -975,14 +1020,36 @@ function initializeEventListeners() {
     }
 }
 
-// Coupon hints removed
+// ========== SETUP COUPON HINTS ==========
+function setupCouponHints() {
+    const hintCodes = document.querySelectorAll('.hint-code');
+    hintCodes.forEach(code => {
+        code.addEventListener('click', () => {
+            const couponInput = document.getElementById('couponCode');
+            if (couponInput) {
+                couponInput.value = code.textContent;
+                applyCoupon();
+            }
+        });
+    });
+}
+
+// ========== SHOW AFFILIATE BANNER ==========
+function showAffiliateBanner() {
+    const ref = getAffiliateRef();
+    if (ref) {
+        const banner = document.getElementById('affiliateNotice');
+        if (banner) banner.classList.add('visible');
+    }
+}
 
 // ========== LOAD CART ==========
 function loadCart() {
     console.log('📦 Loading cart...');
     
     try {
-        const stored = localStorage.getItem('uyehtech_cart');
+        // ✅ FIX: Read from 'cart' (creator-store.html) OR 'uyehtech_cart' (legacy)
+        const stored = localStorage.getItem('cart') || localStorage.getItem('uyehtech_cart');
         cart = stored ? JSON.parse(stored) : [];
         console.log('✅ Cart loaded:', cart.length, 'items');
         
@@ -1191,21 +1258,21 @@ async function handleCheckout(e) {
     showLoading('Creating order...');
     
     try {
+        // ✅ FIX: Read affiliate ref and attach it to the order
+        const affiliateCode = getAffiliateRef();
+
         const orderData = {
             items: cart,
             subtotal: subtotal,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
+            affiliateCode: affiliateCode || null,   // ✅ sent to server
             customerInfo: {
                 name: fullName,
                 email: email,
                 phone: phone,
                 country: country
             },
-            orderReference: orderReference,
-            // ── Affiliate attribution ──────────────────────────────────
-            // Pass the stored ref code so the server can credit the affiliate
-            // when it processes the order (processOrderCommissions).
-            affiliateRef: getStoredAffiliateRef() || undefined
+            orderReference: orderReference
         };
         
         const token = localStorage.getItem('token');
@@ -1241,11 +1308,13 @@ async function handleCheckout(e) {
         if (result.order.isFree) {
             console.log('🎉 Order is FREE - skipping payment');
             
-            // Clear cart
+            // Clear cart — both key variants
             localStorage.removeItem('uyehtech_cart');
-            
-            // Clear affiliate ref so it isn't counted twice on a future order
-            clearStoredAffiliateRef();
+            localStorage.removeItem('cart'); 
+            localStorage.removeItem('uyeh_ref');
+            localStorage.removeItem('uyeh_ref_expiry');
+            localStorage.removeItem('uyeh_ref_product');
+            localStorage.setItem('last_order', JSON.stringify(result.order));
             
             // Save order for success page
             localStorage.setItem('last_order', JSON.stringify(result.order));
@@ -1255,7 +1324,7 @@ async function handleCheckout(e) {
             
             // Redirect to success page
             setTimeout(() => {
-                window.location.href = '/store/success.html';
+                window.location.href = 'success.html';
             }, 2000);
             
         } else {
@@ -1335,7 +1404,8 @@ async function verifyPayment(transactionId, orderId) {
             },
             body: JSON.stringify({
                 transactionId: transactionId,
-                orderId: orderId
+                orderId: orderId,
+                 affiliateCode: getAffiliateRef() || undefined
             })
         });
         
@@ -1349,16 +1419,14 @@ async function verifyPayment(transactionId, orderId) {
             console.log('✅ Payment verified');
             
             localStorage.removeItem('uyehtech_cart');
-            
-            // Clear affiliate ref — commission was credited server-side on verify
-            clearStoredAffiliateRef();
-            
+            localStorage.removeItem('cart'); // ✅ FIX: also clear creator-store key
             localStorage.setItem('last_order', JSON.stringify(result.order));
             
             showNotification('✅ Payment successful! Redirecting...', 'success');
             
+
             setTimeout(() => {
-                window.location.href = '/store/success.html';
+                window.location.href = 'success.html';
             }, 1500);
         } else {
             throw new Error(result.message || 'Payment verification failed');
@@ -1438,7 +1506,45 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-console.log('✅ Checkout with coupon + affiliate attribution loaded');
-    </script>
+console.log('✅ Checkout with enhanced coupon system loaded');
+  
+// ── AFFILIATE REF CAPTURE ──────────────────────────────────────────
+(function captureAffiliateRef() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get('ref');
+        if (!ref) return;
+
+        const code = ref.trim().toUpperCase();
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+        // Save ref — checkout.html reads these keys
+        localStorage.setItem('uyeh_ref', code);
+        localStorage.setItem('uyeh_ref_expiry', String(Date.now() + THIRTY_DAYS));
+
+        // Save the specific product if ?product= is also in the URL
+        const productId = params.get('product');
+        if (productId) localStorage.setItem('uyeh_ref_product', productId);
+
+        // Track the click server-side (fire and forget)
+        fetch('https://uyehtechbackend.onrender.com/api/affiliate/track-click', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                affiliateCode: code,
+                productId: productId || null
+            })
+        }).catch(() => {}); // Silent fail — never block the user
+
+        // Clean ?ref= from the URL bar without reloading (looks cleaner)
+        if (window.history && window.history.replaceState) {
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('ref');
+            window.history.replaceState({}, '', cleanUrl.toString());
+        }
+    } catch (_) {}
+})();
+
+  </script>
 </body>
 </html>

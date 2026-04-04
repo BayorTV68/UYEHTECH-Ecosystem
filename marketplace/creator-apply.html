@@ -451,8 +451,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--ink); color: var(--
     <span class="nav-brand-text">UYEH TECH</span>
   </a>
   <div class="nav-actions">
-    <a href="/store/index.html" class="nav-link">Store</a>
-    <a href="/store/creator-login.html" class="nav-btn nav-btn-ghost">Sign In</a>
+    <a href="/marketplace/" class="nav-link">Store</a>
+    <a href="/marketplace/creator-login" class="nav-btn nav-btn-ghost">Sign In</a>
     </div>
 </nav>
 
@@ -519,7 +519,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--ink); color: var(--
         <div class="step-panel active" id="panel1">
           <div style="margin-bottom:28px;">
             <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--white);margin-bottom:6px;">Account Information</div>
-            <div style="font-size:0.85rem;color:var(--dim);">Already have an account? <a href="/store/creator-login.html?redirect=/store/creator-apply.html" style="color:var(--green);text-decoration:none;font-weight:600;">Sign in here</a> — we'll skip this step.</div>
+            <div style="font-size:0.85rem;color:var(--dim);">Already have an account? <a href="/marketplace/creator-login.html?redirect=/marketplace/creator-apply" style="color:var(--green);text-decoration:none;font-weight:600;">Sign in here</a> — we'll skip this step.</div>
           </div>
           <div class="frow">
             <div class="fgroup">
@@ -719,8 +719,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--ink); color: var(--
           <div class="timeline-item" style="border:none;"><div class="timeline-dot" style="background:var(--purple-dim);border:1px solid rgba(167,139,250,0.3);color:var(--purple);">🚀</div><div class="timeline-body"><div class="timeline-label">Go Live</div><div class="timeline-desc">If approved, log in and start uploading products!</div></div></div>
         </div>
         <div class="success-actions">
-          <a href="/store/creator-login.html" class="hero-btn-primary" style="font-size:0.92rem;padding:12px 24px;"><i class="fas fa-arrow-right-to-bracket"></i> Sign In to Dashboard</a>
-          <a href="/store/index.html" class="hero-btn-ghost" style="font-size:0.92rem;padding:12px 24px;"><i class="fas fa-store"></i> Browse Store</a>
+          <a href="/marketplace/creator-login" class="hero-btn-primary" style="font-size:0.92rem;padding:12px 24px;"><i class="fas fa-arrow-right-to-bracket"></i> Sign In to Dashboard</a>
+          <a href="/marketplace/" class="hero-btn-ghost" style="font-size:0.92rem;padding:12px 24px;"><i class="fas fa-store"></i> Browse Store</a>
         </div>
       </div>
 
@@ -791,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       const u = JSON.parse(storedUser);
       isLoggedIn = true; authToken = storedToken;
-      if (u.isCreator) { window.location.href = '/store/creator-dashboard.html'; return; }
+      if (u.isCreator) { window.location.href = '/marketplace/creator-dashboard'; return; }
       if (u.fullName || u.name) document.getElementById('appFullName').value = u.fullName || u.name;
       if (u.email)  document.getElementById('appEmail').value   = u.email;
       if (u.country)document.getElementById('appCountry').value = u.country;
@@ -906,7 +906,7 @@ function updateCats() { selectedCats=[]; document.querySelectorAll('#catChips in
 
 document.getElementById('appStoreName')?.addEventListener('input', function() {
   const slug=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  document.getElementById('storeSlugPreview').textContent=slug?`uyehtech.com/stores/${slug}`:'yourstore.uyehtech.com';
+  document.getElementById('storeSlugPreview').textContent=slug?`uyehtech.com/marketplace/${slug}`:'yourstore.uyehtech.com';
 });
 
 function initCharCounter(fieldId, counterId, max) {
