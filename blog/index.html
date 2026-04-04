@@ -10,7 +10,7 @@
 <!-- ========== PRIMARY META TAGS ========== -->
 <title>Our Blog Section | UYEH TECH</title>
 <meta name="description" content="Stay updated with UYEH TECH's blog. Get expert insights on web development, design trends, coding tutorials, and digital marketing strategies.">
-<link rel="canonical" href="https://www.uyehtech.com/blogs.html">
+<link rel="canonical" href="https://www.uyehtech.com/blog/">
 <meta name="description" content="UYEH TECH offers cutting-edge web development, mobile app development, UI/UX design, and digital marketing services. Transform your business with our expert solutions.">
 <meta name="keywords" content="web development, mobile app development, UI UX design, digital marketing, software development, UYEH TECH, technology solutions">
 <meta name="author" content="UYEH TECH">
@@ -20,7 +20,7 @@
 
 <!-- ========== OPEN GRAPH / FACEBOOK ========== -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://www.uyehtech.com/blogs.html">
+<meta property="og:url" content="https://www.uyehtech.com/blog/">
 <meta property="og:title" content="UYEH TECH - Professional Web Development & Digital Solutions">
 <meta property="og:description" content="UYEH TECH offers cutting-edge web development, mobile app development, UI/UX design, and digital marketing services. Transform your business with our expert solutions.">
 <meta property="og:image" content="https://www.uyehtech.com/images/og-image.jpg">
@@ -1114,26 +1114,7 @@ body {
         </div>
     </nav>
 
-<!--
-  ╔══════════════════════════════════════════════════════════════╗
-  ║  UYEH TECH — Blog Section Drop-In  (extracted from home.html)
-  ║  ► Paste this ENTIRE block into your index.html
-  ║  ► Place it where you want the blog section to appear
-  ║  ► The <style> block goes inside <head> (or merge with your
-  ║    existing styles); the <script> block goes before </body>
-  ╚══════════════════════════════════════════════════════════════╝
--->
-
-<!-- ═══════════════════════════════════════════════════
-     STEP 1 — ADD THESE STYLES INSIDE YOUR <head> TAG
-     (copy from here ↓ to the closing </style> below)
-════════════════════════════════════════════════════ -->
 <style>
-/* ============================================================
-   UYEH TECH BLOG SECTION — blog-section.html  ·  v2.0
-   Dark editorial design with neon-green accent
-   Nav-free version — drop into index.html
-============================================================ */
 
 
 /* ── LOADING SCREEN ── */
@@ -1633,8 +1614,8 @@ a.read-more, .post-card { cursor:pointer; }
     <p style="color:var(--muted);margin-top:6px;font-size:.9rem;">From idea to launch — UYEH TECH builds it.</p>
   </div>
   <div style="display:flex;gap:12px;flex-wrap:wrap;">
-    <a href="/contact.html"     class="cta-btn"><i class="fas fa-rocket"></i> Start a Project</a>
-    <a href="/store/index.html" class="cta-btn-ghost"><i class="fas fa-store"></i> Visit Store</a>
+    <a href="/contact"     class="cta-btn"><i class="fas fa-rocket"></i> Start a Project</a>
+    <a href="/marketplace/" class="cta-btn-ghost"><i class="fas fa-store"></i> Visit Store</a>
   </div>
 </div>
 <!-- END HTML BLOCK ↑ -->
@@ -1804,7 +1785,7 @@ function buildFeaturedCard(post) {
     : `<div class="featured-img-placeholder">${categoryIcon(cat)}</div>`;
 
   return `
-  <div class="featured-card" onclick="location.href='blog/post.html?slug=${encodeURIComponent(slug)}&id=${postId}'">
+  <div class="featured-card" onclick="location.href='/blog/post?slug=${encodeURIComponent(slug)}&id=${postId}'">
     <div class="featured-img">
       ${imgHtml}
       <div class="featured-badge">✦ Featured</div>
@@ -1822,7 +1803,7 @@ function buildFeaturedCard(post) {
         <span class="dot">·</span>
         <span><i class="fas fa-eye" style="color:var(--g);margin-right:4px;"></i>${(post.views||0).toLocaleString()} views</span>
       </div>
-      <a class="read-more" href="blog/post.html?slug=${encodeURIComponent(slug)}&id=${postId}" onclick="event.stopPropagation()">
+      <a class="read-more" href="/blog/post?slug=${encodeURIComponent(slug)}&id=${postId}" onclick="event.stopPropagation()">
         Read Article <i class="fas fa-arrow-right"></i>
       </a>
     </div>
@@ -1844,7 +1825,7 @@ function buildPostCard(post) {
   const tagChips = (post.tags||[]).slice(0,2).map(t=>`<span class="post-tag">#${esc(t)}</span>`).join('');
 
   return `
-  <div class="post-card" onclick="location.href='blog/post.html?slug=${encodeURIComponent(slug)}&id=${postId}'">
+  <div class="post-card" onclick="location.href='/blog/post?slug=${encodeURIComponent(slug)}&id=${postId}'">
     <div class="post-img">
       ${imgHtml}
       <div class="post-img-cat">${esc(cat)}</div>
@@ -1864,7 +1845,7 @@ function buildPostCard(post) {
           <span><i class="fas fa-heart"></i>${(post.likes||0)}</span>
           <span><i class="fas fa-comment"></i>${(post.comments?.length||0)}</span>
         </div>
-        <a class="read-more" href="blog/post.html?slug=${encodeURIComponent(slug)}&id=${postId}" onclick="event.stopPropagation()">
+        <a class="read-more" href="/blog/post?slug=${encodeURIComponent(slug)}&id=${postId}" onclick="event.stopPropagation()">
           Read <i class="fas fa-arrow-right"></i>
         </a>
       </div>
@@ -3344,7 +3325,7 @@ input:disabled + .cookie-slider {
         <div class="cookie-icon">🍪</div>
         <div class="cookie-text">
             <h3>We Value Your Privacy</h3>
-            <p>We use cookies to enhance your browsing experience, analyze site traffic, personalize content, and maintain secure sessions. By clicking "Accept All", you consent to our use of cookies. <a href="/privacy.html" class="cookie-link">Learn more</a></p>
+            <p>We use cookies to enhance your browsing experience, analyze site traffic, personalize content, and maintain secure sessions. By clicking "Accept All", you consent to our use of cookies. <a href="/privacy" class="cookie-link">Learn more</a></p>
         </div>
         <div class="cookie-buttons">
             <button onclick="cookieSystem.acceptAll()" class="cookie-btn accept-btn">Accept All</button>
