@@ -2394,131 +2394,7 @@ nav {
     
     <!-- MY JavaScript File -->
      <script>
-
-        const menuToggle = document.getElementById('menuToggle');
-        const navLinks = document.getElementById('navLinks');
-        
-        menuToggle.addEventListener('click', function() {
-            this.classList.toggle('active');
-            navLinks.classList.toggle('active');
-        });
-        
-        const links = document.querySelectorAll('.nav-links a');
-        links.forEach(link => {
-            link.addEventListener('click', function() {
-                menuToggle.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
-        });
-        
-        document.addEventListener('click', function(event) {
-            const isClickInsideNav = navLinks.contains(event.target);
-            const isClickOnToggle = menuToggle.contains(event.target);
-            
-            if (!isClickInsideNav && !isClickOnToggle && navLinks.classList.contains('active')) {
-                menuToggle.classList.remove('active');
-                navLinks.classList.remove('active');
-            }
-        });
-        
-        
-let testimonialIndex = 0;
-showTestimonials();
-
-function showTestimonials() {
-  let cards = document.querySelectorAll(".testimonial-card");
-
-  cards.forEach(card => card.classList.remove("active"));
-
-  testimonialIndex++;
-  if (testimonialIndex > cards.length) { testimonialIndex = 1; }
-
-  cards[testimonialIndex - 1].classList.add("active");
-
-  setTimeout(showTestimonials, 5000); // 5 seconds
-}
-</script>
-<!-- MY SERVICES JavaScript File -->
-   <script>
-        // Billing Toggle
-        const billingToggle = document.getElementById('billingToggle');
-        const monthlyLabel = document.getElementById('monthlyLabel');
-        const yearlyLabel = document.getElementById('yearlyLabel');
-        const starterPrice = document.getElementById('starterPrice');
-        const mediumPrice = document.getElementById('mediumPrice');
-        const commonPrice = document.getElementById('commonPrice');
-        const proPrice = document.getElementById('proPrice');
-        const enterprisePrice = document.getElementById('enterprisePrice');
-
-        const prices = {
-            monthly: { starter: 300, medium: 600, common:1000, pro: 1300, enterprise: 3000 },
-            yearly: { starter: 240, medium: 540, common: 900, pro: 1040, enterprise: 2400 }
-        };
-
-        let isYearly = false;
-
-        billingToggle.addEventListener('click', () => {
-            isYearly = !isYearly;
-            billingToggle.classList.toggle('active');
-            
-            if (isYearly) {
-                monthlyLabel.classList.remove('active');
-                yearlyLabel.classList.add('active');
-                starterPrice.textContent = prices.yearly.starter;
-                mediumPrice.textContent = prices.yearly.medium;
-                commonPrice.textContent = prices.yearly.common;
-                proPrice.textContent = prices.yearly.pro;
-                enterprisePrice.textContent = prices.yearly.enterprise;
-            } else {
-                monthlyLabel.classList.add('active');
-                yearlyLabel.classList.remove('active');
-                starterPrice.textContent = prices.monthly.starter;
-                mediumPrice.textContent = prices.monthly.medium;
-                commonPrice.textContent = prices.monthly.common;
-                proPrice.textContent = prices.monthly.pro;
-                enterprisePrice.textContent = prices.monthly.enterprise;
-            }
-        });
-
-
-    </script>
-   
-   <script>
-        function requestService(serviceName) {
-          
-            
-            // : WhatsApp integration
-            const phone = "2349055658460";
-            const message = `Hi UYEH TECH, I'm interested in your ${serviceName} service. I'd like to get more information.`;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-            
-          }
-  
-    // ========== KEYBOARD SHORTCUTS ==========
-    document.addEventListener('keydown', (e) => {
-        // Ctrl+K or Cmd+K
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            searchInput.classList.add('active');
-            searchClose.classList.add('active');
-            setTimeout(() => searchInput.focus(), 100);
-        }
-        
-        // ESC
-        if (e.key === 'Escape') {
-            searchInput.classList.remove('active');
-            searchClose.classList.remove('active');
-            searchInput.value = '';
-            closeSearchModal();
-            
-            if (navLinks && menuToggle) {
-                navLinks.classList.remove('active');
-                menuToggle.classList.remove('active');
-            }
-        }
-    });
-
-   (function () {
+  (function () {
     'use strict';
  
     /* ── Element references ── */
@@ -2630,6 +2506,103 @@ function showTestimonials() {
                 }
             });
         });
+        
+        
+let testimonialIndex = 0;
+showTestimonials();
+
+function showTestimonials() {
+  let cards = document.querySelectorAll(".testimonial-card");
+
+  cards.forEach(card => card.classList.remove("active"));
+
+  testimonialIndex++;
+  if (testimonialIndex > cards.length) { testimonialIndex = 1; }
+
+  cards[testimonialIndex - 1].classList.add("active");
+
+  setTimeout(showTestimonials, 5000); // 5 seconds
+}
+</script>
+<!-- MY SERVICES JavaScript File -->
+   <script>
+        // Billing Toggle
+        const billingToggle = document.getElementById('billingToggle');
+        const monthlyLabel = document.getElementById('monthlyLabel');
+        const yearlyLabel = document.getElementById('yearlyLabel');
+        const starterPrice = document.getElementById('starterPrice');
+        const mediumPrice = document.getElementById('mediumPrice');
+        const commonPrice = document.getElementById('commonPrice');
+        const proPrice = document.getElementById('proPrice');
+        const enterprisePrice = document.getElementById('enterprisePrice');
+
+        const prices = {
+            monthly: { starter: 300, medium: 600, common:1000, pro: 1300, enterprise: 3000 },
+            yearly: { starter: 240, medium: 540, common: 900, pro: 1040, enterprise: 2400 }
+        };
+
+        let isYearly = false;
+
+        billingToggle.addEventListener('click', () => {
+            isYearly = !isYearly;
+            billingToggle.classList.toggle('active');
+            
+            if (isYearly) {
+                monthlyLabel.classList.remove('active');
+                yearlyLabel.classList.add('active');
+                starterPrice.textContent = prices.yearly.starter;
+                mediumPrice.textContent = prices.yearly.medium;
+                commonPrice.textContent = prices.yearly.common;
+                proPrice.textContent = prices.yearly.pro;
+                enterprisePrice.textContent = prices.yearly.enterprise;
+            } else {
+                monthlyLabel.classList.add('active');
+                yearlyLabel.classList.remove('active');
+                starterPrice.textContent = prices.monthly.starter;
+                mediumPrice.textContent = prices.monthly.medium;
+                commonPrice.textContent = prices.monthly.common;
+                proPrice.textContent = prices.monthly.pro;
+                enterprisePrice.textContent = prices.monthly.enterprise;
+            }
+        });
+
+
+    </script>
+   
+   <script>
+        function requestService(serviceName) {
+          
+            
+            // : WhatsApp integration
+            const phone = "2349055658460";
+            const message = `Hi UYEH TECH, I'm interested in your ${serviceName} service. I'd like to get more information.`;
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+            
+          }
+  
+    // ========== KEYBOARD SHORTCUTS ==========
+    document.addEventListener('keydown', (e) => {
+        // Ctrl+K or Cmd+K
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.classList.add('active');
+            searchClose.classList.add('active');
+            setTimeout(() => searchInput.focus(), 100);
+        }
+        
+        // ESC
+        if (e.key === 'Escape') {
+            searchInput.classList.remove('active');
+            searchClose.classList.remove('active');
+            searchInput.value = '';
+            closeSearchModal();
+            
+            if (navLinks && menuToggle) {
+                navLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+            }
+        }
+    });
 
     </script>
 
