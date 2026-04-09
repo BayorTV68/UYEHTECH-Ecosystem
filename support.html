@@ -585,6 +585,7 @@
           <label>Email <span class="req">*</span></label>
           <input class="ctrl" type="email" id="sEmail" placeholder="you@example.com" />
         </div>
+        
       </div>
       <button class="sbtn" id="checkBtn" style="max-width:200px" onclick="checkStatus()">
         <i class="fas fa-search btxt"></i>
@@ -824,8 +825,8 @@ async function checkStatus() {
   var tidVal   = document.getElementById('sTicketId').value.trim();
   var emailVal = document.getElementById('sEmail').value.trim();
 
-  if (!tidVal || !emailVal) {
-    showToast('Enter both Ticket ID and email.', 'warn');
+  if (!tidVal) {
+    showToast('Please enter your Ticket ID.', 'warn');
     return;
   }
 
@@ -834,9 +835,9 @@ async function checkStatus() {
   btn.disabled = true;
 
   try {
+   var qs   = emailVal ? '?email=' + encodeURIComponent(emailVal) : '';
     var resp = await fetch(
-      API + '/api/tickets/status/' + encodeURIComponent(tidVal) +
-      '?email=' + encodeURIComponent(emailVal)
+      API + '/api/tickets/status/' + encodeURIComponent(tidVal) + qs
     );
     var data = await resp.json();
 
