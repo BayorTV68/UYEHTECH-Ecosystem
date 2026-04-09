@@ -2861,16 +2861,36 @@ body {
                 </div>
             </section>
 
-            <!-- Support Tickets Section -->
+          <!-- Support Tickets Section -->
             <section id="section-tickets" class="content-section">
                 <div class="section-header">
                     <div>
                         <h2>Support Tickets</h2>
-                        <p class="section-subtitle">Manage customer support tickets</p>
+                        <p class="section-subtitle">Manage customer support requests</p>
                     </div>
-                    <button class="btn btn-primary" id="createTicketBtn">
-                        <i class="fas fa-plus"></i> New Ticket
-                    </button>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <select id="ticketStatusFilter" class="form-select" style="height:38px;padding:0 12px;background:var(--dark-lighter);border:1px solid rgba(255,255,255,0.12);color:var(--white);border-radius:8px;font-size:13px;">
+                            <option value="all">All Tickets</option>
+                            <option value="open">Open</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <select id="ticketPriorityFilter" class="form-select" style="height:38px;padding:0 12px;background:var(--dark-lighter);border:1px solid rgba(255,255,255,0.12);color:var(--white);border-radius:8px;font-size:13px;">
+                            <option value="all">All Priorities</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tab strip: All / Mine / Queue -->
+                <div style="display:flex;gap:4px;margin-bottom:16px;background:var(--dark-lighter);border-radius:10px;padding:4px;width:fit-content;">
+                    <button id="ticketTabAll"   onclick="app.switchTicketTab('all')"   style="padding:7px 18px;border:none;border-radius:7px;font-size:13px;cursor:pointer;background:var(--primary);color:#000;font-weight:600;">All</button>
+                    <button id="ticketTabMine"  onclick="app.switchTicketTab('mine')"  style="padding:7px 18px;border:none;border-radius:7px;font-size:13px;cursor:pointer;background:transparent;color:var(--gray);">Mine</button>
+                    <button id="ticketTabQueue" onclick="app.switchTicketTab('queue')" style="padding:7px 18px;border:none;border-radius:7px;font-size:13px;cursor:pointer;background:transparent;color:var(--gray);">Open Queue</button>
                 </div>
 
                 <div class="table-container">
@@ -2882,19 +2902,27 @@ body {
                                 <th>Subject</th>
                                 <th>Priority</th>
                                 <th>Status</th>
+                                <th>Assigned</th>
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="ticketsTableBody">
                             <tr>
-                                <td colspan="7" class="empty-state">
+                                <td colspan="8" class="empty-state">
                                     <i class="fas fa-ticket-alt"></i>
                                     <p>No support tickets</p>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination -->
+                <div id="ticketPagination" style="display:none;justify-content:center;align-items:center;gap:12px;margin-top:16px;">
+                    <button id="ticketPrevBtn" onclick="app.ticketPageChange(-1)" style="padding:7px 16px;background:var(--dark-lighter);border:1px solid rgba(255,255,255,0.12);color:var(--white);border-radius:8px;cursor:pointer;font-size:13px;">← Prev</button>
+                    <span id="ticketPageInfo" style="color:var(--gray);font-size:13px;">Page 1 of 1</span>
+                    <button id="ticketNextBtn" onclick="app.ticketPageChange(1)"  style="padding:7px 16px;background:var(--dark-lighter);border:1px solid rgba(255,255,255,0.12);color:var(--white);border-radius:8px;cursor:pointer;font-size:13px;">Next →</button>
                 </div>
             </section>
 
@@ -3206,7 +3234,142 @@ body {
             </div>
         </div>
     </div>
+<!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fas fa-ticket-alt" style="color:var(--primary);font-size:18px;"></i>
+                    <div>
+                        <h3 id="ticketModalTitle" style="margin:0;">Ticket Details</h3>
+                        <span id="ticketModalId" style="font-size:11px;color:var(--gray);font-family:monospace;letter-spacing:0.5px;"></span>
+                    </div>
+                </div>
+                <button class="modal-close" data-modal="ticketModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:0;overflow:hidden;">
+                <div style="display:grid;grid-template-columns:260px 1fr;height:540px;">
 
+                    <!-- LEFT: metadata sidebar -->
+                    <div style="background:var(--dark-lighter);border-right:1px solid rgba(255,255,255,0.08);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;">
+
+                        <div>
+                            <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:10px;">Customer</p>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div id="tktAvatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#000;flex-shrink:0;">?</div>
+                                <div style="min-width:0;">
+                                    <p id="tktCustName"  style="font-weight:600;font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</p>
+                                    <p id="tktCustEmail" style="font-size:11px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);">
+
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="font-size:12px;color:var(--gray);">Status</span>
+                                <span id="tktStatusBadge" class="status-badge">—</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="font-size:12px;color:var(--gray);">Priority</span>
+                                <span id="tktPriBadge" class="badge">—</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="font-size:12px;color:var(--gray);">Category</span>
+                                <span id="tktCategory" style="font-size:12px;color:var(--white);">—</span>
+                            </div>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);">
+
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div>
+                                <p style="font-size:10px;color:var(--gray);margin-bottom:2px;">Opened</p>
+                                <p id="tktCreatedAt" style="font-size:12px;color:var(--white);">—</p>
+                            </div>
+                            <div>
+                                <p style="font-size:10px;color:var(--gray);margin-bottom:2px;">Last updated</p>
+                                <p id="tktUpdatedAt" style="font-size:12px;color:var(--white);">—</p>
+                            </div>
+                            <div id="tktResolvedRow" style="display:none;">
+                                <p style="font-size:10px;color:var(--gray);margin-bottom:2px;">Resolved</p>
+                                <p id="tktResolvedAt" style="font-size:12px;color:var(--success);">—</p>
+                            </div>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);">
+
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:6px;">Assigned to</p>
+                            <p id="tktAssignedTo" style="font-size:13px;color:var(--white);">Unassigned</p>
+                        </div>
+
+                        <!-- Change priority inline -->
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:6px;">Change priority</p>
+                            <select id="tktPriChange" onchange="app.changeTicketPriority(this.value)" style="width:100%;padding:6px 10px;background:var(--dark-surface);border:1px solid rgba(255,255,255,0.12);color:var(--white);border-radius:8px;font-size:12px;">
+                                <option value="">— select —</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+
+                        <!-- Pickup button (only when unassigned) -->
+                        <button id="tktPickupBtn" onclick="app.pickupTicket()" style="display:none;width:100%;padding:9px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#000;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;margin-top:auto;">
+                            <i class="fas fa-hand-pointer"></i> Pick Up Ticket
+                        </button>
+                    </div>
+
+                    <!-- RIGHT: thread + reply -->
+                    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;">
+
+                        <!-- Subject bar -->
+                        <div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.08);background:var(--dark-surface);flex-shrink:0;">
+                            <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:3px;">Subject</p>
+                            <p id="tktSubject" style="font-size:15px;font-weight:600;color:var(--white);margin:0;">—</p>
+                        </div>
+
+                        <!-- Message thread -->
+                        <div id="tktMessages" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;">
+                        </div>
+
+                        <!-- Reply box (hidden when resolved/closed) -->
+                        <div id="tktReplyBox" style="padding:12px 20px;border-top:1px solid rgba(255,255,255,0.08);background:var(--dark-surface);flex-shrink:0;">
+                            <textarea id="tktReplyInput" rows="2"
+                                placeholder="Type your reply… (Enter to send, Shift+Enter for new line)"
+                                style="width:100%;background:var(--dark-lighter);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:var(--white);padding:10px 14px;font-size:13px;resize:none;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                                onfocus="this.style.borderColor='var(--primary)'"
+                                onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
+                                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();app.sendTicketReply();}"></textarea>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px;">
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="font-size:11px;color:var(--gray);align-self:center;">Send &amp; set:</span>
+                                    <button id="tktBtnOpen"      onclick="app.setReplyStatus('open')"        style="padding:4px 10px;font-size:11px;border-radius:6px;border:1px solid rgba(255,165,0,0.4);background:rgba(255,165,0,0.1);color:var(--warning);cursor:pointer;">Open</button>
+                                    <button id="tktBtnInProg"    onclick="app.setReplyStatus('in-progress')" style="padding:4px 10px;font-size:11px;border-radius:6px;border:1px solid rgba(0,150,255,0.4);background:rgba(0,150,255,0.1);color:var(--info);cursor:pointer;">In Progress</button>
+                                    <button id="tktBtnResolved"  onclick="app.setReplyStatus('resolved')"    style="padding:4px 10px;font-size:11px;border-radius:6px;border:1px solid rgba(0,255,136,0.4);background:rgba(0,255,136,0.1);color:var(--success);cursor:pointer;">Resolved</button>
+                                </div>
+                                <button onclick="app.sendTicketReply()" style="padding:8px 20px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#000;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Closed notice shown when ticket is resolved/closed -->
+                        <div id="tktClosedNotice" style="display:none;padding:14px 20px;border-top:1px solid rgba(255,255,255,0.08);text-align:center;color:var(--gray);font-size:13px;flex-shrink:0;">
+                            <i class="fas fa-check-circle" style="color:var(--success);margin-right:6px;"></i>
+                            This ticket is <strong id="tktClosedStatus" style="color:var(--white);">closed</strong>.
+                            <button onclick="app.reopenTicket()" style="margin-left:10px;padding:4px 12px;font-size:12px;background:rgba(255,255,255,0.08);color:var(--white);border:1px solid rgba(255,255,255,0.15);border-radius:6px;cursor:pointer;">Reopen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- JavaScript Files -->
     <script>
         /* ============================================================================
@@ -5229,7 +5392,7 @@ async init() {
             });
         });
 
-        // Settings forms
+       // Settings forms
         this.setupSettingsListeners();
 
         // Chat interface
@@ -5237,6 +5400,22 @@ async init() {
 
         // Template management
         this.setupTemplateListeners();
+
+        // Ticket filters — reload list on change
+        const ticketStatusFilter = document.getElementById('ticketStatusFilter');
+        if (ticketStatusFilter) {
+            ticketStatusFilter.addEventListener('change', () => {
+                this._ticketPage = 1;
+                this.loadTickets(1);
+            });
+        }
+        const ticketPriorityFilter = document.getElementById('ticketPriorityFilter');
+        if (ticketPriorityFilter) {
+            ticketPriorityFilter.addEventListener('change', () => {
+                this._ticketPage = 1;
+                this.loadTickets(1);
+            });
+        }
     }
 
     /**
@@ -5394,8 +5573,30 @@ async init() {
                     debugLog('info', 'Agent joined chat', data);
                     break;
                 
-                case 'pong':
+               case 'pong':
                     // Keepalive response
+                    break;
+
+                case 'new_ticket':
+                    // New ticket arrived — refresh list and bump badge
+                    ui.showInfo(`New ticket: ${data.ticketId}`);
+                    this.loadTickets();
+                    break;
+
+                case 'ticket_assigned':
+                    // A ticket was assigned (could be to this agent)
+                    if (this._activeTicket?.ticketId === data.ticketId) {
+                        this.viewTicket(data.ticketId); // refresh open modal
+                    }
+                    this.loadTickets();
+                    break;
+
+                case 'ticket_reply':
+                    // Someone replied — refresh open modal if it's the same ticket
+                    if (this._activeTicket?.ticketId === data.ticketId) {
+                        this.viewTicket(data.ticketId);
+                    }
+                    this.loadTickets();
                     break;
                 
                 default:
@@ -6910,19 +7111,57 @@ renderAnalyticsChart(dailyData) {
     `).join('');
 }
 
-/**
- * Load support tickets - FULLY IMPLEMENTED
- */
-async loadTickets() {
+
+async loadTickets(page = null) {
     try {
         ui.showLoading('Loading tickets...');
-        
-        const data = await api.get('/api/agent/tickets');
-        
+
+        // Use stored page or default to 1
+        if (page !== null) this._ticketPage = page;
+        const currentPage  = this._ticketPage  || 1;
+        const currentTab   = this._ticketTab   || 'all';
+        const statusFilter = document.getElementById('ticketStatusFilter')?.value   || 'all';
+        const priFilter    = document.getElementById('ticketPriorityFilter')?.value || 'all';
+
+        // Pick endpoint based on active tab
+        let endpoint;
+        if (currentTab === 'mine')  endpoint = `/api/agent/tickets/mine?page=${currentPage}&limit=20`;
+        else if (currentTab === 'queue') endpoint = `/api/agent/tickets/queue?page=${currentPage}&limit=20`;
+        else {
+            let qs = `page=${currentPage}&limit=20`;
+            if (statusFilter !== 'all') qs += `&status=${statusFilter}`;
+            endpoint = `/api/agent/tickets?${qs}`;
+        }
+
+        const data = await api.get(endpoint);
+
         if (data.success && Array.isArray(data.tickets)) {
-            this.tickets = data.tickets;
+            // Client-side priority filter (server doesn't filter by priority on list)
+            this.tickets = priFilter !== 'all'
+                ? data.tickets.filter(t => t.priority === priFilter)
+                : data.tickets;
+
             this.renderTickets();
-            ui.updateBadge('ticketBadge', data.tickets.filter(t => t.status === 'open').length);
+
+            // Badge = count of open tickets
+            ui.updateBadge('ticketBadge', this.tickets.filter(t => t.status === 'open').length);
+
+            // Pagination
+            const pagination = data.pagination;
+            if (pagination && pagination.pages > 1) {
+                const pageInfo = document.getElementById('ticketPageInfo');
+                const paginationEl = document.getElementById('ticketPagination');
+                const prevBtn = document.getElementById('ticketPrevBtn');
+                const nextBtn = document.getElementById('ticketNextBtn');
+                if (paginationEl) paginationEl.style.display = 'flex';
+                if (pageInfo) pageInfo.textContent = `Page ${pagination.page} of ${pagination.pages}`;
+                if (prevBtn) prevBtn.disabled = pagination.page <= 1;
+                if (nextBtn) nextBtn.disabled = pagination.page >= pagination.pages;
+                this._ticketTotalPages = pagination.pages;
+            } else {
+                const paginationEl = document.getElementById('ticketPagination');
+                if (paginationEl) paginationEl.style.display = 'none';
+            }
         }
     } catch (error) {
         debugLog('error', 'Failed to load tickets', error);
@@ -6933,48 +7172,81 @@ async loadTickets() {
 }
 
 /**
+ * Switch ticket tab: all | mine | queue
+ */
+switchTicketTab(tab) {
+    this._ticketTab  = tab;
+    this._ticketPage = 1;
+
+    // Highlight active tab
+    ['all','mine','queue'].forEach(t => {
+        const btn = document.getElementById(`ticketTab${t.charAt(0).toUpperCase()+t.slice(1).replace('-','')}`);
+        if (!btn) return;
+        if (t === tab) {
+            btn.style.background = 'var(--primary)';
+            btn.style.color      = '#000';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.color      = 'var(--gray)';
+        }
+    });
+
+    this.loadTickets(1);
+}
+
+/**
+ * Pagination page change
+ */
+ticketPageChange(delta) {
+    const current = this._ticketPage || 1;
+    const total   = this._ticketTotalPages || 1;
+    const next    = Math.max(1, Math.min(total, current + delta));
+    if (next !== current) this.loadTickets(next);
+}
+
+/**
  * Render tickets table
  */
 renderTickets() {
     const tbody = document.getElementById('ticketsTableBody');
     if (!tbody) return;
-    
+
     if (this.tickets.length === 0) {
-        ui.renderEmptyState('ticketsTableBody', 'No support tickets', 'ticket-alt');
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state" style="text-align:center;padding:40px;color:var(--gray);">
+            <i class="fas fa-ticket-alt" style="font-size:32px;display:block;margin-bottom:10px;opacity:0.4;"></i>
+            No tickets found</td></tr>`;
         return;
     }
-    
+
     tbody.innerHTML = this.tickets.map(ticket => {
-        const statusClass = ticket.status === 'open' ? 'badge-warning' :
-                          ticket.status === 'in-progress' ? 'badge-info' :
-                          ticket.status === 'resolved' ? 'badge-success' : 'badge';
-        
-        const priorityClass = ticket.priority === 'urgent' ? 'badge-error' :
-                             ticket.priority === 'high' ? 'badge-warning' :
-                             ticket.priority === 'medium' ? 'badge-info' : 'badge';
-        
-        const userName = ticket.userId?.fullName || 'Unknown User';
-        const userEmail = ticket.userId?.email || 'N/A';
-        
+        const priorityClass = ticket.priority === 'urgent' ? 'badge-error'   :
+                              ticket.priority === 'high'   ? 'badge-warning' :
+                              ticket.priority === 'medium' ? 'badge-info'    : 'badge';
+
+        const userName  = ticket.userId?.fullName || ticket.messages?.[0]?.senderName || 'Guest';
+        const userEmail = ticket.userId?.email    || ticket.guestEmail || '—';
+        const assigned  = ticket.assignedAgent?.fullName || '<span style="color:var(--warning);font-size:11px;">Unassigned</span>';
+
         return `
-            <tr onclick="app.viewTicket('${ticket.ticketId}')" style="cursor: pointer;">
-                <td><strong>${ticket.ticketId}</strong></td>
+            <tr onclick="app.viewTicket('${ticket.ticketId}')" style="cursor:pointer;">
+                <td><strong style="font-family:monospace;font-size:12px;">${ticket.ticketId}</strong></td>
                 <td>
                     <div>
-                        <strong>${ui.escapeHtml(userName)}</strong>
-                        <br><small style="color: var(--gray);">${ui.escapeHtml(userEmail)}</small>
+                        <strong style="font-size:13px;">${ui.escapeHtml(userName)}</strong>
+                        <br><small style="color:var(--gray);font-size:11px;">${ui.escapeHtml(userEmail)}</small>
                     </div>
                 </td>
-                <td>${ui.truncate(ui.escapeHtml(ticket.subject), 40)}</td>
+                <td style="max-width:200px;">${ui.truncate(ui.escapeHtml(ticket.subject), 45)}</td>
                 <td><span class="badge ${priorityClass}">${ticket.priority.toUpperCase()}</span></td>
-                <td><span class="status-badge status-${ticket.status}">${ticket.status.toUpperCase()}</span></td>
-                <td>${ui.formatTime(ticket.createdAt)}</td>
+                <td><span class="status-badge status-${ticket.status}">${ticket.status.replace('-',' ').toUpperCase()}</span></td>
+                <td style="font-size:12px;">${assigned}</td>
+                <td style="font-size:12px;">${ui.formatTime(ticket.createdAt)}</td>
                 <td>
                     <div class="action-btns">
-                        <button class="action-btn" onclick="event.stopPropagation(); app.viewTicket('${ticket.ticketId}')" title="View">
+                        <button class="action-btn" onclick="event.stopPropagation();app.viewTicket('${ticket.ticketId}')" title="Open ticket">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="action-btn" onclick="event.stopPropagation(); app.resolveTicket('${ticket.ticketId}')" title="Resolve">
+                        <button class="action-btn" onclick="event.stopPropagation();app.quickResolveTicket('${ticket.ticketId}')" title="Resolve" style="${['resolved','closed'].includes(ticket.status)?'opacity:0.3;pointer-events:none;':''}">
                             <i class="fas fa-check"></i>
                         </button>
                     </div>
@@ -6985,12 +7257,288 @@ renderTickets() {
 }
 
 /**
- * View ticket details
+ * Open ticket detail modal — loads full thread from server
  */
 async viewTicket(ticketId) {
-    ui.showInfo(`Opening ticket: ${ticketId}`);
-    // TODO: Implement ticket detail modal
+    try {
+        ui.showLoading('Opening ticket…');
+        const data = await api.get(`/api/agent/tickets/${ticketId}`);
+        if (!data.success) { ui.showError(data.message || 'Could not load ticket'); return; }
+
+        const t = data.ticket;
+        this._activeTicket  = t;
+        this._replyStatus   = null;
+
+        // ── Header ──────────────────────────────────────────────
+        document.getElementById('ticketModalTitle').textContent = 'Ticket Details';
+        document.getElementById('ticketModalId').textContent    = t.ticketId;
+
+        // ── Customer ────────────────────────────────────────────
+        const custName  = t.userId?.fullName  || t.messages?.[0]?.senderName || 'Guest';
+        const custEmail = t.userId?.email     || t.guestEmail || t.messages?.[0]?.senderId || '—';
+        document.getElementById('tktCustName').textContent  = custName;
+        document.getElementById('tktCustEmail').textContent = custEmail;
+        document.getElementById('tktAvatar').textContent    = custName.charAt(0).toUpperCase();
+
+        // ── Subject ─────────────────────────────────────────────
+        document.getElementById('tktSubject').textContent = t.subject || '—';
+
+        // ── Status badge ────────────────────────────────────────
+        const stEl = document.getElementById('tktStatusBadge');
+        stEl.textContent = t.status.replace('-',' ').toUpperCase();
+        stEl.className   = `status-badge status-${t.status}`;
+
+        // ── Priority badge ──────────────────────────────────────
+        const prEl = document.getElementById('tktPriBadge');
+        const prClass = t.priority === 'urgent' ? 'badge-error'   :
+                        t.priority === 'high'   ? 'badge-warning' :
+                        t.priority === 'medium' ? 'badge-info'    : 'badge';
+        prEl.textContent = t.priority.toUpperCase();
+        prEl.className   = `badge ${prClass}`;
+
+        // ── Category ────────────────────────────────────────────
+        document.getElementById('tktCategory').textContent = t.category || '—';
+
+        // ── Dates ───────────────────────────────────────────────
+        document.getElementById('tktCreatedAt').textContent = ui.formatTime(t.createdAt);
+        document.getElementById('tktUpdatedAt').textContent = ui.formatTime(t.updatedAt);
+        const resolvedRow = document.getElementById('tktResolvedRow');
+        if (t.resolvedAt) {
+            document.getElementById('tktResolvedAt').textContent = ui.formatTime(t.resolvedAt);
+            resolvedRow.style.display = '';
+        } else {
+            resolvedRow.style.display = 'none';
+        }
+
+        // ── Assigned agent ──────────────────────────────────────
+        document.getElementById('tktAssignedTo').textContent = t.assignedAgent?.fullName || 'Unassigned';
+
+        // ── Priority dropdown (set to current value) ────────────
+        const priSel = document.getElementById('tktPriChange');
+        if (priSel) priSel.value = t.priority || '';
+
+        // ── Pick-up button ──────────────────────────────────────
+        const pickupBtn = document.getElementById('tktPickupBtn');
+        if (pickupBtn) {
+            pickupBtn.style.display = (!t.assignedAgent && ['open','in-progress'].includes(t.status)) ? '' : 'none';
+        }
+
+        // ── Messages thread ─────────────────────────────────────
+        this._renderTicketThread(t.messages || []);
+
+        // ── Reply box vs closed notice ──────────────────────────
+        const isClosed = ['resolved','closed'].includes(t.status);
+        document.getElementById('tktReplyBox').style.display     = isClosed ? 'none' : '';
+        document.getElementById('tktClosedNotice').style.display = isClosed ? ''     : 'none';
+        document.getElementById('tktClosedStatus').textContent   = t.status;
+        document.getElementById('tktReplyInput').value           = '';
+        this._highlightReplyBtn(null);
+
+        ui.openModal('ticketModal');
+
+        // Scroll thread to bottom
+        setTimeout(() => {
+            const el = document.getElementById('tktMessages');
+            if (el) el.scrollTop = el.scrollHeight;
+        }, 80);
+
+    } catch (error) {
+        debugLog('error', 'viewTicket failed', error);
+        ui.showError('Failed to open ticket');
+    } finally {
+        ui.hideLoading();
+    }
 }
+
+/**
+ * Render the message thread inside the ticket modal
+ */
+_renderTicketThread(messages) {
+    const container = document.getElementById('tktMessages');
+    if (!container) return;
+
+    if (!messages.length) {
+        container.innerHTML = `<p style="text-align:center;color:var(--gray);font-size:13px;margin-top:30px;">No messages yet.</p>`;
+        return;
+    }
+
+    container.innerHTML = messages.map(m => {
+        const isAgent  = m.sender === 'agent';
+        const isSystem = m.sender === 'system';
+
+        if (isSystem) {
+            return `
+                <div style="text-align:center;">
+                    <span style="font-size:11px;color:var(--gray);background:rgba(255,255,255,0.05);padding:4px 12px;border-radius:20px;">
+                        ${ui.escapeHtml(m.message)}
+                    </span>
+                </div>`;
+        }
+
+        const align = isAgent ? 'flex-end' : 'flex-start';
+        const bg    = isAgent
+            ? 'linear-gradient(135deg,var(--primary-dark),var(--primary))'
+            : 'var(--dark-lighter)';
+        const color = isAgent ? '#000' : 'var(--white)';
+        const name  = ui.escapeHtml(m.senderName || (isAgent ? 'Agent' : 'Customer'));
+
+        return `
+            <div style="display:flex;flex-direction:column;align-items:${align};gap:3px;max-width:80%;align-self:${align};">
+                <span style="font-size:10px;color:var(--gray);padding:0 4px;">${name}</span>
+                <div style="background:${bg};color:${color};padding:10px 14px;border-radius:${isAgent?'14px 14px 4px 14px':'14px 14px 14px 4px'};font-size:13px;line-height:1.5;word-break:break-word;">
+                    ${ui.escapeHtml(m.message)}
+                </div>
+                <span style="font-size:10px;color:var(--gray);padding:0 4px;">${ui.formatTime(m.timestamp)}</span>
+            </div>`;
+    }).join('');
+}
+
+/**
+ * Highlight the selected reply-status button
+ */
+_highlightReplyBtn(status) {
+    this._replyStatus = status;
+    const map = { 'open': 'tktBtnOpen', 'in-progress': 'tktBtnInProg', 'resolved': 'tktBtnResolved' };
+    Object.entries(map).forEach(([s, id]) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.style.outline = (s === status) ? '2px solid currentColor' : 'none';
+        btn.style.fontWeight = (s === status) ? '700' : '400';
+    });
+}
+
+/**
+ * Set reply status from button click
+ */
+setReplyStatus(status) {
+    this._highlightReplyBtn(this._replyStatus === status ? null : status);
+}
+
+/**
+ * Send agent reply on active ticket
+ */
+async sendTicketReply() {
+    const input = document.getElementById('tktReplyInput');
+    const message = input?.value.trim();
+    if (!message) { ui.showWarning('Please type a reply first.'); return; }
+
+    const ticket = this._activeTicket;
+    if (!ticket) return;
+
+    try {
+        const body = { message };
+        if (this._replyStatus) body.status = this._replyStatus;
+
+        const data = await api.post(`/api/agent/tickets/${ticket.ticketId}/reply`, body);
+
+        if (data.success) {
+            ui.showSuccess('Reply sent');
+            input.value = '';
+            this._replyStatus = null;
+            this._highlightReplyBtn(null);
+            // Reload the ticket to reflect new message + status
+            await this.viewTicket(ticket.ticketId);
+            // Refresh the list silently in the background
+            this.loadTickets();
+        } else {
+            ui.showError(data.message || 'Reply failed');
+        }
+    } catch (error) {
+        debugLog('error', 'sendTicketReply failed', error);
+        ui.showError('Failed to send reply');
+    }
+}
+
+/**
+ * Pick up (self-assign) the active ticket
+ */
+async pickupTicket() {
+    const ticket = this._activeTicket;
+    if (!ticket) return;
+
+    try {
+        const data = await api.post(`/api/agent/tickets/${ticket.ticketId}/pickup`);
+        if (data.success) {
+            ui.showSuccess(data.message || 'Ticket assigned to you');
+            await this.viewTicket(ticket.ticketId);
+            this.loadTickets();
+        } else {
+            ui.showError(data.message || 'Could not pick up ticket');
+        }
+    } catch (error) {
+        debugLog('error', 'pickupTicket failed', error);
+        ui.showError('Failed to pick up ticket');
+    }
+}
+
+/**
+ * Change priority of active ticket from the sidebar dropdown
+ */
+async changeTicketPriority(priority) {
+    const ticket = this._activeTicket;
+    if (!ticket || !priority) return;
+
+    try {
+        const data = await api.put(`/api/tickets/${ticket.ticketId}`, { priority });
+        if (data.success) {
+            ui.showSuccess(`Priority set to ${priority}`);
+            await this.viewTicket(ticket.ticketId);
+            this.loadTickets();
+        } else {
+            ui.showError(data.message || 'Could not update priority');
+        }
+    } catch (error) {
+        debugLog('error', 'changeTicketPriority failed', error);
+        ui.showError('Failed to update priority');
+    }
+}
+
+/**
+ * Reopen a resolved/closed ticket from the closed notice
+ */
+async reopenTicket() {
+    const ticket = this._activeTicket;
+    if (!ticket) return;
+
+    try {
+        const data = await api.put(`/api/tickets/${ticket.ticketId}`, { status: 'open' });
+        if (data.success) {
+            ui.showSuccess('Ticket reopened');
+            await this.viewTicket(ticket.ticketId);
+            this.loadTickets();
+        } else {
+            ui.showError(data.message || 'Could not reopen');
+        }
+    } catch (error) {
+        debugLog('error', 'reopenTicket failed', error);
+        ui.showError('Failed to reopen ticket');
+    }
+}
+
+/**
+ * Quick resolve from the table row button (no modal needed)
+ */
+async quickResolveTicket(ticketId) {
+    const confirmed = await ui.confirm('Mark this ticket as resolved?');
+    if (!confirmed) return;
+
+    try {
+        ui.showLoading('Resolving…');
+        const data = await api.put(`/api/tickets/${ticketId}`, { status: 'resolved' });
+        if (data.success) {
+            ui.showSuccess('Ticket resolved');
+            await this.loadTickets();
+        } else {
+            ui.showError(data.message || 'Could not resolve ticket');
+        }
+    } catch (error) {
+        debugLog('error', 'quickResolveTicket failed', error);
+        ui.showError('Failed to resolve ticket');
+    } finally {
+        ui.hideLoading();
+    }
+}
+
 
 
 /**

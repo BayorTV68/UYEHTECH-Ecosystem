@@ -1540,7 +1540,12 @@ tr:hover {
        <span class="nav-badge" id="totalAffiliatesBadge" style="display:none;background:rgba(0,255,136,.3);color:#00ff88;">0</span>
   </div>
 
-            <div class="nav-item" data-page="settings">
+       <div class="nav-item" data-page="tickets">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Support Tickets</span>
+                <span class="nav-badge" id="openTicketsBadge" style="display:none;background:rgba(255,165,0,0.3);color:#ffa500;">0</span>
+            </div>     
+  <div class="nav-item" data-page="settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </div>
@@ -1589,6 +1594,7 @@ tr:hover {
             <div id="creator-productsPage" class="page-content hidden"></div>
             <div id="creator-payoutsPage" class="page-content hidden"></div>
             <div id="affiliatesPage" class="page-content hidden"></div>
+            <div id="ticketsPage"    class="page-content hidden"></div>
             <div id="settingsPage" class="page-content hidden"></div>
         </div>
     </main>
@@ -2154,7 +2160,140 @@ tr:hover {
   </div>
 </div>
  
- 
+ <!-- TICKET DETAIL MODAL -->
+    <div id="ticketDetailModal" class="modal">
+        <div class="modal-content" style="max-width:860px;width:95%;padding:0;overflow:hidden;border-radius:16px;">
+            <div class="modal-header" style="padding:20px 28px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:0;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fas fa-ticket-alt" style="color:var(--primary);font-size:18px;"></i>
+                    <div>
+                        <h2 class="modal-title" style="font-size:1.1rem;margin:0;">Ticket Details</h2>
+                        <span id="tdModalId" style="font-size:11px;color:var(--gray);font-family:monospace;"></span>
+                    </div>
+                </div>
+                <button class="close-modal" onclick="closeModal('ticketDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="display:grid;grid-template-columns:260px 1fr;height:560px;overflow:hidden;">
+
+                <!-- LEFT SIDEBAR -->
+                <div style="background:rgba(0,0,0,0.3);border-right:1px solid rgba(255,255,255,0.08);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;">
+
+                    <div>
+                        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:10px;">Customer</p>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div id="tdAvatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#000;flex-shrink:0;">?</div>
+                            <div style="min-width:0;">
+                                <p id="tdCustName"  style="font-weight:600;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</p>
+                                <p id="tdCustEmail" style="font-size:11px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);">
+
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--gray);">Status</span>
+                            <span id="tdStatusBadge" class="status-badge">—</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--gray);">Priority</span>
+                            <span id="tdPriBadge" class="priority-badge">—</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--gray);">Category</span>
+                            <span id="tdCategory" style="font-size:12px;color:#fff;">—</span>
+                        </div>
+                    </div>
+
+                    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);">
+
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:2px;">Opened</p>
+                            <p id="tdCreatedAt" style="font-size:12px;color:#fff;">—</p>
+                        </div>
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:2px;">Last updated</p>
+                            <p id="tdUpdatedAt" style="font-size:12px;color:#fff;">—</p>
+                        </div>
+                        <div id="tdResolvedRow" style="display:none;">
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:2px;">Resolved</p>
+                            <p id="tdResolvedAt" style="font-size:12px;color:var(--success);">—</p>
+                        </div>
+                    </div>
+
+                    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);">
+
+                    <!-- Admin controls -->
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:6px;">Change Status</p>
+                            <select id="tdStatusChange" onchange="adminUpdateTicketField('status', this.value)"
+                                style="width:100%;padding:7px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;font-size:12px;">
+                                <option value="">— select —</option>
+                                <option value="open">Open</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:6px;">Change Priority</p>
+                            <select id="tdPriChange" onchange="adminUpdateTicketField('priority', this.value)"
+                                style="width:100%;padding:7px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;font-size:12px;">
+                                <option value="">— select —</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div>
+                            <p style="font-size:10px;color:var(--gray);margin-bottom:6px;">Assign Agent</p>
+                            <select id="tdAgentAssign" onchange="adminAssignTicketAgent(this.value)"
+                                style="width:100%;padding:7px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;font-size:12px;">
+                                <option value="">— select agent —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="adminDeleteTicket()" style="margin-top:auto;width:100%;padding:8px;background:rgba(255,68,68,0.1);color:var(--error);border:1px solid rgba(255,68,68,0.3);border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">
+                        <i class="fas fa-trash"></i> Delete Ticket
+                    </button>
+                </div>
+
+                <!-- RIGHT PANEL -->
+                <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;">
+
+                    <div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.2);flex-shrink:0;">
+                        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:3px;">Subject</p>
+                        <p id="tdSubject" style="font-size:15px;font-weight:600;color:#fff;margin:0;">—</p>
+                    </div>
+
+                    <div id="tdMessages" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;">
+                    </div>
+
+                    <!-- Admin note / reply box -->
+                    <div style="padding:12px 20px;border-top:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.2);flex-shrink:0;">
+                        <textarea id="tdAdminNote" rows="2"
+                            placeholder="Add admin note or reply… (Enter sends, Shift+Enter = new line)"
+                            style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;padding:10px 14px;font-size:13px;resize:none;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'"
+                            onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
+                            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();adminSendTicketNote();}"></textarea>
+                        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+                            <button onclick="adminSendTicketNote()" style="padding:8px 22px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#000;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;">
+                                <i class="fas fa-paper-plane"></i> Send Note
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- LOADING OVERLAY -->
     <div id="loadingOverlay" class="loading">
         <div class="spinner"></div>
@@ -2268,7 +2407,8 @@ function navigateTo(page) {
         case 'creator-accounts':      loadCreatorAccounts();        break;
         case 'creator-products':      loadCreatorProducts();        break;
         case 'creator-payouts':       loadCreatorPayouts();         break;
-        case 'affiliates':            loadAffiliatesData();         break; // ← NEW
+        case 'affiliates':            loadAffiliatesData();         break; 
+        case 'tickets':               loadTicketsData();            break;
         case 'settings':              loadSettingsData();           break;
     }
 }
@@ -2314,6 +2454,22 @@ async function updateNotificationBadges() {
                 payoutBadge.textContent = overview.pendingPayouts || 0;
                 payoutBadge.style.display = (overview.pendingPayouts > 0) ? 'inline' : 'none';
             }
+
+            // Open tickets badge — fetch from dedicated stats endpoint
+            try {
+                const tRes = await fetch(`${API_URL}/api/admin/tickets/stats`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const tData = await tRes.json();
+                if (tData.success) {
+                    const ticketBadge = document.getElementById('openTicketsBadge');
+                    if (ticketBadge) {
+                        const openCount = (tData.stats.open || 0) + (tData.stats.inProgress || 0);
+                        ticketBadge.textContent = openCount;
+                        ticketBadge.style.display = openCount > 0 ? 'inline' : 'none';
+                    }
+                }
+            } catch (_) {}
         }
     } catch (error) {
         console.error('Badge update error:', error);
@@ -6952,8 +7108,566 @@ function vEsc(t) {
   if (!t) return '';
   return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN TICKET SYSTEM — COMPLETE IMPLEMENTATION
+// ═══════════════════════════════════════════════════════════════════════════
 
-</script>
+let _adminTicketState = {
+    page: 1,
+    status: 'all',
+    priority: 'all',
+    assigned: 'all',
+    search: '',
+    activeTicket: null
+};
+
+// ── Load tickets page ──────────────────────────────────────────────────────
+async function loadTicketsData(page = 1, status = 'all', priority = 'all', assigned = 'all', search = '') {
+    // Persist state so filters survive page switches
+    _adminTicketState = { page, status, priority, assigned, search, activeTicket: _adminTicketState.activeTicket };
+
+    const ticketsPage = document.getElementById('ticketsPage');
+    if (!ticketsPage) return;
+
+    ticketsPage.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Support Tickets</h1>
+            <p class="page-subtitle">Manage all customer support requests</p>
+        </div>
+
+        <!-- Stats strip -->
+        <div id="ticketStatsStrip" class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px;">
+            <div style="text-align:center;padding:20px;color:var(--gray);">
+                <div class="spinner" style="margin:0 auto;"></div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="filter-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 2fr;gap:12px;">
+                <div class="filter-item">
+                    <label class="filter-label">Status</label>
+                    <select class="form-select" id="tAdminStatus">
+                        <option value="all"         ${status==='all'         ?'selected':''}>All</option>
+                        <option value="open"        ${status==='open'        ?'selected':''}>Open</option>
+                        <option value="in-progress" ${status==='in-progress' ?'selected':''}>In Progress</option>
+                        <option value="resolved"    ${status==='resolved'    ?'selected':''}>Resolved</option>
+                        <option value="closed"      ${status==='closed'      ?'selected':''}>Closed</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Priority</label>
+                    <select class="form-select" id="tAdminPriority">
+                        <option value="all"    ${priority==='all'    ?'selected':''}>All</option>
+                        <option value="urgent" ${priority==='urgent' ?'selected':''}>Urgent</option>
+                        <option value="high"   ${priority==='high'   ?'selected':''}>High</option>
+                        <option value="medium" ${priority==='medium' ?'selected':''}>Medium</option>
+                        <option value="low"    ${priority==='low'    ?'selected':''}>Low</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Assignment</label>
+                    <select class="form-select" id="tAdminAssigned">
+                        <option value="all"        ${assigned==='all'        ?'selected':''}>All</option>
+                        <option value="unassigned" ${assigned==='unassigned' ?'selected':''}>Unassigned</option>
+                        <option value="assigned"   ${assigned==='assigned'   ?'selected':''}>Assigned</option>
+                    </select>
+                </div>
+                <div class="filter-item" style="align-self:flex-end;">
+                    <button onclick="adminBulkCloseTickets()" class="btn" style="width:100%;background:rgba(255,165,0,0.1);color:var(--warning);border:1px solid rgba(255,165,0,0.3);padding:9px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">
+                        <i class="fas fa-check-double"></i> Close All Resolved
+                    </button>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Search</label>
+                    <input type="text" class="form-select" id="tAdminSearch" placeholder="Ticket ID, subject, email…"
+                        value="${escapeHtml(search)}"
+                        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:9px 12px;border-radius:8px;font-size:13px;width:100%;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Customer</th>
+                        <th>Subject</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketsTableBody">
+                    <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--gray);">
+                        <div class="spinner" style="margin:0 auto 12px;"></div>Loading tickets…
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination" id="ticketsPagination"></div>
+    `;
+
+    // Wire filter events
+    ['tAdminStatus','tAdminPriority','tAdminAssigned'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', _reloadTickets);
+    });
+    const searchEl = document.getElementById('tAdminSearch');
+    if (searchEl) {
+        let searchTimer;
+        searchEl.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(_reloadTickets, 400);
+        });
+    }
+
+    // Load stats strip and table in parallel
+    _loadTicketStatsStrip();
+    _fetchAndRenderTickets(page, status, priority, assigned, search);
+}
+
+function _reloadTickets() {
+    const status   = document.getElementById('tAdminStatus')?.value   || 'all';
+    const priority = document.getElementById('tAdminPriority')?.value || 'all';
+    const assigned = document.getElementById('tAdminAssigned')?.value || 'all';
+    const search   = document.getElementById('tAdminSearch')?.value   || '';
+    loadTicketsData(1, status, priority, assigned, search);
+}
+
+async function _loadTicketStatsStrip() {
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/stats`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        if (!data.success) return;
+        const s = data.stats;
+        const strip = document.getElementById('ticketStatsStrip');
+        if (!strip) return;
+        strip.innerHTML = [
+            { label: 'Total',       value: s.total      || 0, color: '#fff' },
+            { label: 'Open',        value: s.open       || 0, color: 'var(--info)' },
+            { label: 'In Progress', value: s.inProgress || 0, color: 'var(--warning)' },
+            { label: 'Resolved',    value: s.resolved   || 0, color: 'var(--success)' },
+            { label: 'Closed',      value: s.closed     || 0, color: 'var(--gray)' },
+            { label: '🚨 Urgent',   value: s.urgent     || 0, color: '#ff6666' },
+            { label: 'Unassigned',  value: s.unassigned || 0, color: 'var(--warning)' },
+            { label: 'This Week',   value: s.weeklyNew  || 0, color: 'var(--primary)' },
+        ].map(st => `
+            <div class="stat-card" style="padding:16px;text-align:center;cursor:default;">
+                <div style="font-size:22px;font-weight:700;color:${st.color};">${st.value}</div>
+                <div style="font-size:11px;color:var(--gray);margin-top:4px;">${st.label}</div>
+            </div>`).join('');
+    } catch (_) {}
+}
+
+async function _fetchAndRenderTickets(page, status, priority, assigned, search) {
+    const tbody = document.getElementById('ticketsTableBody');
+    if (!tbody) return;
+    try {
+        let qs = `page=${page}&limit=20&status=${status}&priority=${priority}&assigned=${assigned}`;
+        if (search) qs += `&search=${encodeURIComponent(search)}`;
+
+        const res  = await fetch(`${API_URL}/api/admin/tickets?${qs}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--error);">Failed to load tickets</td></tr>`;
+            return;
+        }
+
+        if (!data.tickets.length) {
+            tbody.innerHTML = `
+                <tr><td colspan="8">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎫</div>
+                        <h3>No Tickets Found</h3>
+                        <p>No tickets match your current filters</p>
+                    </div>
+                </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.tickets.map(t => {
+            const custName  = t.userId?.fullName  || t.messages?.[0]?.senderName || 'Guest';
+            const custEmail = t.userId?.email     || t.guestEmail || '—';
+            const assigned  = t.assignedAgent?.fullName || `<span style="color:var(--warning);font-size:11px;">Unassigned</span>`;
+            return `
+            <tr style="cursor:pointer;" onclick="adminViewTicket('${t.ticketId}')">
+                <td><strong style="font-family:monospace;font-size:12px;color:var(--primary);">${t.ticketId}</strong></td>
+                <td>
+                    <div style="font-weight:600;font-size:13px;">${escapeHtml(custName)}</div>
+                    <small style="color:var(--gray);">${escapeHtml(custEmail)}</small>
+                </td>
+                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(t.subject)}</td>
+                <td><span class="priority-badge priority-${t.priority}">${t.priority.toUpperCase()}</span></td>
+                <td><span class="status-badge status-${t.status}">${t.status.replace('-',' ').toUpperCase()}</span></td>
+                <td style="font-size:12px;">${assigned}</td>
+                <td style="font-size:12px;">${new Date(t.createdAt).toLocaleDateString()}</td>
+                <td>
+                    <div class="action-btns">
+                        <button class="action-btn" onclick="event.stopPropagation();adminViewTicket('${t.ticketId}')" title="Open">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn warning" onclick="event.stopPropagation();adminQuickResolve('${t.ticketId}')" title="Resolve"
+                            style="${['resolved','closed'].includes(t.status)?'opacity:0.3;pointer-events:none;':''}">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="action-btn danger" onclick="event.stopPropagation();adminQuickDelete('${t.ticketId}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+
+        if (data.pagination) {
+            updatePagination('ticketsPagination', data.pagination, (p) => {
+                loadTicketsData(p,
+                    document.getElementById('tAdminStatus')?.value   || 'all',
+                    document.getElementById('tAdminPriority')?.value || 'all',
+                    document.getElementById('tAdminAssigned')?.value || 'all',
+                    document.getElementById('tAdminSearch')?.value   || ''
+                );
+            });
+        }
+    } catch (err) {
+        console.error('Tickets fetch error:', err);
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--error);">Error loading tickets</td></tr>`;
+    }
+}
+
+// ── Open ticket detail modal ───────────────────────────────────────────────
+async function adminViewTicket(ticketId) {
+    try {
+        document.getElementById('loadingOverlay').classList.add('active');
+
+        // Fetch ticket + agents list in parallel
+        const [tRes, aRes] = await Promise.all([
+            fetch(`${API_URL}/api/agent/tickets/${ticketId}`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            }),
+            fetch(`${API_URL}/api/admin/agents`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            })
+        ]);
+
+        const tData = await tRes.json();
+        const aData = await aRes.json();
+
+        if (!tData.success) { showNotification('Could not load ticket', 'error'); return; }
+
+        const t = tData.ticket;
+        _adminTicketState.activeTicket = t;
+
+        // Header
+        document.getElementById('tdModalId').textContent = t.ticketId;
+
+        // Customer
+        const custName  = t.userId?.fullName || t.messages?.[0]?.senderName || 'Guest';
+        const custEmail = t.userId?.email    || t.guestEmail || t.messages?.[0]?.senderId || '—';
+        document.getElementById('tdAvatar').textContent    = custName.charAt(0).toUpperCase();
+        document.getElementById('tdCustName').textContent  = custName;
+        document.getElementById('tdCustEmail').textContent = custEmail;
+
+        // Subject
+        document.getElementById('tdSubject').textContent = t.subject || '—';
+
+        // Status badge
+        const stEl = document.getElementById('tdStatusBadge');
+        stEl.textContent = t.status.replace('-',' ').toUpperCase();
+        stEl.className   = `status-badge status-${t.status}`;
+
+        // Priority badge
+        const prEl = document.getElementById('tdPriBadge');
+        prEl.textContent = t.priority.toUpperCase();
+        prEl.className   = `priority-badge priority-${t.priority}`;
+
+        // Category + dates
+        document.getElementById('tdCategory').textContent  = t.category || '—';
+        document.getElementById('tdCreatedAt').textContent = new Date(t.createdAt).toLocaleString();
+        document.getElementById('tdUpdatedAt').textContent = new Date(t.updatedAt).toLocaleString();
+        const resolvedRow = document.getElementById('tdResolvedRow');
+        if (t.resolvedAt) {
+            document.getElementById('tdResolvedAt').textContent = new Date(t.resolvedAt).toLocaleString();
+            resolvedRow.style.display = '';
+        } else {
+            resolvedRow.style.display = 'none';
+        }
+
+        // Set current values in dropdowns
+        document.getElementById('tdStatusChange').value = '';
+        document.getElementById('tdPriChange').value    = '';
+
+        // Populate agents dropdown
+        const agentSel = document.getElementById('tdAgentAssign');
+        agentSel.innerHTML = '<option value="">— select agent —</option>';
+        if (aData.success && aData.agents) {
+            aData.agents.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.textContent = `${a.name} (${a.department || 'Support'})`;
+                if (t.assignedAgent && t.assignedAgent._id === a.id) opt.selected = true;
+                agentSel.appendChild(opt);
+            });
+        }
+
+        // Clear admin note box
+        document.getElementById('tdAdminNote').value = '';
+
+        // Render messages
+        _renderAdminTicketThread(t.messages || []);
+
+        openModal('ticketDetailModal');
+
+        // Scroll thread to bottom
+        setTimeout(() => {
+            const el = document.getElementById('tdMessages');
+            if (el) el.scrollTop = el.scrollHeight;
+        }, 80);
+
+    } catch (err) {
+        console.error('adminViewTicket error:', err);
+        showNotification('Failed to open ticket', 'error');
+    } finally {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+}
+
+function _renderAdminTicketThread(messages) {
+    const container = document.getElementById('tdMessages');
+    if (!container) return;
+
+    if (!messages.length) {
+        container.innerHTML = `<p style="text-align:center;color:var(--gray);font-size:13px;margin-top:30px;">No messages yet.</p>`;
+        return;
+    }
+
+    container.innerHTML = messages.map(m => {
+        const isAgent  = m.sender === 'agent';
+        const isSystem = m.sender === 'system';
+
+        if (isSystem) {
+            return `<div style="text-align:center;">
+                <span style="font-size:11px;color:var(--gray);background:rgba(255,255,255,0.05);padding:4px 14px;border-radius:20px;">
+                    ${escapeHtml(m.message)}
+                </span>
+            </div>`;
+        }
+
+        const align = isAgent ? 'flex-end' : 'flex-start';
+        const bg    = isAgent
+            ? 'linear-gradient(135deg,var(--primary-dark),var(--primary))'
+            : 'rgba(255,255,255,0.07)';
+        const color  = isAgent ? '#000' : '#fff';
+        const radius = isAgent ? '14px 14px 4px 14px' : '14px 14px 14px 4px';
+        const name   = escapeHtml(m.senderName || (isAgent ? 'Agent' : 'Customer'));
+
+        return `<div style="display:flex;flex-direction:column;align-items:${align};gap:3px;max-width:80%;align-self:${align};">
+            <span style="font-size:10px;color:var(--gray);padding:0 4px;">${name}</span>
+            <div style="background:${bg};color:${color};padding:10px 14px;border-radius:${radius};font-size:13px;line-height:1.5;word-break:break-word;">
+                ${escapeHtml(m.message)}
+            </div>
+            <span style="font-size:10px;color:var(--gray);padding:0 4px;">${new Date(m.timestamp).toLocaleString()}</span>
+        </div>`;
+    }).join('');
+}
+
+// ── Admin update a single field (status or priority from dropdowns) ─────────
+async function adminUpdateTicketField(field, value) {
+    if (!value) return;
+    const t = _adminTicketState.activeTicket;
+    if (!t) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/${t.ticketId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ [field]: value })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification(`${field.charAt(0).toUpperCase()+field.slice(1)} updated to ${value}`, 'success');
+            await adminViewTicket(t.ticketId); // refresh modal
+            _fetchAndRenderTickets(
+                _adminTicketState.page,
+                _adminTicketState.status,
+                _adminTicketState.priority,
+                _adminTicketState.assigned,
+                _adminTicketState.search
+            );
+        } else {
+            showNotification(data.message || 'Update failed', 'error');
+        }
+    } catch (err) {
+        showNotification('Update failed', 'error');
+    }
+}
+
+// ── Assign ticket to an agent ─────────────────────────────────────────────
+async function adminAssignTicketAgent(agentId) {
+    if (!agentId) return;
+    const t = _adminTicketState.activeTicket;
+    if (!t) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/tickets/${t.ticketId}/assign`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agentId })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification('Ticket assigned successfully', 'success');
+            await adminViewTicket(t.ticketId);
+            _fetchAndRenderTickets(
+                _adminTicketState.page,
+                _adminTicketState.status,
+                _adminTicketState.priority,
+                _adminTicketState.assigned,
+                _adminTicketState.search
+            );
+        } else {
+            showNotification(data.message || 'Assignment failed', 'error');
+        }
+    } catch (err) {
+        showNotification('Assignment failed', 'error');
+    }
+}
+
+// ── Send admin note / reply ───────────────────────────────────────────────
+async function adminSendTicketNote() {
+    const input = document.getElementById('tdAdminNote');
+    const note  = input?.value.trim();
+    if (!note) { showNotification('Please type a note first', 'warning'); return; }
+
+    const t = _adminTicketState.activeTicket;
+    if (!t) return;
+
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/${t.ticketId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ adminNote: note })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification('Note sent', 'success');
+            input.value = '';
+            await adminViewTicket(t.ticketId);
+        } else {
+            showNotification(data.message || 'Failed to send note', 'error');
+        }
+    } catch (err) {
+        showNotification('Failed to send note', 'error');
+    }
+}
+
+// ── Delete from inside modal ───────────────────────────────────────────────
+async function adminDeleteTicket() {
+    const t = _adminTicketState.activeTicket;
+    if (!t) return;
+    if (!confirm(`Permanently delete ticket ${t.ticketId}? This cannot be undone.`)) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/${t.ticketId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification('Ticket deleted', 'success');
+            closeModal('ticketDetailModal');
+            _fetchAndRenderTickets(
+                _adminTicketState.page,
+                _adminTicketState.status,
+                _adminTicketState.priority,
+                _adminTicketState.assigned,
+                _adminTicketState.search
+            );
+        } else {
+            showNotification(data.message || 'Delete failed', 'error');
+        }
+    } catch (err) {
+        showNotification('Delete failed', 'error');
+    }
+}
+
+// ── Quick resolve from table row ───────────────────────────────────────────
+async function adminQuickResolve(ticketId) {
+    if (!confirm('Mark this ticket as resolved?')) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/${ticketId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'resolved' })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification('Ticket resolved', 'success');
+            _reloadTickets();
+        } else {
+            showNotification(data.message || 'Failed', 'error');
+        }
+    } catch (err) {
+        showNotification('Failed to resolve ticket', 'error');
+    }
+}
+
+// ── Quick delete from table row ────────────────────────────────────────────
+async function adminQuickDelete(ticketId) {
+    if (!confirm(`Permanently delete ticket ${ticketId}?`)) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/${ticketId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification('Ticket deleted', 'success');
+            _reloadTickets();
+        } else {
+            showNotification(data.message || 'Delete failed', 'error');
+        }
+    } catch (err) {
+        showNotification('Delete failed', 'error');
+    }
+}
+
+// ── Bulk close all resolved ────────────────────────────────────────────────
+async function adminBulkCloseTickets() {
+    if (!confirm('Close all resolved tickets? They will move to "closed" status.')) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/tickets/bulk-close`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification(data.message || 'Done', 'success');
+            _reloadTickets();
+        } else {
+            showNotification(data.message || 'Failed', 'error');
+        }
+    } catch (err) {
+        showNotification('Bulk close failed', 'error');
+    }
+}
+
+// ── escapeHtml (safe duplicate — only defined if not already present) ──────
+if (typeof escapeHtml === 'undefined') {
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+}
+
+console.log('✅ Admin Ticket System loaded');
+    </script>
 </body>
-
 </html>
