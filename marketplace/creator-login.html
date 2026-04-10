@@ -437,13 +437,13 @@ body {
 
 <!-- NAV -->
 <nav class="nav">
-  <a href="/store/index.html" class="nav-brand">
+  <a href="/marketplace/" class="nav-brand">
     <div class="nav-mark">UT</div>
     <span class="nav-brand-text">UYEH TECH</span>
   </a>
   <div class="nav-actions">
-    <a href="/store/index.html" class="nav-link">Browse Store</a>
-    <a href="/store/creator-apply.html" class="nav-btn nav-btn-primary">
+    <a href="/marketplace/" class="nav-link">Browse Store</a>
+    <a href="/marketplace/creator-apply" class="nav-btn nav-btn-primary">
       <i class="fas fa-rocket"></i> Become a Creator
     </a>
   </div>
@@ -460,7 +460,7 @@ body {
     <h1 class="login-heading">Welcome back,<br><span style="color:var(--green);">Creator.</span></h1>
     <p class="login-sub">
       Sign in to manage your store, products, and earnings.<br>
-      Not a creator yet? <a href="/store/creator-apply.html">Apply now →</a>
+      Not a creator yet? <a href="/marketplace/creator-apply">Apply now →</a>
     </p>
 
     <div class="login-card">
@@ -657,7 +657,7 @@ body {
       <div class="card-footer">
         <p class="card-footer-text">
           Not a creator yet?
-          <a href="/store/creator-apply.html">Apply to become one →</a>
+          <a href="/marketplace/creator-apply">Apply to become one →</a>
         </p>
       </div>
     </div><!-- /login-card -->
@@ -709,7 +709,7 @@ let rememberChecked = false;
       // Any stored session goes straight to the dashboard —
       // the dashboard itself handles auth validation on load.
       if (u && u.email) {
-        window.location.href = '/store/creator-dashboard.html';
+        window.location.href = '/marketplace/creator-dashboard';
         return;
       }
     } catch(e) {}
@@ -894,7 +894,7 @@ async function doLogin() {
         if (!creatorData.success || !creatorData.creator) {
           showAlert('No creator account found. Apply to become a creator first.');
           setLoading('btnLogin', false);
-          setTimeout(() => { window.location.href = '/store/creator-apply.html'; }, 2200);
+          setTimeout(() => { window.location.href = '/marketplace/creator-apply'; }, 2200);
           return;
         }
 
@@ -947,7 +947,7 @@ async function doLogin() {
     showAlert('Welcome back! Redirecting to your dashboard…', 'success');
 
     setTimeout(() => {
-      window.location.href = '/store/creator-dashboard.html';
+      window.location.href = '/marketplace/creator-dashboard';
     }, 900);
 
   } catch (err) {

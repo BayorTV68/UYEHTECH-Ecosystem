@@ -957,10 +957,11 @@ let toastTimer;
 document.addEventListener('DOMContentLoaded', async () => {
   initAuth();
   syncCartCount();
-  initNav();
-  startFooterClock();
-  document.getElementById('copyrightYear').textContent = new Date().getFullYear();
   await fetchData();
+const urlPage = parseInt(new URL(location.href).searchParams.get('page') || '1');
+if (urlPage > 1) {
+  pageShown = urlPage * PAGE_SIZE;
+}
 });
 
 /* ══════════════════════════════════════════════════
@@ -1031,6 +1032,20 @@ async function fetchData() {
 
     allProducts = (prData.success && prData.products) ? prData.products : [];
 
+      // After allCreators is populated, add:
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const fRes = await fetch(`${API_URL}/api/my/following`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const fData = await fRes.json();
+          if (fData.success && fData.following) {
+            following = fData.following.map(c => c._id || c);
+            localStorage.setItem('uyeh_following', JSON.stringify(following));
+          }
+        } catch(e) { /* use localStorage fallback */ }
+      }
     /* map products per creator */
     const pmap = {};
     allProducts.forEach(p => {
@@ -1057,6 +1072,7 @@ async function fetchData() {
 
     allCreators = raw.map(c => {
       const id    = c._id || c.storeSlug;
+
 
       // Match products by string comparison (handles ObjectId vs string)
       const prods = pmap[String(id)] || pmap[id] || [];
@@ -1092,7 +1108,7 @@ async function fetchData() {
         productCount,
         categories:    cats,
         totalSales,
-        topSeller:     totalSales > 5 || productCount >= 3
+       topSeller: totalSales >= 50
       };
     }).filter(c => c.productCount > 0 || c.storeSlug);
 
@@ -1117,9 +1133,12 @@ async function fetchData() {
    FEATURED STRIP
    ══════════════════════════════════════════════════ */
 function renderFeaturedStrip(creators) {
-  const featured = creators.filter(c => c.isFeatured || c.isVerified).slice(0, 12);
+ let featured = creators.filter(c => c.isFeatured || c.isVerified).slice(0, 12);
+  // Fallback: if no featured/verified, show top creators by product count
+  if (!featured.length) {
+    featured = [...creators].sort((a, b) => b.productCount - a.productCount).slice(0, 12);
+  }
   if (!featured.length) return;
-
   const scroll = document.getElementById('pillScroll');
   const strip  = document.getElementById('featuredStrip');
   if (!scroll || !strip) return;
@@ -1217,7 +1236,13 @@ function applyFilters() {
   if (lmw) lmw.style.display = displayList.length > pageShown ? 'block' : 'none';
 }
 
-function loadMore() { pageShown += PAGE_SIZE; applyFilters(); }
+function loadMore() {
+  pageShown += PAGE_SIZE;
+  applyFilters();
+  const url = new URL(location.href);
+  url.searchParams.set('page', Math.ceil(pageShown / PAGE_SIZE));
+  history.replaceState(null, '', url);
+}
 
 /* ══════════════════════════════════════════════════
    RENDER GRID
@@ -2209,7 +2234,6 @@ window.addEventListener('load', function() {
     
 })();
 
-AOS.init({ duration: 800, once: true, offset: 80 });
 </script>
 </body>
    </html>
