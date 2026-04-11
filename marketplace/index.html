@@ -9,14 +9,14 @@
 
   <!-- Open Graph / Social Sharing -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://uyeh.netlify.app/store/">
+  <meta property="og:url" content="https://uyehtech.netlify.app/marketplace/">
   <meta property="og:title" content="UYEH TECH Marketplace — Premium Digital Products">
   <meta property="og:description" content="Browse premium digital products from verified creators. Templates, courses, components, and more.">
-  <meta property="og:image" content="/image/uyehtech-logo.jpg">
+  <meta property="og:image" content="/images/uyehtech-logo.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="UYEH TECH Marketplace">
   <meta name="twitter:description" content="Premium digital products from verified creators.">
-  <meta name="twitter:image" content="/image/uyehtech-logo.jpg">
+  <meta name="twitter:image" content="/images/uyehtech-logo.jpg">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -863,8 +863,8 @@
       <span class="cart-count">0</span>
     </button>
     <div id="guestButtons" class="auth-buttons">
-      <a href="/store/login.html" class="btn-login">Login</a>
-      <a href="/store/signup.html" class="btn-signup">Sign Up</a>
+      <a href="/marketplace/login" class="btn-login">Login</a>
+      <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
     </div>
     <div id="userDropdown" class="user-dropdown" style="display:none;">
       <button class="user-avatar-btn" onclick="toggleUserMenu()">
@@ -881,10 +881,10 @@
           </div>
         </div>
         <div class="user-menu-divider"></div>
-        <a href="store/dashboard.html" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
-        <a href="/store/my-products.html" class="user-menu-item"><i class="fas fa-box"></i><span>My Products</span></a>
-        <a href="/store/orders.html" class="user-menu-item"><i class="fas fa-receipt"></i><span>Orders</span></a>
-        <a href="/store/settings.html" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        <a href="/marketplace/dashboard" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+        <a href="/marketplace/my-products" class="user-menu-item"><i class="fas fa-box"></i><span>My Products</span></a>
+        <a href="/marketplace/orders" class="user-menu-item"><i class="fas fa-receipt"></i><span>Orders</span></a>
+        <a href="/marketplace/settings" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
         <div class="user-menu-divider"></div>
         <button class="user-menu-item logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
       </div>
@@ -1012,7 +1012,7 @@
   <div class="creators-inner">
     <div class="section-heading">
       <h2>🏪 Browse Our <span>Creators</span></h2>
-      <a href="/store/creators.html">View All Creators <i class="fas fa-arrow-right"></i></a>
+      <a href="/marketplace/creators">View All Creators <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="creators-grid" id="creatorsGrid"></div>
   </div>
@@ -1326,7 +1326,7 @@ window.cookieSystem = cookieSystem;
 // ════════════════════════════════════════
 
 const API_URL   = 'https://uyehtechbackend.onrender.com';
-const STORE_BASE = 'https://uyeh.netlify.app/store';
+const STORE_BASE = 'https://uyehtech.netlify.app/marketplace';
 
 let currentCategory  = 'all';
 let currentSort      = 'default';
@@ -1404,7 +1404,7 @@ function buildProductUrl(product) {
     baseUrl = `${STORE_BASE}/creator-store.html?store=${encodeURIComponent(slug)}&product=${productId}`;
   } else {
     // Admin product → link to the marketplace with product param (auto-opens modal)
-    baseUrl = `${STORE_BASE}/index.html?product=${productId}`;
+    baseUrl = `${STORE_BASE}/?product=${productId}`;
   }
 
   // Append ref code if the current visitor is an affiliate
@@ -1639,6 +1639,32 @@ function renderFeaturedSection(products) {
   section.style.display = 'block';
 }
 
+// Add this helper function alongside your existing render helpers
+function getProductTypeBadge(type) {
+  const map = {
+    course:    { label: 'Course',     icon: '🎓', color: '#7c3aed' },
+    software:  { label: 'Software',   icon: '💻', color: '#0ea5e9' },
+    music:     { label: 'Music',      icon: '🎵', color: '#ec4899' },
+    template:  { label: 'Template',   icon: '🎨', color: '#f59e0b' },
+    script:    { label: 'Script',     icon: '⚙️', color: '#10b981' },
+    component: { label: 'Component',  icon: '🧩', color: '#6366f1' },
+    ebook:     { label: 'eBook',      icon: '📖', color: '#14b8a6' },
+    download:  { label: 'Download',   icon: '📦', color: '#00ff88' },
+    other:     { label: 'Digital',    icon: '✨', color: '#00ff88' },
+  };
+  const t = map[type] || map.download;
+  return `<span class="product-type-badge" style="background:${t.color}22;color:${t.color};border:1px solid ${t.color}44;padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600;letter-spacing:.03em;">${t.icon} ${t.label}</span>`;
+}
+
+function getCourseMetaBadge(courseData) {
+  if (!courseData) return '';
+  const dur = courseData.totalDuration ? Math.round(courseData.totalDuration / 3600) + 'h' : '';
+  const ch  = courseData.totalChapters ? courseData.totalChapters + ' chapters' : '';
+  const lvl = courseData.level ? courseData.level : '';
+  return `<div class="course-meta" style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.76rem;color:var(--gray-light);margin-bottom:8px;">
+    ${dur ? `<span>⏱ ${dur}</span>` : ''}${ch ? `<span>📖 ${ch}</span>` : ''}${lvl ? `<span>📊 ${lvl}</span>` : ''}
+  </div>`;
+}
 
 // ── CREATORS SECTION ──────────────────────────────────────────────────────────
 function renderCreatorsSection(products) {
@@ -1664,7 +1690,7 @@ function renderCreatorsSection(products) {
     const avatarHTML = pic ? `<img src="${esc(pic)}" alt="${esc(name)}">` : name.charAt(0).toUpperCase();
     const verified   = c.isVerified ? `<span class="creator-verified"><i class="fas fa-check-circle"></i> Verified</span>` : '';
     return `
-      <a href="/store/creator-store.html?store=${encodeURIComponent(slug)}" class="creator-card">
+      <a href="/marketplace/creator-store?store=${encodeURIComponent(slug)}" class="creator-card">
         <div class="creator-avatar">${avatarHTML}</div>
         <div class="creator-name">${esc(name)}</div>
         <div class="creator-products-count">${c.productCount} product${c.productCount !== 1 ? 's' : ''}</div>
@@ -1728,7 +1754,7 @@ function displayProducts(products) {
     const creatorHTML = creator
       ? `<div class="product-creator-tag">
            <i class="fas fa-store" style="font-size:0.72rem;color:var(--purple);"></i>
-           <a href="/store/creator-store.html?store=${encodeURIComponent(creator.storeSlug || '')}" onclick="event.stopPropagation()">
+           <a href="/marketplace/creator-store?store=${encodeURIComponent(creator.storeSlug || '')}" onclick="event.stopPropagation()">
              ${esc(creator.storeName || 'Creator')}
            </a>
          </div>` : '';
@@ -1747,7 +1773,8 @@ function displayProducts(products) {
           </button>
         </div>
         <div class="product-content">
-          <div class="product-meta">
+          <div class="product-meta" ${getProductTypeBadge(p.productType)}
+${p.productType === 'course' ? getCourseMetaBadge(p.courseData) : ''}>
             <span class="product-category">${esc(p.category || '')}</span>
             ${creatorHTML}
           </div>
@@ -1805,7 +1832,7 @@ function viewProduct(productId) {
     ? `<div style="margin-bottom:16px;padding:12px 15px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:10px;display:flex;align-items:center;gap:10px;">
          <i class="fas fa-store" style="color:var(--primary);"></i>
          <span style="color:var(--gray-light);font-size:0.9rem;">Sold by</span>
-         <a href="/store/creator-store.html?store=${encodeURIComponent(storeSlug)}"
+         <a href="/marketplace/creator-store?store=${encodeURIComponent(storeSlug)}"
             style="color:var(--primary);font-weight:700;text-decoration:none;">${esc(creator.storeName)}</a>
        </div>` : '';
 
