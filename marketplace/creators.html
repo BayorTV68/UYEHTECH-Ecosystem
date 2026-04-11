@@ -1366,14 +1366,13 @@ function openCreatorModal(creatorId) {
   const c = allCreators.find(x => x._id === creatorId);
   if (!c) return;
 
-  /* banner */
+  /* banner — always official platform banner */
   const banner = document.getElementById('modalBanner');
   banner.innerHTML = `<button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>`;
-  if (c.storeBanner) {
-    const bi = document.createElement('img');
-    bi.src = c.storeBanner; bi.alt = 'banner'; bi.onerror = () => bi.remove();
-    banner.insertBefore(bi, banner.firstChild);
-  }
+  const bi = document.createElement('img');
+  bi.src = '/images/official-banner.png';
+  bi.alt = 'UYEH TECH';
+  banner.insertBefore(bi, banner.firstChild);
 
   /* avatar */
   const init = (c.storeName || 'C').charAt(0).toUpperCase();

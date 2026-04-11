@@ -842,22 +842,22 @@
       <li><a href="/about.html"     class="nav-link">About</a></li>
       <li><a href="/services.html"  class="nav-link">Service</a></li>
       <li><a href="/projects.html"  class="nav-link">Projects</a></li>
-      <li><a href="/store/index.html" class="nav-link">Store</a></li>
+      <li><a href="/marketplace/" class="nav-link">Store</a></li>
       <li><a href="/blog/index.html"  class="nav-link">Blogs</a></li>
       <li><a href="/contact.html"   class="nav-link">Contact</a></li>
     </ul>
 
     <div class="nav-actions">
       <!-- Cart button — always visible -->
-      <a href="/store/checkout.html" class="nav-cart-btn" id="navCartBtn" title="Go to cart">
+      <a href="/marketplace/checkout" class="nav-cart-btn" id="navCartBtn" title="Go to cart">
         <i class="fas fa-shopping-cart"></i>
         <span id="navCartLabel">Cart</span>
         <span class="cart-badge" id="cartBadge">0</span>
       </a>
 
       <div id="guestButtons" style="display:flex;gap:10px;">
-        <a href="/store/login.html"  class="btn-login">Login</a>
-        <a href="/store/signup.html" class="btn-signup">Sign Up</a>
+        <a href="/marketplace/login"  class="btn-login">Login</a>
+        <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
       </div>
       <div id="userDropdown" style="display:none;">
         <span id="navUserName" style="color:var(--primary);font-weight:600;font-size:0.9rem;"></span>
@@ -874,7 +874,7 @@
     <div class="error-icon">🏪</div>
     <div class="error-title" id="errorTitle">Store Not Found</div>
     <p class="error-msg" id="errorMsg">This store doesn't exist or hasn't been approved yet.</p>
-    <a href="/store/index.html" class="btn-back">← Browse All Products</a>
+    <a href="/marketplace/" class="btn-back">← Browse All Products</a>
   </div>
 
   <!-- ══════════════════════ STORE CONTENT ══════════════════════ -->
@@ -1007,7 +1007,7 @@
                border-radius:10px; font-size:0.8rem; color:#9ca3af; line-height:1.7;">
             🔗 <strong style="color:#7b61ff;">Want to earn commissions?</strong><br>
             Join the affiliate program to get your unique link for this product.<br>
-            <a href="/store/affiliate.html" style="color:#00ff88; font-weight:700; text-decoration:none;">
+            <a href="/marketplace/affiliate" style="color:#00ff88; font-weight:700; text-decoration:none;">
               → Join Affiliate Program
             </a>
           </div>
@@ -1018,11 +1018,16 @@
         <div class="modal-footer">
           <div class="modal-price" id="modalPrice"></div>
           <div class="modal-actions">
-            <button class="btn-close-modal" onclick="closeProductModal()">Close</button>
-            <button class="btn-primary-modal" id="modalAddBtn" onclick="addToCartFromModal()">
-              <i class="fas fa-cart-plus"></i> Add to Cart
-            </button>
-          </div>
+          <button class="btn-close-modal" onclick="closeProductModal()">Close</button>
+          <button class="btn-primary-modal" id="modalAddBtn" onclick="addToCartFromModal()">
+            <i class="fas fa-cart-plus"></i> Add to Cart
+          </button>
+          <button class="btn-primary-modal" id="modalBuyBtn"
+                  onclick="buyNowFromModal()"
+                  style="background:linear-gradient(135deg,#00b359,#00ff88);margin-left:0;">
+            <i class="fas fa-bolt"></i> Buy Now
+          </button>
+        </div>
         </div>
       </div>
     </div>
@@ -1040,14 +1045,14 @@
       <div class="cart-nudge-title">🛒 Item added to cart</div>
       <div class="cart-nudge-sub" id="nudgeCount">1 item · ready to checkout</div>
     </div>
-    <button class="cart-nudge-btn" onclick="window.location.href='/store/checkout.html'">
+    <button class="cart-nudge-btn" onclick="window.location.href='/marketplace/checkout'">
       Checkout →
     </button>
   </div>
 
   <!-- ══════════════════════ FOOTER ══════════════════════ -->
   <footer>
-    <p>© 2025 <a href="/">UYEH TECH</a> · <a href="/store/index.html">Marketplace</a> · <a href="/contact.html">Contact</a></p>
+    <p>© 2025 <a href="/">UYEH TECH</a> · <a href="/marketplace/">Marketplace</a> · <a href="/contact">Contact</a></p>
   </footer>
 
   <!-- ════════════════════════════════════════════════════════
@@ -1168,10 +1173,10 @@
        ══════════════════════════════════════════════════ */
     function renderStoreHeader(c) {
       // Banner
-      if (c.storeBanner) {
-        const img = document.getElementById('bannerImg');
-        img.src = c.storeBanner; img.style.display = 'block';
-      }
+      // Banner — always use official platform banner regardless of creator upload
+      const img = document.getElementById('bannerImg');
+      img.src = '/images/official-banner.png';
+      img.style.display = 'block';
 
       // Logo
       if (c.storeLogo) {
@@ -1374,7 +1379,11 @@
           ${origPrice > price ? `<span class="modal-price-old">$${origPrice.toFixed(2)}</span>` : ''}`;
       }
 
-      document.getElementById('modalAddBtn').textContent = price === 0 ? '🎁 Get Free' : '🛒 Add to Cart';
+      document.getElementById('modalAddBtn').innerHTML = price === 0
+        ? '<i class="fas fa-gift"></i> Get Free'
+        : '<i class="fas fa-cart-plus"></i> Add to Cart';
+      const buyBtn = document.getElementById('modalBuyBtn');
+      if (buyBtn) buyBtn.style.display = price === 0 ? 'none' : 'inline-flex';
 
       // Populate affiliate link section
       populateAffSection(p);
@@ -1398,6 +1407,13 @@
       closeProductModal();
     }
 
+    function buyNowFromModal() {
+    if (activeProductId) {
+      addToCart(activeProductId);
+      closeProductModal();
+      window.location.href = '/marketplace/checkout';
+    }
+  }
     /* ══════════════════════════════════════════════════
        10. CART (uses same localStorage format as index.html)
        ══════════════════════════════════════════════════ */
@@ -1486,7 +1502,7 @@
       const token = localStorage.getItem('token');
       if (!token) {
         showToast('🔐', 'Please log in to follow this store');
-        setTimeout(() => window.location.href = '/store/login.html', 1200);
+        setTimeout(() => window.location.href = '/marketplace/login', 1200);
         return;
       }
       if (!creatorData?._id) return;
@@ -1494,7 +1510,7 @@
       const endpoint = isFollowing ? 'unfollow' : 'follow';
       try {
         const res  = await fetch(`${API_URL}/api/creators/${creatorData._id}/${endpoint}`, {
-          method: 'POST',
+         method: isFollowing ? 'DELETE' : 'POST',
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -1526,7 +1542,7 @@
        12. SHARE
        ══════════════════════════════════════════════════ */
     async function handleShare() {
-      const url  = window.location.origin + '/' + currentSlug;
+     const url = window.location.origin + '/marketplace/creator-store?store=' + currentSlug;
       const text = `Check out ${creatorData?.storeName || 'this creator'} on UYEH TECH Marketplace!`;
 
       if (navigator.share) {
@@ -1613,7 +1629,7 @@
     /* ── Build the affiliate link for a product ── */
     function buildAffLink(productId) {
       const code = getMyAffiliateCode();
-      const base = window.location.origin + '/store/' + currentSlug;
+      const base = window.location.origin + '/marketplace/' + currentSlug;
       if (!code) return null; // not registered
       return base + '?product=' + productId + '&ref=' + code;
     }

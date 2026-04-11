@@ -1102,6 +1102,10 @@ select.form-control option { background: var(--ink-3); }
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
+  /* Disable banner upload — official banner is locked platform-wide */
+  .store-banner-edit input[type="file"],
+  .store-banner-edit .banner-edit-overlay,
+  #bannerUploadBtn { display: none !important; }
 }
 
 
@@ -2859,30 +2863,12 @@ select.form-control option { background: var(--ink-3); }
         <div class="store-profile-preview" style="margin-bottom:20px;">
 
           <!-- ═══ UNIFIED UYEH TECH BANNER — same across ALL creator stores ═══ -->
-          <div class="store-banner-edit" id="storeBannerPreview"
-               style="background:linear-gradient(135deg,#080a0d 0%,#0d1117 40%,#080a0d 100%);
-                      cursor:default; pointer-events:none; position:relative; overflow:hidden;">
-            <!-- Subtle grid pattern -->
-            <div style="position:absolute;inset:0;
-                        background-image:linear-gradient(rgba(0,232,122,0.04) 1px,transparent 1px),
-                                         linear-gradient(90deg,rgba(0,232,122,0.04) 1px,transparent 1px);
-                        background-size:28px 28px;pointer-events:none;"></div>
-            <!-- Glow blob -->
-            <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);
-                        width:200px;height:200px;
-                        background:radial-gradient(circle,rgba(0,232,122,0.18) 0%,transparent 70%);
-                        pointer-events:none;"></div>
-            <!-- Brand text -->
-            <div style="position:relative;z-index:1;display:flex;flex-direction:column;
-                        align-items:center;gap:5px;">
-              <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.35rem;
-                          color:#00e87a;letter-spacing:3px;text-transform:uppercase;
-                          text-shadow:0 0 24px rgba(0,232,122,0.5);">UYEH TECH</div>
-              <div style="font-size:0.6rem;color:rgba(0,232,122,0.45);
-                          font-family:'JetBrains Mono',monospace;letter-spacing:4px;
-                          text-transform:uppercase;">Creator Marketplace</div>
+           <div class="store-banner-edit" id="storeBannerPreview" style="cursor:default; overflow:hidden;">
+              <img src="/images/official-banner.png" 
+                  style="width:100%;height:100%;object-fit:cover;opacity:0.85;" 
+                  alt="UYEH TECH Official Banner">
             </div>
-          </div>
+                    
 
           <div class="store-profile-body">
             <div class="store-avatar-wrap">
