@@ -1769,9 +1769,89 @@ tr:hover {
                     <label class="form-label">Description *</label>
                     <textarea class="form-textarea" name="description" required placeholder="Product description"></textarea>
                 </div>
+               <div class="form-group">
+    <label class="form-label">Category *</label>
+    <select class="form-input" name="category" required>
+                        <option value="">-- Select Category --</option>
+                        <option value="Templates">Templates</option>
+                        <option value="Components">Components</option>
+                        <option value="Courses">Courses</option>
+                        <option value="Scripts">Scripts</option>
+                        <option value="Software">Software</option>
+                        <option value="Music">Music</option>
+                        <option value="eBooks">eBooks</option>
+                        <option value="Graphics">Graphics</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
-                    <label class="form-label">Category *</label>
-                    <input type="text" class="form-input" name="category" required placeholder="e.g., Templates, Courses, Software">
+                    <label class="form-label">Product Type *</label>
+                    <select class="form-input" name="productType" id="createProductType" onchange="toggleProductTypeFields('create', this.value)">
+                        <option value="download">📦 Download (File/Link)</option>
+                        <option value="course">🎓 Course (Structured Chapters)</option>
+                        <option value="software">💻 Software</option>
+                        <option value="music">🎵 Music / Audio</option>
+                        <option value="template">🎨 Template</option>
+                        <option value="script">⚙️ Script</option>
+                        <option value="component">🧩 Component</option>
+                        <option value="ebook">📖 eBook</option>
+                    </select>
+                </div>
+
+                <!-- Hosted file upload (shows for all types except course) -->
+                <div class="form-group" id="createHostedFileSection">
+                    <label class="form-label"><i class="fas fa-cloud-upload-alt"></i> Upload Product File <small style="color:var(--gray)">(replaces external link)</small></label>
+                    <input type="file" class="form-input" id="createProductFileInput" accept="*/*">
+                    <div id="createFileUploadStatus" style="margin-top:6px;font-size:0.82rem;color:var(--gray);"></div>
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Or use an external link below ↓</small>
+                </div>
+
+                <!-- Music extras -->
+                <div class="form-group" id="createMusicFields" style="display:none;">
+                    <label class="form-label">BPM</label>
+                    <input type="number" class="form-input" name="audioBpm" placeholder="e.g. 128">
+                    <label class="form-label" style="margin-top:10px;">Key</label>
+                    <input type="text" class="form-input" name="audioKey" placeholder="e.g. C minor">
+                    <label class="form-label" style="margin-top:10px;">Genre</label>
+                    <input type="text" class="form-input" name="audioGenre" placeholder="e.g. Hip-Hop">
+                    <label class="form-label" style="margin-top:10px;">License</label>
+                    <select class="form-input" name="audioLicense">
+                        <option value="personal">Personal Use</option>
+                        <option value="commercial">Commercial Use</option>
+                        <option value="exclusive">Exclusive</option>
+                    </select>
+                    <label class="form-label" style="margin-top:10px;"><input type="checkbox" name="audioStems"> Includes Stems/Tracks</label>
+                </div>
+
+                <!-- Software extras -->
+                <div class="form-group" id="createSoftwareFields" style="display:none;">
+                    <label class="form-label">Platform(s)</label>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
+                        <label><input type="checkbox" name="softwarePlatform" value="windows"> Windows</label>
+                        <label><input type="checkbox" name="softwarePlatform" value="mac"> Mac</label>
+                        <label><input type="checkbox" name="softwarePlatform" value="linux"> Linux</label>
+                        <label><input type="checkbox" name="softwarePlatform" value="web"> Web</label>
+                        <label><input type="checkbox" name="softwarePlatform" value="android"> Android</label>
+                        <label><input type="checkbox" name="softwarePlatform" value="ios"> iOS</label>
+                    </div>
+                    <label class="form-label" style="margin-top:10px;">License Type</label>
+                    <select class="form-input" name="softwareLicenseType">
+                        <option value="single">Single Device</option>
+                        <option value="multi">Multi Device</option>
+                        <option value="lifetime">Lifetime</option>
+                        <option value="subscription">Subscription</option>
+                    </select>
+                    <label class="form-label" style="margin-top:10px;">Support Period</label>
+                    <input type="text" class="form-input" name="softwareSupportPeriod" placeholder="e.g. 6 months">
+                </div>
+
+                <!-- Course note -->
+                <div class="form-group" id="createCourseNote" style="display:none;">
+                    <div style="background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);padding:12px;border-radius:8px;font-size:0.85rem;color:var(--gray-light);">
+                        <b style="color:var(--primary);">📋 Course Mode</b><br>
+                        Create the product first, then use the <b>Course Builder</b> button in the products table to add sections and chapters.
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Price *</label>
@@ -3876,6 +3956,35 @@ async function handleCreateProduct(event) {
         isFeatured: formData.get('isFeatured') === 'on'
     };
     
+    // Upload hosted file if one was selected
+    const hostedFileResult = await uploadProductFileIfSelected('create', adminToken);
+    if (hostedFileResult) {
+        productData.hostedFile = hostedFileResult;
+        productData.fileSize   = hostedFileResult.fileSizeLabel;
+    }
+
+    // Collect productType
+    productData.productType = document.getElementById('createProductType').value || 'download';
+
+    // Collect music/software extras
+    const pType = productData.productType;
+    if (pType === 'music') {
+        productData.audioData = {
+            bpm:     parseInt(formData.get('audioBpm'))  || null,
+            key:     formData.get('audioKey')            || null,
+            genre:   formData.get('audioGenre')          || null,
+            license: formData.get('audioLicense')        || 'personal',
+            stems:   formData.get('audioStems') === 'on',
+        };
+    }
+    if (pType === 'software') {
+        productData.softwareData = {
+            platform:      [...document.querySelectorAll('input[name="softwarePlatform"]:checked')].map(el => el.value),
+            licenseType:   formData.get('softwareLicenseType')   || 'single',
+            supportPeriod: formData.get('softwareSupportPeriod') || '',
+        };
+    }
+
     try {
         showLoading();
         const response = await fetch(`${API_URL}/api/admin/products`, {
@@ -7182,6 +7291,49 @@ function vEsc(t) {
   if (!t) return '';
   return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+
+// Product type field toggling
+function toggleProductTypeFields(prefix, type) {
+    const hostedFile = document.getElementById(`${prefix}HostedFileSection`);
+    const musicFields = document.getElementById(`${prefix}MusicFields`);
+    const softwareFields = document.getElementById(`${prefix}SoftwareFields`);
+    const courseNote = document.getElementById(`${prefix}CourseNote`);
+
+    if (hostedFile) hostedFile.style.display = type === 'course' ? 'none' : '';
+    if (musicFields) musicFields.style.display = type === 'music' ? '' : 'none';
+    if (softwareFields) softwareFields.style.display = type === 'software' ? '' : 'none';
+    if (courseNote) courseNote.style.display = type === 'course' ? '' : 'none';
+}
+
+// Handle file upload for product file before form submit
+async function uploadProductFileIfSelected(prefix, adminToken) {
+    const fileInput = document.getElementById(`${prefix}ProductFileInput`);
+    const statusEl = document.getElementById(`${prefix}FileUploadStatus`);
+    if (!fileInput || !fileInput.files[0]) return null;
+
+    const file = fileInput.files[0];
+    statusEl.textContent = `⏳ Uploading ${file.name}...`;
+
+    const fd = new FormData();
+    fd.append('file', file);
+
+    const res = await fetch(`${API_URL}/api/upload/product-file`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${adminToken}` },
+        body: fd
+    });
+    const data = await res.json();
+    if (data.success) {
+        statusEl.textContent = `✅ Uploaded: ${data.file.fileSizeLabel}`;
+        return data.file;
+    } else {
+        statusEl.textContent = `❌ Upload failed: ${data.message}`;
+        return null;
+    }
+}
+
+
 // ═══════════════════════════════════════════════════════════════════════════
 // ADMIN TICKET SYSTEM — COMPLETE IMPLEMENTATION
 // ═══════════════════════════════════════════════════════════════════════════
@@ -7417,6 +7569,8 @@ async function _fetchAndRenderTickets(page, status, priority, assigned, search) 
         tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--error);">Error loading tickets</td></tr>`;
     }
 }
+
+
 
 // ── Open ticket detail modal ───────────────────────────────────────────────
 async function adminViewTicket(ticketId) {
