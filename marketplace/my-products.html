@@ -192,7 +192,7 @@ body { font-family: 'Montserrat', sans-serif; background: #0a0a0a; color: #fff; 
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="sidebar-logo-text">
-            <img src="/marketplace/uyehtech logo.png" width="100" height="100" alt="UYEH TECH" onerror="this.style.display='none';this.parentElement.innerHTML='UYEH'">
+            <img src="/marketplace/uyehtech logo.png" width="100" height="100" alt="UYEH TECH" onerror="this.style.display='none';this.parentElement.innerHTML='UYEH TECH'">
         </div>
     </div>
     <ul class="sidebar-menu">
@@ -363,8 +363,8 @@ async function loadProducts() {
 
         if (!data.success || !data.orders) throw new Error(data.message || 'No orders returned');
 
-        // ── Extract products from completed orders ──────────────────────
-        const productMap = new Map(); // deduplicate by productId
+        // ── Step 1: Extract unique product IDs from completed orders ──────
+        const productMap = new Map(); // pid → base entry
 
         for (const order of data.orders) {
             if (order.status !== 'completed') continue;
@@ -373,35 +373,60 @@ async function loadProducts() {
             for (const item of order.items) {
                 const pid = item.id || item.productId || item._id;
                 if (!pid) continue;
-
-                // If we already have this product from an earlier order, skip
                 if (productMap.has(pid)) continue;
 
                 productMap.set(pid, {
                     productId:      pid,
-                    title:          item.title         || 'Untitled Product',
-                    description:    item.description   || '',
-                    category:       item.category      || 'Digital Product',
-                    price:          item.price         || 0,
-                    image:          item.image         || item.icon || null,
-                    // ── Media fields (server-provided, may be null for old orders) ──
-                    mediaType:      item.mediaType     || null,   // 'video' | 'audio' | 'file' | null
-                    embedType:      item.embedType     || null,   // 'youtube' | 'vimeo' | etc.
-                    productType:    item.productType   || 'download',
-                    fileSize:       item.fileSize      || null,
-                    version:        item.version       || null,
-                    // ── Order context ──
+                    title:          item.title      || 'Untitled Product',
+                    description:    item.description || '',
+                    category:       item.category   || 'Digital Product',
+                    price:          item.price       || 0,
+                    image:          item.image       || item.icon || null,
+                    // placeholders — enriched below
+                    mediaType:      item.mediaType   || null,
+                    embedType:      item.embedType   || null,
+                    productType:    item.productType || 'download',
+                    fileSize:       item.fileSize    || null,
+                    version:        item.version     || null,
                     orderId:        order._id,
                     orderReference: order.orderReference,
-                    purchaseDate:   order.createdAt    || order.updatedAt,
+                    purchaseDate:   order.createdAt  || order.updatedAt,
                     orderTotal:     order.total,
                 });
             }
         }
 
+        // ── Step 2: Enrich each product with live server metadata ─────────
+        // The order item only stores title/price/category.
+        // mediaType, productType, embedType, image live on the Product doc.
+        const enriched = await Promise.allSettled(
+            Array.from(productMap.keys()).map(pid =>
+                fetch(`${API_URL}/api/products/${pid}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                .then(r => r.ok ? r.json() : null)
+                .catch(() => null)
+            )
+        );
+
+        enriched.forEach((result, i) => {
+            const pid = Array.from(productMap.keys())[i];
+            const entry = productMap.get(pid);
+            if (result.status === 'fulfilled' && result.value?.success && result.value.product) {
+                const prod = result.value.product;
+                entry.mediaType   = prod.mediaType   || null;
+                entry.embedType   = prod.embedType   || null;
+                entry.productType = prod.productType || entry.productType;
+                entry.fileSize    = prod.fileSize    || entry.fileSize;
+                entry.version     = prod.version     || entry.version;
+                entry.image       = prod.image       || prod.images?.[0] || entry.image;
+                entry.description = prod.description || entry.description;
+            }
+        });
+
         allProducts = Array.from(productMap.values());
         localStorage.setItem('user_products', JSON.stringify(allProducts));
-        console.log(`✅ ${allProducts.length} unique products loaded`);
+        console.log(`✅ ${allProducts.length} products loaded & enriched`);
 
     } catch (err) {
         console.warn('⚠️ Server fetch failed, using cache:', err.message);
@@ -464,7 +489,7 @@ function mediaActionBtn(p) {
     if (t === 'course') {
         return `<button class="btn btn-purple btn-small" onclick="event.stopPropagation(); openMedia('${p.productId}','${p.orderId}')">🎓 Start</button>`;
     }
-    return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); accessProduct('${p.productId}','${p.orderId}')">🔥 Download</button>`;
+    return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); viewProductDetails('${p.productId}','${p.orderId}')">🔥 Download</button>`;
 }
 
 function gridCard(p) {
@@ -609,7 +634,7 @@ async function openMedia(productId, orderId) {
     const body = document.getElementById('modalBody');
     body.innerHTML = buildMediaPlayer(data, p);
 
-    if (data.productType === 'course' && data.courseData?.sections?.length) {
+    if (data.courseData?.sections?.length) {
         buildCourseChapters(data, body);
     }
 
@@ -672,7 +697,7 @@ function buildMediaPlayer(data, product) {
         </div>`;
     }
 
-    // ── Product meta beneath player ──────────────────────────────────────
+// ── Product meta beneath player ──────────────────────────────────────
     const meta = product ? `
         <div class="modal-section" style="margin-top:20px;">
             <h3 class="modal-section-title">Purchase Information</h3>
@@ -680,10 +705,36 @@ function buildMediaPlayer(data, product) {
             <div class="detail-row"><span class="detail-label">Price Paid</span><span class="detail-value">$${parseFloat(product.price||0).toFixed(2)}</span></div>
             <div class="detail-row"><span class="detail-label">Purchased</span><span class="detail-value">${formatDate(product.purchaseDate)}</span></div>
             <div class="detail-row"><span class="detail-label">Order Ref</span><span class="detail-value">${escHtml(product.orderReference||'N/A')}</span></div>
-            ${data.format ? `<div class="detail-row"><span class="detail-label">Format</span><span class="detail-value">${escHtml(data.format.toUpperCase())}</span></div>` : ''}
+            ${data.format   ? `<div class="detail-row"><span class="detail-label">Format</span><span class="detail-value">${escHtml(data.format.toUpperCase())}</span></div>` : ''}
+            ${data.fileSize ? `<div class="detail-row"><span class="detail-label">File Size</span><span class="detail-value">${escHtml(data.fileSize)}</span></div>` : ''}
         </div>` : '';
 
-    return playerHTML + meta;
+    // ── Software extras (license key, platform, support) ─────────────────
+    const sd = data.softwareData;
+    const softwareExtra = sd ? `
+        <div class="modal-section">
+            <h3 class="modal-section-title">💻 Software Details</h3>
+            ${sd.licenseKey    ? `<div class="detail-row"><span class="detail-label">License Key</span><span class="detail-value" style="font-family:monospace;letter-spacing:1px;color:#00ff88;">${escHtml(sd.licenseKey)}</span></div>` : ''}
+            ${sd.platform?.length ? `<div class="detail-row"><span class="detail-label">Platform</span><span class="detail-value">${sd.platform.join(', ')}</span></div>` : ''}
+            ${sd.licenseType   ? `<div class="detail-row"><span class="detail-label">License Type</span><span class="detail-value">${escHtml(sd.licenseType)}</span></div>` : ''}
+            ${sd.supportPeriod ? `<div class="detail-row"><span class="detail-label">Support Period</span><span class="detail-value">${escHtml(sd.supportPeriod)}</span></div>` : ''}
+            ${sd.updatePeriod  ? `<div class="detail-row"><span class="detail-label">Updates Included</span><span class="detail-value">${escHtml(sd.updatePeriod)}</span></div>` : ''}
+        </div>` : '';
+
+    // ── Music / Audio extras (BPM, key, license) ──────────────────────────
+    const ad = data.audioData;
+    const audioExtra = ad ? `
+        <div class="modal-section">
+            <h3 class="modal-section-title">🎵 Track Details</h3>
+            ${ad.genre   ? `<div class="detail-row"><span class="detail-label">Genre</span><span class="detail-value">${escHtml(ad.genre)}</span></div>` : ''}
+            ${ad.bpm     ? `<div class="detail-row"><span class="detail-label">BPM</span><span class="detail-value">${escHtml(String(ad.bpm))}</span></div>` : ''}
+            ${ad.key     ? `<div class="detail-row"><span class="detail-label">Key</span><span class="detail-value">${escHtml(ad.key)}</span></div>` : ''}
+            ${ad.mood    ? `<div class="detail-row"><span class="detail-label">Mood</span><span class="detail-value">${escHtml(ad.mood)}</span></div>` : ''}
+            ${ad.license ? `<div class="detail-row"><span class="detail-label">License</span><span class="detail-value" style="text-transform:capitalize;">${escHtml(ad.license)}</span></div>` : ''}
+            ${ad.stems   ? `<div class="detail-row"><span class="detail-label">Stems Included</span><span class="detail-value" style="color:#00ff88;">✅ Yes</span></div>` : ''}
+        </div>` : '';
+
+    return playerHTML + meta + softwareExtra + audioExtra;
 }
 
 function buildCourseChapters(data, body) {
@@ -715,15 +766,21 @@ function loadChapter(el, embedUrl, playerType, cloudUrl) {
     const src   = embedUrl || cloudUrl;
     const ptype = playerType || (cloudUrl ? 'html5_video' : 'iframe');
     const cont  = document.querySelector('.media-player-container');
-    if (!cont || !src) return;
+    if (!cont || !src) {
+        if (cont) cont.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;">⚠️ No playable content for this chapter.</div>`;
+        return;
+    }
 
     if (ptype === 'iframe') {
-        cont.innerHTML = `<iframe src="${escAttr(src)}" allow="autoplay; fullscreen" allowfullscreen style="width:100%;aspect-ratio:16/9;border:none;"></iframe>`;
-    } else if (ptype === 'html5_video') {
-        cont.innerHTML = `<video controls autoplay style="width:100%;max-height:480px;background:#000;"><source src="${escAttr(src)}"></video>`;
+        cont.innerHTML = `<iframe src="${escAttr(src)}" allow="autoplay; fullscreen" allowfullscreen style="width:100%;aspect-ratio:16/9;border:none;display:block;"></iframe>`;
+    } else if (ptype === 'html5_video' || ptype === 'cloudinary') {
+        cont.innerHTML = `<video controls autoplay style="width:100%;max-height:480px;background:#000;"><source src="${escAttr(src)}">Your browser doesn't support video.</video>`;
+    } else if (ptype === 'html5_audio') {
+        cont.innerHTML = `<audio controls autoplay style="width:100%;padding:20px;"><source src="${escAttr(src)}">Your browser doesn't support audio.</audio>`;
+    } else if (ptype === 'soundcloud_widget') {
+        cont.innerHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" src="${escAttr(src)}"></iframe>`;
     }
 }
-
 // ── VIEW PRODUCT DETAILS (full modal for non-media or combined view) ──
 async function viewProductDetails(productId, orderId) {
     const p = allProducts.find(x => x.productId === productId);
@@ -766,12 +823,20 @@ async function viewProductDetails(productId, orderId) {
         return;
     }
 
-    const mt = p.mediaType || (p.productType === 'course' ? 'course' : 'file');
+    // Resolve media type from product data AND from the server response
+    const mt = data.mediaType || p.mediaType
+             || (p.productType === 'course'  ? 'course'  : null)
+             || (data.courseData             ? 'course'  : null)
+             || (data.embedUrl               ? 'video'   : null)
+             || 'file';
 
-    if (mt === 'video' || mt === 'audio' || mt === 'course') {
+    if (mt === 'video' || mt === 'audio') {
         acts.innerHTML = `<button class="btn btn-primary" onclick="openMedia('${p.productId}','${p.orderId}')">▶ Play Now</button>`;
+    } else if (mt === 'course') {
+        acts.innerHTML = `<button class="btn btn-purple" onclick="openMedia('${p.productId}','${p.orderId}')">🎓 Start Course</button>`;
     } else if (data.downloadUrl) {
-        acts.innerHTML = `<a href="${escAttr(data.downloadUrl)}" target="_blank" download class="btn btn-primary">🔥 Download Now</a>`;
+        acts.innerHTML = `<a href="${escAttr(data.downloadUrl)}" target="_blank" download class="btn btn-primary">🔥 Download Now</a>
+            ${data.expiresInSecs ? `<p style="color:#6b7280;font-size:0.75rem;margin-top:8px;">Link expires in ${Math.round(data.expiresInSecs/60)} min — refresh if needed.</p>` : ''}`;
     } else {
         acts.innerHTML = `<p style="color:#9ca3af;font-size:0.9rem;">⚠️ Content not yet configured. Contact support.</p>`;
     }
@@ -829,7 +894,7 @@ function showNotification(message, type='info') {
         const s = document.createElement('style');
         s.id = 'notifStyle';
         s.textContent = '@keyframes notifIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}';
-        document.head.appendChild(s);
+        document.head.appendChild(s);u
     }
     document.body.appendChild(n);
     setTimeout(() => { n.style.opacity='0'; n.style.transform='translateX(400px)'; n.style.transition='all 0.3s ease'; setTimeout(() => n.remove(), 300); }, 4000);
