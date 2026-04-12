@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard — UYEH TECH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ── DESIGN TOKENS ── */
+:root {
+    --primary: #00ff88;
+    --primary-dark: #00b359;
+    --dark: #0a0a0a;
+    --dark-light: #1a1a1a;
+    --white: #fff;
+    --gray: #9ca3af;
+    --gray-light: #d1d5db;
+    --error: #ff4444;
+    --warning: #ffa500;
+    --purple: #7b61ff;
+    --glow: 0 0 20px rgba(0,255,136,0.4);
+    /* Chat tokens */
+    --g: #00ff88; --g2: #00c866; --g3: rgba(0,255,136,.12); --g4: rgba(0,255,136,.06);
+    --ink: #0a0a0a; --surface: #111; --panel: #181818; --card: #1e1e1e;
+    --rim: rgba(0,255,136,.18); --rim2: rgba(255,255,255,.06);
+    --text: #f0f0f0; --muted: #888; --danger: #ff4d4d; --warn: #ffaa00;
+    --sans: 'Montserrat', sans-serif; --r: 14px; --r2: 20px;
+    --ease: cubic-bezier(.4,0,.2,1);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Montserrat', sans-serif; background: #0a0a0a; color: #fff; display: flex; min-height: 100vh; }
+
+/* ── LOADING ── */
+.loading-overlay { position:fixed; inset:0; background:rgba(10,10,10,.95); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.3s; }
+.loading-overlay.hidden { opacity:0; pointer-events:none; }
+.loading-spinner { width:60px; height:60px; border:4px solid rgba(0,255,136,.2); border-top-color:#00ff88; border-radius:50%; animation:spin 1s linear infinite; }
+.loading-spinner-small { width:36px; height:36px; border:3px solid rgba(0,255,136,.2); border-top-color:#00ff88; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-overlay p { margin-top:18px; color:#00ff88; font-size:1rem; }
+.loading-state { text-align:center; padding:50px 20px; }
+.loading-state p { color:#9ca3af; margin-top:10px; }
+
+/* ── SIDEBAR ── */
+.sidebar { width:280px; background:linear-gradient(180deg,#0f0f0f 0%,#0a0a0a 100%); border-right:1px solid rgba(0,255,136,.2); padding:30px 0; position:fixed; height:100vh; overflow-y:auto; z-index:1000; transition:all 0.3s; }
+.sidebar-logo { padding:0 30px 30px; text-align:center; border-bottom:1px solid rgba(0,255,136,.2); }
+.sidebar-logo-text { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:#00ff88; text-shadow:0 0 20px rgba(0,255,136,.4); }
+.sidebar-menu { list-style:none; padding:30px 15px; }
+.menu-item { margin-bottom:5px; }
+.menu-link { display:flex; align-items:center; gap:15px; padding:15px 20px; color:#d1d5db; text-decoration:none; border-radius:12px; transition:all 0.3s; font-weight:500; }
+.menu-link:hover, .menu-link.active { background:rgba(0,255,136,.1); color:#00ff88; transform:translateX(5px); }
+.menu-icon { font-size:1.3rem; }
+.sidebar-footer { padding:20px 30px; border-top:1px solid rgba(0,255,136,.2); }
+.logout-btn { width:100%; padding:12px; background:rgba(255,68,68,.1); border:1px solid rgba(255,68,68,.3); border-radius:10px; color:#ff4444; font-weight:600; cursor:pointer; transition:all 0.3s; font-family:'Montserrat',sans-serif; }
+.logout-btn:hover { background:rgba(255,68,68,.2); }
+
+/* ── MAIN ── */
+.main-content { flex:1; margin-left:280px; padding:40px; transition:all 0.3s; }
+
+/* ── PROFILE HEADER ── */
+.profile-header { background:linear-gradient(135deg,rgba(0,255,136,.1),rgba(0,255,136,.05)); border:1px solid rgba(0,255,136,.3); border-radius:20px; padding:38px; margin-bottom:40px; display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+.profile-avatar-large { width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg,#00b359,#00ff88); display:flex; align-items:center; justify-content:center; font-size:2.8rem; font-weight:bold; border:3px solid rgba(0,255,136,.5); flex-shrink:0; overflow:hidden; }
+.profile-avatar-large img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+.profile-info { flex:1; }
+.profile-name { font-family:'Playfair Display',serif; font-size:2.3rem; color:#00ff88; margin-bottom:8px; }
+.profile-email { color:#9ca3af; font-size:1rem; margin-bottom:14px; }
+.profile-badges { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.badge { padding:6px 14px; background:rgba(0,255,136,.15); border:1px solid rgba(0,255,136,.35); border-radius:20px; font-size:0.82rem; color:#00ff88; font-weight:600; }
+.profile-actions { display:flex; gap:12px; flex-wrap:wrap; }
+
+/* ── BUTTONS ── */
+.btn { padding:11px 22px; border:none; border-radius:10px; font-weight:600; cursor:pointer; transition:all 0.3s; font-family:'Montserrat',sans-serif; text-decoration:none; display:inline-flex; align-items:center; gap:7px; font-size:0.95rem; }
+.btn-primary { background:linear-gradient(135deg,#00b359,#00ff88); color:#0a0a0a; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 5px 20px rgba(0,255,136,.4); }
+.btn-secondary { background:rgba(0,255,136,.1); border:1px solid rgba(0,255,136,.3); color:#00ff88; }
+.btn-secondary:hover { background:rgba(0,255,136,.2); }
+
+/* ── STATS GRID ── */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:22px; margin-bottom:40px; }
+.stat-card { background:linear-gradient(135deg,rgba(0,255,136,.1),rgba(0,255,136,.05)); border:1px solid rgba(0,255,136,.3); border-radius:20px; padding:28px; transition:all 0.3s; }
+.stat-card:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(0,255,136,.25); }
+.stat-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.stat-icon { font-size:2.4rem; }
+.stat-label { color:#9ca3af; font-size:0.88rem; margin-bottom:6px; }
+.stat-value { font-family:'Playfair Display',serif; font-size:2.3rem; font-weight:900; color:#00ff88; }
+#affiliateStatCard { cursor:pointer; border-color:rgba(123,97,255,.25); background:linear-gradient(135deg,rgba(123,97,255,.08),rgba(0,255,136,.04)); }
+#affiliateStatCard:hover { border-color:rgba(123,97,255,.5); box-shadow:0 10px 30px rgba(123,97,255,.2); }
+
+/* ── SECTION TITLE ── */
+.section-title { font-family:'Playfair Display',serif; font-size:1.8rem; color:#00ff88; margin-bottom:22px; }
+
+/* ── RECENT ACTIVITY ── */
+.activity-list { background:linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,255,136,.03)); border:1px solid rgba(0,255,136,.25); border-radius:20px; padding:28px; }
+.activity-item { display:flex; align-items:center; gap:18px; padding:18px; border-bottom:1px solid rgba(0,255,136,.1); transition:all 0.25s; cursor:pointer; border-radius:12px; }
+.activity-item:last-child { border-bottom:none; }
+.activity-item:hover { background:rgba(0,255,136,.06); }
+.activity-icon { font-size:1.8rem; flex-shrink:0; }
+.activity-content { flex:1; }
+.activity-title { font-weight:600; color:#fff; margin-bottom:4px; font-size:0.95rem; }
+.activity-date { color:#9ca3af; font-size:0.82rem; }
+.activity-status { padding:4px 12px; border-radius:12px; font-size:0.72rem; font-weight:700; flex-shrink:0; }
+.status-completed { background:rgba(0,255,136,.2); color:#00ff88; }
+.status-pending { background:rgba(255,165,0,.2); color:#ffa500; }
+.status-failed { background:rgba(255,68,68,.2); color:#ff4444; }
+
+/* ── MEDIA BADGE (in activity) ── */
+.media-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; font-size:0.68rem; font-weight:700; margin-left:6px; }
+.pill-video { background:rgba(255,68,68,.15); color:#ff6b6b; }
+.pill-audio { background:rgba(123,97,255,.15); color:#7b61ff; }
+.pill-course { background:rgba(255,165,0,.15); color:#ffa500; }
+.pill-file  { background:rgba(0,255,136,.12); color:#00ff88; }
+
+/* ── QUICK ACCESS ROW ── */
+.quick-access { margin-top:32px; }
+.quick-access-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
+.quick-card { background:rgba(0,255,136,.06); border:1px solid rgba(0,255,136,.2); border-radius:14px; padding:18px; display:flex; gap:14px; align-items:center; cursor:pointer; transition:all 0.3s; text-decoration:none; color:inherit; }
+.quick-card:hover { background:rgba(0,255,136,.1); border-color:rgba(0,255,136,.4); transform:translateY(-2px); }
+.quick-card-icon { font-size:1.8rem; flex-shrink:0; }
+.quick-card-label { font-size:0.82rem; color:#9ca3af; margin-bottom:3px; }
+.quick-card-value { font-weight:700; color:#fff; font-size:0.95rem; }
+
+/* ── EMPTY ── */
+.empty-state { text-align:center; padding:60px 20px; background:rgba(0,255,136,.04); border:1px solid rgba(0,255,136,.2); border-radius:18px; }
+.empty-icon { font-size:4rem; margin-bottom:16px; }
+.empty-state h3 { font-family:'Playfair Display',serif; color:#00ff88; margin-bottom:12px; }
+.empty-state p { color:#9ca3af; margin-bottom:26px; }
+
+/* ── MOBILE MENU BTN ── */
+.mobile-menu-btn { display:none; position:fixed; top:20px; left:20px; z-index:1001; width:50px; height:50px; background:linear-gradient(135deg,#00b359,#00ff88); border:none; border-radius:12px; color:#0a0a0a; font-size:1.5rem; cursor:pointer; box-shadow:0 5px 20px rgba(0,255,136,.4); transition:all 0.3s; align-items:center; justify-content:center; }
+.mobile-menu-btn:hover { transform:scale(1.1); }
+
+/* ── RESPONSIVE ── */
+@media (max-width:968px) {
+    .mobile-menu-btn { display:flex; }
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.active { transform:translateX(0); box-shadow:2px 0 10px rgba(0,0,0,.5); }
+    .main-content { margin-left:0; padding:80px 18px 24px; }
+    .profile-header { flex-direction:column; text-align:center; }
+    .profile-actions { width:100%; justify-content:center; }
+    .stats-grid { grid-template-columns:1fr 1fr; }
+}
+@media (max-width:480px) {
+    .profile-name { font-size:1.8rem; }
+    .stats-grid { grid-template-columns:1fr; }
+    .stat-value { font-size:2rem; }
+}
+
+/* ═════════════════ CHAT WIDGET STYLES ═════════════════ */
+.widget { position:fixed; bottom:24px; right:24px; z-index:9999; font-family:var(--sans); }
+.toggle-btn { width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg,var(--g2),var(--g)); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 24px rgba(0,255,136,.35); transition:transform .2s var(--ease),box-shadow .2s var(--ease); position:relative; }
+.toggle-btn:hover { transform:scale(1.08); box-shadow:0 8px 32px rgba(0,255,136,.45); }
+.toggle-btn .t-icon { font-size:22px; color:var(--ink); transition:all .25s; }
+.toggle-btn .t-icon-close { position:absolute; opacity:0; transform:rotate(-90deg) scale(.7); }
+.widget.open .t-icon-open { opacity:0; transform:rotate(90deg) scale(.7); }
+.widget.open .t-icon-close { opacity:1; transform:rotate(0) scale(1); }
+.notif-dot { position:absolute; top:-2px; right:-2px; width:20px; height:20px; background:var(--danger); border:2px solid var(--ink); border-radius:50%; font-size:10px; font-weight:700; color:#fff; display:none; align-items:center; justify-content:center; }
+.notif-dot.show { display:flex; }
+.chat-win { position:absolute; bottom:72px; right:0; width:370px; height:580px; background:var(--surface); border:1px solid var(--rim); border-radius:var(--r2); display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(0,255,136,.08); transform-origin:bottom right; transform:scale(.92) translateY(12px); opacity:0; pointer-events:none; transition:transform .28s var(--ease),opacity .28s var(--ease); }
+.widget.open .chat-win { transform:scale(1) translateY(0); opacity:1; pointer-events:all; }
+.chat-header { background:linear-gradient(135deg,var(--g2) 0%,var(--g) 100%); padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.hdr-left { display:flex; align-items:center; gap:10px; }
+.agent-avi { width:38px; height:38px; border-radius:50%; border:2px solid rgba(0,0,0,.2); object-fit:cover; background:var(--ink); }
+.avi-wrap { position:relative; flex-shrink:0; }
+.status-ring { position:absolute; bottom:0; right:0; width:11px; height:11px; border-radius:50%; border:2px solid var(--ink); background:#888; }
+.status-ring.online { background:#00ff88; }
+.status-ring.offline { background:#666; }
+.status-ring.connecting { background:#ffaa00; animation:pulse 1.4s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+.hdr-info h4 { font-size:14px; font-weight:700; color:var(--ink); }
+.hdr-info span { font-size:11px; color:rgba(0,0,0,.55); }
+.hdr-right { display:flex; gap:6px; }
+.hdr-btn { width:30px; height:30px; border-radius:8px; background:rgba(0,0,0,.15); border:none; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; transition:background .2s; }
+.hdr-btn:hover { background:rgba(0,0,0,.25); }
+.conn-banner { padding:0; font-size:12px; text-align:center; background:rgba(255,170,0,.15); color:var(--warn); flex-shrink:0; display:none; }
+.conn-banner.show { display:block; padding:8px 12px; }
+.conn-banner.err { background:rgba(255,77,77,.12); color:var(--danger); }
+.panel-welcome { padding:20px; overflow-y:auto; flex:1; }
+.welcome-hero { text-align:center; padding:16px 8px 20px; }
+.welcome-hero .emoji { font-size:2.4rem; display:block; margin-bottom:10px; }
+.welcome-hero h3 { font-size:15px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.welcome-hero p { font-size:13px; color:var(--muted); line-height:1.6; }
+.form-row { margin-bottom:14px; }
+.form-row label { display:block; font-size:12px; font-weight:500; color:var(--muted); margin-bottom:6px; }
+.form-row label span { color:var(--danger); margin-left:2px; }
+.form-ctrl { width:100%; padding:10px 13px; background:var(--card); border:1px solid var(--rim2); border-radius:var(--r); color:var(--text); font-size:14px; font-family:var(--sans); outline:none; transition:border-color .2s; }
+.form-ctrl:focus { border-color:var(--g); }
+select.form-ctrl option { background:var(--card); }
+.start-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--g2),var(--g)); color:var(--ink); font-size:15px; font-weight:700; font-family:var(--sans); border:none; border-radius:var(--r); cursor:pointer; transition:opacity .2s,transform .15s; margin-top:6px; }
+.start-btn:hover { opacity:.9; transform:translateY(-1px); }
+.start-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.panel-chat { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.messages-area { flex:1; overflow-y:auto; padding:16px; scroll-behavior:smooth; }
+.messages-area::-webkit-scrollbar { width:4px; }
+.messages-area::-webkit-scrollbar-thumb { background:rgba(0,255,136,.2); border-radius:4px; }
+.msg { display:flex; gap:8px; margin-bottom:14px; animation:msgIn .25s var(--ease); }
+@keyframes msgIn { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+.msg.me { flex-direction:row-reverse; }
+.msg.system { justify-content:center; }
+.msg-avi { width:32px; height:32px; border-radius:50%; background:var(--g3); color:var(--g); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.msg.me .msg-avi { background:var(--g); color:var(--ink); }
+.msg-body { max-width:72%; display:flex; flex-direction:column; }
+.msg.me .msg-body { align-items:flex-end; }
+.bubble { padding:10px 13px; border-radius:14px; font-size:13.5px; line-height:1.55; word-break:break-word; }
+.msg.them .bubble { background:var(--card); border:1px solid var(--rim2); color:var(--text); border-bottom-left-radius:4px; }
+.msg.me .bubble { background:var(--g); color:var(--ink); border-bottom-right-radius:4px; font-weight:500; }
+.msg.system .bubble { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); color:var(--muted); font-size:12px; text-align:center; border-radius:8px; padding:7px 14px; }
+.msg-time { font-size:10.5px; color:var(--muted); margin-top:4px; display:flex; align-items:center; gap:4px; }
+.msg.me .msg-time { justify-content:flex-end; }
+.msg-status { font-size:11px; }
+.msg-status.sending { color:var(--muted); }
+.msg-status.sent { color:var(--g); }
+.msg-status.fail { color:var(--danger); }
+.attach-bubble { display:flex; align-items:center; gap:10px; padding:10px 13px; background:var(--card); border:1px solid var(--rim2); border-radius:12px; color:var(--text); font-size:13px; text-decoration:none; max-width:220px; }
+.attach-bubble .fa-file { color:var(--g); font-size:18px; }
+.attach-meta { display:flex; flex-direction:column; }
+.attach-meta span:first-child { font-weight:500; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; }
+.attach-meta small { color:var(--muted); font-size:11px; }
+.typing-bar { display:none; align-items:center; gap:8px; padding:0 16px 10px; flex-shrink:0; }
+.typing-bar.show { display:flex; }
+.typing-dots { display:flex; gap:4px; }
+.typing-dots span { width:7px; height:7px; border-radius:50%; background:var(--g); animation:dot 1.2s ease-in-out infinite; }
+.typing-dots span:nth-child(2) { animation-delay:.18s; }
+.typing-dots span:nth-child(3) { animation-delay:.36s; }
+@keyframes dot { 0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1} }
+.typing-label { font-size:12px; color:var(--muted); }
+.input-bar { border-top:1px solid var(--rim2); padding:12px 14px; flex-shrink:0; }
+.file-previews { display:none; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.file-previews.show { display:flex; }
+.fp-chip { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--rim2); border-radius:8px; padding:5px 10px; font-size:12px; color:var(--text); }
+.fp-chip .fp-name { max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fp-chip .fp-rm { color:var(--muted); cursor:pointer; margin-left:4px; transition:color .15s; }
+.fp-chip .fp-rm:hover { color:var(--danger); }
+.input-row { display:flex; align-items:flex-end; gap:8px; }
+.attach-btn { width:36px; height:36px; border:1px solid var(--rim2); border-radius:10px; background:var(--card); color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; transition:all .2s; }
+.attach-btn:hover { border-color:var(--g); color:var(--g); }
+.msg-input { flex:1; background:var(--card); border:1px solid var(--rim2); border-radius:10px; padding:9px 12px; color:var(--text); font-size:14px; font-family:var(--sans); resize:none; max-height:100px; outline:none; transition:border-color .2s; line-height:1.5; }
+.msg-input:focus { border-color:var(--g); }
+.msg-input::placeholder { color:var(--muted); }
+.send-btn { width:36px; height:36px; background:var(--g); border:none; border-radius:10px; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; transition:all .2s; }
+.send-btn:hover:not(:disabled) { background:var(--g2); transform:scale(1.05); }
+.send-btn:disabled { opacity:.45; cursor:not-allowed; }
+.toast-rack { position:fixed; bottom:100px; right:24px; z-index:10000; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast { background:var(--panel); border:1px solid var(--rim2); border-left:3px solid var(--g); border-radius:var(--r); padding:10px 16px; font-size:13px; color:var(--text); box-shadow:0 4px 20px rgba(0,0,0,.4); animation:toastIn .25s var(--ease); pointer-events:auto; }
+.toast.err { border-left-color:var(--danger); }
+.toast.warn { border-left-color:var(--warn); }
+@keyframes toastIn { from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)} }
+* { scrollbar-width:thin; scrollbar-color:rgba(0,255,136,.2) transparent; }
+@media (max-width:480px) {
+    .chat-win { width:calc(100vw - 32px); height:calc(100vh - 100px); }
+    .widget { right:16px; bottom:16px; }
+}
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p>Loading your dashboard…</p>
+</div>
+
+<button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-text">
+            <img src="uyehtech logo.png" width="100" height="100" alt="UYEH TECH" onerror="this.style.display='none';this.parentElement.innerHTML='UYEH'">
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-item"><a href="/marketplace/dashboard" class="menu-link active"><span class="menu-icon">📊</span><span>Dashboard</span></a></li>
+        <li class="menu-item"><a href="/marketplace/my-products" class="menu-link"><span class="menu-icon">🛍️</span><span>My Products</span></a></li>
+        <li class="menu-item"><a href="/marketplace/orders" class="menu-link"><span class="menu-icon">📋</span><span>Order History</span></a></li>
+        <li class="menu-item"><a href="/marketplace/affiliate" class="menu-link"><span class="menu-icon">🔗</span><span>Affiliate</span></a></li>
+        <li class="menu-item"><a href="/marketplace/settings" class="menu-link"><span class="menu-icon">⚙️</span><span>Settings</span></a></li>
+        <li class="menu-item"><a href="/marketplace/" class="menu-link"><span class="menu-icon">🛒</span><span>Browse Store</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar-large" id="profileAvatar">U</div>
+        <div class="profile-info">
+            <h1 class="profile-name" id="profileName">Loading…</h1>
+            <p class="profile-email" id="profileEmail">Loading…</p>
+            <div class="profile-badges">
+                <span class="badge" id="verifiedBadge">⏳ Loading…</span>
+                <span class="badge" id="memberSinceBadge">Loading…</span>
+            </div>
+            <div class="profile-actions">
+                <a href="/marketplace/settings" class="btn btn-primary">⚙️ Edit Profile</a>
+                <a href="/marketplace/" class="btn btn-secondary">🛒 Browse Store</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div><div class="stat-label">Total Purchases</div><div class="stat-value" id="totalPurchases">0</div></div>
+                <div class="stat-icon">📦</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div><div class="stat-label">Total Spent</div><div class="stat-value" id="totalSpent">$0</div></div>
+                <div class="stat-icon">💰</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div><div class="stat-label">Products Owned</div><div class="stat-value" id="totalProducts">0</div></div>
+                <div class="stat-icon">🎁</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div><div class="stat-label">Last Login</div><div class="stat-value" style="font-size:1.1rem;" id="lastLogin">Today</div></div>
+                <div class="stat-icon">🕒</div>
+            </div>
+        </div>
+        <div class="stat-card" id="affiliateStatCard" onclick="window.location.href='/marketplace/affiliate'">
+            <div class="stat-header">
+                <div><div class="stat-label">Affiliate Earnings</div><div class="stat-value" style="font-size:1.6rem;" id="affiliateEarnings">—</div></div>
+                <div class="stat-icon">🔗</div>
+            </div>
+            <div style="font-size:0.75rem;color:#9ca3af;margin-top:8px;" id="affiliateStatusLine">→ View affiliate dashboard</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;" onclick="openCreatorModal()">
+            <div class="stat-header">
+                <div><div class="stat-label">Creator Status</div><div class="stat-value" style="font-size:1.2rem;" id="creatorStatusValue">—</div></div>
+                <div class="stat-icon">🎨</div>
+            </div>
+            <div style="font-size:0.75rem;color:#9ca3af;margin-top:8px;" id="creatorStatusLine">→ Become a creator & sell</div>
+        </div>
+    </div>
+
+    <!-- Quick Access to purchased media -->
+    <div class="quick-access" id="quickAccessSection" style="display:none;">
+        <h2 class="section-title">Quick Access</h2>
+        <div class="quick-access-grid" id="quickAccessGrid"></div>
+    </div>
+
+    <!-- Recent Activity -->
+    <h2 class="section-title" style="margin-top:36px;">Recent Activity</h2>
+    <div class="activity-list" id="activityList">
+        <div class="loading-state">
+            <div class="loading-spinner-small"></div>
+            <p>Loading activity…</p>
+        </div>
+    </div>
+</main>
+
+<!-- ══ CREATOR UPGRADE MODAL ══ -->
+<div id="creatorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:10000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1a1a1a;border:1px solid rgba(0,255,136,0.3);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
+    <div style="padding:24px 28px;border-bottom:1px solid rgba(0,255,136,0.15);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#00ff88;">🎨 Become a Creator</div>
+        <div style="font-size:0.8rem;color:#9ca3af;margin-top:4px;">Sell your digital products on UYEH TECH</div>
+      </div>
+      <button onclick="closeCreatorModal()" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff4444;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="creatorStatusPanel" style="display:none;padding:28px;">
+      <div id="creatorStatusBanner" style="padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;"></div>
+      <div id="creatorStoreInfo" style="display:none;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.2);border-radius:12px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Your Store</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#fff;" id="creatorStoreName">—</div>
+        <div style="font-size:0.8rem;color:#00ff88;margin-top:4px;font-family:monospace;" id="creatorStoreSlug"></div>
+      </div>
+      <button id="goToDashboardBtn" style="display:none;width:100%;padding:14px;background:linear-gradient(135deg,#00b359,#00ff88);color:#0a0a0a;border:none;border-radius:10px;font-weight:700;cursor:pointer;" onclick="window.location.href='/marketplace/creator-dashboard'">🚀 Go to Creator Studio</button>
+    </div>
+    <div id="creatorFormPanel" style="padding:28px;">
+      <div style="background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.15);border-radius:12px;padding:16px;margin-bottom:22px;">
+        <div style="font-size:0.85rem;color:#d1d5db;line-height:1.7;">
+          ✅ <strong style="color:#00ff88;">Free to join</strong> — No upfront cost<br>
+          ✅ Keep <strong style="color:#00ff88;">80%</strong> of every sale<br>
+          ✅ Admin reviews within <strong style="color:#00ff88;">24–48 hours</strong>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Store Name *</label>
+        <input id="upgradeStoreName" type="text" placeholder="e.g. Alex Design Studio" style="width:100%;padding:12px 14px;background:#0f0f0f;border:1px solid rgba(0,255,136,0.25);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;font-family:'Montserrat',sans-serif;" oninput="previewSlug(this.value)">
+        <div style="font-size:0.72rem;color:#00ff88;margin-top:5px;font-family:monospace;" id="slugPreview"></div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Store Description</label>
+        <textarea id="upgradeDescription" rows="3" placeholder="What do you create and sell?" style="width:100%;padding:12px 14px;background:#0f0f0f;border:1px solid rgba(0,255,136,0.25);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;resize:vertical;font-family:'Montserrat',sans-serif;"></textarea>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Why do you want to be a creator? * <span style="color:#4a5568;">(min 20 chars)</span></label>
+        <textarea id="upgradeMessage" rows="4" placeholder="Tell us about yourself, what you create, and what you plan to sell…" style="width:100%;padding:12px 14px;background:#0f0f0f;border:1px solid rgba(0,255,136,0.25);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;resize:vertical;font-family:'Montserrat',sans-serif;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Business Type</label>
+          <select id="upgradeBusinessType" style="width:100%;padding:12px 14px;background:#0f0f0f;border:1px solid rgba(0,255,136,0.25);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;cursor:pointer;font-family:'Montserrat',sans-serif;">
+            <option value="individual">Individual</option><option value="freelancer">Freelancer</option><option value="company">Company</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Category</label>
+          <select id="upgradeCategory" style="width:100%;padding:12px 14px;background:#0f0f0f;border:1px solid rgba(0,255,136,0.25);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;cursor:pointer;font-family:'Montserrat',sans-serif;">
+            <option value="Templates">Templates</option><option value="Components">Components</option><option value="Courses">Courses</option><option value="Tools">Tools</option><option value="Assets">Assets</option><option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="upgradeError" style="display:none;padding:12px 14px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);border-radius:8px;color:#ff4444;font-size:0.85rem;margin-bottom:14px;"></div>
+      <button id="upgradeSubmitBtn" onclick="submitCreatorUpgrade()" style="width:100%;padding:15px;background:linear-gradient(135deg,#00b359,#00ff88);color:#0a0a0a;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.95rem;font-family:'Montserrat',sans-serif;transition:all 0.3s;">🚀 Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT WIDGET -->
+<div class="widget" id="widget">
+  <button class="toggle-btn" id="toggleBtn" onclick="Chat.toggle()">
+    <i class="fas fa-comments t-icon t-icon-open"></i>
+    <i class="fas fa-times t-icon t-icon-close"></i>
+    <span class="notif-dot" id="notifDot"></span>
+  </button>
+  <div class="chat-win" id="chatWin">
+    <div class="chat-header">
+      <div class="hdr-left">
+        <div class="avi-wrap">
+          <img class="agent-avi" id="agentAvi" src="https://ui-avatars.com/api/?name=Support&background=0a0a0a&color=00ff88&size=80" alt="Agent">
+          <span class="status-ring connecting" id="statusRing"></span>
+        </div>
+        <div class="hdr-info">
+          <h4 id="agentName">UYEH TECH Support</h4>
+          <span id="statusLabel">Connecting…</span>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <button class="hdr-btn" onclick="Chat.toggle()" title="Minimize"><i class="fas fa-minus"></i></button>
+        <button class="hdr-btn" onclick="Chat.close()" title="End chat"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="conn-banner" id="connBanner"></div>
+    <div class="panel-welcome" id="panelWelcome">
+      <div class="welcome-hero">
+        <span class="emoji">👋</span>
+        <h3>Welcome to UYEH TECH Support</h3>
+        <p>Fill in your details and we'll connect you with an agent right away.</p>
+      </div>
+      <div class="form-row"><label>Your Name <span>*</span></label><input class="form-ctrl" id="fName" type="text" placeholder="e.g. John Doe"></div>
+      <div class="form-row"><label>Email Address <span>*</span></label><input class="form-ctrl" id="fEmail" type="email" placeholder="john@example.com"></div>
+      <div class="form-row"><label>Subject <span>*</span></label><input class="form-ctrl" id="fSubject" type="text" placeholder="How can we help?"></div>
+      <div class="form-row">
+        <label>Department</label>
+        <select class="form-ctrl" id="fDept">
+          <option value="General">General</option><option value="Sales">Sales</option><option value="Support">Support</option><option value="Technical">Technical</option><option value="Billing">Billing</option>
+        </select>
+      </div>
+      <button class="start-btn" id="startBtn" onclick="Chat.startChat()"><i class="fas fa-comment-dots" style="margin-right:8px"></i>Start Chat</button>
+    </div>
+    <div class="panel-chat" id="panelChat" style="display:none">
+      <div class="messages-area" id="msgArea"><div id="msgContainer"></div></div>
+      <div class="typing-bar" id="typingBar">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span class="typing-label" id="typingLabel">Agent is typing…</span>
+      </div>
+      <div class="input-bar">
+        <div class="file-previews" id="filePreviews"></div>
+        <div class="input-row">
+          <button class="attach-btn" onclick="Chat.pickFile()" title="Attach file"><i class="fas fa-paperclip"></i></button>
+          <input type="file" id="fileInput" multiple style="display:none" accept="image/*,.pdf,.doc,.docx,.txt" onchange="Chat.onFilePick(event)">
+          <textarea class="msg-input" id="msgInput" rows="1" placeholder="Type a message…" onkeydown="Chat.onKey(event)"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="Chat.sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-rack" id="toastRack"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// UYEH TECH — DASHBOARD  (Updated: media-aware activity)
+// ═══════════════════════════════════════════════════════
+
+const API_URL = 'https://uyehtechbackend.onrender.com';
+let userData   = null;
+let ordersData = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    setupEventListeners();
+    initializeApp();
+    Chat.init();
+});
+
+async function initializeApp() {
+    showLoadingOverlay();
+    try {
+        const [profile, orders] = await Promise.all([fetchUserProfile(), fetchUserOrders()]);
+        if (profile) displayUserProfile(profile);
+        if (orders)  { ordersData = orders; displayStats(orders); displayRecentActivity(orders); renderQuickAccess(orders); }
+        loadAffiliateEarnings();
+        checkCreatorStatus();
+    } catch (e) {
+        console.error('❌ Dashboard init error:', e);
+        showNotification('Failed to load some data. Please refresh.', 'error');
+    } finally {
+        hideLoadingOverlay();
+    }
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const user  = localStorage.getItem('user');
+    if (!token || !user) { window.location.href = '/marketplace/login'; return false; }
+    try { userData = JSON.parse(user); return true; }
+    catch (_) { clearAuthAndRedirect(); return false; }
+}
+function clearAuthAndRedirect() {
+    ['token','user','user_orders'].forEach(k => localStorage.removeItem(k));
+    window.location.href = '/marketplace/login';
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────
+function setupEventListeners() {
+    const mb = document.getElementById('mobileMenuBtn');
+    const sb = document.getElementById('sidebar');
+    const lb = document.getElementById('logoutBtn');
+    if (mb) mb.addEventListener('click', () => sb?.classList.toggle('active'));
+    if (lb) lb.addEventListener('click', handleLogout);
+    document.addEventListener('click', e => {
+        if (window.innerWidth <= 968 && sb && mb && !sb.contains(e.target) && !mb.contains(e.target)) sb.classList.remove('active');
+    });
+    window.addEventListener('resize', () => { if (window.innerWidth > 968 && sb) sb.classList.remove('active'); });
+}
+
+// ── DATA FETCHING ─────────────────────────────────────────────────────────
+async function fetchUserProfile() {
+    const token = localStorage.getItem('token');
+    if (!token) { clearAuthAndRedirect(); return null; }
+    try {
+        const res  = await fetch(`${API_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.status === 401 || res.status === 403) { clearAuthAndRedirect(); return null; }
+        const data = await res.json();
+        if (data.success && data.user) { localStorage.setItem('user', JSON.stringify(data.user)); userData = data.user; return data.user; }
+        return null;
+    } catch (_) { return null; }
+}
+
+async function fetchUserOrders() {
+    const token = localStorage.getItem('token');
+    if (!token) return [];
+    try {
+        const res  = await fetch(`${API_URL}/api/orders`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (data.success && data.orders) {
+            localStorage.setItem('user_orders', JSON.stringify(data.orders));
+            return data.orders;
+        }
+        return [];
+    } catch (_) {
+        // Fallback to cache
+        try { return JSON.parse(localStorage.getItem('user_orders') || '[]'); } catch (_) { return []; }
+    }
+}
+
+async function loadAffiliateEarnings() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/affiliate/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        const earEl  = document.getElementById('affiliateEarnings');
+        const lineEl = document.getElementById('affiliateStatusLine');
+        if (data.success && data.earnings) {
+            const total   = parseFloat(data.earnings.total  || 0).toFixed(2);
+            const pending = parseFloat((data.earnings.pending || 0) + (data.earnings.confirmed || 0)).toFixed(2);
+            const clicks  = data.affiliate?.totalClicks || 0;
+            if (earEl) earEl.textContent = '$' + total;
+            if (lineEl) {
+                if (parseFloat(total) > 0)  lineEl.innerHTML = `<span style="color:#00ff88;">$${pending} pending</span> · ${clicks} clicks · <span style="text-decoration:underline;cursor:pointer;">View →</span>`;
+                else if (clicks > 0)        lineEl.textContent = `${clicks} clicks tracked → View details`;
+                else                        lineEl.textContent = '→ Start earning with affiliate links';
+            }
+            if (data.affiliate?.affiliateCode) {
+                localStorage.setItem('uyeh_affiliate', JSON.stringify({ affiliateCode: data.affiliate.affiliateCode, status: data.affiliate.status }));
+            }
+        } else {
+            if (earEl)  earEl.textContent = '—';
+            if (lineEl) lineEl.innerHTML = '<span style="color:#7b61ff;text-decoration:underline;cursor:pointer;">→ Join affiliate program</span>';
+        }
+    } catch (_) {}
+}
+
+// ── DISPLAY: PROFILE ──────────────────────────────────────────────────────
+function displayUserProfile(user) {
+    if (!user) return;
+    const name  = user.fullName || user.name || 'User';
+    const nameEl   = document.getElementById('profileName');
+    const emailEl  = document.getElementById('profileEmail');
+    const avatarEl = document.getElementById('profileAvatar');
+    const verEl    = document.getElementById('verifiedBadge');
+    const memEl    = document.getElementById('memberSinceBadge');
+    const loginEl  = document.getElementById('lastLogin');
+    if (nameEl)   nameEl.textContent  = name;
+    if (emailEl)  emailEl.textContent = user.email || '';
+    if (avatarEl) {
+        if (user.profileImage) avatarEl.innerHTML = `<img src="${user.profileImage}" alt="Profile">`;
+        else avatarEl.textContent = name.charAt(0).toUpperCase();
+    }
+    if (verEl) {
+        if (user.emailVerified) { verEl.textContent = '✅ Verified'; verEl.style.cssText = 'background:rgba(0,255,136,.2);color:#00ff88;'; }
+        else { verEl.textContent = '⚠️ Not Verified'; verEl.style.cssText = 'background:rgba(255,165,0,.2);color:#ffa500;'; }
+    }
+    if (memEl && user.createdAt) {
+        const d = new Date(user.createdAt);
+        memEl.textContent = `Member since ${d.toLocaleDateString('en-US',{month:'short'})} ${d.getFullYear()}`;
+    }
+    if (loginEl && user.lastLogin) loginEl.textContent = timeAgo(new Date(user.lastLogin));
+}
+
+// ── DISPLAY: STATS ────────────────────────────────────────────────────────
+function displayStats(orders) {
+    const completed = orders.filter(o => o.status === 'completed');
+    const totalPurchases = orders.length;
+    const totalSpent     = completed.reduce((s, o) => s + (o.total||0), 0);
+    const uniqueProducts = new Set();
+    completed.forEach(o => (o.items||[]).forEach(i => { if (i.id||i.productId) uniqueProducts.add(i.id||i.productId); }));
+    animVal('totalPurchases', 0, totalPurchases, 800);
+    animVal('totalSpent',     0, totalSpent,     800, '$');
+    animVal('totalProducts',  0, uniqueProducts.size, 800);
+}
+
+// ── DISPLAY: RECENT ACTIVITY (media-aware) ────────────────────────────────
+function displayRecentActivity(orders) {
+    const el = document.getElementById('activityList');
+    if (!el) return;
+    if (!orders || orders.length === 0) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No Activity Yet</h3><p>Start shopping to see your activity here.</p><a href="/marketplace/" class="btn btn-primary">Browse Store</a></div>`;
+        return;
+    }
+    const recent = [...orders].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 8);
+    el.innerHTML = recent.map(order => {
+        const date       = new Date(order.createdAt);
+        const itemCount  = order.items?.length || 0;
+        const statusCls  = order.status === 'completed' ? 'status-completed' : order.status === 'failed' ? 'status-failed' : 'status-pending';
+        const statusText = order.status === 'completed' ? '✓ Completed' : order.status === 'failed' ? '✗ Failed' : '⏳ Pending';
+
+        // Build media pills for each item in this order
+        const pills = (order.items||[]).map(item => {
+            const mt = item.mediaType || (item.productType === 'course' ? 'course' : null);
+            if (!mt || mt === 'file') return '';
+            const cls  = mt === 'video' ? 'pill-video' : mt === 'audio' ? 'pill-audio' : mt === 'course' ? 'pill-course' : '';
+            const icon = mt === 'video' ? '🎬' : mt === 'audio' ? '🎵' : mt === 'course' ? '🎓' : '';
+            return `<span class="media-pill ${cls}">${icon} ${mt}</span>`;
+        }).filter(Boolean).join('');
+
+        // If completed, clicking goes to My Products
+        const clickHandler = order.status === 'completed' ? `onclick="window.location.href='/marketplace/my-products'"` : '';
+
+        return `
+        <div class="activity-item" ${clickHandler}>
+            <div class="activity-icon">🛍️</div>
+            <div class="activity-content">
+                <div class="activity-title">
+                    ${itemCount} item${itemCount!==1?'s':''} · $${(order.total||0).toFixed(2)}
+                    ${pills}
+                </div>
+                <div class="activity-date">${timeAgo(date)} · ${order.orderReference||'N/A'}</div>
+            </div>
+            <span class="activity-status ${statusCls}">${statusText}</span>
+        </div>`;
+    }).join('');
+}
+
+// ── QUICK ACCESS (pinned media products) ─────────────────────────────────
+function renderQuickAccess(orders) {
+    const completed = orders.filter(o => o.status === 'completed');
+    // Collect unique products that are video/audio/course (media types)
+    const mediaItems = [];
+    const seen = new Set();
+    for (const order of completed) {
+        for (const item of (order.items||[])) {
+            const pid = item.id || item.productId;
+            if (!pid || seen.has(pid)) continue;
+            seen.add(pid);
+            const mt = item.mediaType || (item.productType === 'course' ? 'course' : null);
+            if (mt && mt !== 'file') {
+                mediaItems.push({ ...item, productId: pid, orderId: order._id, mediaType: mt });
+            }
+        }
+        if (mediaItems.length >= 6) break;
+    }
+
+    if (mediaItems.length === 0) return;
+
+    const section = document.getElementById('quickAccessSection');
+    const grid    = document.getElementById('quickAccessGrid');
+    if (!section || !grid) return;
+
+    const icons = { video:'🎬', audio:'🎵', course:'🎓' };
+    grid.innerHTML = mediaItems.map(item => `
+        <a class="quick-card" href="/marketplace/my-products" title="${escHtml(item.title||'')}">
+            <div class="quick-card-icon">${icons[item.mediaType]||'📦'}</div>
+            <div>
+                <div class="quick-card-label">${item.mediaType?.toUpperCase() || 'MEDIA'}</div>
+                <div class="quick-card-value">${escHtml((item.title||'Product').slice(0,28))}${(item.title||'').length>28?'…':''}</div>
+            </div>
+        </a>`).join('');
+
+    section.style.display = 'block';
+}
+
+// ── CREATOR MODAL ─────────────────────────────────────────────────────────
+function previewSlug(val) {
+    const slug = val.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const el   = document.getElementById('slugPreview');
+    if (el) el.textContent = slug ? `uyehtech.com/marketplace/?store=${slug}` : '';
+}
+
+async function openCreatorModal() {
+    const modal = document.getElementById('creatorModal');
+    modal.style.display = 'flex';
+    await checkCreatorStatus();
+}
+function closeCreatorModal() { document.getElementById('creatorModal').style.display = 'none'; }
+
+async function checkCreatorStatus() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/creator/upgrade/status`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+
+        const formPanel   = document.getElementById('creatorFormPanel');
+        const statusPanel = document.getElementById('creatorStatusPanel');
+        const banner      = document.getElementById('creatorStatusBanner');
+        const storeInfo   = document.getElementById('creatorStoreInfo');
+        const dashBtn     = document.getElementById('goToDashboardBtn');
+        const cardValue   = document.getElementById('creatorStatusValue');
+        const cardLine    = document.getElementById('creatorStatusLine');
+
+        if (!data.hasApplication) {
+            formPanel.style.display   = 'block';
+            statusPanel.style.display = 'none';
+            if (cardValue) cardValue.textContent = 'Not Applied';
+            if (cardLine)  cardLine.textContent  = '→ Apply to become a creator';
+            return;
+        }
+
+        formPanel.style.display   = 'none';
+        statusPanel.style.display = 'block';
+
+        const sMap = {
+            pending:   { bg:'rgba(255,165,0,.1)', border:'rgba(255,165,0,.3)', color:'#ffa500', icon:'⏳', label:'Pending Review',  msg:'Your application is under review. We'll notify you within 24–48 hours.' },
+            approved:  { bg:'rgba(0,255,136,.1)', border:'rgba(0,255,136,.3)', color:'#00ff88', icon:'✅', label:'Approved',         msg:'Congratulations! Your creator account is active.' },
+            rejected:  { bg:'rgba(255,68,68,.1)',  border:'rgba(255,68,68,.3)',  color:'#ff4444', icon:'❌', label:'Rejected',         msg:data.rejectionReason || 'Your application was not approved. You may reapply.' },
+            suspended: { bg:'rgba(255,68,68,.1)',  border:'rgba(255,68,68,.3)',  color:'#ff4444', icon:'🚫', label:'Suspended',        msg:'Your creator account is suspended. Contact support.' }
+        };
+        const s = sMap[data.applicationStatus] || sMap.pending;
+        banner.style.cssText = `padding:18px;border-radius:12px;margin-bottom:20px;background:${s.bg};border:1px solid ${s.border};color:${s.color};`;
+        banner.innerHTML = `<div style="font-size:1.5rem;margin-bottom:8px;">${s.icon}</div><div style="font-weight:700;font-size:1rem;margin-bottom:6px;">${s.label}</div><div style="font-size:0.85rem;opacity:.9;">${s.msg}</div>`;
+        if (data.storeName) {
+            storeInfo.style.display = 'block';
+            document.getElementById('creatorStoreName').textContent = data.storeName;
+            document.getElementById('creatorStoreSlug').textContent = data.storeSlug ? `uyehtech.com/marketplace/?store=${data.storeSlug}` : '';
+        }
+        if (data.applicationStatus === 'approved') dashBtn.style.display = 'block';
+        if (cardValue) { cardValue.textContent = s.label; cardValue.style.color = s.color; }
+        if (cardLine) {
+            cardLine.innerHTML = data.applicationStatus === 'approved'
+                ? '<span style="color:#00ff88;text-decoration:underline;">→ Open Creator Studio</span>'
+                : `<span style="color:${s.color};">→ ${s.label}</span>`;
+        }
+    } catch (_) {}
+}
+
+async function submitCreatorUpgrade() {
+    const storeName   = document.getElementById('upgradeStoreName')?.value.trim();
+    const description = document.getElementById('upgradeDescription')?.value.trim();
+    const message     = document.getElementById('upgradeMessage')?.value.trim();
+    const bizType     = document.getElementById('upgradeBusinessType')?.value;
+    const category    = document.getElementById('upgradeCategory')?.value;
+    const submitBtn   = document.getElementById('upgradeSubmitBtn');
+
+    if (!storeName || storeName.length < 3) { showUpgradeError('Store name must be at least 3 characters.'); return; }
+    if (!message   || message.length   < 20){ showUpgradeError('Please tell us about yourself (minimum 20 characters).'); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Submitting…';
+    document.getElementById('upgradeError').style.display = 'none';
+
+    try {
+        const res  = await fetch(`${API_URL}/api/creator/upgrade`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ storeName, storeDescription: description, applicationMessage: message, businessType: bizType, categories: [category] })
+        });
+        const data = await res.json();
+        if (data.success) { await checkCreatorStatus(); showNotification('🎉 Application submitted! We\'ll review within 24–48 hours.', 'success'); }
+        else showUpgradeError(data.message || 'Submission failed. Please try again.');
+    } catch (_) { showUpgradeError('Network error. Please check your connection.'); }
+    finally { submitBtn.disabled = false; submitBtn.textContent = '🚀 Submit Application'; }
+}
+function showUpgradeError(msg) {
+    const el = document.getElementById('upgradeError');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function animVal(id, start, end, dur, prefix='') {
+    const el = document.getElementById(id); if (!el) return;
+    const step = (end - start) / (dur / 16);
+    let cur = start;
+    const t = setInterval(() => {
+        cur += step;
+        if (step >= 0 && cur >= end || step < 0 && cur <= end) { cur = end; clearInterval(t); }
+        el.textContent = prefix === '$' ? '$' + Math.floor(cur) : prefix + Math.floor(cur);
+    }, 16);
+}
+
+function timeAgo(date) {
+    const diff = Date.now() - new Date(date).getTime();
+    const m = Math.floor(diff/60000), h = Math.floor(diff/3600000), d = Math.floor(diff/86400000);
+    if (m < 1) return 'Just now';
+    if (m < 60) return `${m}m ago`;
+    if (h < 24) return `${h}h ago`;
+    if (d === 1) return 'Yesterday';
+    if (d < 7) return `${d} days ago`;
+    return new Date(date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+function escHtml(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showLoadingOverlay()  { document.getElementById('loadingOverlay')?.classList.remove('hidden'); }
+function hideLoadingOverlay()  { setTimeout(() => document.getElementById('loadingOverlay')?.classList.add('hidden'), 300); }
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        ['token','user','user_orders','uyeh_affiliate'].forEach(k => localStorage.removeItem(k));
+        showNotification('👋 Logged out successfully', 'success');
+        setTimeout(() => { window.location.href = '/marketplace/login'; }, 500);
+    }
+}
+
+function showNotification(message, type='info') {
+    const colors = { success:'linear-gradient(135deg,#00b359,#00ff88)', error:'linear-gradient(135deg,#ff4444,#ff6666)', info:'linear-gradient(135deg,#1a1a2e,#16213e)' };
+    const n = document.createElement('div');
+    n.style.cssText = `position:fixed;top:28px;right:28px;background:${colors[type]||colors.info};color:white;padding:16px 22px;border-radius:12px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:10001;max-width:380px;font-family:'Montserrat',sans-serif;border:1px solid rgba(255,255,255,0.1);`;
+    n.textContent = message;
+    document.body.appendChild(n);
+    setTimeout(() => { n.style.opacity='0'; n.style.transform='translateX(400px)'; n.style.transition='all 0.3s'; setTimeout(() => n.remove(), 300); }, 4000);
+}
+
+// Auto-refresh profile every 5 minutes when tab is visible
+setInterval(async () => {
+    if (!document.hidden) {
+        const profile = await fetchUserProfile();
+        if (profile) displayUserProfile(profile);
+    }
+}, 5 * 60 * 1000);
+document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden) { const p = await fetchUserProfile(); if (p) displayUserProfile(p); }
+});
+
+// Kickoff creator card status on page load
+(async function() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+        const res  = await fetch(`${API_URL}/api/creator/upgrade/status`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        if (!data.hasApplication) return;
+        const sMap = { pending:{label:'Pending Review',color:'#ffa500'}, approved:{label:'Approved ✅',color:'#00ff88'}, rejected:{label:'Rejected',color:'#ff4444'}, suspended:{label:'Suspended',color:'#ff4444'} };
+        const s = sMap[data.applicationStatus] || sMap.pending;
+        const cv = document.getElementById('creatorStatusValue');
+        const cl = document.getElementById('creatorStatusLine');
+        if (cv) { cv.textContent = s.label; cv.style.color = s.color; }
+        if (cl) {
+            cl.innerHTML = data.applicationStatus === 'approved'
+                ? '<span style="color:#00ff88;text-decoration:underline;">→ Open Creator Studio</span>'
+                : `<span style="color:${s.color};">→ ${s.label}</span>`;
+        }
+    } catch (_) {}
+})();
+</script>
+
+<!-- ════════════ CHAT WIDGET JS (preserved from original) ════════════ -->
+<script>
+(function () {
+  'use strict';
+  const API = 'https://uyehtechbackend.onrender.com';
+  const WS  = 'wss://uyehtechbackend.onrender.com/wss';
+  let chatId=null,customerId=null,customerName=null,socket=null,reconnects=0,pingTimer=null,typingTimer=null,isTyping=false,unread=0,pendingFiles=[];
+  const renderedIds=new Set(),tempMap=new Map(),MAX_RECONNECTS=6;
+  const Chat = {
+    init(){this._setupTextareaResize();this._restoreSession();},
+    _restoreSession(){chatId=localStorage.getItem('uyeh_chatId');customerId=localStorage.getItem('uyeh_customerId');if(chatId&&customerId){this._showChatPanel();this._loadHistory();this._connectWS();}},
+    toggle(){const w=document.getElementById('widget');w.classList.toggle('open');if(w.classList.contains('open')){unread=0;document.getElementById('notifDot').classList.remove('show');this._scrollBottom();}},
+    close(){this._clearSession();this._showWelcomePanel();document.getElementById('widget').classList.remove('open');},
+    async startChat(){
+      const name=document.getElementById('fName').value.trim(),email=document.getElementById('fEmail').value.trim(),subject=document.getElementById('fSubject').value.trim(),dept=document.getElementById('fDept').value;
+      if(!name||!email||!subject){this._toast('Please fill in all required fields.','warn');return;}
+      const btn=document.getElementById('startBtn');btn.disabled=true;btn.textContent='Starting…';
+      try{
+        const r=await fetch(`${API}/api/chat/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customerName:name,customerEmail:email,subject,department:dept,priority:'medium'})});
+        const d=await r.json();
+        if(!r.ok||!d.success)throw new Error(d.message||'Failed');
+        chatId=d.chat.chatId;customerId=email;customerName=name;
+        localStorage.setItem('uyeh_chatId',chatId);localStorage.setItem('uyeh_customerId',customerId);localStorage.setItem('uyeh_customerName',name);
+        this._showChatPanel();this._sysMsg(`Chat started. Our team will respond shortly.`);this._connectWS();
+      }catch(e){this._toast('Could not start chat: '+e.message,'err');}
+      finally{btn.disabled=false;btn.textContent='Start Chat';}
+    },
+    async sendMessage(){
+      const inp=document.getElementById('msgInput'),txt=inp.value.trim();
+      if(!txt&&pendingFiles.length===0)return;
+      if(!chatId){this._toast('No active chat session.','err');return;}
+      inp.value='';this._stopTyping();
+      const tempId='tmp-'+Date.now();
+      this._addBubble({sender:'customer',senderName:customerName||'You',message:txt,timestamp:new Date(),tempId,status:'sending'});
+      let uploadedFiles=[];
+      if(pendingFiles.length>0){uploadedFiles=await this._uploadFiles()||[];this._clearFilePreviews();}
+      try{
+        const r=await fetch(`${API}/api/chat/${chatId}/send`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:txt,sender:'customer',senderId:customerId,senderName:customerName||'Customer',attachments:uploadedFiles})});
+        const d=await r.json();
+        if(d.success&&d.message){renderedIds.add(d.message.messageId||d.message._id);this._swapTemp(tempId,d.message.messageId||d.message._id,'sent');}
+        else this._markTempFail(tempId);
+      }catch(_){this._markTempFail(tempId);}
+    },
+    onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.sendMessage();}else{this._onTyping();}},
+    pickFile(){document.getElementById('fileInput').click();},
+    onFilePick(e){pendingFiles=[...pendingFiles,...Array.from(e.target.files)].slice(0,5);this._renderFilePreviews();e.target.value='';},
+    _renderFilePreviews(){const s=document.getElementById('filePreviews');s.innerHTML='';pendingFiles.forEach((f,i)=>{const c=document.createElement('div');c.className='fp-chip';c.innerHTML=`<i class="fas fa-file" style="color:var(--g);font-size:13px"></i><span class="fp-name">${this._esc(f.name)}</span><i class="fas fa-times fp-rm" onclick="Chat._removeFile(${i})"></i>`;s.appendChild(c);});s.classList.toggle('show',pendingFiles.length>0);},
+    _removeFile(i){pendingFiles.splice(i,1);this._renderFilePreviews();},
+    _clearFilePreviews(){pendingFiles=[];document.getElementById('filePreviews').classList.remove('show');document.getElementById('filePreviews').innerHTML='';},
+    async _uploadFiles(){const form=new FormData();pendingFiles.forEach(f=>form.append('files',f));try{const r=await fetch(`${API}/api/chat/upload`,{method:'POST',body:form});const d=await r.json();if(!r.ok||!d.success){this._toast('Upload failed: '+(d.message||'Unknown'),'err');return null;}return d.files||[];}catch(e){this._toast('Upload error: '+e.message,'err');return null;}},
+    _connectWS(){if(!chatId||!customerId)return;if(socket&&socket.readyState<2)socket.close();this._setBanner('Connecting…',false);const url=`${WS}?chatId=${encodeURIComponent(chatId)}&customerId=${encodeURIComponent(customerId)}`;try{socket=new WebSocket(url);}catch(_){this._setBanner('WebSocket unavailable',true);return;}
+      socket.onopen=()=>{reconnects=0;this._clearBanner();this._setStatus('online');this._wsSend({type:'join_chat',chatId,userId:customerId,role:'customer'});this._startPing();};
+      socket.onmessage=(ev)=>{try{this._onWsMsg(JSON.parse(ev.data));}catch(_){}};
+      socket.onerror=()=>{this._setStatus('offline');};
+      socket.onclose=(ev)=>{this._stopPing();this._setStatus('offline');socket=null;if(chatId&&reconnects<MAX_RECONNECTS&&ev.code!==1000){const d=Math.min(1000*Math.pow(2,reconnects),30000);reconnects++;this._setBanner(`Reconnecting in ${Math.round(d/1000)}s…`,false);setTimeout(()=>this._connectWS(),d);}else if(reconnects>=MAX_RECONNECTS){this._setBanner('Real-time connection lost. Messages still send via HTTP.',true);}};},
+    _onWsMsg(data){
+      switch(data.type){
+        case'new_message':case'chat_message':{
+          let msg=data.message&&typeof data.message==='object'?data.message:{message:data.message,sender:data.sender,senderName:data.senderName,messageId:data.messageId,timestamp:data.timestamp};
+          const id=msg.messageId||msg._id;
+          if(id&&renderedIds.has(id)){this._swapTemp(id);return;}
+          if(id)renderedIds.add(id);
+          const fromUs=(msg.sender==='customer')&&(msg.senderId===customerId||!msg.senderId);
+          if(!fromUs){this._addBubble({sender:msg.sender||'agent',senderName:msg.senderName||'Agent',message:msg.message||msg.content,timestamp:msg.timestamp||new Date(),attachments:msg.attachments||[]});if(!document.getElementById('widget').classList.contains('open')){this._bump();this._beep();}}
+          break;}
+        case'typing':if(data.sender==='agent'||data.senderName){document.getElementById('typingLabel').textContent=`${data.senderName||'Agent'} is typing…`;document.getElementById('typingBar').classList.add('show');this._scrollBottom();}break;
+        case'stop_typing':if(data.sender==='agent')document.getElementById('typingBar').classList.remove('show');break;
+        case'agent_assigned':case'agent_joined':if(data.agent)this._setAgent(data.agent);this._sysMsg(`${data.agent?.fullName||data.agentName||'An agent'} joined the chat.`);break;
+        case'chat_closed':case'chat_ended':this._sysMsg('This chat has been ended by the agent.');setTimeout(()=>{this._clearSession();this._showWelcomePanel();},2500);break;
+      }
+    },
+    async _loadHistory(){
+      if(!chatId)return;
+      try{const r=await fetch(`${API}/api/chat/${chatId}`);const d=await r.json();if(d.success&&d.chat?.messages){const msgs=d.chat.messages.filter(m=>m.sender!=='system');msgs.forEach(m=>{const id=m.messageId||m._id;if(id&&renderedIds.has(id))return;if(id)renderedIds.add(id);this._addBubble({sender:m.sender,senderName:m.senderName,message:m.message,timestamp:m.timestamp,attachments:m.attachments||[]});});this._scrollBottom();}}catch(_){}},
+    _addBubble({sender,senderName,message,timestamp,attachments=[],tempId,status}){
+      const c=document.getElementById('msgContainer');const isMe=sender==='customer';const isSys=sender==='system';
+      const div=document.createElement('div');div.className=`msg ${isMe?'me':isSys?'system':'them'}`;if(tempId)div.dataset.tempId=tempId;
+      const ts=new Date(timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      let inner='';
+      if(!isSys)inner+=`<div class="msg-avi">${isMe?(customerName||'Y').charAt(0).toUpperCase():'A'}</div>`;
+      inner+=`<div class="msg-body">`;
+      if(message)inner+=`<div class="bubble">${this._esc(message)}</div>`;
+      (attachments||[]).forEach(f=>{inner+=`<a class="attach-bubble" href="${f.url||'#'}" target="_blank"><i class="fas fa-file"></i><div class="attach-meta"><span>${this._esc(f.name||'File')}</span><small>${f.size||''}</small></div></a>`;});
+      if(!isSys){inner+=`<div class="msg-time">${ts}`;if(isMe&&tempId){const st=status||'sending';inner+=`<span class="msg-status ${st}">${st==='sending'?'⏳':st==='sent'?'✓':'✗'}</span>`;}inner+=`</div>`;}
+      inner+=`</div>`;div.innerHTML=inner;c.appendChild(div);this._scrollBottom();},
+    _swapTemp(tempId,realId,status){const el=document.querySelector(`[data-tempid="${tempId}"]`)||document.querySelector(`[data-temp-id="${tempId}"]`);if(el){if(realId)el.dataset.realId=realId;const st=el.querySelector('.msg-status');if(st&&status){st.className=`msg-status ${status}`;st.textContent=status==='sent'?'✓':'✗';}}},
+    _markTempFail(tempId){this._swapTemp(tempId,null,'fail');},
+    _sysMsg(txt){this._addBubble({sender:'system',message:txt,timestamp:new Date()});},
+    _setAgent(agent){document.getElementById('agentName').textContent=agent.fullName||'Agent';if(agent.profileImage){document.getElementById('agentAvi').src=agent.profileImage;}},
+    _setStatus(s){const ring=document.getElementById('statusRing'),lbl=document.getElementById('statusLabel');ring.className='status-ring '+s;lbl.textContent=s==='online'?'Online · Ready to help':s==='offline'?'Offline · Messages queued':'Connecting…';},
+    _setBanner(msg,isErr){const b=document.getElementById('connBanner');b.textContent=msg;b.className='conn-banner show'+(isErr?' err':'');},
+    _clearBanner(){const b=document.getElementById('connBanner');b.className='conn-banner';b.textContent='';},
+    _showChatPanel(){document.getElementById('panelWelcome').style.display='none';document.getElementById('panelChat').style.display='flex';},
+    _showWelcomePanel(){document.getElementById('panelChat').style.display='none';document.getElementById('panelWelcome').style.display='block';},
+    _clearSession(){chatId=null;customerId=null;customerName=null;reconnects=0;if(socket){socket.close(1000);socket=null;}['uyeh_chatId','uyeh_customerId','uyeh_customerName'].forEach(k=>localStorage.removeItem(k));document.getElementById('msgContainer').innerHTML='';renderedIds.clear();tempMap.clear();},
+    _scrollBottom(){const a=document.getElementById('msgArea');if(a)a.scrollTop=a.scrollHeight;},
+    _bump(){unread++;document.getElementById('notifDot').textContent=unread>9?'9+':unread;document.getElementById('notifDot').classList.add('show');},
+    _beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.25);o.start(ctx.currentTime);o.stop(ctx.currentTime+.25);}catch(_){}},
+    _wsSend(data){if(socket&&socket.readyState===1)socket.send(JSON.stringify(data));},
+    _startPing(){this._stopPing();pingTimer=setInterval(()=>{this._wsSend({type:'ping'});},25000);},
+    _stopPing(){if(pingTimer){clearInterval(pingTimer);pingTimer=null;}},
+    _onTyping(){if(!isTyping){isTyping=true;this._wsSend({type:'typing',chatId,sender:'customer',senderName:customerName||'Customer'});}clearTimeout(typingTimer);typingTimer=setTimeout(()=>this._stopTyping(),2500);},
+    _stopTyping(){if(isTyping){isTyping=false;this._wsSend({type:'stop_typing',chatId,sender:'customer'});}clearTimeout(typingTimer);},
+    _setupTextareaResize(){const inp=document.getElementById('msgInput');if(inp){inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,100)+'px';});}},
+    _esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  };
+  window.Chat=Chat;
+  document.addEventListener('DOMContentLoaded',()=>Chat.init());
+})();
+</script>
+</body>
+</html>
