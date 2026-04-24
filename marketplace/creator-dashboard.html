@@ -67,13 +67,12 @@ body {
    SIDEBAR
    ════════════════════════════════════════ */
 .sidebar {
-   border-right-color: rgba(0,255,136,0.12);
   background: linear-gradient(180deg, #0c110e 0%, #080a09 100%);
   position: fixed;
   top: 0; left: 0;
   width: var(--sidebar-w);
   height: 100vh;
-  border-right: 1px ;
+  border-right: 1px solid rgba(0,255,136,0.12);
   display: flex;
   flex-direction: column;
   z-index: 200;
@@ -133,8 +132,7 @@ body {
 }
 
 .creator-ava {
-   background: linear-gradient(135deg, #00b359, #00ff88);
-  border-color: rgba(0,255,136,0.35);
+  background: linear-gradient(135deg, #00b359, #00ff88);
   color: #080a09;
   width: 40px; height: 40px;
   border-radius: 50%;
@@ -144,7 +142,7 @@ body {
   font-size: 1rem;
   flex-shrink: 0;
   overflow: hidden;
-  border: 2px solid rgba(168,85,247,0.4);
+  border: 2px solid rgba(0,255,136,0.35);
 }
 
 .creator-ava img { width:100%; height:100%; object-fit:cover; }
@@ -448,10 +446,10 @@ body {
 .stat-card.purple::before{ background: linear-gradient(90deg, var(--purple),transparent); }
 
 .stat-card:hover {
-   border-color: rgba(0,255,136,0.22);
+  border-color: rgba(0,255,136,0.22);
   box-shadow: 0 8px 32px rgba(0,255,136,0.06);
-   transform: translateY(-2px); border-color: var(--line-2);
-   }
+  transform: translateY(-2px);
+}
 
 .stat-card-top {
   display: flex;
@@ -1858,6 +1856,584 @@ select.form-control option { background: var(--ink-3); }
   animation: pageFadeIn 0.2s ease;
 }
 
+/* ── Product Type Tabs (upload page) ────────────────────────── */
+.ptype-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 22px;
+}
+.ptype-tabs::-webkit-scrollbar { display: none; }
+
+.ptype-tab {
+  flex: 1;
+  min-width: 90px;
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-right: 1px solid var(--line);
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.ptype-tab:last-child { border-right: none; }
+.ptype-tab .ptype-icon { font-size: 1.3rem; }
+.ptype-tab:hover { color: var(--soft); background: rgba(255,255,255,0.02); }
+.ptype-tab.active {
+  background: var(--green-dim);
+  color: var(--green);
+  border-right-color: rgba(0,255,136,0.15);
+}
+
+/* ── Hosted File Upload Zone ────────────────────────────────── */
+.file-upload-zone {
+  border: 2px dashed var(--line-2);
+  border-radius: var(--radius-lg);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  background: var(--ink-3);
+  position: relative;
+  overflow: hidden;
+}
+.file-upload-zone:hover, .file-upload-zone.dragover {
+  border-color: rgba(0,255,136,0.5);
+  background: rgba(0,255,136,0.03);
+}
+.file-upload-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+/* When a file is already loaded, disable the invisible input so the
+   chip's remove button is actually clickable instead of the file picker
+   opening again every time the user tries to hit ✕               */
+.file-upload-zone.has-file input[type=file] {
+  pointer-events: none;
+}
+/* Chip sits above the disabled input */
+.file-upload-zone .uploaded-file-chip,
+.file-upload-zone > div[id$="Chip"] {
+  position: relative;
+  z-index: 2;
+}
+.file-upload-zone.has-file {
+  border-color: rgba(0,255,136,0.4);
+  background: rgba(0,255,136,0.05);
+}
+.file-upload-progress {
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, #00cc6e, #00ff88);
+  border-radius: 2px;
+  transition: width 0.3s;
+  margin-top: 10px;
+}
+.uploaded-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-dim);
+  border: 1px solid rgba(0,255,136,0.25);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: var(--green);
+  margin-top: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.uploaded-file-chip .remove-file {
+  cursor: pointer;
+  opacity: 0.7;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 0.85rem;
+  padding: 0 0 0 4px;
+  line-height: 1;
+}
+.uploaded-file-chip .remove-file:hover { opacity: 1; }
+
+/* ── Section panels that show/hide per product type ─────────── */
+.ptype-panel { display: none; }
+.ptype-panel.active { display: block; }
+
+/* ── Course Builder ─────────────────────────────────────────── */
+.course-section-card {
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.course-section-card:hover { border-color: var(--line-2); }
+.course-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--ink-3);
+}
+.course-section-drag {
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: grab;
+  flex-shrink: 0;
+}
+.course-section-title-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--bright);
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 0;
+}
+.course-section-title-input::placeholder { color: var(--muted); }
+.course-section-meta {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.course-section-toggle {
+  color: var(--muted);
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.course-section-card.open .course-section-toggle { transform: rotate(180deg); }
+.course-section-body {
+  display: none;
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--line);
+}
+.course-section-card.open .course-section-body { display: block; }
+
+/* Chapter rows */
+.chapter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  margin-top: 12px;
+  transition: border-color 0.2s;
+}
+.chapter-row:hover { border-color: var(--line-2); }
+.chapter-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.chapter-title-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--bright);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  min-width: 0;
+}
+.chapter-title-input::placeholder { color: var(--muted); }
+.chapter-file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--ink-3);
+  color: var(--soft);
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chapter-file-btn:hover { border-color: rgba(0,255,136,0.35); color: var(--green); }
+.chapter-file-btn.has-file { border-color: rgba(0,255,136,0.4); background: var(--green-dim); color: var(--green); }
+.chapter-free-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--ink-3);
+  color: var(--muted);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.chapter-free-toggle.is-free { border-color: rgba(246,173,85,0.4); background: var(--amber-dim); color: var(--amber); }
+.chapter-del-btn {
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.chapter-del-btn:hover { color: var(--red); }
+.chapter-ext-url {
+  width: 100%;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 8px 12px;
+  color: var(--bright);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  outline: none;
+  margin-top: 6px;
+  transition: border-color 0.2s;
+}
+.chapter-ext-url:focus { border-color: rgba(0,255,136,0.4); }
+.chapter-ext-url::placeholder { color: var(--muted); }
+
+/* Course stats bar */
+.course-stats-bar {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.course-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.course-stat-val { color: var(--green); font-weight: 600; }
+.course-stat-lbl { color: var(--muted); }
+
+/* ── Product card type badge ─────────────────────────────────── */
+.ptype-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── Media / Preview section ─────────────────────────────────── */
+.preview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--soft);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+.preview-chip.active { border-color: rgba(0,255,136,0.4); background: var(--green-dim); color: var(--green); }
+.preview-chip:hover { border-color: var(--line-2); color: var(--bright); }
+
+/* ── Delivery type selector ─────────────────────────────────── */
+.delivery-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.delivery-opt {
+  padding: 14px;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.delivery-opt:hover { border-color: var(--line-2); }
+.delivery-opt.selected { border-color: rgba(0,255,136,0.5); background: var(--green-dim); }
+.delivery-opt-icon { font-size: 1.6rem; margin-bottom: 6px; }
+.delivery-opt-label { font-size: 0.78rem; font-weight: 600; color: var(--bright); margin-bottom: 3px; font-family: 'Syne', sans-serif; }
+.delivery-opt-sub { font-size: 0.7rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+/* ── Music metadata row ─────────────────────────────────────── */
+.music-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.music-license-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.music-license-btn {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ink-3);
+  color: var(--soft);
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.music-license-btn.active { border-color: rgba(0,255,136,0.4); background: var(--green-dim); color: var(--green); }
+.music-license-btn:hover:not(.active) { border-color: var(--line-2); }
+
+/* ── Software platform toggles ──────────────────────────────── */
+.platform-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.platform-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--ink-3);
+  color: var(--soft);
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.platform-btn.active { border-color: rgba(0,255,136,0.4); background: var(--green-dim); color: var(--green); }
+.platform-btn:hover:not(.active) { border-color: var(--line-2); }
+
+/* ── Chapter file upload modal ─────────────────────────────── */
+.chapter-upload-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.chapter-upload-modal.open { display: flex; }
+.chapter-upload-box {
+  background: var(--ink-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  animation: modalIn 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+.chapter-upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.chapter-upload-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--white);
+}
+.chapter-upload-body { padding: 22px; }
+
+/* ── Upload progress ring ────────────────────────────────────── */
+.upload-ring-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+.upload-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--green);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.upload-ring-label {
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--soft);
+}
+
+/* ── Product item enhanced (grid card) ──────────────────────── */
+.product-item-type-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.product-item-chapter-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── Preview type selector row ──────────────────────────────── */
+.preview-type-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+/* ── Section divider with label ─────────────────────────────── */
+.form-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 18px;
+}
+.form-section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.form-section-divider-label {
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Stems toggle ────────────────────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.toggle-row:hover { border-color: var(--line-2); }
+.toggle-label { font-size: 0.85rem; color: var(--soft); }
+.toggle-sub { font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.toggle-switch {
+  width: 42px;
+  height: 24px;
+  background: var(--ink-4);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  position: relative;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.toggle-row.on .toggle-switch { background: var(--green-dim); border-color: rgba(0,255,136,0.4); }
+.toggle-row.on .toggle-switch::after { left: 21px; background: var(--green); }
+
+/* ── Product grid enhanced view filter ─────────────────────── */
+.products-filter-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.filter-chip:hover { border-color: var(--line-2); color: var(--soft); }
+.filter-chip.active { border-color: rgba(0,255,136,0.4); background: var(--green-dim); color: var(--green); }
+
 </style>
 </head>
 <body>
@@ -2135,19 +2711,20 @@ select.form-control option { background: var(--ink-3); }
     </div>
   </div>
 
+
+
   <!-- ══ PRODUCTS PAGE ══ -->
   <div class="page-content" id="page-products">
     <div class="section-header" style="margin-bottom:20px;">
       <div class="section-title">My Products <span class="stag" id="productsTotal">0 total</span></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <select class="form-control" style="width:auto;padding:7px 12px;font-size:0.82rem;" onchange="filterProductsByStatus(this.value)">
-          <option value="all">All Status</option>
-          <option value="approved">Approved</option>
-          <option value="pending_review">Pending Review</option>
-          <option value="rejected">Rejected</option>
-          <option value="draft">Draft</option>
-          
-        </select>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div class="products-filter-row" id="productFilterChips">
+          <button class="filter-chip active" onclick="filterProductsByStatus('all',this)">All</button>
+          <button class="filter-chip" onclick="filterProductsByStatus('approved',this)">Live</button>
+          <button class="filter-chip" onclick="filterProductsByStatus('pending_review',this)">In Review</button>
+          <button class="filter-chip" onclick="filterProductsByStatus('rejected',this)">Rejected</button>
+          <button class="filter-chip" onclick="filterProductsByStatus('draft',this)">Draft</button>
+        </div>
         <button class="btn btn-primary" onclick="switchPage('upload')"><i class="fas fa-plus"></i> Add Product</button>
       </div>
     </div>
@@ -2164,24 +2741,59 @@ select.form-control option { background: var(--ink-3); }
     </div>
   </div>
 
-  <!-- ══ UPLOAD PAGE ══ -->
+
+<!-- ══ UPLOAD PAGE ══ -->
   <div class="page-content" id="page-upload">
     <div class="section-header" style="margin-bottom:20px;">
-      <div class="section-title">Upload New Product</div>
+      <div>
+        <div class="section-title" id="uploadPageTitle">Upload New Product</div>
+        <div style="font-size:0.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:4px;">Choose a product type to get the right setup for your content</div>
+      </div>
       <button class="btn btn-ghost" onclick="switchPage('products')"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
 
+    <!-- Product Type Tabs -->
+    <div class="ptype-tabs" id="ptypeTabs">
+      <button class="ptype-tab active" data-type="download" onclick="switchProductType('download',this)">
+        <span class="ptype-icon">📦</span>Download
+      </button>
+      <button class="ptype-tab" data-type="course" onclick="switchProductType('course',this)">
+        <span class="ptype-icon">🎓</span>Course
+      </button>
+      <button class="ptype-tab" data-type="template" onclick="switchProductType('template',this)">
+        <span class="ptype-icon">🎨</span>Template
+      </button>
+      <button class="ptype-tab" data-type="component" onclick="switchProductType('component',this)">
+        <span class="ptype-icon">🧩</span>Component
+      </button>
+      <button class="ptype-tab" data-type="script" onclick="switchProductType('script',this)">
+        <span class="ptype-icon">⚙️</span>Script
+      </button>
+      <button class="ptype-tab" data-type="software" onclick="switchProductType('software',this)">
+        <span class="ptype-icon">💻</span>Software
+      </button>
+      <button class="ptype-tab" data-type="music" onclick="switchProductType('music',this)">
+        <span class="ptype-icon">🎵</span>Music
+      </button>
+      <button class="ptype-tab" data-type="ebook" onclick="switchProductType('ebook',this)">
+        <span class="ptype-icon">📖</span>eBook
+      </button>
+    </div>
+
     <div class="grid-60-40">
-      <!-- Upload Form -->
-       <div id="uploadForm" data-edit-id="">
+      <!-- ═══ LEFT: UPLOAD FORM ═══ -->
+      <div id="uploadForm" data-edit-id="">
+
+        <!-- CARD 1: Core Details (always visible) -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
             <div class="section-title">Product Details</div>
+            <span class="badge badge-amber" id="uploadTypeBadge">📦 Download</span>
           </div>
           <div class="card-body">
             <div class="form-group">
               <label class="form-label">Product Title <span class="req">*</span></label>
-              <input type="text" class="form-control" id="uploadTitle" placeholder="e.g. React Dashboard Component Kit">
+              <input type="text" class="form-control" id="uploadTitle" placeholder="Give your product a clear, descriptive name">
             </div>
             <div class="form-row">
               <div class="form-group">
@@ -2191,9 +2803,13 @@ select.form-control option { background: var(--ink-3); }
                   <option>Templates</option>
                   <option>Components</option>
                   <option>Courses</option>
+                  <option>Scripts</option>
+                  <option>Software</option>
+                  <option>Music</option>
+                  <option>eBooks</option>
+                  <option>Graphics</option>
                   <option>Tools</option>
                   <option>Assets</option>
-                  <option>Scripts</option>
                   <option>Other</option>
                 </select>
               </div>
@@ -2204,7 +2820,7 @@ select.form-control option { background: var(--ink-3); }
             </div>
             <div class="form-group">
               <label class="form-label">Description <span class="req">*</span></label>
-              <textarea class="form-control" id="uploadDescription" rows="5" placeholder="Describe your product in detail. What problem does it solve? What's included?"></textarea>
+              <textarea class="form-control" id="uploadDescription" rows="5" placeholder="Describe your product in detail. What does it include? Who is it for? What problem does it solve?"></textarea>
             </div>
             <div class="form-group">
               <label class="form-label">Tags</label>
@@ -2216,73 +2832,383 @@ select.form-control option { background: var(--ink-3); }
           </div>
         </div>
 
+        <!-- CARD 2: Product Imagery (always visible) -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
-            <div class="section-title">Product File & Media</div>
+            <div class="section-title">Cover Images</div>
           </div>
           <div class="card-body">
-            <div class="form-group">
-              <label class="form-label">Product Images</label>
+            <div class="form-group" style="margin-bottom:0;">
               <div class="upload-zone" id="imageUploadZone">
                 <input type="file" multiple accept="image/*" onchange="handleImageUpload(event)">
                 <div class="upload-icon">🖼️</div>
                 <div class="upload-text">Drag & drop images or click to browse</div>
-                <div class="upload-sub">PNG, JPG, WebP up to 5MB each (max 5 images)</div>
+                <div class="upload-sub">PNG, JPG, WebP up to 5MB each · First image = cover</div>
               </div>
-              <div id="imagePreviewRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;"></div>
+              <div id="imagePreviewRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"></div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Download Link / File URL</label>
-                <input type="url" class="form-control" id="uploadDownloadLink" placeholder="https://drive.google.com/...">
-                <div class="form-hint">Google Drive, Dropbox, direct URL.</div>
+          </div>
+        </div>
+
+        <!-- CARD 3A: DOWNLOAD TYPE — single file or link -->
+        <div class="card ptype-panel active" id="panel-download" style="margin-bottom:20px;" data-panels="download,template,component,script,ebook">
+          <div class="card-header">
+            <div class="section-title">Delivery File</div>
+          </div>
+          <div class="card-body">
+            <!-- Delivery Mode -->
+            <div class="form-group">
+              <label class="form-label">How will buyers receive this?</label>
+              <div class="delivery-options">
+                <div class="delivery-opt selected" id="deliveryOptHosted" onclick="selectDelivery('hosted')">
+                  <div class="delivery-opt-icon">☁️</div>
+                  <div class="delivery-opt-label">Host Here</div>
+                  <div class="delivery-opt-sub">Upload to UYEH TECH</div>
+                </div>
+                <div class="delivery-opt" id="deliveryOptLink" onclick="selectDelivery('link')">
+                  <div class="delivery-opt-icon">🔗</div>
+                  <div class="delivery-opt-label">External Link</div>
+                  <div class="delivery-opt-sub">Google Drive, Dropbox…</div>
+                </div>
               </div>
+            </div>
+
+            <!-- Hosted Upload -->
+            <div id="hostedUploadSection">
+              <div class="form-group">
+                <label class="form-label">Upload Product File</label>
+                <div class="file-upload-zone" id="productFileZone">
+                  <input type="file" id="productFileInput" onchange="handleProductFileSelect(event)">
+                  <div id="productFilePrompt">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-sub">ZIP, PDF, EXE, DMG, MP3, MP4, DOCX... up to 500MB</div>
+                  </div>
+                  <div id="productFileChip" style="display:none;"></div>
+                  <div class="file-upload-progress" id="productFileProgress"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- External Link -->
+
+            <div id="linkSection" style="display:none;">
+
+              <!-- File / document products: plain download link -->
+              <div class="form-group" id="downloadLinkGroup">
+                <label class="form-label">Download / Access Link</label>
+                <input type="url" class="form-control" id="uploadDownloadLink" placeholder="https://drive.google.com/...">
+                <div class="form-hint">Buyers receive this link after purchase. Use a direct or gated URL.</div>
+              </div>
+
+              <!-- Video products: YouTube, Vimeo, Google Drive video, direct MP4 -->
+              <div class="form-group" id="externalVideoGroup" style="display:none;">
+                <label class="form-label">Video URL</label>
+                <input type="url" class="form-control" id="uploadExternalVideoUrl"
+                  placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
+                <div class="form-hint">YouTube, Vimeo, Google Drive video, or direct .mp4 link. Buyers see an embedded player after purchase.</div>
+              </div>
+
+              <!-- Audio products: SoundCloud, direct MP3, etc. -->
+              <div class="form-group" id="externalAudioGroup" style="display:none;">
+                <label class="form-label">Audio URL</label>
+                <input type="url" class="form-control" id="uploadExternalAudioUrl"
+                  placeholder="https://soundcloud.com/... or direct .mp3 link">
+                <div class="form-hint">SoundCloud, direct .mp3/.wav/.ogg link. Buyers get an embedded audio player after purchase.</div>
+              </div>
+
+            </div>
+
+            <div class="form-row">
               <div class="form-group">
                 <label class="form-label">File Size</label>
-                <input type="text" class="form-control" id="uploadFileSize" placeholder="e.g. 12.5 MB">
+                <input type="text" class="form-control" id="uploadFileSize" placeholder="Auto-detected or e.g. 12.5 MB" readonly>
               </div>
-            </div>
-            <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Version</label>
                 <input type="text" class="form-control" id="uploadVersion" placeholder="e.g. 1.0.0">
               </div>
             </div>
+
+            <!-- Preview / Demo -->
+            <div class="form-section-divider">
+              <div class="form-section-divider-line"></div>
+              <div class="form-section-divider-label">Preview / Demo (optional)</div>
+              <div class="form-section-divider-line"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preview Type</label>
+              <div class="preview-type-row">
+                <span class="preview-chip active" data-preview="none" onclick="selectPreviewType(this,'none')">No Preview</span>
+                <span class="preview-chip" data-preview="image" onclick="selectPreviewType(this,'image')">🖼️ Image</span>
+                <span class="preview-chip" data-preview="video" onclick="selectPreviewType(this,'video')">▶️ Video</span>
+                <span class="preview-chip" data-preview="audio" onclick="selectPreviewType(this,'audio')">🎵 Audio Clip</span>
+                <span class="preview-chip" data-preview="iframe" onclick="selectPreviewType(this,'iframe')">🌐 Demo URL</span>
+              </div>
+            </div>
+            <div id="previewUploadSection" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Upload Preview File</label>
+                <div class="file-upload-zone" id="previewFileZone" style="padding:20px;">
+                  <input type="file" id="previewFileInput" onchange="handlePreviewFileSelect(event)">
+                  <div id="previewFilePrompt">
+                    <div class="upload-text">Click to select preview file</div>
+                    <div class="upload-sub">Publicly visible — no auth required</div>
+                  </div>
+                  <div id="previewFileChip" style="display:none;"></div>
+                </div>
+              </div>
+            </div>
+            <div id="previewUrlSection" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Demo URL</label>
+                <input type="url" class="form-control" id="uploadPreviewUrl" placeholder="https://your-demo.vercel.app">
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="card" style="margin-bottom:20px;">
+        <!-- CARD 3B: COURSE TYPE -->
+        <div class="card ptype-panel" id="panel-course" style="margin-bottom:20px;">
+          <div class="card-header" style="justify-content:space-between;">
+            <div class="section-title">Course Curriculum</div>
+            <button class="btn btn-ghost btn-sm" onclick="openCourseBuilder()">
+              <i class="fas fa-layer-group"></i> Open Course Builder
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Course meta -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Level</label>
+                <select class="form-control" id="courseLevel">
+                  <option value="all">All Levels</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Language</label>
+                <input type="text" class="form-control" id="courseLanguage" value="English" placeholder="English">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">What Students Will Learn</label>
+              <textarea class="form-control" id="courseOutcomes" rows="4" placeholder="• Build real-world full-stack apps&#10;• Master React hooks and patterns&#10;• Deploy to production with CI/CD&#10;• Understand system design basics"></textarea>
+              <div class="form-hint">One outcome per line.</div>
+            </div>
+
+            <div onclick="toggleRow('certToggle')" class="toggle-row" id="certToggle">
+              <div>
+                <div class="toggle-label">Certificate of Completion</div>
+                <div class="toggle-sub">Students receive a certificate after completing all chapters</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+
+            <!-- Course Stats Summary -->
+            <div class="course-stats-bar" id="courseStatsBar" style="margin-top:18px;">
+              <div class="course-stat"><span class="course-stat-val" id="statSections">0</span><span class="course-stat-lbl">sections</span></div>
+              <div class="course-stat"><span class="course-stat-val" id="statChapters">0</span><span class="course-stat-lbl">chapters</span></div>
+              <div class="course-stat"><span class="course-stat-val" id="statDuration">0m</span><span class="course-stat-lbl">total duration</span></div>
+              <div class="course-stat"><span class="course-stat-val" id="statFreeChapters">0</span><span class="course-stat-lbl">free preview</span></div>
+            </div>
+
+            <div class="alert alert-amber" style="margin-bottom:0;padding:10px 12px;font-size:0.8rem;">
+              <span class="alert-icon">🎓</span>
+              <span>Use the <strong>Course Builder</strong> above to add sections and chapters with video, audio, PDF, or external links. Save the course, then submit.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3C: MUSIC TYPE -->
+        <div class="card ptype-panel" id="panel-music" style="margin-bottom:20px;">
           <div class="card-header">
-            <div class="section-title">Features & Requirements</div>
+            <div class="section-title">Music / Audio File</div>
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Key Features</label>
-              <textarea class="form-control" id="uploadFeatures" rows="4" placeholder="• Fully responsive design&#10;• Dark & Light modes&#10;• 50+ components&#10;• Free lifetime updates"></textarea>
-              <div class="form-hint">One feature per line. Start each with •</div>
+              <label class="form-label">Audio File <span class="req">*</span></label>
+              <div class="file-upload-zone" id="musicFileZone">
+                <input type="file" id="musicFileInput" accept="audio/*" onchange="handleProductFileSelect(event,'music')">
+                <div id="musicFilePrompt">
+                  <div class="upload-icon">🎵</div>
+                  <div class="upload-text">Upload your audio file</div>
+                  <div class="upload-sub">MP3, WAV, FLAC, AAC, OGG — up to 500MB</div>
+                </div>
+                <div id="musicFileChip" style="display:none;"></div>
+                <div class="file-upload-progress" id="musicFileProgress"></div>
+              </div>
             </div>
+
+            <!-- Short preview clip -->
             <div class="form-group">
-              <label class="form-label">Requirements</label>
+              <label class="form-label">Preview Clip <span style="color:var(--muted);font-size:0.7rem;">(public — buyers hear before purchasing)</span></label>
+              <div class="file-upload-zone" id="musicPreviewZone" style="padding:18px;">
+                <input type="file" id="musicPreviewInput" accept="audio/*" onchange="handlePreviewFileSelect(event,'music')">
+                <div id="musicPreviewPrompt">
+                  <div class="upload-text">Upload a short clip or sample</div>
+                  <div class="upload-sub">Recommended: 30–60 seconds</div>
+                </div>
+                <div id="musicPreviewChip" style="display:none;"></div>
+              </div>
+            </div>
+
+            <div class="form-section-divider">
+              <div class="form-section-divider-line"></div>
+              <div class="form-section-divider-label">Track Info</div>
+              <div class="form-section-divider-line"></div>
+            </div>
+
+            <div class="music-meta-grid">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">BPM</label>
+                <input type="number" class="form-control" id="audioBpm" placeholder="128" min="40" max="300">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Key</label>
+                <input type="text" class="form-control" id="audioKey" placeholder="C minor">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Genre</label>
+                <input type="text" class="form-control" id="audioGenre" placeholder="Hip-Hop, Lo-fi...">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:16px;">
+              <label class="form-label">Mood / Vibe</label>
+              <input type="text" class="form-control" id="audioMood" placeholder="Dark, Uplifting, Chill...">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">License Type</label>
+              <div class="music-license-row">
+                <div class="music-license-btn active" id="lic-personal" onclick="selectMusicLicense('personal')">Personal<br><span style="font-size:0.62rem;opacity:0.7;">Non-commercial</span></div>
+                <div class="music-license-btn" id="lic-commercial" onclick="selectMusicLicense('commercial')">Commercial<br><span style="font-size:0.62rem;opacity:0.7;">Any project</span></div>
+                <div class="music-license-btn" id="lic-exclusive" onclick="selectMusicLicense('exclusive')">Exclusive<br><span style="font-size:0.62rem;opacity:0.7;">Sole ownership</span></div>
+              </div>
+            </div>
+
+            <div onclick="toggleRow('stemsToggle')" class="toggle-row" id="stemsToggle">
+              <div>
+                <div class="toggle-label">Includes Stems / Multi-tracks</div>
+                <div class="toggle-sub">Separate drum, melody, bass, and vocal tracks included</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3D: SOFTWARE TYPE -->
+        <div class="card ptype-panel" id="panel-software" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="section-title">Software Details</div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Software File <span class="req">*</span></label>
+              <div class="file-upload-zone" id="softwareFileZone">
+                <input type="file" id="softwareFileInput" onchange="handleProductFileSelect(event,'software')">
+                <div id="softwareFilePrompt">
+                  <div class="upload-icon">💻</div>
+                  <div class="upload-text">Upload installer or package</div>
+                  <div class="upload-sub">EXE, DMG, APK, ZIP, AppImage — up to 500MB</div>
+                </div>
+                <div id="softwareFileChip" style="display:none;"></div>
+                <div class="file-upload-progress" id="softwareFileProgress"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Supported Platforms</label>
+              <div class="platform-grid" id="platformGrid">
+                <div class="platform-btn" onclick="togglePlatform(this,'windows')">🪟 Windows</div>
+                <div class="platform-btn" onclick="togglePlatform(this,'mac')">🍎 macOS</div>
+                <div class="platform-btn" onclick="togglePlatform(this,'linux')">🐧 Linux</div>
+                <div class="platform-btn" onclick="togglePlatform(this,'web')">🌐 Web App</div>
+                <div class="platform-btn" onclick="togglePlatform(this,'android')">🤖 Android</div>
+                <div class="platform-btn" onclick="togglePlatform(this,'ios')">📱 iOS</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">License Type</label>
+                <select class="form-control" id="softwareLicenseType">
+                  <option value="single">Single Device</option>
+                  <option value="multi">Multi-Device (up to 5)</option>
+                  <option value="lifetime">Lifetime Unlimited</option>
+                  <option value="subscription">Subscription</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Version</label>
+                <input type="text" class="form-control" id="softwareVersion" placeholder="e.g. 2.4.1">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Support Period</label>
+                <input type="text" class="form-control" id="softwareSupport" placeholder="e.g. 12 months">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Update Period</label>
+                <input type="text" class="form-control" id="softwareUpdates" placeholder="e.g. Lifetime">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 4: Features & Requirements (always visible) -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="section-title" id="featuresCardTitle">Features & Requirements</div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label" id="featuresLabel">Key Features</label>
+              <textarea class="form-control" id="uploadFeatures" rows="4" placeholder="• Fully responsive design&#10;• Dark & Light modes&#10;• 50+ components&#10;• Free lifetime updates"></textarea>
+              <div class="form-hint">One item per line. Start each with •</div>
+            </div>
+            <div class="form-group" id="requirementsGroup">
+              <label class="form-label">Requirements / Prerequisites</label>
               <textarea class="form-control" id="uploadRequirements" rows="3" placeholder="• Node.js 16+&#10;• React 18+&#10;• Tailwind CSS"></textarea>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Right: Preview + Submission -->
+      </div>
+      <!-- END LEFT COLUMN -->
+
+      <!-- ═══ RIGHT: PREVIEW + SUBMIT ═══ -->
       <div>
-        <!-- Live preview card -->
+        <!-- Live Preview Card -->
         <div class="card" style="margin-bottom:20px;position:sticky;top:84px;">
           <div class="card-header">
             <div class="section-title">Live Preview</div>
             <span class="badge badge-amber">Draft</span>
           </div>
           <div class="card-body" style="padding:0;">
-            <div style="height:120px;background:var(--ink-3);display:flex;align-items:center;justify-content:center;font-size:3rem;border-bottom:1px solid var(--line);" id="previewIcon">📦</div>
+            <div style="height:120px;background:var(--ink-3);display:flex;align-items:center;justify-content:center;font-size:3rem;border-bottom:1px solid var(--line);overflow:hidden;" id="previewIcon">📦</div>
             <div style="padding:18px;">
-              <div style="font-size:0.72rem;color:var(--green);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:6px;" id="previewCategory">Category</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <div style="font-size:0.72rem;color:var(--green);font-family:'JetBrains Mono',monospace;text-transform:uppercase;" id="previewCategory">Category</div>
+                <span id="previewTypeBadge"></span>
+              </div>
               <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--white);margin-bottom:8px;line-height:1.35;" id="previewTitle">Product Title</div>
               <div style="font-size:0.82rem;color:var(--dim);margin-bottom:12px;line-height:1.5;" id="previewDesc">Your description will appear here...</div>
+              <!-- Course preview extras -->
+              <div id="previewCourseStats" style="display:none;margin-bottom:10px;">
+                <div style="display:flex;gap:10px;font-size:0.75rem;font-family:'JetBrains Mono',monospace;color:var(--muted);">
+                  <span id="previewChapters">0 chapters</span>
+                  <span>·</span>
+                  <span id="previewDuration">0 mins</span>
+                  <span>·</span>
+                  <span id="previewLevel">All levels</span>
+                </div>
+              </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--line);">
                 <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:var(--green);" id="previewPrice">$0.00</div>
                 <button class="btn btn-primary btn-sm" style="pointer-events:none;">Add to Cart</button>
@@ -2291,7 +3217,7 @@ select.form-control option { background: var(--ink-3); }
           </div>
         </div>
 
-        <!-- Commission info -->
+        <!-- Commission Breakdown -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
             <div class="section-title">Commission Breakdown</div>
@@ -2314,18 +3240,126 @@ select.form-control option { background: var(--ink-3); }
             </div>
             <div class="alert alert-amber" style="margin-top:14px;margin-bottom:0;padding:10px 12px;font-size:0.78rem;">
               <span class="alert-icon" style="font-size:0.85rem;">ℹ️</span>
-              Admin sets the final sale price after review.
+              Admin reviews and sets the final sale price.
             </div>
           </div>
         </div>
 
+        <!-- Submit Actions -->
         <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;" onclick="submitProduct()">
           <i class="fas fa-paper-plane"></i> Submit for Review
         </button>
         <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveDraft()">
           <i class="fas fa-floppy-disk"></i> Save as Draft
         </button>
-        <button type="button" class="btn btn-ghost btn-sm"  style="width:100%;justify-content:center;margin-top:10px;" onclick="loadDraft()">📂 Load Draft</button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:10px;" onclick="loadDraft()">📂 Load Draft</button>
+      </div>
+      <!-- END RIGHT COLUMN -->
+    </div>
+  </div>
+  
+
+<!-- ══ COURSE BUILDER MODAL ══ -->
+
+  <div class="modal-overlay" id="courseBuilderModal" style="align-items:flex-start;overflow-y:auto;padding:20px;">
+    <div class="modal-box" style="width:100%;max-width:860px;margin:auto;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">🎓 Course Builder</div>
+          <div style="font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:3px;">Build your curriculum — sections, chapters, and media</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeCourseBuilder()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Stats -->
+        <div class="course-stats-bar" id="builderStatsBar">
+          <div class="course-stat"><span class="course-stat-val" id="bStatSections">0</span><span class="course-stat-lbl">sections</span></div>
+          <div class="course-stat"><span class="course-stat-val" id="bStatChapters">0</span><span class="course-stat-lbl">chapters</span></div>
+          <div class="course-stat"><span class="course-stat-val" id="bStatDuration">0m</span><span class="course-stat-lbl">total</span></div>
+          <div class="course-stat"><span class="course-stat-val" id="bStatFree">0</span><span class="course-stat-lbl">free preview</span></div>
+          <div style="margin-left:auto;">
+            <button class="btn btn-ghost btn-sm" onclick="addCourseSection()"><i class="fas fa-plus"></i> Add Section</button>
+          </div>
+        </div>
+
+        <!-- Sections Container -->
+        <div id="courseSectionsContainer">
+          <div style="text-align:center;padding:40px 20px;color:var(--muted);">
+            <div style="font-size:3rem;margin-bottom:12px;">🗂️</div>
+            <div style="font-size:0.9rem;margin-bottom:6px;color:var(--soft);">No sections yet</div>
+            <div style="font-size:0.8rem;font-family:'JetBrains Mono',monospace;">Click "Add Section" to build your curriculum</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line);">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="addCourseSection()">
+            <i class="fas fa-plus"></i> Add Section
+          </button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="saveCourseStructure()">
+            <i class="fas fa-check"></i> Save Curriculum
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CHAPTER FILE UPLOAD MODAL ══ -->
+  <div class="chapter-upload-modal" id="chapterUploadModal">
+    <div class="chapter-upload-box">
+      <div class="chapter-upload-header">
+        <div class="chapter-upload-title" id="chapterUploadTitle">Upload Chapter File</div>
+        <button class="modal-close-btn" onclick="closeChapterUpload()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="chapter-upload-body">
+        <!-- Tab: Upload vs External -->
+        <div style="display:flex;gap:0;background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;">
+          <button class="ptype-tab active" id="chTabUpload" onclick="switchChapterTab('upload')" style="min-width:auto;flex:1;flex-direction:row;gap:6px;padding:10px;">☁️ Upload File</button>
+          <button class="ptype-tab" id="chTabLink" onclick="switchChapterTab('link')" style="min-width:auto;flex:1;flex-direction:row;gap:6px;padding:10px;border-right:none;">🔗 External Link</button>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="chapterUploadSection">
+          <div class="file-upload-zone" id="chapterFileZone" style="margin-bottom:16px;">
+            <input type="file" id="chapterFileInput" onchange="handleChapterFileChange(event)" accept="video/*,audio/*,application/pdf,.zip,.doc,.docx">
+            <div id="chapterFileZoneContent">
+              <div class="upload-icon">📎</div>
+              <div class="upload-text">Video, Audio, PDF, ZIP, Document</div>
+              <div class="upload-sub">Up to 500MB per chapter file</div>
+            </div>
+            <div class="file-upload-progress" id="chapterFileProgress"></div>
+          </div>
+          <div id="chapterUploadStatus" style="display:none;" class="upload-ring-wrap">
+            <div class="upload-ring"></div>
+            <div class="upload-ring-label">Uploading chapter file...</div>
+          </div>
+        </div>
+
+        <!-- External Link Section -->
+        <div id="chapterLinkSection" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Video / Content URL</label>
+            <input type="url" class="form-control" id="chapterExtUrl" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
+            <div class="form-hint">YouTube, Vimeo, Google Drive video, direct MP4 link, etc.</div>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div class="form-group">
+          <label class="form-label">Chapter Duration</label>
+          <div style="display:flex;gap:10px;">
+            <input type="number" class="form-control" id="chapterDurMin" placeholder="mins" min="0" style="flex:1;">
+            <input type="number" class="form-control" id="chapterDurSec" placeholder="secs" min="0" max="59" style="flex:1;">
+          </div>
+          <div class="form-hint">Leave blank to auto-detect from uploaded file.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeChapterUpload()">Cancel</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmChapterFile()" id="confirmChapterBtn">
+            <i class="fas fa-check"></i> Confirm
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -3389,6 +4423,21 @@ let earningsData  = {};
 let tagsArr       = [];
 let currentPage   = 'overview';
 let uploadedLogoUrl  = null; 
+let currentProductType = 'download';
+let currentDeliveryMode = 'hosted';
+let currentMusicLicense = 'personal';
+let currentPreviewType = 'none';
+let selectedProductFile = null;
+let selectedPreviewFile = null;
+let uploadedProductFileData = null;  // { publicId, secureUrl, resourceType, bytes, format, fileSizeLabel }
+let uploadedPreviewFileData = null;
+let isUploadingFile = false;  // blocks submit while a file upload is in progress
+let courseSections = [];             // live course structure
+let activePlatforms = [];            // software platforms
+let currentChapterTarget = null;     // { sectionIdx, chapterIdx } for upload modal
+let chapterTabMode = 'upload';
+let selectedImageFiles = [];
+let pendingBannerFile  = null;
 
 
 // ── INIT ─────────────────────────────────────────────────────────
@@ -3434,12 +4483,8 @@ async function loadCreatorData() {
 
   try {
     const [meRes, earningsRes] = await Promise.all([
-      fetch(`${API_URL}/api/creator/me`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }),
-      fetch(`${API_URL}/api/creator/earnings`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      apiFetch(`${API_URL}/api/creator/me`),
+      apiFetch(`${API_URL}/api/creator/earnings`)
     ]);
 
     const meData = await meRes.json();
@@ -3448,7 +4493,8 @@ async function loadCreatorData() {
       populateSidebar(creatorData);
       populateStats(creatorData);
       populateProfile(creatorData);
-       loadFollowers();
+      loadAccountInfo();
+      await loadFollowers();
     }
 
     const eData = await earningsRes.json();
@@ -3652,6 +4698,7 @@ let pendingLogoFile   = null;
 
 
 // ── RENDER PRODUCTS ──────────────────────────────────────────────
+
 function renderProducts(products) {
   const grid = document.getElementById('productGrid');
   if (!products.length) {
@@ -3667,27 +4714,40 @@ function renderProducts(products) {
     return;
   }
 
+  const statusMap = {
+    approved:       { cls: 'badge-green', label: 'Live' },
+    pending_review: { cls: 'badge-amber', label: 'In Review' },
+    rejected:       { cls: 'badge-red',   label: 'Rejected' },
+    draft:          { cls: 'badge-muted', label: 'Draft' },
+    suspended:      { cls: 'badge-red',   label: 'Suspended' }
+  };
+
   grid.innerHTML = products.map(p => {
-    const statusMap = {
-      approved:       { cls: 'badge-green', label: 'Live' },
-      pending_review: { cls: 'badge-amber', label: 'In Review' },
-      rejected:       { cls: 'badge-red',   label: 'Rejected' },
-      draft:          { cls: 'badge-muted', label: 'Draft' },
-      suspended:      { cls: 'badge-red',   label: 'Suspended' }
-    };
     const st = statusMap[p.status] || { cls: 'badge-muted', label: p.status };
+    const def = PRODUCT_TYPES[p.productType] || PRODUCT_TYPES.download;
+    const chCount = p.courseData?.totalChapters || 0;
+    const hasHostedFile = !!(p.hostedFile?.publicId);
 
     return `
       <div class="product-item">
         <div class="product-thumb">
-          ${p.images?.[0] ? `<img src="${p.images[0]}" alt="${p.title}">` : '📦'}
+          ${p.images?.[0]
+            ? `<img src="${p.images[0]}" alt="${escHtml(p.title)}">`
+            : `<span style="font-size:3rem;">${def.icon}</span>`}
           <div class="product-item-status">
             <span class="badge ${st.cls}">${st.label}</span>
           </div>
+          ${hasHostedFile ? `<div style="position:absolute;bottom:8px;left:8px;"><span class="ptype-badge" style="background:rgba(0,0,0,0.7);color:var(--green);border:1px solid rgba(0,255,136,0.3);font-size:0.6rem;">☁️ Hosted</span></div>` : ''}
         </div>
         <div class="product-item-body">
-          <div class="product-item-category">${p.category || 'General'}</div>
-          <div class="product-item-title">${p.title}</div>
+          <div class="product-item-type-row">
+            <span class="ptype-badge" style="background:${def.color}22;color:${def.color};border:1px solid ${def.color}33;">
+              ${def.icon} ${def.label}
+            </span>
+            <span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;">${p.category || ''}</span>
+          </div>
+          <div class="product-item-title">${escHtml(p.title)}</div>
+          ${chCount > 0 ? `<div class="product-item-chapter-count"><i class="fas fa-layer-group" style="font-size:0.65rem;"></i> ${chCount} chapters · ${p.courseData?.level || 'All levels'}</div>` : ''}
           <div class="product-item-meta">
             <span class="product-item-price">$${p.approvedPrice || p.suggestedPrice}</span>
             <span class="product-item-sales">${p.totalSales || 0} sales</span>
@@ -3696,28 +4756,455 @@ function renderProducts(products) {
             <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="editProduct('${p._id}')">
               <i class="fas fa-pen"></i> Edit
             </button>
+            ${p.productType === 'course' ? `
+              <button class="btn btn-ghost btn-sm" onclick="loadAndEditCourse('${p._id}')">
+                <i class="fas fa-layer-group"></i>
+              </button>` : ''}
             ${p.status === 'rejected' ? `
               <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="resubmitProduct('${p._id}')">
                 <i class="fas fa-paper-plane"></i> Resubmit
               </button>` : ''}
             ${p.status === 'draft' ? `
-
               <button class="btn btn-primary btn-sm" style="flex:1;" onclick="submitDraftProduct('${p._id}')">
                 <i class="fas fa-paper-plane"></i> Submit
               </button>` : ''}
           </div>
           ${p.status === 'rejected' && p.rejectionReason ? `
             <div style="margin-top:8px;padding:8px 10px;background:var(--red-dim);border:1px solid rgba(252,129,129,0.2);border-radius:7px;font-size:0.75rem;color:var(--red);">
-              ❌ ${p.rejectionReason}
+              ❌ ${escHtml(p.rejectionReason)}
             </div>` : ''}
         </div>
       </div>`;
   }).join('');
 }
 
-function filterProductsByStatus(status) {
+// ── UPDATED filterProductsByStatus ───────────────────────────
+
+function filterProductsByStatus(status, chipEl) {
+  document.querySelectorAll('#productFilterChips .filter-chip').forEach(c => c.classList.remove('active'));
+  if (chipEl) chipEl.classList.add('active');
   const filtered = status === 'all' ? productsData : productsData.filter(p => p.status === status);
   renderProducts(filtered);
+}
+
+// ── UPDATED editProduct ───────────────────────────────────────
+
+async function editProduct(id) {
+  const product = productsData.find(p => p._id === id);
+  if (!product) { showToast('❌ Product not found', 'red'); return; }
+
+  // Switch to correct type tab first
+  const typeTab = document.querySelector(`.ptype-tab[data-type="${product.productType || 'download'}"]`);
+  if (typeTab) switchProductType(product.productType || 'download', typeTab);
+
+  // Fill core fields
+  document.getElementById('uploadTitle').value        = product.title || '';
+  document.getElementById('uploadDescription').value  = product.description || '';
+  document.getElementById('uploadCategory').value     = product.category || '';
+  document.getElementById('uploadPrice').value        = product.suggestedPrice || product.approvedPrice || '';
+  document.getElementById('uploadFileSize').value     = product.fileSize || '';
+  document.getElementById('uploadVersion').value      = product.version || '';
+  document.getElementById('uploadFeatures').value     = (product.features || []).join('\n');
+  document.getElementById('uploadRequirements').value = (product.requirements || []).join('\n');
+  tagsArr = product.tags || [];
+  renderTags();
+
+  // Delivery mode
+  if (product.hostedFile?.publicId) {
+    selectDelivery('hosted');
+    // Show existing file chip
+    const chip = document.getElementById('productFileChip');
+    if (chip) {
+      chip.style.display = 'flex';
+      chip.innerHTML = `<span class="uploaded-file-chip">☁️ Hosted file already uploaded <button class="remove-file" onclick="clearProductFile('default')">✕</button></span>`;
+      document.getElementById('productFileZone').classList.add('has-file');
+      document.getElementById('productFilePrompt').style.display = 'none';
+    }
+    uploadedProductFileData = product.hostedFile;
+  } else if (product.externalVideoUrl) {
+    selectDelivery('link');
+    const vEl = document.getElementById('uploadExternalVideoUrl');
+    if (vEl) vEl.value = product.externalVideoUrl;
+  } else if (product.externalAudioUrl) {
+    selectDelivery('link');
+    const aEl = document.getElementById('uploadExternalAudioUrl');
+    if (aEl) aEl.value = product.externalAudioUrl;
+  } else if (product.downloadLink) {
+    selectDelivery('link');
+    document.getElementById('uploadDownloadLink').value = product.downloadLink;
+  }
+
+  // Music extras
+  if (product.productType === 'music' && product.audioData) {
+    const ad = product.audioData;
+    const bpmEl = document.getElementById('audioBpm');
+    const keyEl = document.getElementById('audioKey');
+    const genreEl = document.getElementById('audioGenre');
+    const moodEl = document.getElementById('audioMood');
+    if (bpmEl) bpmEl.value = ad.bpm || '';
+    if (keyEl) keyEl.value = ad.key || '';
+    if (genreEl) genreEl.value = ad.genre || '';
+    if (moodEl) moodEl.value = ad.mood || '';
+    selectMusicLicense(ad.license || 'personal');
+    if (ad.stems) toggleRow('stemsToggle');
+  }
+
+  // Software extras
+  if (product.productType === 'software' && product.softwareData) {
+    const sd = product.softwareData;
+    const ltEl = document.getElementById('softwareLicenseType');
+    const supEl = document.getElementById('softwareSupport');
+    const updEl = document.getElementById('softwareUpdates');
+    const svEl = document.getElementById('softwareVersion');
+    if (ltEl) ltEl.value = sd.licenseType || 'single';
+    if (supEl) supEl.value = sd.supportPeriod || '';
+    if (updEl) updEl.value = sd.updatePeriod || '';
+    if (svEl) svEl.value = product.version || '';
+    activePlatforms = sd.platform || [];
+    document.querySelectorAll('#platformGrid .platform-btn').forEach(btn => {
+      const p = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', activePlatforms.includes(p));
+    });
+  }
+
+  // Course extras
+  if (product.productType === 'course' && product.courseData) {
+    const cd = product.courseData;
+    const lvl = document.getElementById('courseLevel');
+    const lang = document.getElementById('courseLanguage');
+    if (lvl) lvl.value = cd.level || 'all';
+    if (lang) lang.value = cd.language || 'English';
+    if (cd.certificate) toggleRow('certToggle');
+    courseSections = cd.sections || [];
+    updateBuilderStats();
+  }
+
+  document.getElementById('uploadForm')?.setAttribute('data-edit-id', id);
+  document.getElementById('uploadPageTitle').textContent = 'Edit Product';
+  switchPage('upload');
+  showToast('✏️ Editing product — update and re-submit', 'blue');
+  updatePreview();
+}
+
+async function loadAndEditCourse(id) {
+  await editProduct(id);
+  setTimeout(() => openCourseBuilder(), 600);
+}
+
+// ── UPDATED submitProduct ─────────────────────────────────────
+
+async function submitProduct() {
+  const editId = document.getElementById('uploadForm')?.getAttribute('data-edit-id');
+  const token  = localStorage.getItem('token');
+
+  const title = document.getElementById('uploadTitle').value.trim();
+  const desc  = document.getElementById('uploadDescription').value.trim();
+  const cat   = document.getElementById('uploadCategory').value;
+  const price = parseFloat(document.getElementById('uploadPrice').value);
+
+  if (!title || !desc || !cat || !price) {
+    showToast('Please fill all required fields', 'amber'); return;
+  }
+
+  // ── Guard: block submit if a file upload is still running ────────────────
+  if (isUploadingFile) {
+    showToast('⏳ Please wait — file upload is still in progress', 'amber'); return;
+  }
+
+  // ── Guard: if delivery is hosted and no file has been uploaded yet,
+  //    warn the creator (but don't hard-block — they may use a link instead)
+  if (currentDeliveryMode === 'hosted' && !uploadedProductFileData
+      && currentProductType !== 'course') {
+    // Only hard-block for music/software where a file is required
+    if (currentProductType === 'music' || currentProductType === 'software') {
+      showToast('Please upload a file before submitting', 'amber'); return;
+    }
+  }
+
+  // Upload product images first
+  var imageUrls = [];
+  if (selectedImageFiles && selectedImageFiles.length > 0) {
+    showToast('⏳ Uploading images...', 'blue');
+    for (var i = 0; i < selectedImageFiles.length; i++) {
+      try {
+        var form = new FormData();
+        form.append('image', selectedImageFiles[i]);
+        var r = await fetch(API_URL + '/api/upload/image', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: form
+        });
+        var d = await r.json();
+        if (d.success) {
+          // Server returns { success, url } where url may be a string OR an object
+          // { secureUrl, publicId, ... } depending on the uploadToCloudinary wrapper.
+          // Handle both shapes safely.
+          const imgUrl = (d.url && typeof d.url === 'object')
+            ? (d.url.secureUrl || d.url.secure_url || null)
+            : (d.url || null);
+          if (imgUrl) imageUrls.push(imgUrl);
+        }
+      } catch(e) { console.error('Image upload error', e); }
+    }
+  }
+
+  // Build base payload
+  const payload = {
+    title,
+    description: desc,
+    category:    cat,
+    suggestedPrice: price,
+    tags:        tagsArr,
+    images:      imageUrls.length ? imageUrls : undefined,
+    productType: currentProductType,
+    downloadLink:       currentDeliveryMode === 'link'
+                          ? (document.getElementById('uploadDownloadLink')?.value?.trim() || '')
+                          : '',
+    externalVideoUrl:   currentDeliveryMode === 'link'
+                          ? (document.getElementById('uploadExternalVideoUrl')?.value?.trim() || null)
+                          : null,
+    externalAudioUrl:   currentDeliveryMode === 'link'
+                          ? (document.getElementById('uploadExternalAudioUrl')?.value?.trim() || null)
+                          : null,
+    fileSize:    document.getElementById('uploadFileSize').value,
+    version:     document.getElementById('uploadVersion').value,
+    features:    document.getElementById('uploadFeatures').value.split('\n').map(f=>f.replace(/^[•\-]\s*/,'')).filter(Boolean),
+    requirements:document.getElementById('uploadRequirements').value.split('\n').map(r=>r.replace(/^[•\-]\s*/,'')).filter(Boolean),
+  };
+
+  // Attach hosted file if uploaded
+  if (uploadedProductFileData) {
+    payload.hostedFile = uploadedProductFileData;
+    payload.fileSize   = uploadedProductFileData.fileSizeLabel || payload.fileSize;
+  }
+
+  // Attach preview
+  if (uploadedPreviewFileData) {
+    payload.previewUrl  = uploadedPreviewFileData.previewUrl;
+    payload.previewType = uploadedPreviewFileData.previewType;
+  } else if (currentPreviewType === 'iframe') {
+    payload.previewUrl  = document.getElementById('uploadPreviewUrl')?.value || '';
+    payload.previewType = 'iframe';
+  }
+
+  // Type-specific extras
+  if (currentProductType === 'music') {
+    payload.audioData = {
+      bpm:      parseInt(document.getElementById('audioBpm')?.value) || null,
+      key:      document.getElementById('audioKey')?.value || null,
+      genre:    document.getElementById('audioGenre')?.value || null,
+      mood:     document.getElementById('audioMood')?.value || null,
+      license:  currentMusicLicense,
+      stems:    document.getElementById('stemsToggle')?.classList.contains('on') || false,
+    };
+  }
+
+  if (currentProductType === 'software') {
+    payload.softwareData = {
+      platform:      activePlatforms,
+      licenseType:   document.getElementById('softwareLicenseType')?.value || 'single',
+      supportPeriod: document.getElementById('softwareSupport')?.value || '',
+      updatePeriod:  document.getElementById('softwareUpdates')?.value || '',
+    };
+    payload.version = document.getElementById('softwareVersion')?.value || payload.version;
+  }
+
+  if (currentProductType === 'course') {
+    payload.courseData = {
+      level:       document.getElementById('courseLevel')?.value || 'all',
+      language:    document.getElementById('courseLanguage')?.value || 'English',
+      certificate: document.getElementById('certToggle')?.classList.contains('on') || false,
+      sections:    courseSections,
+      totalSections: courseSections.length,
+      totalChapters: courseSections.reduce((a,s) => a + s.chapters.length, 0),
+      totalDuration: courseSections.reduce((a,s) => a + s.chapters.reduce((b,c) => b+(c.duration||0), 0), 0),
+    };
+  }
+
+  try {
+    const url    = editId
+      ? API_URL + '/api/creator/products/' + editId
+      : API_URL + '/api/creator/products';
+    const method = editId ? 'PUT' : 'POST';
+    const res    = await fetch(url, {
+      method,
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(editId ? '✅ Product updated!' : '🚀 Product submitted for review!', 'green');
+      document.getElementById('uploadForm')?.removeAttribute('data-edit-id');
+      document.getElementById('uploadPageTitle').textContent = 'Upload New Product';
+      clearUploadForm();
+      await loadProducts();
+      setTimeout(() => switchPage('products'), 1500);
+    } else {
+      showToast(data.message || 'Submission failed', 'red');
+    }
+  } catch(e) {
+    showToast('❌ Network error — check your connection and try again', 'red');
+  }
+}
+
+// ── UPDATED saveDraft ─────────────────────────────────────────
+
+function saveDraft() {
+  const draft = {
+    title:          document.getElementById('uploadTitle').value,
+    description:    document.getElementById('uploadDescription').value,
+    category:       document.getElementById('uploadCategory').value,
+    price:          document.getElementById('uploadPrice').value,
+    productType:    currentProductType,
+    deliveryMode:   currentDeliveryMode,
+    downloadLink:   document.getElementById('uploadDownloadLink')?.value || '',
+    fileSize:       document.getElementById('uploadFileSize')?.value || '',
+    version:        document.getElementById('uploadVersion')?.value || '',
+    features:       document.getElementById('uploadFeatures').value,
+    requirements:   document.getElementById('uploadRequirements').value,
+    tags:           tagsArr,
+    musicLicense:   currentMusicLicense,
+    platforms:      activePlatforms,
+    previewType:    currentPreviewType,
+    courseData: {
+      level:       document.getElementById('courseLevel')?.value || 'all',
+      language:    document.getElementById('courseLanguage')?.value || 'English',
+      certificate: document.getElementById('certToggle')?.classList.contains('on') || false,
+      sections:    courseSections,
+    },
+    audioData: {
+      bpm:   document.getElementById('audioBpm')?.value || '',
+      key:   document.getElementById('audioKey')?.value || '',
+      genre: document.getElementById('audioGenre')?.value || '',
+      mood:  document.getElementById('audioMood')?.value || '',
+    },
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem('uyehtech_product_draft_v2', JSON.stringify(draft));
+  showToast('💾 Draft saved locally', 'blue');
+}
+
+// ── UPDATED loadDraft ─────────────────────────────────────────
+
+function loadDraft() {
+  const raw = localStorage.getItem('uyehtech_product_draft_v2')
+    || localStorage.getItem('uyehtech_product_draft');
+  if (!raw) { showToast('ℹ️ No saved draft found', 'blue'); return; }
+  try {
+    const d = JSON.parse(raw);
+
+    // Switch product type first
+    if (d.productType) {
+      const tab = document.querySelector(`.ptype-tab[data-type="${d.productType}"]`);
+      if (tab) switchProductType(d.productType, tab);
+    }
+
+    document.getElementById('uploadTitle').value        = d.title        || '';
+    document.getElementById('uploadDescription').value  = d.description  || '';
+    document.getElementById('uploadCategory').value     = d.category     || '';
+    document.getElementById('uploadPrice').value        = d.price        || '';
+    document.getElementById('uploadVersion').value      = d.version      || '';
+    document.getElementById('uploadFileSize').value     = d.fileSize     || '';
+    document.getElementById('uploadFeatures').value     = d.features     || '';
+    document.getElementById('uploadRequirements').value = d.requirements || '';
+    tagsArr = d.tags || [];
+    renderTags();
+
+    // Delivery mode
+    if (d.deliveryMode) selectDelivery(d.deliveryMode);
+    if (d.downloadLink && document.getElementById('uploadDownloadLink')) {
+      document.getElementById('uploadDownloadLink').value = d.downloadLink;
+    }
+
+    // Music
+    if (d.audioData) {
+      const keys = ['audioBpm','audioKey','audioGenre','audioMood'];
+      const vals = [d.audioData.bpm, d.audioData.key, d.audioData.genre, d.audioData.mood];
+      keys.forEach((k, i) => { const el = document.getElementById(k); if (el) el.value = vals[i] || ''; });
+    }
+    if (d.musicLicense) selectMusicLicense(d.musicLicense);
+
+    // Platforms
+    activePlatforms = d.platforms || [];
+    document.querySelectorAll('#platformGrid .platform-btn').forEach(btn => {
+      const p = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', activePlatforms.includes(p));
+    });
+
+    // Course
+    if (d.courseData) {
+      const lvl = document.getElementById('courseLevel');
+      const lang = document.getElementById('courseLanguage');
+      if (lvl) lvl.value = d.courseData.level || 'all';
+      if (lang) lang.value = d.courseData.language || 'English';
+      courseSections = d.courseData.sections || [];
+      if (d.courseData.certificate) {
+        const ct = document.getElementById('certToggle');
+        if (ct && !ct.classList.contains('on')) ct.classList.add('on');
+      }
+      updateBuilderStats();
+    }
+
+    updatePreview();
+    showToast('📂 Draft loaded', 'green');
+  } catch(e) {
+    showToast('❌ Could not load draft', 'red');
+  }
+}
+
+// ── UPDATED clearUploadForm ───────────────────────────────────
+
+function clearUploadForm() {
+  ['uploadTitle','uploadCategory','uploadDescription','uploadPrice',
+   'uploadDownloadLink','uploadExternalVideoUrl','uploadExternalAudioUrl',
+   'uploadFileSize','uploadVersion','uploadFeatures','uploadRequirements',
+   'audioBpm','audioKey','audioGenre','audioMood','courseLanguage']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+
+  if (document.getElementById('courseLevel')) document.getElementById('courseLevel').value = 'all';
+
+  tagsArr = [];
+  renderTags();
+
+  // Reset type to download
+  const defaultTab = document.querySelector('.ptype-tab[data-type="download"]');
+  if (defaultTab) switchProductType('download', defaultTab);
+
+  // Reset delivery
+  selectDelivery('hosted');
+  clearProductFile('default');
+  clearPreviewFile();
+
+  // Reset music / software / toggles
+  selectMusicLicense('personal');
+  activePlatforms = [];
+  document.querySelectorAll('#platformGrid .platform-btn').forEach(b => b.classList.remove('active'));
+  ['stemsToggle','certToggle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('on');
+  });
+
+  // Reset course
+  courseSections = [];
+  updateBuilderStats();
+
+  // Reset preview type
+  document.querySelectorAll('.preview-chip').forEach(c => c.classList.remove('active'));
+  const firstChip = document.querySelector('.preview-chip[data-preview="none"]');
+  if (firstChip) { firstChip.classList.add('active'); currentPreviewType = 'none'; }
+  document.getElementById('previewUploadSection').style.display = 'none';
+  document.getElementById('previewUrlSection').style.display = 'none';
+
+  // Reset file zones
+  clearPreviewFile('default');
+  clearPreviewFile('music');
+
+  // Reset image previews
+  selectedImageFiles = [];
+  document.getElementById('imagePreviewRow').innerHTML = '';
+  document.getElementById('previewIcon').innerHTML = '📦';
+
+  updatePreview();
 }
 
 function renderTopProductsOverview() {
@@ -4073,133 +5560,6 @@ function removeTag(i) {
   renderTags();
 }
 
-async function submitProduct() {
-  const editId = document.getElementById('uploadForm')?.getAttribute('data-edit-id');
-
-  // ── EDIT FLOW ──────────────────────────────────────────────────
-  if (editId) {
-    const token = localStorage.getItem('token');
-    const title = document.getElementById('uploadTitle').value.trim();
-    const desc  = document.getElementById('uploadDescription').value.trim();
-    const cat   = document.getElementById('uploadCategory').value;
-    const price = parseFloat(document.getElementById('uploadPrice').value);
-
-    if (!title || !desc || !cat || !price) {
-      showToast('Please fill all required fields', 'amber'); return;
-    }
-
-    const payload = {
-      title:          title,
-      description:    desc,
-      category:       cat,
-      suggestedPrice: price,
-      tags:           tagsArr,
-      downloadLink:   document.getElementById('uploadDownloadLink').value,
-      fileSize:       document.getElementById('uploadFileSize').value,
-      version:        document.getElementById('uploadVersion').value,
-      features:       document.getElementById('uploadFeatures').value.split('\n').map(function(f){ return f.replace(/^[•\-]\s*/,''); }).filter(Boolean),
-      requirements:   document.getElementById('uploadRequirements').value.split('\n').map(function(r){ return r.replace(/^[•\-]\s*/,''); }).filter(Boolean)
-    };
-
-    try {
-      const res  = await fetch(API_URL + '/api/creator/products/' + editId, {
-        method: 'PUT',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast('Product updated!', 'green');
-        document.getElementById('uploadForm')?.removeAttribute('data-edit-id');
-        clearUploadForm();
-        await loadProducts();
-        await loadOrders();
-        setTimeout(function(){ switchPage('products'); }, 1500);
-      } else {
-        showToast(data.message || 'Update failed', 'red');
-      }
-    } catch(e) {
-      showToast('Network error', 'red');
-    }
-    return;
-  }
-
-  // ── NEW PRODUCT FLOW ───────────────────────────────────────────
-  const token = localStorage.getItem('token');
-  const title = document.getElementById('uploadTitle').value.trim();
-  const desc  = document.getElementById('uploadDescription').value.trim();
-  const cat   = document.getElementById('uploadCategory').value;
-  const price = parseFloat(document.getElementById('uploadPrice').value);
-
-  if (!title || !desc || !cat || !price) {
-    showToast('Please fill all required fields', 'amber'); return;
-  }
-
-  const featuresTxt = document.getElementById('uploadFeatures').value;
-  const requiresTxt = document.getElementById('uploadRequirements').value;
-
-  // Upload images first, collect URLs
-  var imageUrls = [];
-  if (selectedImageFiles && selectedImageFiles.length > 0) {
-    showToast('Uploading images...', 'blue');
-    for (var i = 0; i < selectedImageFiles.length; i++) {
-      try {
-        var form = new FormData();
-        form.append('image', selectedImageFiles[i]);
-        var uploadRes  = await fetch(API_URL + '/api/upload/image', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token },
-          body: form
-        });
-        var uploadData = await uploadRes.json();
-        if (uploadData.success && uploadData.url) {
-          imageUrls.push(uploadData.url);
-        }
-      } catch(uploadErr) {
-        console.error('Image upload error:', uploadErr);
-      }
-    }
-    if (imageUrls.length > 0) {
-      showToast(imageUrls.length + ' image(s) uploaded', 'green');
-    } else {
-      showToast('Images could not be uploaded — submitting without images', 'amber');
-    }
-  }
-
-  const payload = {
-    title:          title,
-    description:    desc,
-    category:       cat,
-    suggestedPrice: price,
-    tags:           tagsArr,
-    images:         imageUrls,
-    downloadLink:   document.getElementById('uploadDownloadLink').value,
-    fileSize:       document.getElementById('uploadFileSize').value,
-    version:        document.getElementById('uploadVersion').value,
-    features:       featuresTxt.split('\n').map(function(f){ return f.replace(/^[•\-]\s*/,''); }).filter(Boolean),
-    requirements:   requiresTxt.split('\n').map(function(r){ return r.replace(/^[•\-]\s*/,''); }).filter(Boolean)
-  };
-
-  try {
-    const res  = await fetch(API_URL + '/api/creator/products', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Product submitted for review!', 'green');
-      clearUploadForm();
-      await loadProducts();
-      setTimeout(function(){ switchPage('products'); }, 1500);
-    } else {
-      showToast(data.message || 'Submission failed', 'red');
-    }
-  } catch(e) {
-    showToast('Network error', 'red');
-  }
-}
-
 // Called from product card — submits an existing draft by its ID
 async function submitDraftProduct(id) {
   if (!id) return;
@@ -4242,39 +5602,6 @@ function saveDraft() {
   showToast('💾 Draft saved locally', 'blue');
 }
 
-function loadDraft() {
-  const raw = localStorage.getItem('uyehtech_product_draft');
-  if (!raw) { showToast('ℹ️ No saved draft found', 'blue'); return; }
-  try {
-    const d = JSON.parse(raw);
-    document.getElementById('uploadTitle').value        = d.title        || '';
-    document.getElementById('uploadDescription').value  = d.description  || '';
-    document.getElementById('uploadCategory').value     = d.category     || '';
-    document.getElementById('uploadPrice').value        = d.price        || '';
-    document.getElementById('uploadDownloadLink').value = d.downloadLink || '';
-    document.getElementById('uploadFileSize').value     = d.fileSize     || '';
-    document.getElementById('uploadVersion').value      = d.version      || '';
-    document.getElementById('uploadFeatures').value     = d.features     || '';
-    document.getElementById('uploadRequirements').value = d.requirements || '';
-    tagsArr = d.tags || [];
-    renderTags();
-    updatePreview();
-    showToast('📂 Draft loaded', 'green');
-  } catch(e) {
-    showToast('❌ Could not load draft', 'red');
-  }
-}
-
-function clearUploadForm() {
-  ['uploadTitle','uploadCategory','uploadDescription','uploadPrice',
-   'uploadDownloadLink','uploadFileSize','uploadVersion','uploadFeatures','uploadRequirements']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-  tagsArr = [];
-  renderTags();
-  document.getElementById('imagePreviewRow').innerHTML = '';
-selectedImageFiles = []; // FIX: clear stored image files on form reset
-document.getElementById('uploadForm')?.removeAttribute('data-edit-id');
-}
 
 // ✅ Logo / profile picture click trigger
 function openLogoPicker() {
@@ -4970,32 +6297,592 @@ function showToast(msg, type = 'green') {
   }, 3500);
 }
 
-// Product actions (edit/resubmit)
-// REPLACE WITH:
-async function editProduct(id) {
-  const product = productsData.find(p => p._id === id);
-  if (!product) { showToast('❌ Product not found', 'red'); return; }
+// ── PRODUCT TYPE SYSTEM ───────────────────────────────────────
 
-  // Pre-fill the upload form with existing product data
-  document.getElementById('uploadTitle').value        = product.title        || '';
-  document.getElementById('uploadDescription').value  = product.description  || '';
-  document.getElementById('uploadCategory').value     = product.category     || '';
-  document.getElementById('uploadPrice').value        = product.suggestedPrice || product.approvedPrice || '';
-  document.getElementById('uploadDownloadLink').value = product.downloadLink || '';
-  document.getElementById('uploadFileSize').value     = product.fileSize     || '';
-  document.getElementById('uploadVersion').value      = product.version      || '';
-  document.getElementById('uploadFeatures').value     = (product.features    || []).join('\n');
-  document.getElementById('uploadRequirements').value = (product.requirements|| []).join('\n');
-  tagsArr = product.tags || [];
-  renderTags();
+const PRODUCT_TYPES = {
+  download:  { icon: '📦', label: 'Download',  color: '#00ff88', panels: ['panel-download'] },
+  course:    { icon: '🎓', label: 'Course',     color: '#a78bfa', panels: ['panel-course']   },
+  template:  { icon: '🎨', label: 'Template',  color: '#f6ad55', panels: ['panel-download'] },
+  component: { icon: '🧩', label: 'Component', color: '#63b3ed', panels: ['panel-download'] },
+  script:    { icon: '⚙️', label: 'Script',    color: '#68d391', panels: ['panel-download'] },
+  software:  { icon: '💻', label: 'Software',  color: '#76e4f7', panels: ['panel-software'] },
+  music:     { icon: '🎵', label: 'Music',      color: '#fc8181', panels: ['panel-music']    },
+  ebook:     { icon: '📖', label: 'eBook',      color: '#fbb6ce', panels: ['panel-download'] },
+};
+
+function switchProductType(type, tabEl) {
+  currentProductType = type;
+  const def = PRODUCT_TYPES[type] || PRODUCT_TYPES.download;
+
+  // Update tabs
+  document.querySelectorAll('.ptype-tab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+
+  // Show/hide panels
+  document.querySelectorAll('.ptype-panel').forEach(p => p.classList.remove('active'));
+  def.panels.forEach(pid => {
+    const el = document.getElementById(pid);
+    if (el) el.classList.add('active');
+  });
+
+  // Update badge
+  const badge = document.getElementById('uploadTypeBadge');
+  if (badge) badge.textContent = `${def.icon} ${def.label}`;
+
+  // Update features label
+  const fl = document.getElementById('featuresLabel');
+  if (fl) {
+    if (type === 'course') fl.textContent = 'What Students Will Learn';
+    else if (type === 'music') fl.textContent = 'Track Notes / Credits';
+    else if (type === 'software') fl.textContent = 'Key Features';
+    else fl.textContent = 'Key Features';
+  }
+
+  // Show/hide requirements
+  const rg = document.getElementById('requirementsGroup');
+  if (rg) rg.style.display = (type === 'music') ? 'none' : '';
+
+  // Show/hide course stats in preview
+  const pcs = document.getElementById('previewCourseStats');
+  if (pcs) pcs.style.display = type === 'course' ? 'block' : 'none';
+
+  // Update preview badge
+  updatePreviewTypeBadge();
   updatePreview();
-
-  // Store the ID so submitProduct knows this is an edit
-  document.getElementById('uploadForm')?.setAttribute('data-edit-id', id);
-
-  switchPage('upload');
-  showToast('✏️ Editing product — update fields and re-submit', 'blue');
 }
+
+function updatePreviewTypeBadge() {
+  const el = document.getElementById('previewTypeBadge');
+  if (!el) return;
+  const def = PRODUCT_TYPES[currentProductType] || PRODUCT_TYPES.download;
+  el.innerHTML = `<span class="ptype-badge" style="background:${def.color}22;color:${def.color};border:1px solid ${def.color}44;">${def.icon} ${def.label}</span>`;
+}
+
+// ── DELIVERY MODE ─────────────────────────────────────────────
+function selectDelivery(mode) {
+  currentDeliveryMode = mode;
+  document.getElementById('deliveryOptHosted').classList.toggle('selected', mode === 'hosted');
+  document.getElementById('deliveryOptLink').classList.toggle('selected', mode === 'link');
+  document.getElementById('hostedUploadSection').style.display = mode === 'hosted' ? 'block' : 'none';
+  document.getElementById('linkSection').style.display = mode === 'link' ? 'block' : 'none';
+
+  // Show the correct link field depending on what kind of product is being built
+  if (mode === 'link') {
+    const isVideo = ['download','template','component','script','ebook','software'].includes(currentProductType);
+    const isAudio = currentProductType === 'music';
+    const isMediaVideo = currentProductType === 'video'; // future-proof
+
+    const dlGroup    = document.getElementById('downloadLinkGroup');
+    const vidGroup   = document.getElementById('externalVideoGroup');
+    const audGroup   = document.getElementById('externalAudioGroup');
+
+    if (dlGroup)  dlGroup.style.display  = (!isAudio && !isMediaVideo) ? 'block' : 'none';
+    if (vidGroup) vidGroup.style.display = isMediaVideo ? 'block' : 'none';
+    if (audGroup) audGroup.style.display = isAudio ? 'block' : 'none';
+  }
+}
+
+// ── PREVIEW TYPE ──────────────────────────────────────────────
+
+function selectPreviewType(el, type) {
+  currentPreviewType = type;
+  document.querySelectorAll('.preview-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+
+  const uploadSec = document.getElementById('previewUploadSection');
+  const urlSec = document.getElementById('previewUrlSection');
+
+  if (type === 'none') {
+    uploadSec.style.display = 'none';
+    urlSec.style.display = 'none';
+  } else if (type === 'iframe') {
+    uploadSec.style.display = 'none';
+    urlSec.style.display = 'block';
+  } else {
+    uploadSec.style.display = 'block';
+    urlSec.style.display = 'none';
+    // Update accepted file types
+    const input = document.getElementById('previewFileInput');
+    if (input) {
+      input.accept = type === 'video' ? 'video/*' : type === 'audio' ? 'audio/*' : 'image/*';
+    }
+  }
+}
+
+// ── FILE UPLOAD HANDLERS ──────────────────────────────────────
+
+async function handleProductFileSelect(event, context) {
+  context = context || 'default';
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  selectedProductFile = file;
+
+  // Determine zone/chip/progress IDs by context
+  const ids = {
+    default:  { zone: 'productFileZone',  chip: 'productFileChip',  progress: 'productFileProgress',  prompt: 'productFilePrompt' },
+    music:    { zone: 'musicFileZone',    chip: 'musicFileChip',    progress: 'musicFileProgress',    prompt: 'musicFilePrompt' },
+    software: { zone: 'softwareFileZone', chip: 'softwareFileChip', progress: 'softwareFileProgress', prompt: 'softwareFilePrompt' },
+  };
+  const id = ids[context] || ids.default;
+
+  // Show uploading state
+  document.getElementById(id.prompt).style.display = 'none';
+  document.getElementById(id.zone).classList.add('has-file');
+  const progress = document.getElementById(id.progress);
+  progress.style.width = '0%';
+  progress.style.display = 'block';
+
+  // Animate progress bar while upload runs
+  let pct = 0;
+  const progressInterval = setInterval(() => {
+    pct = Math.min(pct + 6, 85);
+    progress.style.width = pct + '%';
+  }, 250);
+
+  // Mark uploading so Submit button is blocked
+  isUploadingFile = true;
+
+  try {
+    showToast('☁️ Uploading file to Cloudinary...', 'blue');
+
+    const form = new FormData();
+    form.append('file', file);
+
+    const token = localStorage.getItem('token');
+    const res = await fetch(API_URL + '/api/upload/creator-product-file', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    });
+
+    // Parse response — handle non-JSON (e.g. 502 HTML from Render)
+    let data;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      throw new Error(`Server returned HTTP ${res.status}. ${text.substring(0, 120)}`);
+    }
+
+    clearInterval(progressInterval);
+    progress.style.width = '100%';
+
+    if (data.success && data.file) {
+      uploadedProductFileData = data.file;
+
+      // Auto-fill file size
+      const sizeEl = document.getElementById('uploadFileSize');
+      if (sizeEl) sizeEl.value = data.file.fileSizeLabel || '';
+
+      // Show chip — outside the file-input overlay so ✕ is clickable
+      const chip = document.getElementById(id.chip);
+      chip.style.display = 'flex';
+      chip.innerHTML = `<span class="uploaded-file-chip">
+        📎 ${file.name} <span style="opacity:0.65;">(${data.file.fileSizeLabel || ''})</span>
+        <button class="remove-file" onclick="clearProductFile('${context}')">✕</button>
+      </span>`;
+
+      showToast('✅ File uploaded successfully!', 'green');
+
+      // Hide progress bar after brief success flash
+      setTimeout(() => { progress.style.display = 'none'; }, 800);
+
+    } else {
+      throw new Error(data.message || 'Upload failed — server returned no file data');
+    }
+
+  } catch (err) {
+    clearInterval(progressInterval);
+    progress.style.width = '0%';
+    progress.style.display = 'none';
+    document.getElementById(id.prompt).style.display = '';
+    document.getElementById(id.zone).classList.remove('has-file');
+    uploadedProductFileData = null;
+    selectedProductFile = null;
+
+    // Surface the real error — not just "Failed to fetch"
+    const msg = err.message || 'Unknown upload error';
+    showToast('❌ Upload failed: ' + msg, 'red');
+    console.error('[handleProductFileSelect] Upload error:', err);
+
+  } finally {
+    // Always unblock submit regardless of success or failure
+    isUploadingFile = false;
+  }
+}
+
+function clearProductFile(context) {
+  context = context || 'default';
+  uploadedProductFileData = null;
+  selectedProductFile = null;
+  const ids = {
+    default:  { chip: 'productFileChip',  prompt: 'productFilePrompt',  zone: 'productFileZone',  input: 'productFileInput' },
+    music:    { chip: 'musicFileChip',    prompt: 'musicFilePrompt',    zone: 'musicFileZone',    input: 'musicFileInput' },
+    software: { chip: 'softwareFileChip', prompt: 'softwareFilePrompt', zone: 'softwareFileZone', input: 'softwareFileInput' },
+  };
+  const id = ids[context] || ids.default;
+  document.getElementById(id.chip).style.display = 'none';
+  document.getElementById(id.chip).innerHTML = '';
+  document.getElementById(id.prompt).style.display = '';
+  document.getElementById(id.zone).classList.remove('has-file');
+  const inp = document.getElementById(id.input);
+  if (inp) inp.value = '';
+  const sizeEl = document.getElementById('uploadFileSize');
+  if (sizeEl) sizeEl.value = '';
+}
+
+async function handlePreviewFileSelect(event, context) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  selectedPreviewFile = file;
+  showToast('☁️ Uploading preview...', 'blue');
+
+  try {
+    const form = new FormData();
+    form.append('preview', file);
+    const token = localStorage.getItem('token');
+    const res = await fetch(API_URL + '/api/upload/product-preview', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    });
+    const data = await res.json();
+    if (data.success) {
+      uploadedPreviewFileData = data;
+      const chipId = context === 'music' ? 'musicPreviewChip' : 'previewFileChip';
+      const promptId = context === 'music' ? 'musicPreviewPrompt' : 'previewFilePrompt';
+      const chip = document.getElementById(chipId);
+      const prompt = document.getElementById(promptId);
+      if (chip) {
+        chip.style.display = 'flex';
+        chip.innerHTML = `<span class="uploaded-file-chip">🔊 ${file.name} <button class="remove-file" onclick="clearPreviewFile('${context}')">✕</button></span>`;
+      }
+      if (prompt) prompt.style.display = 'none';
+      showToast('✅ Preview uploaded!', 'green');
+    } else {
+      throw new Error(data.message || 'Preview upload failed');
+    }
+  } catch (err) {
+    showToast('❌ Preview upload failed: ' + err.message, 'red');
+  }
+}
+
+function clearPreviewFile(context) {
+  uploadedPreviewFileData = null;
+  selectedPreviewFile = null;
+  const chipId = context === 'music' ? 'musicPreviewChip' : 'previewFileChip';
+  const promptId = context === 'music' ? 'musicPreviewPrompt' : 'previewFilePrompt';
+  const el = document.getElementById(chipId);
+  if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+  const pr = document.getElementById(promptId);
+  if (pr) pr.style.display = '';
+}
+
+// ── MUSIC / SOFTWARE TOGGLES ──────────────────────────────────
+
+function selectMusicLicense(lic) {
+  currentMusicLicense = lic;
+  ['personal','commercial','exclusive'].forEach(l => {
+    const el = document.getElementById('lic-' + l);
+    if (el) el.classList.toggle('active', l === lic);
+  });
+}
+
+function togglePlatform(el, platform) {
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) {
+    if (!activePlatforms.includes(platform)) activePlatforms.push(platform);
+  } else {
+    activePlatforms = activePlatforms.filter(p => p !== platform);
+  }
+}
+
+function toggleRow(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('on');
+}
+
+// ── COURSE BUILDER ────────────────────────────────────────────
+
+function openCourseBuilder() {
+  document.getElementById('courseBuilderModal').classList.add('open');
+  renderCourseSections();
+  updateBuilderStats();
+}
+
+function closeCourseBuilder() {
+  document.getElementById('courseBuilderModal').classList.remove('open');
+}
+
+function addCourseSection() {
+  courseSections.push({
+    sectionTitle: '',
+    sectionOrder: courseSections.length + 1,
+    chapters: []
+  });
+  renderCourseSections();
+  updateBuilderStats();
+}
+
+function deleteSection(idx) {
+  if (!confirm('Delete this section and all its chapters?')) return;
+  courseSections.splice(idx, 1);
+  courseSections.forEach((s, i) => s.sectionOrder = i + 1);
+  renderCourseSections();
+  updateBuilderStats();
+}
+
+function addChapter(sectionIdx) {
+  courseSections[sectionIdx].chapters.push({
+    chapterTitle: '',
+    chapterOrder: courseSections[sectionIdx].chapters.length + 1,
+    duration: 0,
+    isFree: false,
+    hostedFile: null,
+    externalUrl: '',
+    notes: ''
+  });
+  renderCourseSections();
+  updateBuilderStats();
+}
+
+function deleteChapter(sectionIdx, chapterIdx) {
+  courseSections[sectionIdx].chapters.splice(chapterIdx, 1);
+  courseSections[sectionIdx].chapters.forEach((c, i) => c.chapterOrder = i + 1);
+  renderCourseSections();
+  updateBuilderStats();
+}
+
+function toggleChapterFree(sectionIdx, chapterIdx) {
+  courseSections[sectionIdx].chapters[chapterIdx].isFree =
+    !courseSections[sectionIdx].chapters[chapterIdx].isFree;
+  renderCourseSections();
+  updateBuilderStats();
+}
+
+function openChapterUpload(sectionIdx, chapterIdx) {
+  currentChapterTarget = { sectionIdx, chapterIdx };
+  const ch = courseSections[sectionIdx].chapters[chapterIdx];
+  document.getElementById('chapterUploadTitle').textContent =
+    `Chapter ${chapterIdx + 1}: ${ch.chapterTitle || 'Upload File'}`;
+  document.getElementById('chapterExtUrl').value = ch.externalUrl || '';
+  document.getElementById('chapterDurMin').value = ch.duration ? Math.floor(ch.duration / 60) : '';
+  document.getElementById('chapterDurSec').value = ch.duration ? ch.duration % 60 : '';
+  document.getElementById('chapterUploadModal').classList.add('open');
+  resetChapterUploadZone();
+}
+
+function closeChapterUpload() {
+  document.getElementById('chapterUploadModal').classList.remove('open');
+  currentChapterTarget = null;
+}
+
+function switchChapterTab(tab) {
+  chapterTabMode = tab;
+  document.getElementById('chTabUpload').classList.toggle('active', tab === 'upload');
+  document.getElementById('chTabLink').classList.toggle('active', tab === 'link');
+  document.getElementById('chapterUploadSection').style.display = tab === 'upload' ? 'block' : 'none';
+  document.getElementById('chapterLinkSection').style.display = tab === 'link' ? 'block' : 'none';
+}
+
+function resetChapterUploadZone() {
+  const content = document.getElementById('chapterFileZoneContent');
+  if (content) content.innerHTML = `
+    <div class="upload-icon">📎</div>
+    <div class="upload-text">Video, Audio, PDF, ZIP, Document</div>
+    <div class="upload-sub">Up to 500MB per chapter file</div>
+  `;
+  document.getElementById('chapterFileProgress').style.width = '0%';
+  document.getElementById('chapterUploadStatus').style.display = 'none';
+  document.getElementById('chapterFileZone').style.display = 'block';
+  const inp = document.getElementById('chapterFileInput');
+  if (inp) inp.value = '';
+}
+
+async function handleChapterFileChange(event) {
+  const file = event.target.files?.[0];
+  if (!file || !currentChapterTarget) return;
+
+  document.getElementById('chapterFileZone').style.display = 'none';
+  document.getElementById('chapterUploadStatus').style.display = 'flex';
+
+  try {
+    showToast('☁️ Uploading chapter...', 'blue');
+    const form = new FormData();
+    form.append('chapter', file);
+    const token = localStorage.getItem('token');
+    const res = await fetch(API_URL + '/api/upload/course-chapter', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    });
+    const data = await res.json();
+
+    document.getElementById('chapterUploadStatus').style.display = 'none';
+
+    if (data.success && data.chapter) {
+      // Store in section
+      const { sectionIdx, chapterIdx } = currentChapterTarget;
+      courseSections[sectionIdx].chapters[chapterIdx].hostedFile = data.chapter;
+
+      // Auto-fill duration from Cloudinary if available
+      if (data.chapter.duration) {
+        courseSections[sectionIdx].chapters[chapterIdx].duration = Math.round(data.chapter.duration);
+        document.getElementById('chapterDurMin').value = Math.floor(data.chapter.duration / 60);
+        document.getElementById('chapterDurSec').value = Math.round(data.chapter.duration % 60);
+      }
+
+      document.getElementById('chapterFileZoneContent').innerHTML = `
+        <span class="uploaded-file-chip" style="margin:0;">
+          ✅ ${file.name}
+        </span>
+      `;
+      document.getElementById('chapterFileZone').style.display = 'block';
+      showToast('✅ Chapter file uploaded!', 'green');
+    } else {
+      throw new Error(data.message || 'Upload failed');
+    }
+  } catch (err) {
+    document.getElementById('chapterUploadStatus').style.display = 'none';
+    document.getElementById('chapterFileZone').style.display = 'block';
+    resetChapterUploadZone();
+    showToast('❌ Chapter upload failed: ' + err.message, 'red');
+  }
+}
+
+function confirmChapterFile() {
+  if (!currentChapterTarget) { closeChapterUpload(); return; }
+  const { sectionIdx, chapterIdx } = currentChapterTarget;
+
+  // Save external URL
+  if (chapterTabMode === 'link') {
+    const url = document.getElementById('chapterExtUrl').value.trim();
+    courseSections[sectionIdx].chapters[chapterIdx].externalUrl = url;
+    if (!url) { showToast('Please enter an external URL', 'amber'); return; }
+  }
+
+  // Save duration
+  const mins = parseInt(document.getElementById('chapterDurMin').value) || 0;
+  const secs = parseInt(document.getElementById('chapterDurSec').value) || 0;
+  courseSections[sectionIdx].chapters[chapterIdx].duration = (mins * 60) + secs;
+
+  renderCourseSections();
+  updateBuilderStats();
+  closeChapterUpload();
+  showToast('✅ Chapter updated', 'green');
+}
+
+function renderCourseSections() {
+  const container = document.getElementById('courseSectionsContainer');
+  if (!container) return;
+
+  if (!courseSections.length) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;color:var(--muted);">
+        <div style="font-size:3rem;margin-bottom:12px;">🗂️</div>
+        <div style="font-size:0.9rem;margin-bottom:6px;color:var(--soft);">No sections yet</div>
+        <div style="font-size:0.8rem;font-family:'JetBrains Mono',monospace;">Click "Add Section" to build your curriculum</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = courseSections.map((section, si) => {
+    const chapterCount = section.chapters.length;
+    const totalSecs = section.chapters.reduce((a, c) => a + (c.duration || 0), 0);
+    const durLabel = totalSecs > 0 ? formatDuration(totalSecs) : '';
+
+    const chaptersHtml = section.chapters.map((ch, ci) => {
+      const hasFile  = ch.hostedFile || ch.externalUrl;
+      const fileBtnClass = hasFile ? 'chapter-file-btn has-file' : 'chapter-file-btn';
+      const fileBtnLabel = hasFile
+        ? (ch.hostedFile ? '✅ File' : '🔗 Link')
+        : '📎 Add File';
+      const freeClass = ch.isFree ? 'chapter-free-toggle is-free' : 'chapter-free-toggle';
+      const durText = ch.duration ? formatDuration(ch.duration) : '';
+
+      return `
+        <div class="chapter-row">
+          <div class="chapter-num">${ci + 1}</div>
+          <input class="chapter-title-input"
+            placeholder="Chapter title..."
+            value="${escHtml(ch.chapterTitle)}"
+            oninput="courseSections[${si}].chapters[${ci}].chapterTitle=this.value;updateBuilderStats();">
+          ${durText ? `<span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--muted);white-space:nowrap;">${durText}</span>` : ''}
+          <button class="${fileBtnClass}" onclick="openChapterUpload(${si},${ci})">${fileBtnLabel}</button>
+          <button class="${freeClass}" onclick="toggleChapterFree(${si},${ci})">
+            ${ch.isFree ? '🔓 Free' : '🔒 Paid'}
+          </button>
+          <button class="chapter-del-btn" onclick="deleteChapter(${si},${ci})"><i class="fas fa-trash"></i></button>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="course-section-card open" id="section-card-${si}">
+        <div class="course-section-header" onclick="toggleSection(${si})">
+          <i class="fas fa-grip-vertical course-section-drag"></i>
+          <input class="course-section-title-input"
+            placeholder="Section title (e.g. Introduction)"
+            value="${escHtml(section.sectionTitle)}"
+            onclick="event.stopPropagation()"
+            oninput="courseSections[${si}].sectionTitle=this.value;updateBuilderStats();">
+          <span class="course-section-meta">${chapterCount} chapters${durLabel ? ' · ' + durLabel : ''}</span>
+          <button onclick="event.stopPropagation();deleteSection(${si})" style="background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;padding:4px;transition:color 0.2s;" onmouseenter="this.style.color='var(--red)'" onmouseleave="this.style.color='var(--muted)'"><i class="fas fa-trash"></i></button>
+          <i class="fas fa-chevron-down course-section-toggle"></i>
+        </div>
+        <div class="course-section-body">
+          ${chaptersHtml}
+          <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="addChapter(${si})">
+            <i class="fas fa-plus"></i> Add Chapter
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleSection(idx) {
+  const card = document.getElementById('section-card-' + idx);
+  if (card) card.classList.toggle('open');
+}
+
+function updateBuilderStats() {
+  let totalChapters = 0, totalDuration = 0, freeChapters = 0;
+  courseSections.forEach(s => {
+    totalChapters += s.chapters.length;
+    s.chapters.forEach(c => {
+      totalDuration += c.duration || 0;
+      if (c.isFree) freeChapters++;
+    });
+  });
+
+  // Builder modal stats
+  setTxt('bStatSections', courseSections.length);
+  setTxt('bStatChapters', totalChapters);
+  setTxt('bStatDuration', totalDuration > 0 ? formatDuration(totalDuration) : '0m');
+  setTxt('bStatFree', freeChapters);
+
+  // Main page course stats
+  setTxt('statSections', courseSections.length);
+  setTxt('statChapters', totalChapters);
+  setTxt('statDuration', totalDuration > 0 ? formatDuration(totalDuration) : '0m');
+  setTxt('statFreeChapters', freeChapters);
+
+  // Preview panel
+  setTxt('previewChapters', totalChapters + ' chapters');
+  setTxt('previewDuration', totalDuration > 0 ? formatDuration(totalDuration) : '0 mins');
+  const lvl = document.getElementById('courseLevel');
+  if (lvl) setTxt('previewLevel', lvl.options[lvl.selectedIndex]?.text || 'All levels');
+}
+
+function saveCourseStructure() {
+  updateBuilderStats();
+  closeCourseBuilder();
+  showToast('✅ Course curriculum saved! Remember to submit the product.', 'green');
+}
+
+
 
 
 //Resubmit button
@@ -5033,6 +6920,61 @@ document.getElementById('profileStoreName')?.addEventListener('input', function(
 document.getElementById('profileDescription')?.addEventListener('input', function() {
   document.getElementById('storeDescPreview').textContent = this.value || 'Your store description.';
 });
+
+// ── HELPERS ───────────────────────────────────────────────────
+
+function formatDuration(seconds) {
+  if (!seconds) return '0m';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m${s > 0 ? ' '+s+'s' : ''}`;
+  return `${s}s`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setTxt(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ── INIT: patch initUploadPreview to also call updatePreviewTypeBadge ─
+
+const _origInitUploadPreview = typeof initUploadPreview === 'function' ? initUploadPreview : null;
+function initUploadPreview() {
+  ['uploadTitle','uploadDescription','uploadPrice'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updatePreview);
+  });
+  document.getElementById('uploadCategory')?.addEventListener('change', updatePreview);
+
+  // Commission calc wiring (was in the deleted wrapper)
+  document.getElementById('uploadPrice')?.addEventListener('input', function() {
+    const p = parseFloat(this.value) || 0;
+    setTxt('commSuggestedPrice', '$' + p.toFixed(2));
+    setTxt('commPlatformCut', '-$' + (p*0.20).toFixed(2));
+    setTxt('commYouEarn', '$' + (p*0.80).toFixed(2));
+    setTxt('previewPrice', '$' + p.toFixed(2));
+  });
+  document.getElementById('uploadTitle')?.addEventListener('input', function() {
+    setTxt('previewTitle', this.value || 'Product Title');
+  });
+  document.getElementById('uploadDescription')?.addEventListener('input', function() {
+    setTxt('previewDesc', this.value.substring(0, 120) + (this.value.length > 120 ? '...' : ''));
+  });
+  document.getElementById('uploadCategory')?.addEventListener('change', function() {
+    setTxt('previewCategory', this.value || 'Category');
+  });
+  document.getElementById('courseLevel')?.addEventListener('change', updateBuilderStats);
+
+  updatePreviewTypeBadge();
+  updatePreview();
+}
+
 </script>
 
 </body>
