@@ -5852,6 +5852,7 @@ function renderCreatorProducts(products) {
                     <div class="cr-meta">
                         <span><i class="fas fa-store"></i>${esc(creator.storeName || '—')}</span>
                         <span><i class="fas fa-tag"></i>${esc(p.category || 'General')}</span>
+                        <span><i class="fas fa-cube"></i>${esc(p.productType || 'download')}</span>
                         <span><i class="fas fa-clock"></i>${timeAgo(p.submittedAt || p.createdAt)}</span>
                     </div>
                 </div>
@@ -5919,7 +5920,28 @@ function renderCreatorProducts(products) {
                 ${reqs.map(r => `<li>${esc(r)}</li>`).join('')}
             </ul>
             ` : ''}
+            <!-- Course info -->
+            ${p.productType === 'course' && p.courseData ? `
+            <div class="cr-section-label">Course Structure</div>
+            <div class="cr-field-row">
+                ${p.courseData.totalSections  ? `<div class="cr-field"><div class="cr-field-label">Sections</div><div class="cr-field-value">${p.courseData.totalSections}</div></div>` : ''}
+                ${p.courseData.totalChapters  ? `<div class="cr-field"><div class="cr-field-label">Chapters</div><div class="cr-field-value">${p.courseData.totalChapters}</div></div>` : ''}
+                ${p.courseData.totalDuration  ? `<div class="cr-field"><div class="cr-field-label">Duration</div><div class="cr-field-value">${p.courseData.totalDuration >= 3600 ? Math.floor(p.courseData.totalDuration/3600)+'h '+Math.floor((p.courseData.totalDuration%3600)/60)+'m' : Math.floor(p.courseData.totalDuration/60)+'m'}</div></div>` : ''}
+                ${p.courseData.level          ? `<div class="cr-field"><div class="cr-field-label">Level</div><div class="cr-field-value">${p.courseData.level}</div></div>` : ''}
+                ${p.courseData.language       ? `<div class="cr-field"><div class="cr-field-label">Language</div><div class="cr-field-value">${p.courseData.language}</div></div>` : ''}
+            </div>
+            ` : ''}
 
+            <!-- Media info (music/video) -->
+            ${(p.externalVideoUrl || p.externalAudioUrl || p.embedUrl) ? `
+            <div class="cr-section-label">Media</div>
+            <div class="cr-field-row">
+                ${p.embedType ? `<div class="cr-field"><div class="cr-field-label">Embed Type</div><div class="cr-field-value">${esc(p.embedType)}</div></div>` : ''}
+                ${p.externalVideoUrl ? `<div class="cr-field"><div class="cr-field-label">Video URL</div><div class="cr-field-value" style="font-size:.75rem;"><a href="${esc(p.externalVideoUrl)}" target="_blank" style="color:var(--primary);">🎬 View</a></div></div>` : ''}
+                ${p.externalAudioUrl ? `<div class="cr-field"><div class="cr-field-label">Audio URL</div><div class="cr-field-value" style="font-size:.75rem;"><a href="${esc(p.externalAudioUrl)}" target="_blank" style="color:var(--primary);">🎵 Listen</a></div></div>` : ''}
+            </div>
+            ` : ''}
+            
             <!-- Tags -->
             ${p.tags?.length ? `
             <div class="cr-tags" style="margin-top:10px;">
@@ -5937,11 +5959,15 @@ function renderCreatorProducts(products) {
 
             <!-- Actions -->
             <div class="cr-actions">
-                ${isPending ? `
-                <button class="btn btn-primary btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'approve'))">
+                 ${isPending ? `
+                ${p.productType === 'course' ? `
+                <button class="btn btn-secondary btn-sm" onclick="previewCourseStructure('${p._id}','${esc(p.title)}',${p.suggestedPrice||0})">
+                    <i class="fas fa-graduation-cap"></i> Preview Course
+                </button>` : ''}
+                <button class="btn btn-primary btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'approve','${p.productType||'download'}'))">
                     <i class="fas fa-check"></i> Approve & Set Price
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'reject'))">
+                <button class="btn btn-danger btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'reject','${p.productType||'download'}'))">
                     <i class="fas fa-times"></i> Reject
                 </button>
                 ` : ''}
@@ -6198,7 +6224,7 @@ async function submitCreatorReview(creatorId, action) {
     refreshCreatorBadges();
 }
 
-async function openProductReviewModal(productId, title, suggestedPrice, action) {
+async function openProductReviewModal(productId, title, suggestedPrice, action, productType = 'download') {
     closeCrModal();
     const isApprove = action === 'approve';
     const html = `
@@ -6211,8 +6237,9 @@ async function openProductReviewModal(productId, title, suggestedPrice, action) 
             <div style="padding:14px;background:rgba(0,255,136,.05);border-radius:10px;margin-bottom:18px;
                  border:1px solid rgba(0,255,136,.12);">
                 <strong style="color:var(--primary);">📦 ${esc(title)}</strong>
-                <div style="font-size:.78rem;color:#9ca3af;margin-top:4px;">
+                 <div style="font-size:.78rem;color:#9ca3af;margin-top:4px;">
                     Creator's suggested price: <strong style="color:#fff;">$${Number(suggestedPrice).toFixed(2)}</strong>
+                    ${productType === 'course' ? `&nbsp;<span style="background:rgba(0,255,136,.12);color:var(--primary);padding:2px 8px;border-radius:10px;font-size:.7rem;">🎓 Course</span>` : ''}
                 </div>
             </div>
             ${isApprove ? `
@@ -6251,7 +6278,7 @@ async function openProductReviewModal(productId, title, suggestedPrice, action) 
 async function submitProductReview(productId, action) {
     const isApprove = action === 'approve';
     const body = { action };
- 
+
     if (isApprove) {
         const price = parseFloat(document.getElementById('prApprovedPrice')?.value);
         if (!price || price <= 0) {
@@ -6269,24 +6296,93 @@ async function submitProductReview(productId, action) {
         body.rejectionReason = reason;
         body.adminNotes      = reason;
     }
+
+    try {
+        const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/review`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+            body: JSON.stringify(body)
+        });
+        const d = await r.json();
+        if (!d.success) { showToast(d.message || 'Review failed', 'error'); throw new Error(d.message); }
+        showToast(`Product ${isApprove ? 'approved and listed! ✅' : 'rejected.'}`, 'success');
+        closeCrModal();
+        fetchCreatorProducts();
+        refreshCreatorBadges();
+    } catch (err) {
+        if (err.message !== 'no price' && err.message !== 'no reason') {
+            showToast(err.message || 'Network error. Please try again.', 'error');
+        }
+        throw err;
+    }
+}
+
  
-    const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/review`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-        body: JSON.stringify(body)
+async function previewCourseStructure(productId, title, suggestedPrice) {
+    closeCrModal();
+    const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/course-preview`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
     });
     const d = await r.json();
- 
-    if (!d.success) { showToast(d.message, 'error'); throw new Error(d.message); }
- 
-    // ↓ Fixed: was showToast(`Creator ${suspend ? ...}`) — `suspend` doesn't exist here
-    showToast(`Product ${isApprove ? 'approved and listed! ✅' : 'rejected.'}`, 'success');
- 
-    closeCrModal();              // ← was missing
-    fetchCreatorProducts();      // ← was missing
-    refreshCreatorBadges();
+    if (!d.success) { showToast(d.message || 'Failed to load course preview', 'error'); return; }
+
+    const cp = d.coursePreview;
+    const fmtDur = s => !s ? '—' : s >= 3600
+        ? `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`
+        : `${Math.floor(s/60)}m`;
+
+    const sectionsHtml = (cp.sections || []).map(sec => `
+        <div style="margin-bottom:14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;
+                 letter-spacing:.04em;margin-bottom:6px;">
+                ${esc(sec.sectionTitle || 'Section ' + sec.sectionOrder)}
+            </div>
+            ${(sec.chapters || []).map(ch => `
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;
+                 background:rgba(255,255,255,.03);border-radius:7px;margin-bottom:4px;font-size:.8rem;">
+                <i class="fas fa-${ch.hasHostedFile ? 'cloud' : ch.hasExternalUrl ? 'link' : 'circle-notch'}"
+                   style="color:${ch.hasHostedFile ? 'var(--primary)' : ch.hasExternalUrl ? '#60a5fa' : '#4a5568'};
+                          width:14px;flex-shrink:0;"></i>
+                <span style="flex:1;color:#d1d5db;">${esc(ch.chapterTitle || 'Chapter ' + ch.chapterOrder)}</span>
+                ${ch.isFree ? `<span style="font-size:.68rem;background:rgba(0,255,136,.15);color:var(--primary);
+                    padding:1px 6px;border-radius:8px;">FREE</span>` : ''}
+                ${ch.embedType ? `<span style="font-size:.68rem;color:#9ca3af;">${esc(ch.embedType)}</span>` : ''}
+                ${ch.duration  ? `<span style="font-size:.68rem;color:#9ca3af;flex-shrink:0;">${fmtDur(ch.duration)}</span>` : ''}
+            </div>`).join('')}
+        </div>`).join('');
+
+    const html = `
+    <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
+        <div class="cr-modal" style="max-width:580px;max-height:85vh;display:flex;flex-direction:column;">
+            <h3 style="margin-bottom:4px;"><i class="fas fa-graduation-cap" style="color:var(--primary)"></i> Course Preview</h3>
+            <div style="font-size:.8rem;color:#9ca3af;margin-bottom:14px;">${esc(d.storeName)} · ${esc(title)}</div>
+            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+                ${[
+                    ['fa-list',       cp.totalSections + ' sections'],
+                    ['fa-play-circle',cp.totalChapters + ' chapters'],
+                    ['fa-clock',      fmtDur(cp.totalDuration)],
+                    ['fa-signal',     cp.level || 'all levels'],
+                    ['fa-globe',      cp.language || 'English'],
+                    cp.certificate ? ['fa-certificate','Certificate'] : null
+                ].filter(Boolean).map(([icon,label]) => `
+                    <span style="font-size:.73rem;background:rgba(255,255,255,.05);padding:3px 10px;
+                          border-radius:10px;color:#d1d5db;">
+                        <i class="fas ${icon}" style="color:var(--primary);margin-right:4px;"></i>${label}
+                    </span>`).join('')}
+            </div>
+            <div style="overflow-y:auto;flex:1;padding-right:4px;">
+                ${sectionsHtml || '<div style="color:#9ca3af;text-align:center;padding:24px 0;font-size:.83rem;">No sections added yet.</div>'}
+            </div>
+            <div class="cr-modal-actions" style="margin-top:14px;">
+                <button class="btn btn-secondary" onclick="closeCrModal()">Close</button>
+                <button class="btn btn-primary" onclick="closeCrModal(); openProductReviewModal('${productId}','${esc(title)}',${suggestedPrice},'approve','course')">
+                    <i class="fas fa-check"></i> Proceed to Approve
+                </button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
 }
- 
 
 function openCommissionModal(creatorId, storeName, platformRate, affiliateRate) {
     closeCrModal();
@@ -6502,7 +6598,8 @@ function esc(str) {
     if (str === null || str === undefined) return '';
     return String(str)
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
 }
 function timeAgo(dateStr) {
     if (!dateStr) return '—';
@@ -7886,14 +7983,13 @@ async function adminBulkCloseTickets() {
     }
 }
 
-// ── escapeHtml (safe duplicate — only defined if not already present) ──────
-if (typeof escapeHtml === 'undefined') {
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+// REPLACE WITH (just the bare function, no if-guard):
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
