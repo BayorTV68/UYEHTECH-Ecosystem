@@ -4869,13 +4869,27 @@ async function editProduct(id) {
 
   // Course extras
   if (product.productType === 'course' && product.courseData) {
-    const cd = product.courseData;
-    const lvl = document.getElementById('courseLevel');
-    const lang = document.getElementById('courseLanguage');
+    var cd = product.courseData;
+    var lvl = document.getElementById('courseLevel');
+    var lang = document.getElementById('courseLanguage');
     if (lvl) lvl.value = cd.level || 'all';
     if (lang) lang.value = cd.language || 'English';
     if (cd.certificate) toggleRow('certToggle');
-    courseSections = cd.sections || [];
+    // Map each chapter to a clean plain object the builder can work with safely
+    courseSections = (cd.sections || []).map(function(sec) {
+      return {
+        sectionTitle: sec.sectionTitle || '',
+        chapters: (sec.chapters || []).map(function(ch) {
+          return {
+            chapterTitle: ch.chapterTitle || '',
+            duration:     ch.duration     || 0,
+            isFree:       ch.isFree       || false,
+            externalUrl:  ch.externalUrl  || '',
+            hostedFile:   ch.hostedFile   || null
+          };
+        })
+      };
+    });
     updateBuilderStats();
   }
 
@@ -6755,18 +6769,25 @@ async function handleChapterFileChange(event) {
 
 function confirmChapterFile() {
   if (!currentChapterTarget) { closeChapterUpload(); return; }
-  const { sectionIdx, chapterIdx } = currentChapterTarget;
+  var sectionIdx = currentChapterTarget.sectionIdx;
+  var chapterIdx = currentChapterTarget.chapterIdx;
+
+  // Save chapter title
+  var titleEl = document.getElementById('chapterTitle');
+  if (titleEl && titleEl.value.trim()) {
+    courseSections[sectionIdx].chapters[chapterIdx].chapterTitle = titleEl.value.trim();
+  }
 
   // Save external URL
   if (chapterTabMode === 'link') {
-    const url = document.getElementById('chapterExtUrl').value.trim();
-    courseSections[sectionIdx].chapters[chapterIdx].externalUrl = url;
+    var url = document.getElementById('chapterExtUrl').value.trim();
     if (!url) { showToast('Please enter an external URL', 'amber'); return; }
+    courseSections[sectionIdx].chapters[chapterIdx].externalUrl = url;
   }
 
   // Save duration
-  const mins = parseInt(document.getElementById('chapterDurMin').value) || 0;
-  const secs = parseInt(document.getElementById('chapterDurSec').value) || 0;
+  var mins = parseInt(document.getElementById('chapterDurMin').value) || 0;
+  var secs = parseInt(document.getElementById('chapterDurSec').value) || 0;
   courseSections[sectionIdx].chapters[chapterIdx].duration = (mins * 60) + secs;
 
   renderCourseSections();
@@ -6876,12 +6897,33 @@ function updateBuilderStats() {
   if (lvl) setTxt('previewLevel', lvl.options[lvl.selectedIndex]?.text || 'All levels');
 }
 
-function saveCourseStructure() {
+async function saveCourseStructure() {
   updateBuilderStats();
+  var editId = document.getElementById('uploadForm') && document.getElementById('uploadForm').getAttribute('data-edit-id');
+  if (editId) {
+    try {
+      var token = localStorage.getItem('token');
+      var saveRes = await fetch(API_URL + '/api/creator/products/' + editId + '/course-structure', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sections:    courseSections,
+          level:       (document.getElementById('courseLevel') ? document.getElementById('courseLevel').value : 'all') || 'all',
+          language:    (document.getElementById('courseLanguage') ? document.getElementById('courseLanguage').value : 'English') || 'English',
+          certificate: document.getElementById('certToggle') ? document.getElementById('certToggle').classList.contains('on') : false
+        })
+      });
+      var saveData = await saveRes.json();
+      if (!saveData.success) throw new Error(saveData.message || 'Save failed');
+      showToast('✅ Course structure saved to server!', 'green');
+    } catch (saveErr) {
+      showToast('⚠️ Could not save to server: ' + saveErr.message, 'amber');
+    }
+  } else {
+    showToast('✅ Course curriculum saved! Submit the product to publish.', 'green');
+  }
   closeCourseBuilder();
-  showToast('✅ Course curriculum saved! Remember to submit the product.', 'green');
 }
-
 
 
 
