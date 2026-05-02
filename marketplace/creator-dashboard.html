@@ -4879,13 +4879,21 @@ async function editProduct(id) {
     courseSections = (cd.sections || []).map(function(sec) {
       return {
         sectionTitle: sec.sectionTitle || '',
+        sectionOrder: sec.sectionOrder || 0,
         chapters: (sec.chapters || []).map(function(ch) {
           return {
             chapterTitle: ch.chapterTitle || '',
+            chapterOrder: ch.chapterOrder || 0,
             duration:     ch.duration     || 0,
-            isFree:       ch.isFree       || false,
-            externalUrl:  ch.externalUrl  || '',
-            hostedFile:   ch.hostedFile   || null
+            isFree:       ch.isFree       || false,        // server public-preview gate
+            isPreview:    ch.isPreview    || ch.isFree || false,  // UI toggle state
+            externalUrl:  ch.externalUrl  || ch.externalVideoUrl || '',
+            embedUrl:     ch.embedUrl     || '',           // parsed by server — kept for display
+            embedType:    ch.embedType    || null,
+            playerType:   ch.playerType   || null,
+            hostedFile:   ch.hostedFile   || null,
+            notes:        ch.notes        || '',
+            transcript:   ch.transcript   || ''
           };
         })
       };
@@ -4916,8 +4924,11 @@ async function submitProduct() {
   const cat   = document.getElementById('uploadCategory').value;
   const price = parseFloat(document.getElementById('uploadPrice').value);
 
-  if (!title || !desc || !cat || !price) {
-    showToast('Please fill all required fields', 'amber'); return;
+  if (!title || !desc || !cat) {
+    showToast('Please fill in all required fields', 'amber'); return;
+  }
+  if (isNaN(price) || price < 0) {
+    showToast('Please enter a valid price (0 or above)', 'amber'); return;
   }
 
   // ── Guard: block submit if a file upload is still running ────────────────
@@ -6654,7 +6665,8 @@ function addChapter(sectionIdx) {
     chapterTitle: '',
     chapterOrder: courseSections[sectionIdx].chapters.length + 1,
     duration: 0,
-    isFree: false,
+    isFree:    false,    // server preview gate only — buyers always get full access after purchase
+    isPreview: false,    // true = mark chapter as FREE public sample shown before purchase
     hostedFile: null,
     externalUrl: '',
     notes: ''
@@ -6670,9 +6682,13 @@ function deleteChapter(sectionIdx, chapterIdx) {
   updateBuilderStats();
 }
 
-function toggleChapterFree(sectionIdx, chapterIdx) {
-  courseSections[sectionIdx].chapters[chapterIdx].isFree =
-    !courseSections[sectionIdx].chapters[chapterIdx].isFree;
+function toggleChapterPreview(sectionIdx, chapterIdx) {
+  // isPreview = this chapter is a free public sample shown on the product page before purchase.
+  // After a buyer pays, they unlock ALL chapters regardless of isPreview/isFree.
+  // isFree is kept in sync so the server's public preview route reads it correctly.
+  const ch = courseSections[sectionIdx].chapters[chapterIdx];
+  ch.isPreview = !ch.isPreview;
+  ch.isFree    =  ch.isPreview;
   renderCourseSections();
   updateBuilderStats();
 }
@@ -6778,11 +6794,17 @@ function confirmChapterFile() {
     courseSections[sectionIdx].chapters[chapterIdx].chapterTitle = titleEl.value.trim();
   }
 
-  // Save external URL
+  // Save external URL — server will parse embedUrl/embedType/playerType via processChaptersForDelivery
   if (chapterTabMode === 'link') {
     var url = document.getElementById('chapterExtUrl').value.trim();
     if (!url) { showToast('Please enter an external URL', 'amber'); return; }
     courseSections[sectionIdx].chapters[chapterIdx].externalUrl = url;
+    // Clear stale hostedFile so server knows this chapter is embed-based, not file-based
+    courseSections[sectionIdx].chapters[chapterIdx].hostedFile  = null;
+    // Clear stale pre-parsed embed so server always re-parses fresh from externalUrl
+    courseSections[sectionIdx].chapters[chapterIdx].embedUrl    = '';
+    courseSections[sectionIdx].chapters[chapterIdx].embedType   = null;
+    courseSections[sectionIdx].chapters[chapterIdx].playerType  = null;
   }
 
   // Save duration
@@ -6821,7 +6843,9 @@ function renderCourseSections() {
       const fileBtnLabel = hasFile
         ? (ch.hostedFile ? '✅ File' : '🔗 Link')
         : '📎 Add File';
-      const freeClass = ch.isFree ? 'chapter-free-toggle is-free' : 'chapter-free-toggle';
+      // isPreview: free public sample before purchase — NOT a content lock for buyers
+      const isPreview   = ch.isPreview || ch.isFree || false;
+      const previewClass = isPreview ? 'chapter-free-toggle is-free' : 'chapter-free-toggle';
       const durText = ch.duration ? formatDuration(ch.duration) : '';
 
       return `
@@ -6833,8 +6857,8 @@ function renderCourseSections() {
             oninput="courseSections[${si}].chapters[${ci}].chapterTitle=this.value;updateBuilderStats();">
           ${durText ? `<span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--muted);white-space:nowrap;">${durText}</span>` : ''}
           <button class="${fileBtnClass}" onclick="openChapterUpload(${si},${ci})">${fileBtnLabel}</button>
-          <button class="${freeClass}" onclick="toggleChapterFree(${si},${ci})">
-            ${ch.isFree ? '🔓 Free' : '🔒 Paid'}
+          <button class="${previewClass}" title="Mark as free preview sample (all buyers unlock every chapter after purchase)" onclick="toggleChapterPreview(${si},${ci})">
+            ${isPreview ? '👁️ Preview' : '🎓 Paid'}
           </button>
           <button class="chapter-del-btn" onclick="deleteChapter(${si},${ci})"><i class="fas fa-trash"></i></button>
         </div>`;
@@ -6869,12 +6893,12 @@ function toggleSection(idx) {
 }
 
 function updateBuilderStats() {
-  let totalChapters = 0, totalDuration = 0, freeChapters = 0;
+  let totalChapters = 0, totalDuration = 0, previewChapters = 0;
   courseSections.forEach(s => {
     totalChapters += s.chapters.length;
     s.chapters.forEach(c => {
       totalDuration += c.duration || 0;
-      if (c.isFree) freeChapters++;
+      if (c.isPreview || c.isFree) previewChapters++;  // count preview samples, not content locks
     });
   });
 
@@ -6882,13 +6906,13 @@ function updateBuilderStats() {
   setTxt('bStatSections', courseSections.length);
   setTxt('bStatChapters', totalChapters);
   setTxt('bStatDuration', totalDuration > 0 ? formatDuration(totalDuration) : '0m');
-  setTxt('bStatFree', freeChapters);
+  setTxt('bStatFree', previewChapters);
 
   // Main page course stats
   setTxt('statSections', courseSections.length);
   setTxt('statChapters', totalChapters);
   setTxt('statDuration', totalDuration > 0 ? formatDuration(totalDuration) : '0m');
-  setTxt('statFreeChapters', freeChapters);
+  setTxt('statFreeChapters', previewChapters);
 
   // Preview panel
   setTxt('previewChapters', totalChapters + ' chapters');
@@ -6899,10 +6923,18 @@ function updateBuilderStats() {
 
 async function saveCourseStructure() {
   updateBuilderStats();
+
+  // Sync isPreview -> isFree on every chapter before sending to server.
+  // Server's public preview route reads ch.isFree, not ch.isPreview.
+  courseSections.forEach(s => s.chapters.forEach(ch => {
+    ch.isFree = ch.isPreview || false;
+  }));
+
   var editId = document.getElementById('uploadForm') && document.getElementById('uploadForm').getAttribute('data-edit-id');
   if (editId) {
     try {
       var token = localStorage.getItem('token');
+      showToast('⏳ Saving course structure...', 'blue');
       var saveRes = await fetch(API_URL + '/api/creator/products/' + editId + '/course-structure', {
         method: 'PUT',
         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
@@ -6915,12 +6947,29 @@ async function saveCourseStructure() {
       });
       var saveData = await saveRes.json();
       if (!saveData.success) throw new Error(saveData.message || 'Save failed');
-      showToast('✅ Course structure saved to server!', 'green');
+
+      // Merge server-parsed embedUrl/embedType/playerType back into local state
+      // Server runs processChaptersForDelivery which converts YouTube URLs to embed URLs
+      if (saveData.courseData && saveData.courseData.sections) {
+        saveData.courseData.sections.forEach(function(serverSec, si) {
+          if (!courseSections[si]) return;
+          (serverSec.chapters || []).forEach(function(serverCh, ci) {
+            if (!courseSections[si].chapters[ci]) return;
+            var localCh = courseSections[si].chapters[ci];
+            if (serverCh.embedUrl)   localCh.embedUrl   = serverCh.embedUrl;
+            if (serverCh.embedType)  localCh.embedType  = serverCh.embedType;
+            if (serverCh.playerType) localCh.playerType = serverCh.playerType;
+          });
+        });
+        renderCourseSections();
+      }
+
+      showToast('✅ Course structure saved!', 'green');
     } catch (saveErr) {
       showToast('⚠️ Could not save to server: ' + saveErr.message, 'amber');
     }
   } else {
-    showToast('✅ Course curriculum saved! Submit the product to publish.', 'green');
+    showToast('✅ Course curriculum saved locally! Submit product to publish.', 'green');
   }
   closeCourseBuilder();
 }
