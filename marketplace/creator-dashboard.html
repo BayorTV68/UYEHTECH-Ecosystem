@@ -4885,10 +4885,10 @@ async function editProduct(id) {
             chapterTitle: ch.chapterTitle || '',
             chapterOrder: ch.chapterOrder || 0,
             duration:     ch.duration     || 0,
-            isFree:       ch.isFree       || false,        // server public-preview gate
-            isPreview:    ch.isPreview    || ch.isFree || false,  // UI toggle state
+            isFree:       ch.isFree       || false,
+            isPreview:    ch.isPreview    || ch.isFree || false,
             externalUrl:  ch.externalUrl  || ch.externalVideoUrl || '',
-            embedUrl:     ch.embedUrl     || '',           // parsed by server — kept for display
+            embedUrl:     ch.embedUrl     || '',
             embedType:    ch.embedType    || null,
             playerType:   ch.playerType   || null,
             hostedFile:   ch.hostedFile   || null,
@@ -4925,10 +4925,10 @@ async function submitProduct() {
   const price = parseFloat(document.getElementById('uploadPrice').value);
 
   if (!title || !desc || !cat) {
-    showToast('Please fill in all required fields', 'amber'); return;
+    showToast('Please fill all required fields — title, description and category are required', 'amber'); return;
   }
   if (isNaN(price) || price < 0) {
-    showToast('Please enter a valid price (0 or above)', 'amber'); return;
+    showToast('Please enter a valid price (₦0 or above)', 'amber'); return;
   }
 
   // ── Guard: block submit if a file upload is still running ────────────────
@@ -5012,7 +5012,14 @@ async function submitProduct() {
     payload.previewType = 'iframe';
   }
 
-  // Type-specific extras
+  // ── Strip stale type-specific data — prevent hybrid corrupt documents ────
+  // e.g. a course must never carry downloadLink; a download must never carry courseData
+  if (currentProductType !== 'course')    delete payload.courseData;
+  if (currentProductType !== 'music')     delete payload.audioData;
+  if (currentProductType !== 'software')  delete payload.softwareData;
+  if (currentProductType === 'course')    payload.downloadLink = '';
+
+  // ── Type-specific extras ──────────────────────────────────────────────────
   if (currentProductType === 'music') {
     payload.audioData = {
       bpm:      parseInt(document.getElementById('audioBpm')?.value) || null,
@@ -5035,15 +5042,24 @@ async function submitProduct() {
   }
 
   if (currentProductType === 'course') {
+    // Sync isPreview -> isFree on every chapter before sending to server
+    courseSections.forEach(s => s.chapters.forEach(ch => {
+      ch.isFree = ch.isPreview || false;
+    }));
     payload.courseData = {
-      level:       document.getElementById('courseLevel')?.value || 'all',
-      language:    document.getElementById('courseLanguage')?.value || 'English',
-      certificate: document.getElementById('certToggle')?.classList.contains('on') || false,
-      sections:    courseSections,
+      level:         document.getElementById('courseLevel')?.value || 'all',
+      language:      document.getElementById('courseLanguage')?.value || 'English',
+      certificate:   document.getElementById('certToggle')?.classList.contains('on') || false,
+      sections:      courseSections,
       totalSections: courseSections.length,
       totalChapters: courseSections.reduce((a,s) => a + s.chapters.length, 0),
       totalDuration: courseSections.reduce((a,s) => a + s.chapters.reduce((b,c) => b+(c.duration||0), 0), 0),
     };
+    // If builder was never opened, seed empty structure so server pre-save
+    // hook gets a valid courseData and never saves { courseData: null }
+    if (!payload.courseData.sections.length) {
+      payload.courseData.sections = [];
+    }
   }
 
   try {
@@ -6664,12 +6680,16 @@ function addChapter(sectionIdx) {
   courseSections[sectionIdx].chapters.push({
     chapterTitle: '',
     chapterOrder: courseSections[sectionIdx].chapters.length + 1,
-    duration: 0,
-    isFree:    false,    // server preview gate only — buyers always get full access after purchase
-    isPreview: false,    // true = mark chapter as FREE public sample shown before purchase
-    hostedFile: null,
-    externalUrl: '',
-    notes: ''
+    duration:     0,
+    isFree:       false,     // server reads this for public preview gating only
+    isPreview:    false,     // UI toggle — true = free sample shown before purchase
+    hostedFile:   null,
+    externalUrl:  '',
+    embedUrl:     '',        // filled by server after save
+    embedType:    null,
+    playerType:   null,
+    notes:        '',
+    transcript:   ''
   });
   renderCourseSections();
   updateBuilderStats();
@@ -6683,9 +6703,9 @@ function deleteChapter(sectionIdx, chapterIdx) {
 }
 
 function toggleChapterPreview(sectionIdx, chapterIdx) {
-  // isPreview = this chapter is a free public sample shown on the product page before purchase.
-  // After a buyer pays, they unlock ALL chapters regardless of isPreview/isFree.
-  // isFree is kept in sync so the server's public preview route reads it correctly.
+  // isPreview = free public sample shown on product page before purchase.
+  // It is NOT a content lock. Buyers who pay always unlock every chapter.
+  // isFree is kept in sync because the server's course-preview route reads isFree.
   const ch = courseSections[sectionIdx].chapters[chapterIdx];
   ch.isPreview = !ch.isPreview;
   ch.isFree    =  ch.isPreview;
@@ -6794,14 +6814,14 @@ function confirmChapterFile() {
     courseSections[sectionIdx].chapters[chapterIdx].chapterTitle = titleEl.value.trim();
   }
 
-  // Save external URL — server will parse embedUrl/embedType/playerType via processChaptersForDelivery
+  // Save external URL — server parses embedUrl/embedType/playerType on save
   if (chapterTabMode === 'link') {
     var url = document.getElementById('chapterExtUrl').value.trim();
-    if (!url) { showToast('Please enter an external URL', 'amber'); return; }
+    if (!url) { showToast('Please enter a video or audio URL (YouTube, Vimeo, SoundCloud...)', 'amber'); return; }
     courseSections[sectionIdx].chapters[chapterIdx].externalUrl = url;
-    // Clear stale hostedFile so server knows this chapter is embed-based, not file-based
+    // Clear stale hosted file — this chapter is now embed-based
     courseSections[sectionIdx].chapters[chapterIdx].hostedFile  = null;
-    // Clear stale pre-parsed embed so server always re-parses fresh from externalUrl
+    // Clear stale embed data — server always re-parses from externalUrl fresh
     courseSections[sectionIdx].chapters[chapterIdx].embedUrl    = '';
     courseSections[sectionIdx].chapters[chapterIdx].embedType   = null;
     courseSections[sectionIdx].chapters[chapterIdx].playerType  = null;
@@ -6843,8 +6863,8 @@ function renderCourseSections() {
       const fileBtnLabel = hasFile
         ? (ch.hostedFile ? '✅ File' : '🔗 Link')
         : '📎 Add File';
-      // isPreview: free public sample before purchase — NOT a content lock for buyers
-      const isPreview   = ch.isPreview || ch.isFree || false;
+      // isPreview = free public sample before purchase — NOT a content lock for buyers
+      const isPreview    = ch.isPreview || ch.isFree || false;
       const previewClass = isPreview ? 'chapter-free-toggle is-free' : 'chapter-free-toggle';
       const durText = ch.duration ? formatDuration(ch.duration) : '';
 
@@ -6857,7 +6877,9 @@ function renderCourseSections() {
             oninput="courseSections[${si}].chapters[${ci}].chapterTitle=this.value;updateBuilderStats();">
           ${durText ? `<span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--muted);white-space:nowrap;">${durText}</span>` : ''}
           <button class="${fileBtnClass}" onclick="openChapterUpload(${si},${ci})">${fileBtnLabel}</button>
-          <button class="${previewClass}" title="Mark as free preview sample (all buyers unlock every chapter after purchase)" onclick="toggleChapterPreview(${si},${ci})">
+          <button class="${previewClass}"
+            title="Mark as free preview sample. Paid buyers always unlock ALL chapters."
+            onclick="toggleChapterPreview(${si},${ci})">
             ${isPreview ? '👁️ Preview' : '🎓 Paid'}
           </button>
           <button class="chapter-del-btn" onclick="deleteChapter(${si},${ci})"><i class="fas fa-trash"></i></button>
@@ -6898,7 +6920,7 @@ function updateBuilderStats() {
     totalChapters += s.chapters.length;
     s.chapters.forEach(c => {
       totalDuration += c.duration || 0;
-      if (c.isPreview || c.isFree) previewChapters++;  // count preview samples, not content locks
+      if (c.isPreview || c.isFree) previewChapters++;
     });
   });
 
@@ -6924,8 +6946,7 @@ function updateBuilderStats() {
 async function saveCourseStructure() {
   updateBuilderStats();
 
-  // Sync isPreview -> isFree on every chapter before sending to server.
-  // Server's public preview route reads ch.isFree, not ch.isPreview.
+  // Sync isPreview -> isFree before sending — server reads isFree for preview gating
   courseSections.forEach(s => s.chapters.forEach(ch => {
     ch.isFree = ch.isPreview || false;
   }));
@@ -6949,16 +6970,17 @@ async function saveCourseStructure() {
       if (!saveData.success) throw new Error(saveData.message || 'Save failed');
 
       // Merge server-parsed embedUrl/embedType/playerType back into local state
-      // Server runs processChaptersForDelivery which converts YouTube URLs to embed URLs
-      if (saveData.courseData && saveData.courseData.sections) {
+      // Server runs processChaptersForDelivery which converts raw YouTube URLs
+      // into proper embed URLs — we need these locally so the builder is accurate
+      if (saveData.courseData && Array.isArray(saveData.courseData.sections)) {
         saveData.courseData.sections.forEach(function(serverSec, si) {
           if (!courseSections[si]) return;
           (serverSec.chapters || []).forEach(function(serverCh, ci) {
             if (!courseSections[si].chapters[ci]) return;
-            var localCh = courseSections[si].chapters[ci];
-            if (serverCh.embedUrl)   localCh.embedUrl   = serverCh.embedUrl;
-            if (serverCh.embedType)  localCh.embedType  = serverCh.embedType;
-            if (serverCh.playerType) localCh.playerType = serverCh.playerType;
+            var lc = courseSections[si].chapters[ci];
+            if (serverCh.embedUrl)   lc.embedUrl   = serverCh.embedUrl;
+            if (serverCh.embedType)  lc.embedType  = serverCh.embedType;
+            if (serverCh.playerType) lc.playerType = serverCh.playerType;
           });
         });
         renderCourseSections();
@@ -6969,7 +6991,7 @@ async function saveCourseStructure() {
       showToast('⚠️ Could not save to server: ' + saveErr.message, 'amber');
     }
   } else {
-    showToast('✅ Course curriculum saved locally! Submit product to publish.', 'green');
+    showToast('✅ Course curriculum saved locally — submit product to publish.', 'green');
   }
   closeCourseBuilder();
 }
