@@ -5921,15 +5921,85 @@ function renderCreatorProducts(products) {
             </ul>
             ` : ''}
             <!-- Course info -->
-            ${p.productType === 'course' && p.courseData ? `
+            ${p.productType === 'course' ? `
             <div class="cr-section-label">Course Structure</div>
-            <div class="cr-field-row">
-                ${p.courseData.totalSections  ? `<div class="cr-field"><div class="cr-field-label">Sections</div><div class="cr-field-value">${p.courseData.totalSections}</div></div>` : ''}
-                ${p.courseData.totalChapters  ? `<div class="cr-field"><div class="cr-field-label">Chapters</div><div class="cr-field-value">${p.courseData.totalChapters}</div></div>` : ''}
-                ${p.courseData.totalDuration  ? `<div class="cr-field"><div class="cr-field-label">Duration</div><div class="cr-field-value">${p.courseData.totalDuration >= 3600 ? Math.floor(p.courseData.totalDuration/3600)+'h '+Math.floor((p.courseData.totalDuration%3600)/60)+'m' : Math.floor(p.courseData.totalDuration/60)+'m'}</div></div>` : ''}
-                ${p.courseData.level          ? `<div class="cr-field"><div class="cr-field-label">Level</div><div class="cr-field-value">${p.courseData.level}</div></div>` : ''}
-                ${p.courseData.language       ? `<div class="cr-field"><div class="cr-field-label">Language</div><div class="cr-field-value">${p.courseData.language}</div></div>` : ''}
-            </div>
+            ${p.courseData ? (() => {
+                const cd = p.courseData;
+                const fmtDur = s => !s ? null : s >= 3600
+                    ? `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`
+                    : `${Math.floor(s/60)}m`;
+                const sections = cd.sections || [];
+                let liveChapters = 0, liveContent = 0;
+                sections.forEach(s => { (s.chapters||[]).forEach(ch => { liveChapters++; if(ch.hostedFile?.publicId||ch.externalUrl||ch.embedUrl) liveContent++; }); });
+
+                const statsRow = `
+                <div class="cr-field-row" style="margin-bottom:10px;">
+                    ${cd.totalSections||sections.length ? `<div class="cr-field"><div class="cr-field-label">Sections</div><div class="cr-field-value">${cd.totalSections||sections.length}</div></div>` : ''}
+                    ${liveChapters ? `<div class="cr-field"><div class="cr-field-label">Chapters</div><div class="cr-field-value">${liveChapters}</div></div>` : ''}
+                    ${liveContent  ? `<div class="cr-field"><div class="cr-field-label">With Content</div><div class="cr-field-value" style="color:var(--primary);">${liveContent}/${liveChapters}</div></div>` : ''}
+                    ${cd.totalDuration ? `<div class="cr-field"><div class="cr-field-label">Duration</div><div class="cr-field-value">${fmtDur(cd.totalDuration)}</div></div>` : ''}
+                    ${cd.level    ? `<div class="cr-field"><div class="cr-field-label">Level</div><div class="cr-field-value" style="text-transform:capitalize;">${cd.level}</div></div>` : ''}
+                    ${cd.language ? `<div class="cr-field"><div class="cr-field-label">Language</div><div class="cr-field-value">${cd.language}</div></div>` : ''}
+                    ${cd.certificate ? `<div class="cr-field"><div class="cr-field-label">Certificate</div><div class="cr-field-value" style="color:var(--primary);">✓ Yes</div></div>` : ''}
+                </div>`;
+
+                const sectionTree = sections.length ? sections.map((sec, si) => `
+                <div style="margin-bottom:10px;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;">
+                    <div style="padding:7px 12px;background:rgba(0,255,136,.06);font-size:.75rem;font-weight:700;
+                         color:var(--primary);letter-spacing:.02em;display:flex;align-items:center;gap:8px;">
+                        <span style="background:var(--primary);color:#000;border-radius:50%;width:18px;height:18px;
+                              display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;">
+                            ${si+1}
+                        </span>
+                        ${esc(sec.sectionTitle||'Untitled Section')}
+                        <span style="margin-left:auto;font-size:.68rem;color:#9ca3af;font-weight:400;">
+                            ${(sec.chapters||[]).length} chapter${(sec.chapters||[]).length!==1?'s':''}
+                        </span>
+                    </div>
+                    ${(sec.chapters||[]).length ? (sec.chapters||[]).map((ch, ci) => {
+                        const hasFile = !!(ch.hostedFile?.publicId);
+                        const hasUrl  = !!(ch.externalUrl||ch.embedUrl);
+                        const hasContent = hasFile||hasUrl;
+                        const contentIcon = hasFile ? '☁️' : hasUrl ? '🔗' : '⚪';
+                        const contentLabel = hasFile
+                            ? (ch.hostedFile?.format ? ch.hostedFile.format.toUpperCase() : 'Hosted')
+                            : hasUrl ? (ch.embedType||'External') : 'No content';
+                        const url = ch.externalUrl||ch.embedUrl||null;
+                        return `
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 12px;
+                             border-top:1px solid rgba(255,255,255,.04);font-size:.78rem;
+                             background:${hasContent?'transparent':'rgba(255,68,68,.03)'};">
+                            <span style="color:#9ca3af;flex-shrink:0;min-width:22px;text-align:right;">${ci+1}.</span>
+                            <div style="flex:1;min-width:0;">
+                                <div style="color:#e5e7eb;margin-bottom:2px;">${esc(ch.chapterTitle||'Untitled Chapter')}</div>
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <span style="font-size:.7rem;color:${hasContent?'#60a5fa':'#6b7280'};">
+                                        ${contentIcon} ${esc(contentLabel)}
+                                    </span>
+                                    ${url ? `<a href="${esc(url)}" target="_blank" style="font-size:.68rem;color:var(--primary);">↗ Open</a>` : ''}
+                                    ${ch.duration ? `<span style="font-size:.68rem;color:#9ca3af;">${fmtDur(ch.duration)}</span>` : ''}
+                                    ${ch.isFree   ? `<span style="font-size:.65rem;padding:1px 5px;border-radius:8px;
+                                        background:rgba(0,255,136,.12);color:var(--primary);">FREE</span>` : ''}
+                                    ${ch.transcript ? `<span style="font-size:.65rem;color:#9ca3af;">📝 Transcript</span>` : ''}
+                                    ${ch.notes      ? `<span style="font-size:.65rem;color:#9ca3af;">📌 Notes</span>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('') : `<div style="padding:8px 12px;font-size:.75rem;color:#6b7280;font-style:italic;">No chapters in this section.</div>`}
+                </div>`).join('')
+                : `<div style="font-size:.8rem;color:#6b7280;padding:10px 0;font-style:italic;">No sections added yet.</div>`;
+
+                const warning = liveContent === 0 && liveChapters > 0
+                    ? `<div style="margin-top:8px;padding:8px 12px;background:rgba(255,165,0,.07);border-left:3px solid orange;
+                        border-radius:4px;font-size:.75rem;color:#fbbf24;">
+                        ⚠️ ${liveChapters} chapter(s) have no video URL or uploaded file — admin approval will be blocked until at least one chapter has content.
+                       </div>` : '';
+
+                return statsRow + sectionTree + warning;
+            })() : `
+            <div style="font-size:.8rem;color:#6b7280;padding:8px 0;font-style:italic;">
+                Course structure not yet built by creator.
+            </div>`}
             ` : ''}
 
             <!-- Media info (music/video) -->
@@ -6297,87 +6367,208 @@ async function submitProductReview(productId, action) {
         body.adminNotes      = reason;
     }
 
+    let r, d;
     try {
-        const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/review`, {
+        r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/review`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
             body: JSON.stringify(body)
         });
-        const d = await r.json();
-        if (!d.success) { showToast(d.message || 'Review failed', 'error'); throw new Error(d.message); }
-        showToast(`Product ${isApprove ? 'approved and listed! ✅' : 'rejected.'}`, 'success');
-        closeCrModal();
-        fetchCreatorProducts();
-        refreshCreatorBadges();
-    } catch (err) {
-        if (err.message !== 'no price' && err.message !== 'no reason') {
-            showToast(err.message || 'Network error. Please try again.', 'error');
-        }
-        throw err;
+        d = await r.json();
+    } catch (netErr) {
+        showToast('Network error — check your connection and try again.', 'error');
+        throw netErr;
     }
+
+    if (!r.ok || !d.success) {
+        // Show the exact server message so admin knows what's blocking approval
+        const msg = d?.message || `Server error (${r.status})`;
+        showToast(`❌ ${msg}`, 'error');
+        console.error('Product review failed:', d);
+        throw new Error(msg);
+    }
+
+    showToast(`Product ${isApprove ? 'approved and listed! ✅' : 'rejected.'}`, 'success');
+    closeCrModal();
+    fetchCreatorProducts();
+    refreshCreatorBadges();
 }
 
  
 async function previewCourseStructure(productId, title, suggestedPrice) {
     closeCrModal();
-    const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/course-preview`, {
-        headers: { 'Authorization': `Bearer ${adminToken}` }
-    });
-    const d = await r.json();
-    if (!d.success) { showToast(d.message || 'Failed to load course preview', 'error'); return; }
 
-    const cp = d.coursePreview;
-    const fmtDur = s => !s ? '—' : s >= 3600
+    // Show loading skeleton while fetching
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="cr-modal-overlay" id="crModalOverlay">
+        <div class="cr-modal" style="max-width:640px;max-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;">
+            <i class="fas fa-graduation-cap fa-2x" style="color:var(--primary);margin-bottom:14px;"></i>
+            <div style="color:#9ca3af;font-size:.85rem;">Loading course structure…</div>
+        </div>
+    </div>`);
+
+    let d;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}/course-preview`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        d = await r.json();
+    } catch (err) {
+        closeCrModal();
+        showToast('Network error loading course preview.', 'error');
+        return;
+    }
+
+    closeCrModal();
+
+    if (!d.success) {
+        showToast(d.message || 'Failed to load course preview', 'error');
+        return;
+    }
+
+    const cp  = d.coursePreview;
+    const rd  = d.readiness || {};
+    const fmtDur = s => !s ? null : s >= 3600
         ? `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`
         : `${Math.floor(s/60)}m`;
 
-    const sectionsHtml = (cp.sections || []).map(sec => `
-        <div style="margin-bottom:14px;">
-            <div style="font-size:.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;
-                 letter-spacing:.04em;margin-bottom:6px;">
-                ${esc(sec.sectionTitle || 'Section ' + sec.sectionOrder)}
-            </div>
-            ${(sec.chapters || []).map(ch => `
-            <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;
-                 background:rgba(255,255,255,.03);border-radius:7px;margin-bottom:4px;font-size:.8rem;">
-                <i class="fas fa-${ch.hasHostedFile ? 'cloud' : ch.hasExternalUrl ? 'link' : 'circle-notch'}"
-                   style="color:${ch.hasHostedFile ? 'var(--primary)' : ch.hasExternalUrl ? '#60a5fa' : '#4a5568'};
-                          width:14px;flex-shrink:0;"></i>
-                <span style="flex:1;color:#d1d5db;">${esc(ch.chapterTitle || 'Chapter ' + ch.chapterOrder)}</span>
-                ${ch.isFree ? `<span style="font-size:.68rem;background:rgba(0,255,136,.15);color:var(--primary);
-                    padding:1px 6px;border-radius:8px;">FREE</span>` : ''}
-                ${ch.embedType ? `<span style="font-size:.68rem;color:#9ca3af;">${esc(ch.embedType)}</span>` : ''}
-                ${ch.duration  ? `<span style="font-size:.68rem;color:#9ca3af;flex-shrink:0;">${fmtDur(ch.duration)}</span>` : ''}
-            </div>`).join('')}
-        </div>`).join('');
+    // ── Stats pills ───────────────────────────────────────────────────────────
+    const pills = [
+        ['fa-layer-group',  `${cp.totalSections} section${cp.totalSections!==1?'s':''}`],
+        ['fa-play-circle',  `${cp.totalChapters} chapter${cp.totalChapters!==1?'s':''}`],
+        cp.chaptersWithContent != null ? ['fa-check-circle', `${cp.chaptersWithContent} with content`] : null,
+        cp.freeChapters  ? ['fa-unlock',      `${cp.freeChapters} free`]          : null,
+        fmtDur(cp.totalDuration) ? ['fa-clock', fmtDur(cp.totalDuration)]          : null,
+        ['fa-signal',       cp.level    || 'All levels'],
+        ['fa-globe',        cp.language || 'English'],
+        cp.certificate    ? ['fa-certificate', 'Certificate']                       : null,
+    ].filter(Boolean);
+
+    // ── Approval readiness banner ─────────────────────────────────────────────
+    const readinessBanner = rd.canApprove === false ? `
+    <div style="padding:10px 14px;background:rgba(255,68,68,.08);border-left:3px solid #ff4444;
+         border-radius:6px;margin-bottom:14px;font-size:.8rem;color:#ff8888;line-height:1.6;">
+        <strong>⛔ Cannot approve yet:</strong> ${esc(rd.blockerMessage || 'Course is incomplete.')}
+    </div>` : rd.blockerMessage ? `
+    <div style="padding:10px 14px;background:rgba(255,165,0,.07);border-left:3px solid orange;
+         border-radius:6px;margin-bottom:14px;font-size:.8rem;color:#fbbf24;line-height:1.6;">
+        <strong>⚠️ Note:</strong> ${esc(rd.blockerMessage)}
+    </div>` : `
+    <div style="padding:10px 14px;background:rgba(0,255,136,.06);border-left:3px solid var(--primary);
+         border-radius:6px;margin-bottom:14px;font-size:.8rem;color:var(--primary);line-height:1.6;">
+        ✅ Course is ready for approval.
+    </div>`;
+
+    // ── Section + chapter tree ────────────────────────────────────────────────
+    const sectionsHtml = (cp.sections || []).length ? (cp.sections || []).map((sec, si) => `
+    <div style="margin-bottom:10px;border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;">
+        <!-- Section header -->
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;
+             background:rgba(0,255,136,.06);cursor:pointer;"
+             onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';">
+            <span style="background:var(--primary);color:#000;border-radius:50%;width:20px;height:20px;
+                  display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;
+                  font-weight:800;flex-shrink:0;">${si+1}</span>
+            <span style="flex:1;font-size:.8rem;font-weight:700;color:var(--primary);">
+                ${esc(sec.sectionTitle || 'Untitled Section')}
+            </span>
+            <span style="font-size:.7rem;color:#9ca3af;">${sec.chapterCount||sec.chapters?.length||0} chapters</span>
+            <i class="fas fa-chevron-down" style="font-size:.65rem;color:#9ca3af;"></i>
+        </div>
+        <!-- Chapters -->
+        <div>
+        ${(sec.chapters || []).length ? (sec.chapters || []).map((ch, ci) => {
+            const hasContent = ch.hasContent ?? !!(ch.hostedFile?.publicId||ch.externalUrl||ch.embedUrl);
+            const srcLabel   = ch.contentSource
+                ? ch.contentSource.charAt(0).toUpperCase() + ch.contentSource.slice(1)
+                : (hasContent ? 'External' : 'Empty');
+            const url = ch.externalUrl || null;
+            return `
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;
+                 border-top:1px solid rgba(255,255,255,.04);
+                 background:${hasContent?'transparent':'rgba(255,68,68,.03)'};">
+                <span style="color:#6b7280;flex-shrink:0;font-size:.72rem;min-width:20px;
+                      margin-top:2px;text-align:right;">${ci+1}.</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:.8rem;color:#e5e7eb;margin-bottom:3px;">
+                        ${esc(ch.chapterTitle||'Untitled Chapter')}
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+                        <!-- Content source badge -->
+                        <span style="font-size:.68rem;padding:1px 7px;border-radius:8px;
+                              background:${hasContent?'rgba(96,165,250,.12)':'rgba(107,114,128,.12)'};
+                              color:${hasContent?'#60a5fa':'#6b7280'};">
+                            ${hasContent ? '🔗' : '⚪'} ${esc(srcLabel)}
+                        </span>
+                        ${url ? `<a href="${esc(url)}" target="_blank"
+                            style="font-size:.68rem;color:var(--primary);text-decoration:none;">↗ Open</a>` : ''}
+                        ${ch.hostedFileFormat ? `<span style="font-size:.67rem;color:#9ca3af;">
+                            ${ch.hostedFileFormat.toUpperCase()}</span>` : ''}
+                        ${ch.hostedFileSize   ? `<span style="font-size:.67rem;color:#9ca3af;">
+                            ${esc(ch.hostedFileSize)}</span>` : ''}
+                        ${fmtDur(ch.duration) ? `<span style="font-size:.67rem;color:#9ca3af;">
+                            ⏱ ${fmtDur(ch.duration)}</span>` : ''}
+                        ${ch.isFree ? `<span style="font-size:.65rem;padding:1px 6px;border-radius:8px;
+                            background:rgba(0,255,136,.12);color:var(--primary);">FREE</span>` : ''}
+                        ${ch.transcript ? `<span style="font-size:.65rem;color:#9ca3af;">📝 Transcript</span>` : ''}
+                        ${ch.notes      ? `<span style="font-size:.65rem;color:#9ca3af;">📌 Notes</span>`      : ''}
+                    </div>
+                </div>
+            </div>`;
+        }).join('') : `<div style="padding:10px 12px;font-size:.75rem;color:#6b7280;font-style:italic;">
+            No chapters in this section yet.</div>`}
+        </div>
+    </div>`).join('')
+    : `<div style="text-align:center;padding:32px 0;color:#6b7280;font-size:.83rem;font-style:italic;">
+        No sections have been added to this course yet.</div>`;
+
+    const canApprove = rd.canApprove !== false;
 
     const html = `
     <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
-        <div class="cr-modal" style="max-width:580px;max-height:85vh;display:flex;flex-direction:column;">
-            <h3 style="margin-bottom:4px;"><i class="fas fa-graduation-cap" style="color:var(--primary)"></i> Course Preview</h3>
-            <div style="font-size:.8rem;color:#9ca3af;margin-bottom:14px;">${esc(d.storeName)} · ${esc(title)}</div>
-            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-                ${[
-                    ['fa-list',       cp.totalSections + ' sections'],
-                    ['fa-play-circle',cp.totalChapters + ' chapters'],
-                    ['fa-clock',      fmtDur(cp.totalDuration)],
-                    ['fa-signal',     cp.level || 'all levels'],
-                    ['fa-globe',      cp.language || 'English'],
-                    cp.certificate ? ['fa-certificate','Certificate'] : null
-                ].filter(Boolean).map(([icon,label]) => `
-                    <span style="font-size:.73rem;background:rgba(255,255,255,.05);padding:3px 10px;
-                          border-radius:10px;color:#d1d5db;">
-                        <i class="fas ${icon}" style="color:var(--primary);margin-right:4px;"></i>${label}
-                    </span>`).join('')}
+        <div class="cr-modal" style="max-width:640px;max-height:88vh;display:flex;flex-direction:column;">
+
+            <!-- Header -->
+            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:4px;">
+                <i class="fas fa-graduation-cap fa-lg" style="color:var(--primary);margin-top:3px;"></i>
+                <div>
+                    <h3 style="margin:0 0 2px;">${esc(d.title)}</h3>
+                    <div style="font-size:.78rem;color:#9ca3af;">
+                        ${esc(d.storeName)}
+                        &nbsp;·&nbsp; Suggested price: <strong style="color:#fff;">₦${Number(d.suggestedPrice||0).toLocaleString()}</strong>
+                        &nbsp;·&nbsp; Status: <strong style="color:var(--primary);">${esc(d.status||'').replace('_',' ').toUpperCase()}</strong>
+                    </div>
+                </div>
             </div>
+
+            <!-- Pills -->
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;">
+                ${pills.map(([icon,label]) => `
+                <span style="font-size:.72rem;background:rgba(255,255,255,.05);padding:3px 10px;
+                      border-radius:10px;color:#d1d5db;">
+                    <i class="fas ${icon}" style="color:var(--primary);margin-right:4px;"></i>${label}
+                </span>`).join('')}
+            </div>
+
+            <!-- Readiness banner -->
+            ${readinessBanner}
+
+            <!-- Section/chapter tree (scrollable) -->
             <div style="overflow-y:auto;flex:1;padding-right:4px;">
-                ${sectionsHtml || '<div style="color:#9ca3af;text-align:center;padding:24px 0;font-size:.83rem;">No sections added yet.</div>'}
+                ${sectionsHtml}
             </div>
+
+            <!-- Actions -->
             <div class="cr-modal-actions" style="margin-top:14px;">
                 <button class="btn btn-secondary" onclick="closeCrModal()">Close</button>
-                <button class="btn btn-primary" onclick="closeCrModal(); openProductReviewModal('${productId}','${esc(title)}',${suggestedPrice},'approve','course')">
+                ${canApprove ? `
+                <button class="btn btn-primary"
+                    onclick="closeCrModal(); openProductReviewModal('${productId}','${esc(title)}',${d.suggestedPrice||suggestedPrice},'approve','course')">
                     <i class="fas fa-check"></i> Proceed to Approve
-                </button>
+                </button>` : `
+                <button class="btn btn-secondary" style="opacity:.45;cursor:not-allowed;" disabled title="${esc(rd.blockerMessage||'Course incomplete')}">
+                    <i class="fas fa-lock"></i> Cannot Approve Yet
+                </button>`}
             </div>
         </div>
     </div>`;
