@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product — UYEH TECH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --g:#00ff88;--g2:#00cc6a;--g3:rgba(0,255,136,.08);--g4:rgba(0,255,136,.14);
+  --bg:#07090a;--bg2:#0b0e0c;--bg3:#111510;--card:#0e1210;--card2:#131a14;
+  --line:rgba(255,255,255,.06);--line2:rgba(255,255,255,.1);--line3:rgba(0,255,136,.2);
+  --t1:#edf2ee;--t2:#9aab9e;--t3:#556059;
+  --red:#ff4d6d;--amber:#f5a623;--blue:#60a5fa;--purple:#a78bfa;--teal:#2dd4bf;
+  --sidebar:300px;--hdr:58px;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,255,136,.12);border-radius:2px}
+
+/* ── TOP BAR ─────────────────────────────────────────── */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--hdr);background:rgba(7,9,10,.95);
+  backdrop-filter:blur(20px);border-bottom:1px solid var(--line);z-index:200;
+  display:flex;align-items:center;padding:0 20px;gap:14px}
+.tb-back{display:flex;align-items:center;gap:7px;color:var(--t2);text-decoration:none;
+  font-size:.82rem;font-weight:500;transition:color .15s;padding:6px 10px;
+  border-radius:8px;border:1px solid transparent}
+.tb-back:hover{color:var(--g);border-color:var(--line3)}
+.tb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;
+  color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+.layout{display:flex;min-height:100vh;padding-top:var(--hdr)}
+.sidebar{width:var(--sidebar);flex-shrink:0;position:sticky;top:var(--hdr);
+  height:calc(100vh - var(--hdr));overflow-y:auto;border-right:1px solid var(--line);
+  background:var(--bg2);display:flex;flex-direction:column}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ── PLAYER ZONE ─────────────────────────────────────── */
+.player-zone{background:#000;position:relative;width:100%}
+.player-zone video,
+.player-zone audio,
+.player-zone iframe{display:block;width:100%}
+.player-zone video,.player-zone iframe{aspect-ratio:16/9}
+.player-zone audio{height:56px;background:#0e1210}
+.player-empty{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;background:var(--bg2);color:var(--t3)}
+.player-empty .pe-icon{font-size:3rem;color:var(--g);opacity:.35}
+.player-loading{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:#000}
+.spin{width:32px;height:32px;border:3px solid rgba(0,255,136,.15);
+  border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Player error overlay */
+.player-error{position:absolute;inset:0;background:rgba(0,0,0,.85);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  color:var(--red);font-size:.85rem;text-align:center;padding:20px}
+.player-error button{margin-top:6px;padding:8px 18px;background:var(--g);color:#000;
+  border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif}
+
+/* ── INFO BAR (below player) ─────────────────────────── */
+.info-bar{padding:18px 24px;border-bottom:1px solid var(--line)}
+.info-bar-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.info-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;flex:1;line-height:1.3}
+.info-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;
+  font-size:.68rem;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:.3px}
+.badge-course {background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.22);color:var(--amber)}
+.badge-video  {background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.22);color:var(--red)}
+.badge-audio  {background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.22);color:var(--purple)}
+.badge-soft   {background:rgba(96,165,250,.1); border:1px solid rgba(96,165,250,.22); color:var(--blue)}
+.badge-ebook  {background:rgba(45,212,191,.1); border:1px solid rgba(45,212,191,.22); color:var(--teal)}
+.badge-file   {background:rgba(0,255,136,.07); border:1px solid rgba(0,255,136,.18);  color:var(--g)}
+
+/* ── PROGRESS BAR ────────────────────────────────────── */
+.prog-wrap{margin-bottom:14px}
+.prog-hdr{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:6px;font-size:.78rem}
+.prog-label{color:var(--t2);font-weight:500}
+.prog-pct{font-family:'DM Mono',monospace;color:var(--g);font-weight:600}
+.prog-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));
+  border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* ── TABS (below player on main) ─────────────────────── */
+.tabs-row{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;
+  scrollbar-width:none;flex-shrink:0}
+.tabs-row::-webkit-scrollbar{display:none}
+.tab{padding:12px 20px;font-size:.82rem;font-weight:600;color:var(--t3);
+  cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;
+  transition:all .15s;background:none;border-left:none;border-right:none;border-top:none;
+  font-family:'Outfit',sans-serif}
+.tab:hover{color:var(--t2)}
+.tab.active{color:var(--g);border-bottom-color:var(--g)}
+
+/* ── TAB PANELS ──────────────────────────────────────── */
+.tab-panel{display:none;padding:24px}
+.tab-panel.active{display:block}
+
+/* ── INFO GRID ───────────────────────────────────────── */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.info-tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.it-label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--t3);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+.it-value{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;color:var(--t1);line-height:1.2}
+.it-sub{font-size:.72rem;color:var(--t3);margin-top:2px}
+
+.desc-block{font-size:.87rem;color:var(--t2);line-height:1.75;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+
+/* ── RECEIPT ─────────────────────────────────────────── */
+.receipt{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.receipt-row{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;border-bottom:1px solid var(--line);font-size:.83rem}
+.receipt-row:last-child{border-bottom:none}
+.rr-label{color:var(--t3)}
+.rr-value{color:var(--t1);font-weight:500;text-align:right;font-family:'DM Mono',monospace;font-size:.8rem}
+
+/* ── CERTIFICATE ─────────────────────────────────────── */
+.cert-card{background:linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,204,106,.03));
+  border:1px solid var(--line3);border-radius:16px;padding:24px;text-align:center}
+.cert-icon{font-size:3rem;margin-bottom:12px}
+.cert-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+  color:var(--g);margin-bottom:6px}
+.cert-sub{font-size:.82rem;color:var(--t2);margin-bottom:18px}
+
+/* ── SIDEBAR CONTENT ─────────────────────────────────── */
+.sb-hdr{padding:16px 18px;border-bottom:1px solid var(--line);
+  font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3);
+  text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;
+  justify-content:space-between}
+.sb-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border-bottom:1px solid var(--line)}
+.sb-stat{background:var(--bg2);padding:12px 16px}
+.sb-stat-label{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--t3);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.sb-stat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--t1)}
+
+/* ── CHAPTER LIST ────────────────────────────────────── */
+.chapter-list{flex:1;overflow-y:auto;padding:8px}
+.sec-hdr{padding:10px 10px 5px;font-family:'DM Mono',monospace;font-size:.63rem;
+  color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;display:flex;
+  align-items:center;gap:8px}
+.sec-hdr-num{width:20px;height:20px;background:var(--g3);border:1px solid var(--line3);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;color:var(--g);flex-shrink:0}
+
+.ch-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;
+  cursor:pointer;transition:all .15s;position:relative;margin-bottom:2px}
+.ch-item:hover{background:rgba(255,255,255,.04)}
+.ch-item.active{background:var(--g4);border:1px solid var(--line3)}
+.ch-item.done .ch-check{background:var(--g);color:#000}
+.ch-item.locked{cursor:default;opacity:.45}
+
+.ch-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-size:.6rem;
+  flex-shrink:0;transition:all .2s;color:transparent}
+.ch-item.active .ch-check{border-color:var(--g);color:var(--g)}
+.ch-item.done .ch-check{border-color:var(--g);background:var(--g);color:#000}
+
+.ch-info{flex:1;min-width:0}
+.ch-name{font-size:.82rem;font-weight:500;color:var(--t1);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.ch-item.active .ch-name{color:var(--g)}
+.ch-meta{display:flex;align-items:center;gap:6px}
+.ch-dur{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3)}
+.ch-free{font-size:.6rem;padding:1px 6px;border-radius:8px;
+  background:rgba(0,255,136,.12);color:var(--g);font-weight:600}
+.ch-type{font-size:.6rem;padding:1px 6px;border-radius:8px;
+  background:rgba(255,255,255,.05);color:var(--t3)}
+
+/* ── NON-COURSE SIDEBAR ──────────────────────────────── */
+.sb-product-thumb{margin:16px;border-radius:12px;overflow:hidden;aspect-ratio:16/9;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:4rem}
+.sb-product-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.sb-info-block{padding:0 16px 16px}
+.sb-info-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;
+  margin-bottom:8px;line-height:1.3}
+.sb-info-row{display:flex;justify-content:space-between;padding:8px 0;
+  border-bottom:1px solid var(--line);font-size:.8rem}
+.sb-info-row:last-child{border-bottom:none}
+.sb-info-label{color:var(--t3)}
+.sb-info-val{color:var(--t1);font-weight:500;font-family:'DM Mono',monospace;font-size:.75rem}
+
+/* ── DOWNLOAD CARD ───────────────────────────────────── */
+.dl-card{padding:24px;text-align:center}
+.dl-icon{font-size:4rem;margin-bottom:16px}
+.dl-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:8px}
+.dl-note{font-size:.85rem;color:var(--t2);margin-bottom:20px;line-height:1.6}
+.dl-expire{margin-top:14px;font-size:.75rem;color:var(--t3);font-family:'DM Mono',monospace}
+
+/* ── LIC KEY ─────────────────────────────────────────── */
+.lic-box{display:flex;align-items:center;gap:8px;background:var(--bg3);
+  border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-top:8px}
+.lic-key{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--g);flex:1;
+  word-break:break-all;letter-spacing:.5px}
+.copy-btn{padding:5px 12px;background:var(--g3);border:1px solid var(--line3);
+  color:var(--g);border-radius:7px;cursor:pointer;font-size:.75rem;font-weight:600;
+  white-space:nowrap;transition:background .15s;font-family:'Outfit',sans-serif}
+.copy-btn:hover{background:var(--g4)}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn{padding:9px 18px;border:none;border-radius:10px;font-weight:600;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.85rem;display:inline-flex;
+  align-items:center;gap:7px;transition:all .18s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--g2),var(--g));color:#000;font-weight:700}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(0,255,136,.3)}
+.btn-ghost{background:transparent;border:1px solid var(--line2);color:var(--t2)}
+.btn-ghost:hover{border-color:var(--line3);color:var(--g)}
+.btn-sm{padding:6px 13px;font-size:.78rem}
+.btn-cert{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);
+  color:var(--amber);width:100%;justify-content:center}
+.btn-cert:hover{background:rgba(245,166,35,.18)}
+
+/* ── TOAST ───────────────────────────────────────────── */
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;
+  flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;
+  font-size:.82rem;font-weight:500;max-width:320px;animation:toastin .25s ease;
+  backdrop-filter:blur(14px)}
+.t-success{background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.25);color:var(--g)}
+.t-error  {background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.25);color:var(--red)}
+.t-info   {background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--t1)}
+@keyframes toastin{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── CERTIFICATE MODAL ───────────────────────────────── */
+.cert-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);
+  backdrop-filter:blur(10px);z-index:500;display:flex;align-items:center;
+  justify-content:center;padding:20px}
+.cert-modal{background:var(--bg2);border:1px solid var(--line3);border-radius:20px;
+  max-width:600px;width:100%;padding:40px;text-align:center;position:relative;
+  box-shadow:0 30px 80px rgba(0,0,0,.7)}
+/* Certificate print area */
+.cert-print{background:linear-gradient(135deg,#0a100c,#0c140e);border:2px solid var(--g);
+  border-radius:16px;padding:40px;margin:24px 0;position:relative;overflow:hidden}
+.cert-print::before{content:'';position:absolute;inset:8px;border:1px solid rgba(0,255,136,.15);
+  border-radius:10px;pointer-events:none}
+.cert-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Syne',sans-serif;font-size:6rem;font-weight:900;color:rgba(0,255,136,.04);
+  white-space:nowrap;pointer-events:none;letter-spacing:-3px}
+.cert-brand{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--g);
+  text-transform:uppercase;letter-spacing:3px;margin-bottom:20px}
+.cert-presented{font-size:.82rem;color:var(--t3);margin-bottom:6px}
+.cert-name{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;
+  color:var(--t1);margin-bottom:16px;line-height:1.1}
+.cert-course-label{font-size:.75rem;color:var(--t3);margin-bottom:6px}
+.cert-course-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.15rem;
+  color:var(--g);margin-bottom:20px}
+.cert-date-row{display:flex;justify-content:center;gap:40px;margin-top:20px;
+  padding-top:20px;border-top:1px solid rgba(0,255,136,.12)}
+.cert-date-item{text-align:center}
+.cert-date-label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--t3);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.cert-date-val{font-size:.82rem;color:var(--t1);font-weight:500}
+
+/* ── MOBILE ──────────────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{display:none;position:fixed;top:var(--hdr);left:0;height:calc(100vh - var(--hdr));
+    z-index:150;width:100%;transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{display:flex;transform:none}
+  .sb-overlay{position:fixed;inset:0;top:var(--hdr);background:rgba(0,0,0,.6);
+    z-index:140;display:none}
+  .sb-overlay.show{display:block}
+  .main{margin-left:0}
+  .tab-panel{padding:16px}
+  .info-grid{grid-template-columns:1fr 1fr}
+  .cert-modal{padding:24px}
+  .cert-print{padding:24px}
+  .cert-name{font-size:1.4rem}
+  .cert-date-row{gap:20px}
+}
+@media(max-width:480px){
+  .info-grid{grid-template-columns:1fr}
+}
+
+/* ── SECTION COLLAPSE ANIMATION ──────────────────────── */
+.ch-section{border-radius:8px;overflow:hidden;margin-bottom:4px}
+.sec-toggle-hdr{display:flex;align-items:center;gap:8px;padding:10px;
+  cursor:pointer;border-radius:8px;transition:background .15s}
+.sec-toggle-hdr:hover{background:rgba(255,255,255,.03)}
+.sec-chevron{font-size:.65rem;color:var(--t3);transition:transform .2s;margin-left:auto}
+.sec-body{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.sec-body.open{max-height:2000px}
+
+/* ── NOTES / TRANSCRIPT ──────────────────────────────── */
+.notes-block{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:16px;font-size:.83rem;color:var(--t2);line-height:1.75;white-space:pre-wrap}
+.no-content{padding:40px;text-align:center;color:var(--t3);font-size:.85rem}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="/marketplace/my-products" class="tb-back"><i class="fas fa-arrow-left"></i> Library</a>
+  <div class="tb-title" id="tbTitle">Loading…</div>
+  <div class="tb-actions" id="tbActions"></div>
+</div>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Dynamically filled -->
+    <div id="sidebarInner" style="display:flex;flex-direction:column;height:100%">
+      <div style="padding:40px;text-align:center;color:var(--t3);font-size:.85rem;flex:1;display:flex;align-items:center;justify-content:center">
+        <div><div class="spin" style="margin:0 auto 12px"></div>Loading…</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainArea">
+    <div class="player-loading" id="playerZone">
+      <div class="spin"></div>
+    </div>
+
+    <!-- INFO BAR -->
+    <div class="info-bar" id="infoBar" style="display:none">
+      <div class="info-bar-top">
+        <div class="info-title" id="infoTitle">—</div>
+        <div id="infoBadge"></div>
+      </div>
+      <div id="progressWrap" style="display:none">
+        <div class="prog-wrap">
+          <div class="prog-hdr">
+            <span class="prog-label">Your progress</span>
+            <span class="prog-pct" id="progPct">0%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="info-meta" id="infoMeta"></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-row" id="tabsRow" style="display:none">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="notes" id="tabNotes" style="display:none">Notes</button>
+      <button class="tab" data-tab="transcript" id="tabTranscript" style="display:none">Transcript</button>
+      <button class="tab" data-tab="receipt">Receipt</button>
+      <button class="tab" data-tab="certificate" id="tabCert" style="display:none">🎓 Certificate</button>
+    </div>
+
+    <!-- TAB PANELS -->
+    <div id="tabPanels" style="display:none">
+      <div class="tab-panel active" id="panel-overview"></div>
+      <div class="tab-panel"        id="panel-notes"></div>
+      <div class="tab-panel"        id="panel-transcript"></div>
+      <div class="tab-panel"        id="panel-receipt"></div>
+      <div class="tab-panel"        id="panel-certificate"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- CERTIFICATE MODAL -->
+<div class="cert-modal-overlay" id="certModal" style="display:none" onclick="if(event.target===this)closeCertModal()">
+  <div class="cert-modal">
+    <button onclick="closeCertModal()" style="position:absolute;top:16px;right:16px;
+      background:none;border:none;color:var(--t3);font-size:1.2rem;cursor:pointer;">
+      <i class="fas fa-times"></i>
+    </button>
+    <div id="certModalContent"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+'use strict';
+
+/* ── CONFIG ──────────────────────────────────── */
+const API = 'https://uyehtechbackend.onrender.com';
+
+/* ── STATE ───────────────────────────────────── */
+let STATE = {
+  productId: null, orderId: null,
+  product: null,   // from /api/orders/my-products (card data)
+  access:  null,   // from /api/orders/:id/media-access
+  progress: null,  // from /api/orders/:id/course-progress
+  activeChapter: null, // { sectionIdx, chapterIdx, ch }
+  savingProgress: false,
+};
+
+/* ── BOOT ────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  const params = new URLSearchParams(location.search);
+  STATE.productId = params.get('productId');
+  STATE.orderId   = params.get('orderId');
+  if (!STATE.productId || !STATE.orderId) {
+    showFatal('Missing productId or orderId in URL.');
+    return;
+  }
+  bindTabs();
+  boot();
+});
+
+async function boot() {
+  // Load card data from cache first (instant display)
+  const cached = safeJSON(localStorage.getItem('_lib_cache'), []);
+  STATE.product = cached.find(p => String(p.productId) === String(STATE.productId)) || null;
+  if (STATE.product) applyCardData(STATE.product);
+
+  // Then fetch gated access data
+  const [access] = await Promise.all([
+    fetchAccess(),
+    STATE.product?.productType === 'course' ? fetchProgress() : Promise.resolve(),
+  ]);
+
+  if (!access) return;
+  STATE.access = access;
+
+  renderAll();
+}
+
+/* ── AUTH ────────────────────────────────────── */
+function checkAuth() {
+  const tk = ls('token'), usr = ls('user');
+  if (!tk || !usr) { location.href = '/marketplace/login'; return false; }
+  try { JSON.parse(usr); return true; }
+  catch { ['token','user'].forEach(k=>localStorage.removeItem(k)); location.href='/marketplace/login'; return false; }
+}
+function ls(k)   { return localStorage.getItem(k); }
+function token() { return ls('token'); }
+function authH() { return {'Authorization':`Bearer ${token()}`,'Content-Type':'application/json'}; }
+
+/* ── FETCH ───────────────────────────────────── */
+async function fetchAccess() {
+  try {
+    const r = await fetch(
+      `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/media-access?productId=${encodeURIComponent(STATE.productId)}`,
+      { headers: authH() }
+    );
+    const d = await r.json();
+    if (!d.success) { showFatal(d.message || 'Access denied.'); return null; }
+    return d;
+  } catch (e) {
+    showFatal('Could not reach server. Check your connection.');
+    return null;
+  }
+}
+
+async function fetchProgress() {
+  try {
+    const r = await fetch(
+      `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/course-progress?productId=${encodeURIComponent(STATE.productId)}`,
+      { headers: authH() }
+    );
+    const d = await r.json();
+    if (d.success) STATE.progress = d.progress;
+  } catch (_) {}
+}
+
+async function saveProgress(completedChapters, lastSectionOrder, lastChapterOrder) {
+  if (STATE.savingProgress) return;
+  STATE.savingProgress = true;
+  try {
+    const r = await fetch(
+      `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/course-progress`,
+      { method:'POST', headers: authH(),
+        body: JSON.stringify({ productId: STATE.productId, completedChapters, lastSectionOrder, lastChapterOrder }) }
+    );
+    const d = await r.json();
+    if (d.success) {
+      STATE.progress = d.progress;
+      updateProgressUI();
+      if (d.certificateAvailable && !STATE.progress.certShownThisSession) {
+        STATE.progress.certShownThisSession = true;
+        showCertUnlockedToast();
+      }
+    }
+  } catch (_) {}
+  finally { STATE.savingProgress = false; }
+}
+
+async function fetchCertificate() {
+  try {
+    const r = await fetch(
+      `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/certificate?productId=${encodeURIComponent(STATE.productId)}`,
+      { headers: authH() }
+    );
+    const d = await r.json();
+    if (!d.success) { toast(d.message || 'Certificate not yet earned.','error'); return; }
+    showCertModal(d.certificate);
+  } catch (_) { toast('Failed to load certificate.','error'); }
+}
+
+/* ── APPLY CARD DATA (instant from cache) ──── */
+function applyCardData(p) {
+  ge('tbTitle').textContent = p.title || 'Product';
+}
+
+/* ── RENDER ALL ──────────────────────────────── */
+function renderAll() {
+  const data = STATE.access;
+  const p    = STATE.product || {};
+  const type = resolveType(data, p);
+
+  // Topbar
+  ge('tbTitle').textContent = data.title || p.title || 'Product';
+
+  // Mobile toggle button
+  ge('tbActions').innerHTML = `
+    <button class="btn btn-ghost btn-sm" onclick="toggleSidebar()" id="sbToggleBtn" title="Show chapters">
+      <i class="fas fa-list"></i>
+    </button>`;
+
+  // Info bar
+  ge('infoBar').style.display = 'block';
+  ge('infoTitle').textContent  = data.title || p.title || '—';
+  ge('infoBadge').innerHTML    = badgeHTML(type);
+
+  // Build player + sidebar based on type
+  if (type === 'course') {
+    renderCourse(data, p);
+  } else if (type === 'video' || type === 'audio') {
+    renderMedia(data, p, type);
+  } else {
+    renderDownload(data, p, type);
+  }
+
+  // Show tabs + panels
+  ge('tabsRow').style.display   = '';
+  ge('tabPanels').style.display  = '';
+  buildOverviewPanel(data, p, type);
+  buildReceiptPanel(p);
+  buildCertPanel(data, p, type);
+}
+
+/* ═══════════════════════════════════════════
+   COURSE RENDERER
+═══════════════════════════════════════════ */
+function renderCourse(data, p) {
+  const cd = data.courseData || {};
+  const sections = cd.sections || [];
+
+  // ── Progress UI
+  if (STATE.progress) {
+    ge('progressWrap').style.display = 'block';
+    updateProgressUI();
+    if (STATE.progress.certificateIssued) {
+      ge('tabCert').style.display = 'inline-flex';
+    }
+  }
+
+  // ── Meta pills
+  const pills = [];
+  if (cd.totalChapters) pills.push(`<span class="badge badge-course">📚 ${cd.totalChapters} Chapters</span>`);
+  if (cd.totalDuration)  pills.push(`<span class="badge badge-file">⏱ ${fmtDurLong(cd.totalDuration)}</span>`);
+  if (cd.level)          pills.push(`<span class="badge badge-soft" style="text-transform:capitalize">${cd.level}</span>`);
+  if (cd.language)       pills.push(`<span class="badge badge-ebook">${cd.language}</span>`);
+  if (cd.certificate)    pills.push(`<span class="badge badge-course">🎓 Certificate</span>`);
+  ge('infoMeta').innerHTML = pills.join('');
+
+  // ── Find resume chapter
+  const resume = findResumeChapter(sections);
+  // Auto-load first playable chapter or resume
+  const target = resume || firstPlayable(sections);
+  if (target) {
+    loadChapter(target.sectionIdx, target.chapterIdx, target.ch, false);
+  } else {
+    setPlayerEmpty('Select a chapter to begin');
+  }
+
+  // ── Build sidebar
+  buildCourseSidebar(sections, cd);
+
+  // ── Mobile: show sidebar toggle
+  ge('sbToggleBtn').style.display = '';
+}
+
+function findResumeChapter(sections) {
+  if (!STATE.progress) return null;
+  const { lastSectionOrder, lastChapterOrder } = STATE.progress;
+  if (!lastSectionOrder && !lastChapterOrder) return null;
+  for (let si = 0; si < sections.length; si++) {
+    const sec = sections[si];
+    if (sec.sectionOrder !== lastSectionOrder) continue;
+    for (let ci = 0; ci < (sec.chapters||[]).length; ci++) {
+      const ch = sec.chapters[ci];
+      if (ch.chapterOrder === lastChapterOrder) return {sectionIdx:si,chapterIdx:ci,ch};
+    }
+  }
+  return null;
+}
+
+function firstPlayable(sections) {
+  for (let si = 0; si < sections.length; si++) {
+    const chs = sections[si].chapters || [];
+    for (let ci = 0; ci < chs.length; ci++) {
+      const ch = chs[ci];
+      if (ch.cloudinaryUrl || ch.embedUrl) return {sectionIdx:si,chapterIdx:ci,ch};
+    }
+  }
+  return null;
+}
+
+function buildCourseSidebar(sections, cd) {
+  const totalCompleted = STATE.progress?.completedChapters?.length || 0;
+  const totalCh = cd.totalChapters || 0;
+
+  let html = `
+    <div class="sb-hdr">
+      Course Content
+      <span style="color:var(--t1);font-size:.75rem">${totalCompleted}/${totalCh}</span>
+    </div>
+    <div class="sb-stats">
+      <div class="sb-stat">
+        <div class="sb-stat-label">Sections</div>
+        <div class="sb-stat-val">${sections.length}</div>
+      </div>
+      <div class="sb-stat">
+        <div class="sb-stat-label">Progress</div>
+        <div class="sb-stat-val">${STATE.progress?.completionPct || 0}%</div>
+      </div>
+    </div>
+    <div class="chapter-list" id="chapterList">`;
+
+  sections.forEach((sec, si) => {
+    const chs = sec.chapters || [];
+    const doneChs = chs.filter(ch => isChapterDone(sec.sectionOrder, ch.chapterOrder)).length;
+    const isOpen = si === 0 || (STATE.activeChapter && STATE.activeChapter.sectionIdx === si);
+
+    html += `
+      <div class="ch-section" id="sec-${si}">
+        <div class="sec-toggle-hdr" onclick="toggleSection(${si})">
+          <div class="sec-hdr-num">${si+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.78rem;font-weight:600;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${esc(sec.sectionTitle||`Section ${si+1}`)}
+            </div>
+            <div style="font-size:.66rem;color:var(--t3);margin-top:1px;font-family:'DM Mono',monospace">
+              ${doneChs}/${chs.length} done
+            </div>
+          </div>
+          <i class="fas fa-chevron-down sec-chevron" id="chevron-${si}"></i>
+        </div>
+        <div class="sec-body ${isOpen?'open':''}" id="secbody-${si}">`;
+
+    chs.forEach((ch, ci) => {
+      const hasContent = !!(ch.cloudinaryUrl || ch.embedUrl);
+      const done = isChapterDone(sec.sectionOrder, ch.chapterOrder);
+      const isActive = STATE.activeChapter &&
+        STATE.activeChapter.sectionIdx === si && STATE.activeChapter.chapterIdx === ci;
+      const srcType = ch.cloudinaryUrl ? 'hosted' : ch.embedType || 'external';
+      const icon = ch.cloudinaryUrl ? '☁' : '🔗';
+
+      html += `
+        <div class="ch-item${done?' done':''}${isActive?' active':''}${!hasContent?' locked':''}"
+          id="chi-${si}-${ci}"
+          ${hasContent?`onclick="loadChapter(${si},${ci},null,true)"`:''}>
+          <div class="ch-check"><i class="fas fa-check" style="font-size:.55rem"></i></div>
+          <div class="ch-info">
+            <div class="ch-name">${esc(ch.chapterTitle||`Chapter ${ci+1}`)}</div>
+            <div class="ch-meta">
+              ${ch.duration?`<span class="ch-dur">${fmtDur(ch.duration)}</span>`:''}
+              ${ch.isFree?`<span class="ch-free">FREE</span>`:''}
+              ${hasContent?`<span class="ch-type">${esc(srcType)}</span>`:'<span class="ch-type" style="color:var(--red)">empty</span>'}
+            </div>
+          </div>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+
+  // Certificate button at bottom if earned
+  if (STATE.progress?.certificateIssued) {
+    html += `<div style="padding:14px;border-top:1px solid var(--line)">
+      <button class="btn btn-cert btn-sm" onclick="fetchCertificate()">
+        <i class="fas fa-certificate"></i> View Certificate
+      </button>
+    </div>`;
+  }
+
+  ge('sidebarInner').innerHTML = html;
+}
+
+function toggleSection(si) {
+  const body    = ge(`secbody-${si}`);
+  const chevron = ge(`chevron-${si}`);
+  const isOpen  = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+/* ── Load a chapter into the player ── */
+function loadChapter(sectionIdx, chapterIdx, chObj, userClicked) {
+  const sections = STATE.access?.courseData?.sections || [];
+  const sec = sections[sectionIdx];
+  if (!sec) return;
+  const ch = chObj || sec.chapters?.[chapterIdx];
+  if (!ch) return;
+
+  STATE.activeChapter = { sectionIdx, chapterIdx, ch };
+
+  // Update sidebar highlights
+  document.querySelectorAll('.ch-item').forEach(el => el.classList.remove('active'));
+  const chiEl = ge(`chi-${sectionIdx}-${chapterIdx}`);
+  if (chiEl) {
+    chiEl.classList.add('active');
+    chiEl.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }
+
+  // Open the section
+  const body = ge(`secbody-${sectionIdx}`);
+  if (body && !body.classList.contains('open')) toggleSection(sectionIdx);
+
+  // Update notes/transcript tabs
+  ge('tabNotes').style.display      = ch.notes      ? 'inline-flex' : 'none';
+  ge('tabTranscript').style.display = ch.transcript ? 'inline-flex' : 'none';
+  if (ch.notes)      ge('panel-notes').innerHTML      = `<div class="notes-block">${esc(ch.notes)}</div>`;
+  if (ch.transcript) ge('panel-transcript').innerHTML = `<div class="notes-block">${esc(ch.transcript)}</div>`;
+
+  // Render player
+  renderPlayer(ch);
+
+  // Save progress position
+  if (userClicked && STATE.progress !== undefined) {
+    const done = STATE.progress?.completedChapters || [];
+    saveProgress(done, sec.sectionOrder, ch.chapterOrder);
+  }
+
+  // Scroll main to top on mobile
+  if (window.innerWidth < 768) closeSidebar();
+}
+
+/* ── Mark chapter complete ── */
+function markChapterDone(sectionIdx, chapterIdx) {
+  const sections = STATE.access?.courseData?.sections || [];
+  const sec = sections[sectionIdx];
+  const ch  = sec?.chapters?.[chapterIdx];
+  if (!sec || !ch) return;
+
+  const key  = `${sec.sectionOrder}:${ch.chapterOrder}`;
+  const done = [...(STATE.progress?.completedChapters || [])];
+  if (done.includes(key)) return; // already done
+
+  done.push(key);
+  if (!STATE.progress) STATE.progress = {};
+  STATE.progress.completedChapters = done;
+
+  // Update sidebar checkbox
+  const chiEl = ge(`chi-${sectionIdx}-${chapterIdx}`);
+  if (chiEl) chiEl.classList.add('done');
+
+  saveProgress(done, sec.sectionOrder, ch.chapterOrder);
+  toast('Chapter marked complete ✓', 'success');
+}
+
+function isChapterDone(sectionOrder, chapterOrder) {
+  return !!(STATE.progress?.completedChapters?.includes(`${sectionOrder}:${chapterOrder}`));
+}
+
+function updateProgressUI() {
+  const pct = STATE.progress?.completionPct || 0;
+  ge('progPct').textContent  = `${pct}%`;
+  ge('progFill').style.width = `${pct}%`;
+
+  // Show cert tab if earned
+  if (STATE.progress?.certificateIssued) {
+    ge('tabCert').style.display = 'inline-flex';
+    buildCertPanel(STATE.access, STATE.product || {}, 'course');
+  }
+
+  // Update sidebar stat
+  const statEl = ge('sidebarInner')?.querySelector('.sb-stat-val:last-child');
+  if (statEl) statEl.textContent = `${pct}%`;
+}
+
+/* ═══════════════════════════════════════════
+   MEDIA (VIDEO / AUDIO) RENDERER
+═══════════════════════════════════════════ */
+function renderMedia(data, p, type) {
+  renderPlayer({ ...data, cloudinaryUrl: null });
+
+  ge('infoMeta').innerHTML = [
+    data.embedType ? `<span class="badge badge-${type==='audio'?'audio':'video'}">${esc(data.embedType)}</span>` : '',
+    p.fileSize     ? `<span class="badge badge-file">${esc(p.fileSize)}</span>` : '',
+  ].join('');
+
+  // Sidebar: product info
+  buildSimpleSidebar(p, type);
+
+  // Hide sidebar toggle on desktop for non-course
+  if (ge('sbToggleBtn')) ge('sbToggleBtn').style.display = 'none';
+
+  // Audio metadata
+  const ad = data.audioData || p.audioPreview;
+  if (ad && type === 'audio') {
+    buildAudioPanel(ad);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   DOWNLOAD RENDERER (file, software, ebook)
+═══════════════════════════════════════════ */
+function renderDownload(data, p, type) {
+  // No video player — show download zone instead
+  const icon  = {software:'💻', ebook:'📖', file:'📦'}[type] || '📦';
+  const label = {software:'Software Package', ebook:'eBook', file:'File'}[type] || 'File';
+  const expMin = data.expiresInSecs ? Math.round(data.expiresInSecs/60) : null;
+
+  ge('playerZone').innerHTML = `
+    <div class="player-empty" style="min-height:220px">
+      <div class="pe-icon">${icon}</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px">${label} Ready</div>
+      <div style="font-size:.82rem;color:var(--t3)">Use the Download button below</div>
+    </div>`;
+
+  ge('infoMeta').innerHTML = [
+    p.fileSize || data.fileSize ? `<span class="badge badge-file">${esc(p.fileSize||data.fileSize)}</span>` : '',
+    p.version  ? `<span class="badge badge-soft">v${esc(p.version)}</span>` : '',
+    data.format? `<span class="badge badge-ebook">${data.format.toUpperCase()}</span>` : '',
+  ].join('');
+
+  buildSimpleSidebar(p, type, data);
+  if (ge('sbToggleBtn')) ge('sbToggleBtn').style.display = 'none';
+
+  // Overview panel gets the download card
+  const dlHtml = data.downloadUrl ? `
+    <div class="dl-card" style="padding:0 0 20px">
+      <a href="${escA(data.downloadUrl)}" target="_blank" rel="noopener" download
+         class="btn btn-primary" style="justify-content:center;width:100%"
+         onclick="toast('Download starting…','success')">
+        <i class="fas fa-download"></i> Download ${label}
+      </a>
+      ${expMin?`<div class="dl-expire">Secure link expires in ${expMin} min — refresh if needed</div>`:''}
+    </div>` : '';
+
+  // Software extras
+  let swHtml = '';
+  if (data.softwareData) {
+    const sd = data.softwareData;
+    swHtml = `
+      <div style="margin-top:20px">
+        ${sd.licenseKey ? `
+          <div style="margin-bottom:16px">
+            <div style="font-size:.75rem;color:var(--t3);font-family:'DM Mono',monospace;
+                 text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">License Key</div>
+            <div class="lic-box">
+              <span class="lic-key">${esc(sd.licenseKey)}</span>
+              <button class="copy-btn" onclick="copyText('${escA(sd.licenseKey)}')">Copy</button>
+            </div>
+          </div>` : ''}
+        <div class="receipt">
+          ${sd.platform?.length?rRow('Platforms', sd.platform.join(', ')):''}
+          ${sd.licenseType    ?rRow('License',   capitalise(sd.licenseType)):''}
+          ${sd.supportPeriod  ?rRow('Support',   sd.supportPeriod):''}
+          ${sd.updatePeriod   ?rRow('Updates',   sd.updatePeriod):''}
+        </div>
+      </div>`;
+  }
+
+  ge('panel-overview').innerHTML = (dlHtml||'') + swHtml + (ge('panel-overview').innerHTML||'');
+}
+
+/* ═══════════════════════════════════════════
+   PLAYER RENDERER
+═══════════════════════════════════════════ */
+function renderPlayer(ch) {
+  const zone = ge('playerZone');
+  const { cloudinaryUrl, embedUrl, embedType, playerType } = ch;
+
+  // ── Cloudinary hosted (video or audio)
+  if ((playerType === 'cloudinary' || (!embedUrl && cloudinaryUrl)) && cloudinaryUrl) {
+    const isAudio = embedType === 'audio' || /\.(mp3|wav|ogg|aac|flac)(\?|$)/i.test(cloudinaryUrl);
+    if (isAudio) {
+      zone.innerHTML = `
+        <div style="background:var(--card);padding:24px">
+          <audio id="mainPlayer" controls controlsList="nodownload"
+                 style="width:100%;border-radius:10px" preload="metadata" crossorigin="anonymous">
+            <source src="${escA(cloudinaryUrl)}">
+          </audio>
+          ${markDoneBtn()}
+        </div>`;
+    } else {
+      zone.innerHTML = `
+        <div style="position:relative">
+          <video id="mainPlayer" controls controlsList="nodownload"
+                 style="width:100%;aspect-ratio:16/9;background:#000;display:block"
+                 preload="metadata" crossorigin="anonymous" playsinline>
+            <source src="${escA(cloudinaryUrl)}">
+          </video>
+          ${markDoneBtn()}
+        </div>`;
+    }
+    attachPlayerErrorHandler(cloudinaryUrl);
+    attachVideoEndHandler();
+    return;
+  }
+
+  // ── SoundCloud
+  if (playerType === 'soundcloud_widget' || embedType === 'soundcloud') {
+    const src = embedUrl?.includes('w.soundcloud.com')
+      ? embedUrl
+      : `https://w.soundcloud.com/player/?url=${encodeURIComponent(embedUrl||'')}&color=%2300ff88&auto_play=false&hide_related=true&show_comments=false`;
+    zone.innerHTML = `
+      <div style="background:var(--card);padding:20px">
+        <iframe scrolling="no" frameborder="no" src="${escA(src)}"
+                style="width:100%;height:166px;border-radius:10px"></iframe>
+        ${markDoneBtn()}
+      </div>`;
+    return;
+  }
+
+  // ── iframe embed (YouTube, Vimeo, Dailymotion, GDrive)
+  if (embedUrl && (playerType === 'iframe' || ['youtube','vimeo','dailymotion','gdrive'].includes(embedType||''))) {
+    zone.innerHTML = `
+      <div style="position:relative">
+        <div style="position:relative;padding-bottom:56.25%;height:0;background:#000">
+          <iframe src="${escA(embedUrl)}"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"
+            allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen"
+            allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
+        </div>
+        ${markDoneBtn()}
+      </div>`;
+    return;
+  }
+
+  // ── Direct HTML5 audio/video URL
+  if (embedUrl && playerType === 'html5_video') {
+    zone.innerHTML = `
+      <div style="position:relative">
+        <video id="mainPlayer" controls controlsList="nodownload"
+               style="width:100%;aspect-ratio:16/9;background:#000;display:block"
+               preload="metadata" playsinline>
+          <source src="${escA(embedUrl)}">
+        </video>
+        ${markDoneBtn()}
+      </div>`;
+    attachVideoEndHandler();
+    return;
+  }
+  if (embedUrl && playerType === 'html5_audio') {
+    zone.innerHTML = `
+      <div style="background:var(--card);padding:24px">
+        <audio id="mainPlayer" controls controlsList="nodownload"
+               style="width:100%;border-radius:10px" preload="metadata">
+          <source src="${escA(embedUrl)}">
+        </audio>
+        ${markDoneBtn()}
+      </div>`;
+    return;
+  }
+
+  // ── Nothing
+  setPlayerEmpty('No playable content for this chapter.');
+}
+
+function markDoneBtn() {
+  if (!STATE.activeChapter) return '';
+  const { sectionIdx, chapterIdx } = STATE.activeChapter;
+  const sec = STATE.access?.courseData?.sections?.[sectionIdx];
+  const ch  = sec?.chapters?.[chapterIdx];
+  if (!sec || !ch || STATE.access?.productType !== 'course') return '';
+  const done = isChapterDone(sec.sectionOrder, ch.chapterOrder);
+  if (done) return `<div style="padding:8px 12px;font-size:.75rem;color:var(--g);font-family:'DM Mono',monospace;text-align:right">✓ Completed</div>`;
+  return `<div style="padding:8px 12px;text-align:right">
+    <button class="btn btn-ghost btn-sm" onclick="markChapterDone(${sectionIdx},${chapterIdx})">
+      <i class="fas fa-check"></i> Mark Complete
+    </button>
+  </div>`;
+}
+
+function attachPlayerErrorHandler(url) {
+  setTimeout(() => {
+    const el = ge('playerZone')?.querySelector('video,audio');
+    if (!el) return;
+    el.addEventListener('error', () => {
+      const zone = ge('playerZone');
+      const overlay = document.createElement('div');
+      overlay.className = 'player-error';
+      overlay.innerHTML = `
+        <i class="fas fa-triangle-exclamation" style="font-size:2rem"></i>
+        <div><strong>Could not load media</strong></div>
+        <div style="color:var(--t3);font-size:.78rem">The secure link may have expired.</div>
+        <button onclick="location.reload()">Reload Page</button>`;
+      zone.style.position = 'relative';
+      zone.appendChild(overlay);
+    });
+  }, 300);
+}
+
+function attachVideoEndHandler() {
+  setTimeout(() => {
+    const el = ge('playerZone')?.querySelector('video,audio');
+    if (!el || !STATE.activeChapter) return;
+    el.addEventListener('ended', () => {
+      const { sectionIdx, chapterIdx } = STATE.activeChapter;
+      markChapterDone(sectionIdx, chapterIdx);
+      // Auto-advance
+      const sections = STATE.access?.courseData?.sections || [];
+      const sec = sections[sectionIdx];
+      const next = sec?.chapters?.[chapterIdx + 1];
+      if (next) {
+        setTimeout(() => { loadChapter(sectionIdx, chapterIdx+1, next, true); }, 800);
+      } else if (sections[sectionIdx+1]?.chapters?.[0]) {
+        setTimeout(() => { loadChapter(sectionIdx+1, 0, sections[sectionIdx+1].chapters[0], true); }, 800);
+      }
+    });
+  }, 300);
+}
+
+function setPlayerEmpty(msg) {
+  ge('playerZone').innerHTML = `
+    <div class="player-empty">
+      <div class="pe-icon"><i class="fas fa-graduation-cap"></i></div>
+      <div style="font-size:.85rem">${esc(msg)}</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBARS
+═══════════════════════════════════════════ */
+function buildSimpleSidebar(p, type, data) {
+  const img     = p.image || '';
+  const typeEmoji = {video:'🎬',audio:'🎵',software:'💻',ebook:'📖',file:'📦'}[type]||'📦';
+
+  let infoRows = '';
+  if (p.category)       infoRows += sbRow('Category',  p.category);
+  if (p.price)          infoRows += sbRow('Paid',       `₦${Number(p.price).toLocaleString()}`);
+  if (p.purchaseDate)   infoRows += sbRow('Purchased',  fmtDate(p.purchaseDate));
+  if (data?.format)     infoRows += sbRow('Format',     data.format.toUpperCase());
+  if (p.fileSize||data?.fileSize) infoRows += sbRow('Size', p.fileSize||data?.fileSize);
+  if (p.version)        infoRows += sbRow('Version',    `v${p.version}`);
+
+  ge('sidebarInner').innerHTML = `
+    <div class="sb-product-thumb">
+      ${img
+        ? `<img src="${escA(img)}" alt="" onerror="this.style.display='none'">`
+        : typeEmoji}
+    </div>
+    <div class="sb-info-block">
+      <div class="sb-info-title">${esc(p.title||'Product')}</div>
+      <div class="receipt" style="margin-top:8px">${infoRows}</div>
+    </div>`;
+}
+
+function sbRow(label, val) {
+  return `<div class="receipt-row"><span class="rr-label">${esc(label)}</span><span class="rr-value">${val}</span></div>`;
+}
+
+/* ═══════════════════════════════════════════
+   TAB PANELS
+═══════════════════════════════════════════ */
+function buildOverviewPanel(data, p, type) {
+  const cd = data.courseData;
+  let html = '';
+
+  // Course stats grid
+  if (type === 'course' && cd) {
+    html += `<div class="info-grid">
+      ${cd.totalChapters ? tile('Chapters',   cd.totalChapters, 'lessons') : ''}
+      ${cd.totalDuration ? tile('Duration',   fmtDurLong(cd.totalDuration), 'total') : ''}
+      ${cd.level         ? tile('Level',      capitalise(cd.level), '') : ''}
+      ${cd.language      ? tile('Language',   cd.language, '') : ''}
+      ${cd.totalSections ? tile('Sections',   cd.totalSections, 'modules') : ''}
+      ${cd.certificate   ? tile('Certificate','✓ Included','on completion') : ''}
+    </div>`;
+  }
+
+  // Description
+  if (p.description) {
+    html += `<div class="desc-block" style="margin-bottom:20px">${esc(p.description)}</div>`;
+  }
+
+  // Audio track details
+  const ad = data.audioData || p.audioPreview;
+  if (ad && type === 'audio') {
+    html += `<div style="margin-bottom:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3);
+           text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Track Details</div>
+      <div class="receipt">
+        ${ad.genre   ? rRow('Genre',   ad.genre)   : ''}
+        ${ad.bpm     ? rRow('BPM',     ad.bpm)     : ''}
+        ${ad.key     ? rRow('Key',     ad.key)     : ''}
+        ${ad.mood    ? rRow('Mood',    ad.mood)    : ''}
+        ${ad.license ? rRow('License', capitalise(ad.license)) : ''}
+        ${ad.stems   ? rRow('Stems',   '<span style="color:var(--g)">✓ Included</span>') : ''}
+      </div>
+    </div>`;
+  }
+
+  ge('panel-overview').innerHTML = html + (ge('panel-overview').innerHTML || '');
+}
+
+function buildAudioPanel(ad) {
+  // already in overview
+}
+
+function buildReceiptPanel(p) {
+  ge('panel-receipt').innerHTML = `
+    <div class="receipt">
+      ${rRow('Product',    esc(p.title||'—'))}
+      ${rRow('Category',   esc(p.category||'—'))}
+      ${rRow('Price Paid', `₦${Number(p.price||0).toLocaleString()}`)}
+      ${rRow('Purchased',  fmtDate(p.purchaseDate))}
+      ${rRow('Order Ref',  `<span style="font-family:'DM Mono',monospace;font-size:.75rem">${esc(p.orderReference||'—')}</span>`)}
+    </div>`;
+}
+
+function buildCertPanel(data, p, type) {
+  if (type !== 'course') return;
+  const hasCert = STATE.progress?.certificateIssued;
+  const pct     = STATE.progress?.completionPct || 0;
+
+  ge('panel-certificate').innerHTML = hasCert
+    ? `<div class="cert-card">
+        <div class="cert-icon">🎓</div>
+        <div class="cert-title">Certificate Earned!</div>
+        <div class="cert-sub">You have successfully completed this course.</div>
+        <button class="btn btn-primary" onclick="fetchCertificate()" style="margin:0 auto">
+          <i class="fas fa-certificate"></i> View & Print Certificate
+        </button>
+       </div>`
+    : `<div class="cert-card" style="opacity:.7">
+        <div class="cert-icon" style="opacity:.4">🔒</div>
+        <div class="cert-title" style="color:var(--t2)">Certificate Locked</div>
+        <div class="cert-sub">Complete all chapters to earn your certificate.</div>
+        <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:14px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--t2);margin-bottom:6px">
+            <span>Progress</span><span>${pct}%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        </div>
+       </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   CERTIFICATE MODAL
+═══════════════════════════════════════════ */
+function showCertModal(cert) {
+  const name   = cert.userName   || 'Student';
+  const course = cert.courseTitle || 'this course';
+  const issued = cert.issuedAt ? new Date(cert.issuedAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—';
+  const completed = cert.completedAt ? new Date(cert.completedAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : issued;
+
+  ge('certModalContent').innerHTML = `
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px">Certificate of Completion</div>
+      <div style="font-size:.82rem;color:var(--t2)">Print or save this as PDF using your browser's print function.</div>
+    </div>
+
+    <div class="cert-print" id="certPrint">
+      <div class="cert-watermark">UYEH</div>
+      <div class="cert-brand">UYEH TECH · Certificate of Completion</div>
+      <div class="cert-presented">This certifies that</div>
+      <div class="cert-name">${esc(name)}</div>
+      <div class="cert-course-label">has successfully completed</div>
+      <div class="cert-course-title">${esc(course)}</div>
+      <div class="cert-date-row">
+        <div class="cert-date-item">
+          <div class="cert-date-label">Completed</div>
+          <div class="cert-date-val">${completed}</div>
+        </div>
+        <div class="cert-date-item">
+          <div class="cert-date-label">Issued</div>
+          <div class="cert-date-val">${issued}</div>
+        </div>
+        <div class="cert-date-item">
+          <div class="cert-date-label">Score</div>
+          <div class="cert-date-val">${cert.completionPct || 100}%</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeCertModal()">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">
+        <i class="fas fa-print"></i> Print / Save PDF
+      </button>
+    </div>`;
+
+  ge('certModal').style.display = 'flex';
+}
+
+function closeCertModal() { ge('certModal').style.display = 'none'; }
+
+function showCertUnlockedToast() {
+  const el = document.createElement('div');
+  el.className = 'toast t-success';
+  el.style.cssText = 'padding:14px 18px;font-size:.9rem;gap:10px';
+  el.innerHTML = `<span style="font-size:1.3rem">🎓</span>
+    <span><strong>Course Complete!</strong><br>
+    <span style="font-size:.78rem;opacity:.8">Your certificate is now available.</span></span>`;
+  ge('toastWrap').appendChild(el);
+  setTimeout(() => {
+    el.style.cssText += ';opacity:0;transform:translateX(30px);transition:all .3s';
+    setTimeout(() => el.remove(), 350);
+  }, 5000);
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+function bindTabs() {
+  document.addEventListener('click', e => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    const id = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panel = ge(`panel-${id}`);
+    if (panel) panel.classList.add('active');
+  });
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function resolveType(data, p) {
+  if (data.mediaType === 'course' || data.productType === 'course') return 'course';
+  if (p.productType === 'course' || p.hasCourse) return 'course';
+  if (data.mediaType === 'video' || p.mediaType === 'video') return 'video';
+  if (data.mediaType === 'audio' || p.mediaType === 'audio') return 'audio';
+  if (p.productType === 'music') return 'audio';
+  if (p.productType === 'software') return 'software';
+  if (p.productType === 'ebook') return 'ebook';
+  return 'file';
+}
+
+function badgeHTML(type) {
+  const cfg = {
+    course:   ['badge-course','🎓 Course'],
+    video:    ['badge-video', '▶ Video'],
+    audio:    ['badge-audio', '♫ Audio'],
+    software: ['badge-soft',  '💻 Software'],
+    ebook:    ['badge-ebook', '📖 eBook'],
+    file:     ['badge-file',  '↧ File'],
+  }[type] || ['badge-file','↧ File'];
+  return `<span class="badge ${cfg[0]}">${cfg[1]}</span>`;
+}
+
+function tile(label, val, sub) {
+  return `<div class="info-tile">
+    <div class="it-label">${esc(label)}</div>
+    <div class="it-value">${val}</div>
+    ${sub?`<div class="it-sub">${esc(sub)}</div>`:''}
+  </div>`;
+}
+
+function rRow(label, val) {
+  return `<div class="receipt-row"><span class="rr-label">${esc(label)}</span><span class="rr-value">${val}</span></div>`;
+}
+
+function ge(id)     { return document.getElementById(id); }
+function esc(s)     { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s)    { return String(s||'').replace(/"/g,'&quot;'); }
+function capitalise(s) { return s?String(s).charAt(0).toUpperCase()+String(s).slice(1):''; }
+function safeJSON(s,f) { try{return JSON.parse(s)||f}catch{return f} }
+
+function fmtDur(s) {
+  if (!s) return '';
+  const m = Math.floor(s/60), ss = s%60;
+  return `${m}:${String(ss).padStart(2,'0')}`;
+}
+function fmtDurLong(s) {
+  if (!s) return '';
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  return h ? `${h}h ${m}m` : `${m}m`;
+}
+function fmtDate(d) {
+  return d ? new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—';
+}
+function copyText(txt) {
+  navigator.clipboard.writeText(txt)
+    .then(()=>toast('Copied!','success'))
+    .catch(()=>{ const e=document.createElement('textarea'); e.value=txt; document.body.appendChild(e); e.select(); document.execCommand('copy'); document.body.removeChild(e); toast('Copied','success'); });
+}
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast t-${type}`;
+  el.innerHTML = `<i class="fas fa-${type==='success'?'check':type==='error'?'times':'info-circle'}"></i><span>${esc(msg)}</span>`;
+  ge('toastWrap').appendChild(el);
+  setTimeout(()=>{ el.style.cssText='opacity:0;transform:translateX(30px);transition:all .28s'; setTimeout(()=>el.remove(),300); }, 3500);
+}
+function showFatal(msg) {
+  ge('playerZone').innerHTML = `
+    <div class="player-empty" style="min-height:260px">
+      <div class="pe-icon" style="color:var(--red);opacity:.6"><i class="fas fa-triangle-exclamation"></i></div>
+      <div style="font-weight:600;margin-bottom:4px">Access Error</div>
+      <div style="font-size:.8rem;color:var(--t3);max-width:320px;text-align:center">${esc(msg)}</div>
+      <a href="/marketplace/my-products" class="btn btn-ghost btn-sm" style="margin-top:12px">← Back to Library</a>
+    </div>`;
+  ge('tbTitle').textContent = 'Error';
+}
+
+/* ── SIDEBAR TOGGLE ── */
+function toggleSidebar() { ge('sidebar').classList.toggle('open'); ge('sbOverlay').classList.toggle('show'); }
+function closeSidebar()  { ge('sidebar').classList.remove('open'); ge('sbOverlay').classList.remove('show'); }
+</script>
+
+<!-- Print styles for certificate -->
+<style>
+@media print {
+  body > *:not(.cert-modal-overlay) { display: none !important; }
+  .cert-modal-overlay { position: static !important; background: none !important; padding: 0 !important; display: block !important; }
+  .cert-modal { box-shadow: none !important; border: none !important; max-width: 100% !important; padding: 0 !important; background: #fff !important; }
+  .cert-print { background: #fff !important; border: 2px solid #00cc6a !important; color: #000 !important; break-inside: avoid; }
+  .cert-watermark { color: rgba(0,200,100,.06) !important; }
+  .cert-brand, .cert-presented, .cert-course-label { color: #555 !important; }
+  .cert-name { color: #000 !important; }
+  .cert-course-title { color: #00aa55 !important; }
+  .cert-date-label { color: #777 !important; }
+  .cert-date-val { color: #000 !important; }
+  button, .btn { display: none !important; }
+}
+</style>
+</body>
+</html>
