@@ -727,9 +727,14 @@ function buildCourseSidebar(sections, cd) {
           <div class="sec-hdr-num">${si+1}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:.78rem;font-weight:600;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-              ${esc(sec.sectionTitle||`Section ${si+1}`)}
+              ${esc(sec.sectionTitle || `Section ${si + 1}`)}
             </div>
-            ${sec.sectionDescription ? `<div style="font-size:.66rem;color:var(--t3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sec.sectionDescription)}</div>` : `<div style="font-size:.66rem;color:var(--t3);margin-top:1px;font-family:'DM Mono',monospace">${doneChs}/${chs.length} done</div>`}
+            <div style="font-size:.66rem;color:var(--t3);margin-top:1px;display:flex;align-items:center;gap:6px;overflow:hidden">
+              <span style="font-family:'DM Mono',monospace;flex-shrink:0">${doneChs}/${chs.length} done</span>
+              ${sec.sectionDescription
+                ? `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.7">· ${esc(sec.sectionDescription)}</span>`
+                : ''}
+            </div>
           </div>
           <i class="fas fa-chevron-down sec-chevron" id="chevron-${si}"></i>
         </div>
@@ -1467,7 +1472,7 @@ function buildOverviewPanel(data, p, type) {
     </div>`;
   }
 
-  // ── Review button (only if verified purchase and not yet reviewed)
+ // ── Review button (only if verified purchase and not yet reviewed)
   const canReview = !p.hasReviewed;
   if (canReview) {
     html += `<div style="margin-top:8px">
@@ -1477,7 +1482,78 @@ function buildOverviewPanel(data, p, type) {
     </div>`;
   }
 
+  // ── Reviews placeholder — filled asynchronously below ────────────────
+  html += `<div id="reviewsSection" style="margin-top:24px"></div>`;
+
   ge('panel-overview').innerHTML = html + (ge('panel-overview').innerHTML || '');
+
+  // FIX #7: load and render existing approved reviews
+  loadReviews(STATE.productId);
+}
+
+
+// Load and render published reviews for this product
+async function loadReviews(productId) {
+  const container = ge('reviewsSection');
+  if (!container) return;
+
+  try {
+    const r = await fetch(`${API}/api/products/${encodeURIComponent(productId)}/reviews`, {
+      headers: authH(),
+    });
+    if (!r.ok) return; // silently skip if route errors
+    const d = await r.json();
+    if (!d.success || !d.reviews?.length) return; // no reviews yet — leave empty
+
+    const starStr = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+    const avgRating = d.reviews.reduce((s, rv) => s + rv.rating, 0) / d.reviews.length;
+
+    let html = `
+      <div style="margin-bottom:12px;display:flex;align-items:baseline;gap:10px">
+        <div class="ov-section-title" style="margin-bottom:0">
+          Reviews (${d.reviews.length})
+        </div>
+        <span style="color:var(--amber);font-size:.9rem">${starStr(Math.round(avgRating))}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--t3)">
+          ${avgRating.toFixed(1)} avg
+        </span>
+      </div>`;
+
+    d.reviews.forEach(rv => {
+      html += `
+        <div class="policy-card" style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="color:var(--amber);font-size:.88rem">${starStr(rv.rating)}</span>
+              ${rv.verifiedPurchase
+                ? `<span style="font-size:.62rem;padding:1px 7px;border-radius:8px;
+                    background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);
+                    color:var(--g);font-family:'DM Mono',monospace">✓ Verified</span>`
+                : ''}
+            </div>
+            <span style="font-size:.72rem;color:var(--t3);font-family:'DM Mono',monospace">
+              ${esc(rv.buyerName)} · ${fmtDate(rv.createdAt)}
+            </span>
+          </div>
+          ${rv.title
+            ? `<div style="font-size:.85rem;font-weight:600;color:var(--t1);margin-bottom:5px">${esc(rv.title)}</div>`
+            : ''}
+          <div class="policy-body">${esc(rv.body)}</div>
+          ${rv.reply
+            ? `<div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:8px;
+                border-left:2px solid var(--g3)">
+                <div style="font-size:.65rem;color:var(--g);font-family:'DM Mono',monospace;
+                  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Creator Reply</div>
+                <div style="font-size:.82rem;color:var(--t2)">${esc(rv.reply.body)}</div>
+              </div>`
+            : ''}
+        </div>`;
+    });
+
+    container.innerHTML = html;
+  } catch (_) {
+    // Network error or route missing — fail silently, reviews are non-critical
+  }
 }
 
 function toggleFaq(i) {
@@ -1653,8 +1729,24 @@ async function submitReview() {
     if (d.success) {
       toast('Review submitted! Thank you 🙏', 'success');
       closeReviewModal();
-      // Remove the review button from overview
+
+      // Remove the review button from this session's DOM immediately
       document.querySelector('.btn-review')?.parentElement?.remove();
+
+      // FIX #6: persist hasReviewed=true into the library cache so the review button
+      // doesn't reappear the next time the user opens this product page
+      try {
+        const cached = safeJSON(localStorage.getItem('_lib_cache'), []);
+        const entry = cached.find(item => String(item.productId) === String(STATE.productId));
+        if (entry) {
+          entry.hasReviewed = true;
+          localStorage.setItem('_lib_cache', JSON.stringify(cached));
+        }
+      } catch (_) {}
+
+      // Reload reviews section so the newly submitted review appears immediately
+      loadReviews(STATE.productId);
+
     } else {
       toast(d.message || 'Could not submit review.', 'error');
     }
