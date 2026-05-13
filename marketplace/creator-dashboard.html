@@ -3337,11 +3337,69 @@ select.form-control option { background: var(--ink-3); }
 
         <!-- External Link Section -->
         <div id="chapterLinkSection" style="display:none;">
-          <div class="form-group">
-            <label class="form-label">Video / Content URL</label>
-            <input type="url" class="form-control" id="chapterExtUrl" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
-            <div class="form-hint">YouTube, Vimeo, Google Drive video, direct MP4 link, etc.</div>
+
+          <!-- Chapter media type selector -->
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button id="chTypeVideoBtn"
+              onclick="setChapterMediaType('video')"
+              style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+                     padding:10px;border-radius:var(--radius);border:1px solid var(--line);
+                     background:var(--green-dim);border-color:var(--green);color:var(--green);
+                     cursor:pointer;font-size:0.83rem;font-weight:600;font-family:inherit;
+                     transition:all 0.15s;">
+              ▶ Video URL
+            </button>
+            <button id="chTypeAudioBtn"
+              onclick="setChapterMediaType('audio')"
+              style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+                     padding:10px;border-radius:var(--radius);border:1px solid var(--line);
+                     background:var(--ink-3);color:var(--soft);
+                     cursor:pointer;font-size:0.83rem;font-weight:600;font-family:inherit;
+                     transition:all 0.15s;">
+              ♪ Audio URL
+            </button>
           </div>
+
+          <!-- VIDEO URL input -->
+          <div class="form-group" id="chVideoUrlGroup">
+            <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+              <span style="background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.25);
+                color:#ff6b8a;padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;">
+                VIDEO
+              </span>
+              Paste Video URL
+            </label>
+            <input type="url" class="form-control" id="chapterVideoUrl"
+              placeholder="YouTube, Vimeo, Dailymotion, Google Drive, or direct .mp4 link"
+              oninput="previewChapterUrl('video',this.value)">
+            <div class="form-hint" style="margin-top:6px;">
+              Supported: YouTube · Vimeo · Dailymotion · Google Drive · Direct .mp4/.webm
+            </div>
+            <div id="chVideoUrlPreview" style="display:none;margin-top:8px;padding:8px 12px;
+              background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);
+              font-size:0.78rem;display:flex;align-items:center;gap:8px;"></div>
+          </div>
+
+          <!-- AUDIO URL input -->
+          <div class="form-group" id="chAudioUrlGroup" style="display:none;">
+            <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+              <span style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);
+                color:#c4b5fd;padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;">
+                AUDIO
+              </span>
+              Paste Audio URL
+            </label>
+            <input type="url" class="form-control" id="chapterAudioUrl"
+              placeholder="SoundCloud, Spotify, Audiomack, YouTube Music, or direct .mp3 link"
+              oninput="previewChapterUrl('audio',this.value)">
+            <div class="form-hint" style="margin-top:6px;">
+              Supported: SoundCloud · Spotify · Audiomack · YouTube Music · Mixcloud · Apple Music · Deezer · Direct .mp3/.wav
+            </div>
+            <div id="chAudioUrlPreview" style="display:none;margin-top:8px;padding:8px 12px;
+              background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);
+              font-size:0.78rem;display:flex;align-items:center;gap:8px;"></div>
+          </div>
+
         </div>
 
         <!-- Duration -->
@@ -4882,18 +4940,21 @@ async function editProduct(id) {
         sectionOrder: sec.sectionOrder || 0,
         chapters: (sec.chapters || []).map(function(ch) {
           return {
-            chapterTitle: ch.chapterTitle || '',
-            chapterOrder: ch.chapterOrder || 0,
-            duration:     ch.duration     || 0,
-            isFree:       ch.isFree       || false,
-            isPreview:    ch.isPreview    || ch.isFree || false,
-            externalUrl:  ch.externalUrl  || ch.externalVideoUrl || '',
-            embedUrl:     ch.embedUrl     || '',
-            embedType:    ch.embedType    || null,
-            playerType:   ch.playerType   || null,
-            hostedFile:   ch.hostedFile   || null,
-            notes:        ch.notes        || '',
-            transcript:   ch.transcript   || ''
+            chapterTitle:  ch.chapterTitle  || '',
+            chapterOrder:  ch.chapterOrder  || 0,
+            chapterType:   ch.chapterType   || (ch.embedAudioUrl || ch.embedAudioType ? 'audio' : 'video'),
+            duration:      ch.duration      || 0,
+            isFree:        ch.isFree        || false,
+            isPreview:     ch.isPreview     || ch.isFree || false,
+            embedVideoUrl: ch.embedVideoUrl || (ch.chapterType !== 'audio' ? (ch.externalUrl || ch.embedUrl || '') : ''),
+            embedAudioUrl: ch.embedAudioUrl || (ch.chapterType === 'audio'  ? (ch.externalUrl || ch.embedUrl || '') : ''),
+            externalUrl:   ch.externalUrl   || '',
+            embedUrl:      ch.embedUrl      || '',
+            embedType:     ch.embedType     || null,
+            playerType:    ch.playerType    || null,
+            hostedFile:    ch.hostedFile    || null,
+            notes:         ch.notes         || '',
+            transcript:    ch.transcript    || ''
           };
         })
       };
@@ -5046,14 +5107,29 @@ async function submitProduct() {
     courseSections.forEach(s => s.chapters.forEach(ch => {
       ch.isFree = ch.isPreview || false;
     }));
+    // Ensure every chapter carries chapterType + split URL fields before sending
+    const cleanedSections = courseSections.map(function(section) {
+      return Object.assign({}, section, {
+        chapters: section.chapters.map(function(ch) {
+          return Object.assign({}, ch, {
+            chapterType:   ch.chapterType   || (ch.embedAudioUrl ? 'audio' : 'video'),
+            embedVideoUrl: ch.embedVideoUrl || '',
+            embedAudioUrl: ch.embedAudioUrl || '',
+            // Keep legacy externalUrl populated for server backwards compat
+            externalUrl:   ch.externalUrl   || ch.embedVideoUrl || ch.embedAudioUrl || '',
+          });
+        })
+      });
+    });
+
     payload.courseData = {
       level:         document.getElementById('courseLevel')?.value || 'all',
       language:      document.getElementById('courseLanguage')?.value || 'English',
       certificate:   document.getElementById('certToggle')?.classList.contains('on') || false,
-      sections:      courseSections,
-      totalSections: courseSections.length,
-      totalChapters: courseSections.reduce((a,s) => a + s.chapters.length, 0),
-      totalDuration: courseSections.reduce((a,s) => a + s.chapters.reduce((b,c) => b+(c.duration||0), 0), 0),
+      sections:      cleanedSections,
+      totalSections: cleanedSections.length,
+      totalChapters: cleanedSections.reduce((a,s) => a + s.chapters.length, 0),
+      totalDuration: cleanedSections.reduce((a,s) => a + s.chapters.reduce((b,c) => b+(c.duration||0), 0), 0),
     };
     // If builder was never opened, seed empty structure so server pre-save
     // hook gets a valid courseData and never saves { courseData: null }
@@ -6678,18 +6754,23 @@ function deleteSection(idx) {
 
 function addChapter(sectionIdx) {
   courseSections[sectionIdx].chapters.push({
-    chapterTitle: '',
-    chapterOrder: courseSections[sectionIdx].chapters.length + 1,
-    duration:     0,
-    isFree:       false,     // server reads this for public preview gating only
-    isPreview:    false,     // UI toggle — true = free sample shown before purchase
-    hostedFile:   null,
-    externalUrl:  '',
-    embedUrl:     '',        // filled by server after save
-    embedType:    null,
-    playerType:   null,
-    notes:        '',
-    transcript:   ''
+    chapterTitle:  '',
+    chapterOrder:  courseSections[sectionIdx].chapters.length + 1,
+    chapterType:   'video',  // 'video' | 'audio' — set by creator in modal
+    duration:      0,
+    isFree:        false,
+    isPreview:     false,
+    hostedFile:    null,
+    // Separate video and audio embed URLs — server uses these directly
+    embedVideoUrl: '',       // YouTube, Vimeo, Dailymotion, GDrive, direct .mp4
+    embedAudioUrl: '',       // SoundCloud, Spotify, Audiomack, direct .mp3
+    // Legacy single field — kept for backwards compat, server populates from above
+    externalUrl:   '',
+    embedUrl:      '',
+    embedType:     null,
+    playerType:    null,
+    notes:         '',
+    transcript:    ''
   });
   renderCourseSections();
   updateBuilderStats();
@@ -6718,7 +6799,14 @@ function openChapterUpload(sectionIdx, chapterIdx) {
   const ch = courseSections[sectionIdx].chapters[chapterIdx];
   document.getElementById('chapterUploadTitle').textContent =
     `Chapter ${chapterIdx + 1}: ${ch.chapterTitle || 'Upload File'}`;
-  document.getElementById('chapterExtUrl').value = ch.externalUrl || '';
+  // Restore the correct media type tab
+  const mediaType = ch.chapterType === 'audio' ? 'audio' : 'video';
+  setChapterMediaType(mediaType);
+
+  // Populate URL fields
+  document.getElementById('chapterVideoUrl').value = ch.embedVideoUrl || '';
+  document.getElementById('chapterAudioUrl').value = ch.embedAudioUrl || '';
+
   document.getElementById('chapterDurMin').value = ch.duration ? Math.floor(ch.duration / 60) : '';
   document.getElementById('chapterDurSec').value = ch.duration ? ch.duration % 60 : '';
   document.getElementById('chapterUploadModal').classList.add('open');
@@ -6735,8 +6823,82 @@ function switchChapterTab(tab) {
   document.getElementById('chTabUpload').classList.toggle('active', tab === 'upload');
   document.getElementById('chTabLink').classList.toggle('active', tab === 'link');
   document.getElementById('chapterUploadSection').style.display = tab === 'upload' ? 'block' : 'none';
-  document.getElementById('chapterLinkSection').style.display = tab === 'link' ? 'block' : 'none';
+  document.getElementById('chapterLinkSection').style.display   = tab === 'link'   ? 'block' : 'none';
 }
+
+// Tracks which media type is active in the link tab
+let chapterLinkMediaType = 'video';
+
+function setChapterMediaType(type) {
+  chapterLinkMediaType = type;
+  const isVideo = type === 'video';
+
+  // Toggle button styles
+  const vBtn = document.getElementById('chTypeVideoBtn');
+  const aBtn = document.getElementById('chTypeAudioBtn');
+  if (vBtn) {
+    vBtn.style.background     = isVideo ? 'var(--green-dim)' : 'var(--ink-3)';
+    vBtn.style.borderColor    = isVideo ? 'var(--green)'     : 'var(--line)';
+    vBtn.style.color          = isVideo ? 'var(--green)'     : 'var(--soft)';
+  }
+  if (aBtn) {
+    aBtn.style.background  = !isVideo ? 'rgba(167,139,250,0.12)' : 'var(--ink-3)';
+    aBtn.style.borderColor = !isVideo ? 'rgba(167,139,250,0.4)'  : 'var(--line)';
+    aBtn.style.color       = !isVideo ? '#c4b5fd'                 : 'var(--soft)';
+  }
+
+  // Show/hide input groups
+  const vGrp = document.getElementById('chVideoUrlGroup');
+  const aGrp = document.getElementById('chAudioUrlGroup');
+  if (vGrp) vGrp.style.display = isVideo ? 'block' : 'none';
+  if (aGrp) aGrp.style.display = !isVideo ? 'block' : 'none';
+}
+
+// Detect platform from URL and show a preview badge
+function previewChapterUrl(type, url) {
+  const previewEl = document.getElementById(type === 'video' ? 'chVideoUrlPreview' : 'chAudioUrlPreview');
+  if (!previewEl) return;
+  if (!url.trim()) { previewEl.style.display = 'none'; return; }
+
+  const VIDEO_PLATFORMS = {
+    'youtube.com': '▶ YouTube', 'youtu.be': '▶ YouTube',
+    'vimeo.com':   '▶ Vimeo',   'dailymotion.com': '▶ Dailymotion',
+    'drive.google.com': '▶ Google Drive',
+    '.mp4': '▶ Direct Video', '.webm': '▶ Direct Video', '.mov': '▶ Direct Video',
+  };
+  const AUDIO_PLATFORMS = {
+    'soundcloud.com': '♪ SoundCloud', 'open.spotify.com': '♪ Spotify',
+    'audiomack.com':  '♪ Audiomack',  'music.youtube.com': '♪ YouTube Music',
+    'mixcloud.com':   '♪ Mixcloud',   'music.apple.com': '♪ Apple Music',
+    'bandcamp.com':   '♪ Bandcamp',   'deezer.com': '♪ Deezer',
+    '.mp3': '♪ Direct Audio', '.wav': '♪ Direct Audio', '.ogg': '♪ Direct Audio',
+    '.m4a': '♪ Direct Audio', '.aac': '♪ Direct Audio', '.flac': '♪ Direct Audio',
+  };
+
+  const platforms = type === 'video' ? VIDEO_PLATFORMS : AUDIO_PLATFORMS;
+  const lUrl = url.toLowerCase();
+  let detected = null;
+  for (const [key, label] of Object.entries(platforms)) {
+    if (lUrl.includes(key) || lUrl.endsWith(key)) { detected = label; break; }
+  }
+
+  if (detected) {
+    const isAudio = type === 'audio';
+    const color   = isAudio ? '#c4b5fd' : 'var(--green)';
+    const bg      = isAudio ? 'rgba(167,139,250,0.08)' : 'var(--green-dim)';
+    const border  = isAudio ? 'rgba(167,139,250,0.25)' : 'rgba(0,255,136,0.25)';
+    previewEl.style.cssText = `display:flex;align-items:center;gap:8px;margin-top:8px;
+      padding:8px 12px;background:${bg};border:1px solid ${border};
+      border-radius:var(--radius);font-size:0.78rem;color:${color};font-weight:600;`;
+    previewEl.innerHTML = `<span>${detected}</span><span style="color:var(--soft);font-weight:400;font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${url.length > 50 ? url.substring(0, 50) + '…' : url}</span><span style="color:var(--green);font-size:0.65rem;">✓ Recognised</span>`;
+  } else {
+    previewEl.style.cssText = `display:flex;align-items:center;gap:8px;margin-top:8px;
+      padding:8px 12px;background:var(--amber-dim);border:1px solid rgba(246,173,85,0.25);
+      border-radius:var(--radius);font-size:0.78rem;color:var(--amber);font-weight:600;`;
+    previewEl.innerHTML = `<span>⚠ Unrecognised platform — will try to play directly</span>`;
+  }
+}
+
 
 function resetChapterUploadZone() {
   const content = document.getElementById('chapterFileZoneContent');
@@ -6814,17 +6976,41 @@ function confirmChapterFile() {
     courseSections[sectionIdx].chapters[chapterIdx].chapterTitle = titleEl.value.trim();
   }
 
-  // Save external URL — server parses embedUrl/embedType/playerType on save
+  // Save embed URLs — stored separately for video and audio
   if (chapterTabMode === 'link') {
-    var url = document.getElementById('chapterExtUrl').value.trim();
-    if (!url) { showToast('Please enter a video or audio URL (YouTube, Vimeo, SoundCloud...)', 'amber'); return; }
-    courseSections[sectionIdx].chapters[chapterIdx].externalUrl = url;
-    // Clear stale hosted file — this chapter is now embed-based
-    courseSections[sectionIdx].chapters[chapterIdx].hostedFile  = null;
-    // Clear stale embed data — server always re-parses from externalUrl fresh
-    courseSections[sectionIdx].chapters[chapterIdx].embedUrl    = '';
-    courseSections[sectionIdx].chapters[chapterIdx].embedType   = null;
-    courseSections[sectionIdx].chapters[chapterIdx].playerType  = null;
+    var videoUrl = document.getElementById('chapterVideoUrl').value.trim();
+    var audioUrl = document.getElementById('chapterAudioUrl').value.trim();
+    var activeUrl = chapterLinkMediaType === 'audio' ? audioUrl : videoUrl;
+
+    if (!activeUrl) {
+      showToast(
+        chapterLinkMediaType === 'audio'
+          ? 'Please enter an audio URL (SoundCloud, Spotify, Audiomack, etc.)'
+          : 'Please enter a video URL (YouTube, Vimeo, etc.)',
+        'amber'
+      );
+      return;
+    }
+
+    var ch = courseSections[sectionIdx].chapters[chapterIdx];
+
+    // Store in the correct split field
+    ch.embedVideoUrl = videoUrl || ch.embedVideoUrl || '';
+    ch.embedAudioUrl = audioUrl || ch.embedAudioUrl || '';
+
+    // Set chapterType from the active media type tab
+    ch.chapterType = chapterLinkMediaType;
+
+    // Legacy externalUrl — use whichever is the active one for server backwards compat
+    ch.externalUrl = activeUrl;
+
+    // Clear stale hosted file
+    ch.hostedFile = null;
+
+    // Clear stale embed data — server re-parses from split fields on save
+    ch.embedUrl   = '';
+    ch.embedType  = null;
+    ch.playerType = null;
   }
 
   // Save duration
@@ -6858,11 +7044,16 @@ function renderCourseSections() {
     const durLabel = totalSecs > 0 ? formatDuration(totalSecs) : '';
 
     const chaptersHtml = section.chapters.map((ch, ci) => {
-      const hasFile  = ch.hostedFile || ch.externalUrl;
+      const hasHosted = !!ch.hostedFile;
+      const hasVideo  = !!(ch.embedVideoUrl || (ch.chapterType !== 'audio' && ch.externalUrl));
+      const hasAudio  = !!(ch.embedAudioUrl || (ch.chapterType === 'audio'  && ch.externalUrl));
+      const hasFile   = hasHosted || hasVideo || hasAudio;
       const fileBtnClass = hasFile ? 'chapter-file-btn has-file' : 'chapter-file-btn';
       const fileBtnLabel = hasFile
-        ? (ch.hostedFile ? '✅ File' : '🔗 Link')
-        : '📎 Add File';
+        ? (hasHosted ? '✅ File'
+          : hasVideo ? '▶ Video'
+          : '♪ Audio')
+        : '📎 Add Content';
       // isPreview = free public sample before purchase — NOT a content lock for buyers
       const isPreview    = ch.isPreview || ch.isFree || false;
       const previewClass = isPreview ? 'chapter-free-toggle is-free' : 'chapter-free-toggle';
