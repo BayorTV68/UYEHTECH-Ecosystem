@@ -689,7 +689,10 @@ function firstPlayable(sections) {
   for (let si = 0; si < sections.length; si++) {
     const chs = sections[si].chapters || [];
     for (let ci = 0; ci < chs.length; ci++) {
-      if (chs[ci].cloudinaryUrl || chs[ci].embedUrl) return {sectionIdx:si,chapterIdx:ci,ch:chs[ci]};
+      const ch = chs[ci];
+      if (ch.cloudinaryUrl || ch.embedUrl || ch.embedVideoUrl || ch.embedAudioUrl) {
+        return { sectionIdx: si, chapterIdx: ci, ch };
+      }
     }
   }
   return null;
@@ -741,7 +744,12 @@ function buildCourseSidebar(sections, cd) {
         <div class="sec-body ${isOpen?'open':''}" id="secbody-${si}">`;
 
     chs.forEach((ch, ci) => {
-      const hasContent = !!(ch.cloudinaryUrl || ch.embedUrl);
+      const hasContent = !!(
+        ch.cloudinaryUrl ||
+        ch.embedUrl      ||
+        ch.embedVideoUrl ||   // new split field
+        ch.embedAudioUrl      // new split field
+      );
       const done       = isChapterDone(sec.sectionOrder, ch.chapterOrder);
       const isActive   = STATE.activeChapter?.sectionIdx === si && STATE.activeChapter?.chapterIdx === ci;
       // Chapter type icon
@@ -1095,7 +1103,14 @@ function renderDownload(data, p, type) {
 ═══════════════════════════════════════════════════════ */
 function renderPlayer(ch) {
   const zone = ge('playerZone');
-  const { cloudinaryUrl, embedUrl, embedType, playerType } = ch;
+
+  // Normalise split fields into the single embedUrl/embedType that all branches below use.
+  // The server sends embedVideoUrl+embedVideoType (for video) and embedAudioUrl+embedAudioType
+  // (for audio) as the primary fields. Legacy embedUrl/embedType are also sent for compat.
+  const embedUrl   = ch.embedVideoUrl || ch.embedAudioUrl || ch.embedUrl  || null;
+  const embedType  = ch.embedVideoType || ch.embedAudioType || ch.embedType || null;
+  const playerType = ch.playerType || null;
+  const cloudinaryUrl = ch.cloudinaryUrl || null;
 
   // ── Cloudinary hosted ─────────────────────────────────
   if ((playerType === 'cloudinary' || playerType === 'cloudinary_audio' || (!embedUrl && cloudinaryUrl)) && cloudinaryUrl) {
@@ -1138,17 +1153,85 @@ function renderPlayer(ch) {
     return;
   }
 
-  // ── SoundCloud ────────────────────────────────────────
-  if (playerType === 'soundcloud_widget' || embedType === 'soundcloud') {
-    const src = embedUrl?.includes('w.soundcloud.com')
-      ? embedUrl
-      : `https://w.soundcloud.com/player/?url=${encodeURIComponent(embedUrl||'')}&color=%2300ff88&auto_play=false&hide_related=true&show_comments=false`;
-    zone.innerHTML = `
-      <div style="background:var(--card);padding:20px">
-        <iframe scrolling="no" frameborder="no" src="${escA(src)}"
-                style="width:100%;height:166px;border-radius:10px"></iframe>
-        ${markDoneBtn()}
-      </div>`;
+  // ── Audio embed platforms ─────────────────────────────
+  // playerType 'soundcloud_widget' is used for ALL audio iframe embeds:
+  // SoundCloud, Spotify, Audiomack, YouTube Music, Mixcloud, Bandcamp,
+  // Apple Music, Deezer — the server already builds the correct embed URL
+  // for each platform inside parseExternalMediaUrl / sanitiseChapters_PATCHED.
+  // We just need to render the URL in an iframe at the right dimensions.
+  const AUDIO_EMBED_TYPES = ['soundcloud','spotify','audiomack','youtube_music',
+                              'mixcloud','bandcamp','apple_music','deezer'];
+  const embedSrc = ch.embedAudioUrl || embedUrl;   // prefer split field, fallback to legacy
+
+  if (playerType === 'soundcloud_widget' || AUDIO_EMBED_TYPES.includes(embedType || '')) {
+    if (!embedSrc) { setPlayerEmpty('No audio URL for this chapter.'); return; }
+
+    // Per-platform iframe heights (some widgets need more vertical space)
+    const iframeHeights = {
+      spotify:      80,    // Spotify compact player
+      apple_music:  175,
+      deezer:       92,
+      youtube_music: 315,  // embeds as a full video player
+      audiomack:    252,
+      mixcloud:     120,
+      bandcamp:     120,
+      soundcloud:   166,
+    };
+    const iframeH = iframeHeights[embedType] || iframeHeights[ch.embedAudioType] || 166;
+
+    // YouTube Music embeds as a 16:9 video — use responsive wrapper
+    const isYTMusic = embedType === 'youtube_music' || ch.embedAudioType === 'youtube_music';
+
+    // Platform labels for the header badge
+    const platformLabels = {
+      soundcloud:    '☁ SoundCloud',
+      spotify:       '🎵 Spotify',
+      audiomack:     '🎧 Audiomack',
+      youtube_music: '▶ YouTube Music',
+      mixcloud:      '🎶 Mixcloud',
+      bandcamp:      '🎸 Bandcamp',
+      apple_music:   '🍎 Apple Music',
+      deezer:        '🎵 Deezer',
+    };
+    const platformLabel = platformLabels[embedType]
+                        || platformLabels[ch.embedAudioType]
+                        || '🎵 Audio';
+
+    if (isYTMusic) {
+      // Responsive 16:9 wrapper
+      zone.innerHTML = `
+        <div style="background:var(--card);padding:0">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;
+               border-bottom:1px solid var(--line)">
+            <span style="font-size:.72rem;color:var(--purple);font-family:'DM Mono',monospace">
+              ${platformLabel}
+            </span>
+          </div>
+          <div style="position:relative;padding-bottom:56.25%;height:0;background:#000">
+            <iframe src="${escA(embedSrc)}"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"
+              allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen"
+              allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
+          </div>
+          ${markDoneBtn()}
+        </div>`;
+    } else {
+      zone.innerHTML = `
+        <div style="background:var(--card);padding:20px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font-size:.72rem;color:var(--purple);font-family:'DM Mono',monospace;
+                  padding:2px 8px;background:rgba(167,139,250,.1);
+                  border:1px solid rgba(167,139,250,.2);border-radius:6px">
+              ${platformLabel}
+            </span>
+          </div>
+          <iframe src="${escA(embedSrc)}" scrolling="no" frameborder="no"
+                  style="width:100%;height:${iframeH}px;border-radius:10px;border:none"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"></iframe>
+          ${markDoneBtn()}
+        </div>`;
+    }
     return;
   }
 
@@ -1187,7 +1270,7 @@ function renderPlayer(ch) {
     }
   }
 
-  // ── Direct HTML5 audio ────────────────────────────────
+ // ── Direct HTML5 audio ────────────────────────────────
   if (embedUrl && (playerType === 'html5_audio' || ch.chapterType === 'audio')) {
     const ad = STATE.access?.audioData || {};
     zone.innerHTML = `
@@ -1206,6 +1289,36 @@ function renderPlayer(ch) {
       </div>`;
     attachEndHandler();
     return;
+  }
+
+  // ── PDF chapter — Cloudinary-hosted PDF viewer ────────
+  // PDF chapters are uploaded to Cloudinary as resource_type:'raw'.
+  // The secureUrl is a direct public URL — render it in an <iframe>.
+  if (ch.chapterType === 'pdf' || (ch.cloudinaryUrl && !embedUrl && !cloudinaryUrl?.match(/\.(mp4|webm|mp3|wav|ogg|flac|m4a)(\?|$)/i))) {
+    const pdfUrl = ch.cloudinaryUrl || cloudinaryUrl;
+    if (pdfUrl) {
+      zone.innerHTML = `
+        <div style="position:relative;background:#111;width:100%">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
+               border-bottom:1px solid var(--line);background:var(--card)">
+            <i class="fas fa-file-pdf" style="color:var(--red);font-size:1rem"></i>
+            <span style="font-size:.83rem;color:var(--t2);flex:1;overflow:hidden;
+                  text-overflow:ellipsis;white-space:nowrap">${esc(ch.chapterTitle || 'PDF Document')}</span>
+            <a href="${escA(pdfUrl)}" target="_blank" rel="noopener"
+               style="font-size:.72rem;color:var(--g);text-decoration:none;
+                      padding:4px 10px;border:1px solid var(--line3);border-radius:6px;
+                      white-space:nowrap;font-family:'DM Mono',monospace">
+              ↗ Open
+            </a>
+          </div>
+          <iframe src="${escA(pdfUrl)}"
+            style="width:100%;height:70vh;min-height:480px;border:none;display:block;background:#fff"
+            title="${esc(ch.chapterTitle || 'PDF Document')}"
+            loading="lazy"></iframe>
+          ${markDoneBtn()}
+        </div>`;
+      return;
+    }
   }
 
   setPlayerEmpty('No playable content for this chapter.');
