@@ -1203,10 +1203,9 @@ function renderPlayer(ch) {
     return;
   }
 
-  // ── PDF chapter ── must come BEFORE generic Cloudinary branch ────────────
-  // A PDF chapter has chapterType='pdf' OR a cloudinaryUrl ending in .pdf
-  // (resource_type:'raw' on Cloudinary). Render with viewer — never as <video>.
+  // (resource_type:'raw' on Cloudinary).
   const isPdf = ch.chapterType === 'pdf'
+    || ch.hostedFileFormat === 'pdf'
     || /\.pdf(\?|$)/i.test(cloudinaryUrl || '')
     || /\.pdf(\?|$)/i.test(embedUrl || '');
 
