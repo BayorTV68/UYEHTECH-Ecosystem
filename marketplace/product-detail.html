@@ -489,6 +489,8 @@ let STATE = {
   savingProgress: false,
   reviewRating: 0,
   sessionStartTime: Date.now(),
+  _completionShown: false,
+  _downloadExtraHtml: '',
 };
 
 /* ── BOOT ────────────────────────────────────────────── */
@@ -911,7 +913,16 @@ function buildVideoSidebar(p, data, vd) {
   if (vd.director)      rows += sbRow('Director',    vd.director);
   if (vd.releaseYear)   rows += sbRow('Year',        vd.releaseYear);
   if (vd.license)       rows += sbRow('License',     capitalise(vd.license));
-  if (vd.allowDownload) rows += sbRow('Download',    '<span style="color:var(--g)">✓ Allowed</span>');
+  if (vd.allowDownload && data.cloudinaryUrl) {
+    rows += `<div class="receipt-row">
+      <a href="${escA(data.cloudinaryUrl)}" download target="_blank" rel="noopener"
+         class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin:4px 0">
+        <i class="fas fa-download"></i> Download Video
+      </a>
+    </div>`;
+  } else if (vd.allowDownload) {
+    rows += sbRow('Download', '<span style="color:var(--g)">✓ Allowed</span>');
+  }
   if (p.price)          rows += sbRow('Paid',        `₦${Number(p.price).toLocaleString()}`);
   if (p.purchaseDate)   rows += sbRow('Purchased',   fmtDate(p.purchaseDate));
 
@@ -967,8 +978,11 @@ function buildAudioSidebar(p, ad) {
   if (p.purchaseDate) rows += sbRow('Purchased',    fmtDate(p.purchaseDate));
 
   ge('sidebarInner').innerHTML = `
-    <div class="sb-product-thumb" style="aspect-ratio:1;border-radius:16px">
+    <div class="sb-product-thumb" style="aspect-ratio:1;border-radius:16px;position:relative;overflow:hidden">
       ${img ? `<img src="${escA(img)}" alt="" onerror="this.style.display='none'">` : '🎵'}
+      ${ad.waveformUrl ? `<img src="${escA(ad.waveformUrl)}" alt="waveform"
+        style="position:absolute;bottom:0;left:0;right:0;width:100%;height:40px;
+               object-fit:cover;opacity:.5;pointer-events:none">` : ''}
     </div>
     <div class="sb-info-block">
       <div class="sb-info-title">${esc(ad.trackTitle || p.title || 'Track')}</div>
@@ -1095,7 +1109,8 @@ function renderDownload(data, p, type) {
     </div>`;
   }
 
-  ge('panel-overview').innerHTML = (dlHtml||'') + swHtml + ebHtml + designHtml + (ge('panel-overview').innerHTML||'');
+  // Store download-specific HTML in STATE so buildOverviewPanel can prepend it
+  STATE._downloadExtraHtml = (dlHtml||'') + swHtml + ebHtml + designHtml;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1104,13 +1119,18 @@ function renderDownload(data, p, type) {
 function renderPlayer(ch) {
   const zone = ge('playerZone');
 
-  // Normalise split fields into the single embedUrl/embedType that all branches below use.
-  // The server sends embedVideoUrl+embedVideoType (for video) and embedAudioUrl+embedAudioType
-  // (for audio) as the primary fields. Legacy embedUrl/embedType are also sent for compat.
-  const embedUrl   = ch.embedVideoUrl || ch.embedAudioUrl || ch.embedUrl  || null;
-  const embedType  = ch.embedVideoType || ch.embedAudioType || ch.embedType || null;
-  const playerType = ch.playerType || null;
-  const cloudinaryUrl = ch.cloudinaryUrl || null;
+  // ch can be either a course chapter object OR the top-level media-access response
+  // (for standalone video/audio/music products). Both shapes are normalised here.
+  const embedUrl      = ch.embedVideoUrl  || ch.embedAudioUrl  || ch.embedUrl   || null;
+  const embedType     = ch.embedVideoType || ch.embedAudioType || ch.embedType  || null;
+  const playerType    = ch.playerType     || null;
+  const cloudinaryUrl = ch.cloudinaryUrl  || null;
+
+  // If nothing is set at all, bail early
+  if (!cloudinaryUrl && !embedUrl) {
+    setPlayerEmpty('No playable content for this chapter.');
+    return;
+  }
 
   // ── PDF chapter ── must come BEFORE generic Cloudinary branch ────────────
   // A PDF chapter has chapterType='pdf' OR a cloudinaryUrl ending in .pdf
@@ -1484,14 +1504,24 @@ function buildSimpleSidebar(p, type, data) {
   const typeEmoji = {video:'🎬',audio:'🎵',software:'💻',ebook:'📖',template:'🎨',script:'📜',component:'🧩',file:'📦'}[type]||'📦';
 
   let rows = '';
-  if (p.category)                      rows += sbRow('Category',  p.category);
-  if (p.price)                         rows += sbRow('Paid',       `₦${Number(p.price).toLocaleString()}`);
-  if (p.purchaseDate)                  rows += sbRow('Purchased',  fmtDate(p.purchaseDate));
-  if (data?.ebookData?.language)       rows += sbRow('Language',   data.ebookData.language);
-  if (p.fileSize || data?.fileSize)    rows += sbRow('Size',       p.fileSize||data?.fileSize);
-  if (p.version)                       rows += sbRow('Version',    `v${p.version}`);
-  if (p.downloadLimit)                 rows += sbRow('Downloads',  `${p.downloadCount||0} / ${p.downloadLimit}`);
-
+  if (p.category)                           rows += sbRow('Category',     p.category);
+  if (p.price)                              rows += sbRow('Paid',         `₦${Number(p.price).toLocaleString()}`);
+  if (p.purchaseDate)                       rows += sbRow('Purchased',    fmtDate(p.purchaseDate));
+  if (data?.ebookData?.language)            rows += sbRow('Language',     data.ebookData.language);
+  if (data?.ebookData?.author)              rows += sbRow('Author',       data.ebookData.author);
+  if (data?.ebookData?.pageCount)           rows += sbRow('Pages',        data.ebookData.pageCount);
+  if (data?.ebookData?.format?.length)      rows += sbRow('Format',       data.ebookData.format.join(', '));
+  if (p.fileSize || data?.fileSize)         rows += sbRow('Size',         p.fileSize||data?.fileSize);
+  if (p.version || data?.version)           rows += sbRow('Version',      `v${p.version||data?.version}`);
+  if (p.downloadLimit)                      rows += sbRow('Downloads',    `${p.downloadCount||0} / ${p.downloadLimit}`);
+  if (p.downloadExpiry)                     rows += sbRow('Link Expires', fmtDate(p.downloadExpiry));
+  if (data?.softwareData?.platform?.length) rows += sbRow('Platforms',   data.softwareData.platform.join(', '));
+  if (data?.softwareData?.licenseType)      rows += sbRow('License Type',capitalise(data.softwareData.licenseType));
+  if (data?.softwareData?.maxDevices)       rows += sbRow('Devices',     `${data.softwareData.maxDevices}`);
+  if (data?.designData?.framework?.length)  rows += sbRow('Framework',   data.designData.framework.join(', '));
+  if (data?.designData?.stack?.length)      rows += sbRow('Stack',       data.designData.stack.join(', '));
+  const hasPreview = p.designPreview?.livePreviewUrl || data?.designData?.livePreviewUrl;
+  const hasSWDemo  = data?.softwareData?.demoUrl;
   ge('sidebarInner').innerHTML = `
     <div class="sb-product-thumb">
       ${img ? `<img src="${escA(img)}" alt="" onerror="this.style.display='none'">` : typeEmoji}
@@ -1499,6 +1529,12 @@ function buildSimpleSidebar(p, type, data) {
     <div class="sb-info-block">
       <div class="sb-info-title">${esc(p.title||'Product')}</div>
       <div class="receipt" style="margin-top:8px">${rows}</div>
+      ${hasPreview ? `<a href="${escA(hasPreview)}" target="_blank" rel="noopener"
+          class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%;justify-content:center">
+          <i class="fas fa-eye"></i> Live Preview</a>` : ''}
+      ${hasSWDemo ? `<a href="${escA(hasSWDemo)}" target="_blank" rel="noopener"
+          class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%;justify-content:center">
+          <i class="fas fa-external-link-alt"></i> Live Demo</a>` : ''}
     </div>`;
 }
 
@@ -1686,7 +1722,10 @@ function buildOverviewPanel(data, p, type) {
   // ── Reviews placeholder — filled asynchronously below ────────────────
   html += `<div id="reviewsSection" style="margin-top:24px"></div>`;
 
-  ge('panel-overview').innerHTML = html + (ge('panel-overview').innerHTML || '');
+  const _dlExtra = STATE._downloadExtraHtml || '';
+  STATE._downloadExtraHtml = '';
+  ge('panel-overview').innerHTML = _dlExtra + html;
+  loadReviews(STATE.productId);
 
   // FIX #7: load and render existing approved reviews
   loadReviews(STATE.productId);
@@ -1699,7 +1738,7 @@ async function loadReviews(productId) {
   if (!container) return;
 
   try {
-    const r = await fetch(`${API}/api/products/${encodeURIComponent(productId)}/reviews`, {
+    const r = await fetch(`${API}/api/reviews/${encodeURIComponent(productId)}`, {
       headers: authH(),
     });
     if (!r.ok) return; // silently skip if route errors
@@ -1733,7 +1772,7 @@ async function loadReviews(productId) {
                 : ''}
             </div>
             <span style="font-size:.72rem;color:var(--t3);font-family:'DM Mono',monospace">
-              ${esc(rv.buyerName)} · ${fmtDate(rv.createdAt)}
+              ${esc(rv.reviewerName || rv.buyerName || 'Verified Buyer')} · ${fmtDate(rv.createdAt)}
             </span>
           </div>
           ${rv.title
@@ -1987,10 +2026,13 @@ function resolveType(data, p) {
   if (data.productType === 'template' || p.productType === 'template') return 'template';
   if (data.productType === 'script'   || p.productType === 'script')   return 'script';
   if (data.productType === 'component'|| p.productType === 'component')return 'component';
-  if (data.embedUrl || data.cloudinaryUrl) {
-    const isAudio = data.embedType === 'soundcloud'
+  const AUDIO_EMBED_TYPES_RT = ['soundcloud','spotify','audiomack','youtube_music','mixcloud','bandcamp','apple_music','deezer'];
+  if (data.embedUrl || data.cloudinaryUrl || data.embedAudioUrl) {
+    const isAudio = AUDIO_EMBED_TYPES_RT.includes(data.embedType)
       || data.playerType === 'cloudinary_audio'
-      || data.playerType === 'html5_audio';
+      || data.playerType === 'html5_audio'
+      || data.mediaType  === 'audio'
+      || !!data.embedAudioUrl;
     return isAudio ? 'audio' : 'video';
   }
   return 'file';
