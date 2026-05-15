@@ -412,8 +412,10 @@ audio::-webkit-media-controls-panel{background:var(--bg3)}
     <!-- TABS -->
     <div class="tabs-row" id="tabsRow" style="display:none">
       <button class="tab active" data-tab="overview">Overview</button>
-      <button class="tab" data-tab="notes"       id="tabNotes"       style="display:none">Notes</button>
-      <button class="tab" data-tab="transcript"  id="tabTranscript"  style="display:none">Transcript</button>
+      <button class="tab" data-tab="notes"       id="tabNotes"       style="display:none">📄 Chapter Notes</button>
+      <button class="tab" data-tab="transcript"  id="tabTranscript"  style="display:none">📝 Transcript</button>
+      <button class="tab" data-tab="mynotes"     id="tabMyNotes"     style="display:none">✏️ My Notes</button>
+      <button class="tab" data-tab="resources"   id="tabResources"   style="display:none">🔗 Resources</button>
       <button class="tab" data-tab="receipt">Receipt</button>
       <button class="tab" data-tab="certificate" id="tabCert"        style="display:none">🎓 Certificate</button>
     </div>
@@ -423,6 +425,8 @@ audio::-webkit-media-controls-panel{background:var(--bg3)}
       <div class="tab-panel active" id="panel-overview"></div>
       <div class="tab-panel"        id="panel-notes"></div>
       <div class="tab-panel"        id="panel-transcript"></div>
+      <div class="tab-panel"        id="panel-mynotes"></div>
+      <div class="tab-panel"        id="panel-resources"></div>
       <div class="tab-panel"        id="panel-receipt"></div>
       <div class="tab-panel"        id="panel-certificate"></div>
     </div>
@@ -816,10 +820,60 @@ function loadChapter(sectionIdx, chapterIdx, chObj, userClicked) {
   const body = ge(`secbody-${sectionIdx}`);
   if (body && !body.classList.contains('open')) toggleSection(sectionIdx);
 
-  ge('tabNotes').style.display      = ch.notes      ? 'inline-flex' : 'none';
-  ge('tabTranscript').style.display = ch.transcript ? 'inline-flex' : 'none';
-  if (ch.notes)      ge('panel-notes').innerHTML      = `<div class="notes-block">${esc(ch.notes)}</div>`;
-  if (ch.transcript) ge('panel-transcript').innerHTML = `<div class="notes-block">${esc(ch.transcript)}</div>`;
+ ge('tabNotes').style.display      = ch.notes        ? 'inline-flex' : 'none';
+  ge('tabTranscript').style.display = ch.transcript   ? 'inline-flex' : 'none';
+  ge('tabMyNotes').style.display    = 'inline-flex';   // always visible for course
+  ge('tabResources').style.display  = ch.resources?.length ? 'inline-flex' : 'none';
+
+  if (ch.notes) {
+    ge('panel-notes').innerHTML = `
+      <div style="padding:20px">
+        <div class="ov-section-title" style="margin-bottom:12px">Creator Notes for This Chapter</div>
+        <div class="notes-block">${esc(ch.notes)}</div>
+      </div>`;
+  }
+
+  if (ch.transcript) {
+    ge('panel-transcript').innerHTML = `
+      <div style="padding:20px">
+        <div class="ov-section-title" style="margin-bottom:12px">Chapter Transcript</div>
+        <div class="notes-block">${esc(ch.transcript)}</div>
+      </div>`;
+  }
+
+  // Resource links from creator
+  if (ch.resources?.length) {
+    const typeIcons = { link:'🔗', file:'📎', github:'💻', article:'📰', video:'▶', audio:'♪', other:'📌' };
+    ge('panel-resources').innerHTML = `
+      <div style="padding:20px">
+        <div class="ov-section-title" style="margin-bottom:14px">Chapter Resources</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${ch.resources.map(r => `
+            <a href="${escA(r.url)}" target="_blank" rel="noopener"
+               style="display:flex;align-items:center;gap:12px;padding:12px 16px;
+                      background:var(--card);border:1px solid var(--line);border-radius:10px;
+                      text-decoration:none;transition:border-color .15s;color:var(--t1);"
+               onmouseover="this.style.borderColor='var(--line3)'"
+               onmouseout="this.style.borderColor='var(--line)'">
+              <span style="font-size:1.1rem;flex-shrink:0">${typeIcons[r.type||'link']}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:.85rem;font-weight:600;color:var(--t1);
+                     overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                  ${esc(r.label || r.url)}
+                </div>
+                <div style="font-size:.72rem;color:var(--t3);margin-top:2px;
+                     overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                  ${esc(r.url)}
+                </div>
+              </div>
+              <i class="fas fa-external-link-alt" style="font-size:.7rem;color:var(--t3);flex-shrink:0"></i>
+            </a>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  // My Notes tab — load saved note for this chapter
+  loadMyNote(sectionIdx, chapterIdx);
 
   renderPlayer(ch);
 
@@ -884,8 +938,26 @@ function updateProgressUI() {
    VIDEO PRODUCT RENDERER (productType === 'video')
 ═══════════════════════════════════════════════════════ */
 function renderVideo(data, p) {
-  // Render the player
+  const vd = data.videoData || {};
+  const isYouTube = data.embedType === 'youtube' || data.embedVideoType === 'youtube';
+  const ytUrl = isYouTube ? (data.embedUrl?.replace('/embed/', '/watch?v=') || data.externalVideoUrl || null) : null;
+
   renderPlayer(data);
+
+  // YouTube "Open on YouTube" button pinned above player
+  if (isYouTube && ytUrl) {
+    const zone = ge('playerZone');
+    const btn = document.createElement('a');
+    btn.href = ytUrl;
+    btn.target = '_blank';
+    btn.rel = 'noopener';
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.style.cssText = 'position:absolute;bottom:52px;right:12px;z-index:10;font-size:.72rem;' +
+                        'background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.2)';
+    btn.innerHTML = '<i class="fab fa-youtube" style="color:#ff4444"></i> Watch on YouTube';
+    if (zone.style.position !== 'absolute') zone.style.position = 'relative';
+    zone.appendChild(btn);
+  }
 
   const vd = data.videoData || {};
 
@@ -1455,6 +1527,137 @@ function attachEndHandler() {
       }
     });
   }, 300);
+}
+
+/* ═══════════════════════════════════════════════════════
+   STUDENT NOTES
+═══════════════════════════════════════════════════════ */
+let _notesSaved = {};   // in-memory cache: key = "sectionIdx:chapterIdx"
+let _noteSaveTimer = null;
+
+async function loadMyNote(sectionIdx, chapterIdx) {
+  const panel = ge('panel-mynotes');
+  if (!panel) return;
+
+  const sec = STATE.access?.courseData?.sections?.[sectionIdx];
+  const ch  = sec?.chapters?.[chapterIdx];
+  if (!sec || !ch) return;
+
+  const key    = `${sec.sectionOrder}:${ch.chapterOrder}`;
+  const cached = _notesSaved[key];
+
+  panel.innerHTML = buildMyNotePanel(sectionIdx, chapterIdx, sec.sectionOrder, ch.chapterOrder, cached || '');
+
+  // Fetch from server if not already cached
+  if (cached === undefined) {
+    try {
+      const r = await fetch(
+        `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/notes?productId=${encodeURIComponent(STATE.productId)}`,
+        { headers: authH() }
+      );
+      const d = await r.json();
+      if (d.success) {
+        d.notes.forEach(n => {
+          _notesSaved[`${n.sectionOrder}:${n.chapterOrder}`] = n.content;
+        });
+        const content = _notesSaved[key] || '';
+        panel.innerHTML = buildMyNotePanel(sectionIdx, chapterIdx, sec.sectionOrder, ch.chapterOrder, content);
+      }
+    } catch (_) {}
+  }
+}
+
+function buildMyNotePanel(sectionIdx, chapterIdx, sectionOrder, chapterOrder, content) {
+  const key = `${sectionOrder}:${chapterOrder}`;
+  return `
+    <div style="padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div class="ov-section-title" style="margin-bottom:0">My Notes for This Chapter</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="noteSaveStatus" style="font-size:.72rem;color:var(--t3);font-family:'DM Mono',monospace"></span>
+          ${content ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:rgba(255,77,109,.2)"
+              onclick="deleteMyNote(${sectionIdx},${chapterIdx},${sectionOrder},${chapterOrder})">
+              <i class="fas fa-trash-alt"></i> Clear
+            </button>` : ''}
+        </div>
+      </div>
+      <textarea id="myNoteTextarea"
+        placeholder="Write your notes here… (auto-saves as you type)"
+        style="width:100%;min-height:220px;background:var(--bg3);border:1px solid var(--line2);
+               border-radius:10px;padding:14px;color:var(--t1);font-family:'Outfit',sans-serif;
+               font-size:.86rem;line-height:1.7;resize:vertical;outline:none;transition:border-color .15s"
+        oninput="scheduleNoteSave(${sectionIdx},${chapterIdx},${sectionOrder},${chapterOrder},this.value)"
+        onfocus="this.style.borderColor='var(--line3)'"
+        onblur="this.style.borderColor='var(--line2)'"
+      >${esc(content)}</textarea>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm"
+          onclick="saveMyNoteNow(${sectionIdx},${chapterIdx},${sectionOrder},${chapterOrder})">
+          <i class="fas fa-save"></i> Save Note
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="copyText(ge('myNoteTextarea').value)">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+      <div style="margin-top:12px;font-size:.72rem;color:var(--t3);font-family:'DM Mono',monospace">
+        Notes are private to you — your teacher cannot see them.
+      </div>
+    </div>`;
+}
+
+function scheduleNoteSave(si, ci, so, co, content) {
+  const statusEl = ge('noteSaveStatus');
+  if (statusEl) statusEl.textContent = 'Unsaved…';
+  clearTimeout(_noteSaveTimer);
+  _noteSaveTimer = setTimeout(() => saveMyNoteNow(si, ci, so, co, content), 1800);
+}
+
+async function saveMyNoteNow(si, ci, sectionOrder, chapterOrder, content) {
+  const textarea = ge('myNoteTextarea');
+  const text = content !== undefined ? content : (textarea?.value || '');
+  const statusEl = ge('noteSaveStatus');
+  try {
+    const r = await fetch(
+      `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/notes`,
+      {
+        method: 'POST',
+        headers: authH(),
+        body: JSON.stringify({
+          productId: STATE.productId,
+          sectionOrder,
+          chapterOrder,
+          content: text,
+        })
+      }
+    );
+    const d = await r.json();
+    if (d.success) {
+      _notesSaved[`${sectionOrder}:${chapterOrder}`] = text;
+      if (statusEl) {
+        statusEl.textContent = `✓ Saved ${fmtDate(new Date())}`;
+        statusEl.style.color = 'var(--g)';
+        setTimeout(() => { if (statusEl) statusEl.style.color = 'var(--t3)'; }, 2000);
+      }
+    }
+  } catch (_) {
+    if (statusEl) { statusEl.textContent = '⚠ Save failed'; statusEl.style.color = 'var(--red)'; }
+  }
+}
+
+async function deleteMyNote(si, ci, sectionOrder, chapterOrder) {
+  try {
+    await fetch(
+      `${API}/api/orders/${encodeURIComponent(STATE.orderId)}/notes`,
+      {
+        method: 'DELETE',
+        headers: authH(),
+        body: JSON.stringify({ productId: STATE.productId, sectionOrder, chapterOrder })
+      }
+    );
+    _notesSaved[`${sectionOrder}:${chapterOrder}`] = '';
+    loadMyNote(si, ci);
+    toast('Note cleared', 'info');
+  } catch (_) {}
 }
 
 // PDF viewer switcher — toggles between Google Docs viewer and direct iframe
