@@ -1112,7 +1112,95 @@ function renderPlayer(ch) {
   const playerType = ch.playerType || null;
   const cloudinaryUrl = ch.cloudinaryUrl || null;
 
-  // ── Cloudinary hosted ─────────────────────────────────
+  // ── PDF chapter ── must come BEFORE generic Cloudinary branch ────────────
+  // A PDF chapter has chapterType='pdf' OR a cloudinaryUrl ending in .pdf
+  // (resource_type:'raw' on Cloudinary). Render with viewer — never as <video>.
+  const isPdf = ch.chapterType === 'pdf'
+    || /\.pdf(\?|$)/i.test(cloudinaryUrl || '')
+    || /\.pdf(\?|$)/i.test(embedUrl || '');
+
+  if (isPdf) {
+    const pdfSrc = cloudinaryUrl || embedUrl;
+    if (pdfSrc) {
+      // Google Docs viewer works on ALL browsers including mobile Android
+      const gdocsUrl = `https://docs.google.com/gviewer?embedded=true&url=${encodeURIComponent(pdfSrc)}`;
+      zone.innerHTML = `
+        <div style="background:#111;width:100%">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
+               background:var(--card);border-bottom:1px solid var(--line)">
+            <i class="fas fa-file-pdf" style="color:var(--red);font-size:1rem;flex-shrink:0"></i>
+            <span style="font-size:.83rem;color:var(--t2);flex:1;overflow:hidden;
+                  text-overflow:ellipsis;white-space:nowrap">
+              ${esc(ch.chapterTitle || 'PDF Document')}
+            </span>
+            <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
+               style="font-size:.72rem;color:var(--g);text-decoration:none;
+                      padding:4px 10px;border:1px solid var(--line3);border-radius:6px;
+                      white-space:nowrap;font-family:'DM Mono',monospace;flex-shrink:0">
+              ↗ Open
+            </a>
+          </div>
+          <div id="pdfViewerWrap" style="width:100%;min-height:520px;background:#f5f5f5;
+               position:relative">
+            <div id="pdfLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;
+                 align-items:center;justify-content:center;gap:12px;background:#111;z-index:2">
+              <div class="spin"></div>
+              <div style="font-size:.8rem;color:var(--t3)">Loading PDF…</div>
+            </div>
+            <iframe id="pdfIframe"
+              src="${escA(gdocsUrl)}"
+              style="width:100%;height:70vh;min-height:520px;border:none;display:block"
+              title="${esc(ch.chapterTitle || 'PDF Document')}"
+              loading="lazy"
+              onload="ge('pdfLoading').style.display='none'"
+              onerror="showPdfFallback('${escA(pdfSrc)}')">
+            </iframe>
+          </div>
+          <div style="display:flex;gap:8px;padding:12px 16px;background:var(--card);
+               border-top:1px solid var(--line);flex-wrap:wrap">
+            <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
+               class="btn btn-ghost btn-sm">
+              <i class="fas fa-external-link-alt"></i> Open in new tab
+            </a>
+            <a href="${escA(pdfSrc)}" download
+               class="btn btn-ghost btn-sm">
+              <i class="fas fa-download"></i> Download PDF
+            </a>
+            <button class="btn btn-ghost btn-sm"
+              onclick="switchPdfViewer('${escA(pdfSrc)}','${escA(gdocsUrl)}')">
+              <i class="fas fa-sync-alt"></i> Switch Viewer
+            </button>
+          </div>
+          ${markDoneBtn()}
+        </div>`;
+      return;
+    }
+  }
+
+  // ── Text chapter ─────────────────────────────────────────────────────────
+  if (ch.chapterType === 'text') {
+    const textContent = ch.notes || ch.transcript || ch.description || '';
+    zone.innerHTML = `
+      <div style="background:var(--card);border-bottom:1px solid var(--line)">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;
+             border-bottom:1px solid var(--line)">
+          <i class="fas fa-file-alt" style="color:var(--teal);font-size:1rem"></i>
+          <span style="font-size:.88rem;font-weight:600;color:var(--t1)">
+            ${esc(ch.chapterTitle || 'Text Lesson')}
+          </span>
+        </div>
+        <div style="padding:24px;font-size:.88rem;color:var(--t2);line-height:1.8;
+             max-width:720px;margin:0 auto;min-height:200px">
+          ${textContent
+            ? textContent.replace(/\n/g, '<br>')
+            : '<span style="color:var(--t3);font-style:italic">No content for this chapter.</span>'}
+        </div>
+        ${markDoneBtn()}
+      </div>`;
+    return;
+  }
+
+  // ── Cloudinary hosted (video or audio) ────────────────────────────────────
   if ((playerType === 'cloudinary' || playerType === 'cloudinary_audio' || (!embedUrl && cloudinaryUrl)) && cloudinaryUrl) {
     const isAudio = playerType === 'cloudinary_audio'
       || embedType === 'audio'
@@ -1290,37 +1378,6 @@ function renderPlayer(ch) {
     attachEndHandler();
     return;
   }
-
-  // ── PDF chapter — Cloudinary-hosted PDF viewer ────────
-  // PDF chapters are uploaded to Cloudinary as resource_type:'raw'.
-  // The secureUrl is a direct public URL — render it in an <iframe>.
-  if (ch.chapterType === 'pdf' || (ch.cloudinaryUrl && !embedUrl && !cloudinaryUrl?.match(/\.(mp4|webm|mp3|wav|ogg|flac|m4a)(\?|$)/i))) {
-    const pdfUrl = ch.cloudinaryUrl || cloudinaryUrl;
-    if (pdfUrl) {
-      zone.innerHTML = `
-        <div style="position:relative;background:#111;width:100%">
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
-               border-bottom:1px solid var(--line);background:var(--card)">
-            <i class="fas fa-file-pdf" style="color:var(--red);font-size:1rem"></i>
-            <span style="font-size:.83rem;color:var(--t2);flex:1;overflow:hidden;
-                  text-overflow:ellipsis;white-space:nowrap">${esc(ch.chapterTitle || 'PDF Document')}</span>
-            <a href="${escA(pdfUrl)}" target="_blank" rel="noopener"
-               style="font-size:.72rem;color:var(--g);text-decoration:none;
-                      padding:4px 10px;border:1px solid var(--line3);border-radius:6px;
-                      white-space:nowrap;font-family:'DM Mono',monospace">
-              ↗ Open
-            </a>
-          </div>
-          <iframe src="${escA(pdfUrl)}"
-            style="width:100%;height:70vh;min-height:480px;border:none;display:block;background:#fff"
-            title="${esc(ch.chapterTitle || 'PDF Document')}"
-            loading="lazy"></iframe>
-          ${markDoneBtn()}
-        </div>`;
-      return;
-    }
-  }
-
   setPlayerEmpty('No playable content for this chapter.');
 }
 
@@ -1378,6 +1435,37 @@ function attachEndHandler() {
       }
     });
   }, 300);
+}
+
+// PDF viewer switcher — toggles between Google Docs viewer and direct iframe
+let _pdfViewerMode = 'gdocs';
+function switchPdfViewer(rawUrl, gdocsUrl) {
+  const iframe = ge('pdfIframe');
+  const loading = ge('pdfLoading');
+  if (!iframe) return;
+  if (loading) loading.style.display = 'flex';
+  _pdfViewerMode = _pdfViewerMode === 'gdocs' ? 'direct' : 'gdocs';
+  iframe.src = _pdfViewerMode === 'gdocs' ? gdocsUrl : rawUrl;
+}
+
+// Called when the PDF iframe fails to load at all
+function showPdfFallback(rawUrl) {
+  const wrap = ge('pdfViewerWrap');
+  if (!wrap) return;
+  wrap.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+         gap:16px;padding:40px;min-height:300px;background:var(--card)">
+      <i class="fas fa-file-pdf" style="font-size:3rem;color:var(--red);opacity:.5"></i>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--t1)">
+        PDF cannot render here
+      </div>
+      <div style="font-size:.82rem;color:var(--t3);text-align:center;max-width:300px">
+        Your browser blocked the PDF viewer. Use the buttons below to open or download it.
+      </div>
+      <a href="${escA(rawUrl)}" target="_blank" rel="noopener" class="btn btn-primary">
+        <i class="fas fa-external-link-alt"></i> Open PDF
+      </a>
+    </div>`;
 }
 
 function setPlayerEmpty(msg) {
