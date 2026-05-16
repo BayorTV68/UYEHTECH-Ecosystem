@@ -2778,6 +2778,9 @@ select.form-control option { background: var(--ink-3); }
       <button class="ptype-tab" data-type="ebook" onclick="switchProductType('ebook',this)">
         <span class="ptype-icon">📖</span>eBook
       </button>
+      <button class="ptype-tab" data-type="video" onclick="switchProductType('video',this)">
+        <span class="ptype-icon">🎬</span>Video
+      </button>
     </div>
 
     <div class="grid-60-40">
@@ -2999,12 +3002,34 @@ select.form-control option { background: var(--ink-3); }
               <div class="form-hint">One outcome per line.</div>
             </div>
 
+            <div class="form-group">
+              <label class="form-label">Target Audience</label>
+              <textarea class="form-control" id="courseTargetAudience" rows="3" placeholder="• Developers who know basic JavaScript&#10;• Designers learning to code&#10;• Anyone curious about React"></textarea>
+              <div class="form-hint">Who is this course for? One line per audience.</div>
+            </div>
+
             <div onclick="toggleRow('certToggle')" class="toggle-row" id="certToggle">
               <div>
                 <div class="toggle-label">Certificate of Completion</div>
                 <div class="toggle-sub">Students receive a certificate after completing all chapters</div>
               </div>
               <div class="toggle-switch"></div>
+            </div>
+
+            <div class="form-section-divider">
+              <div class="form-section-divider-line"></div>
+              <div class="form-section-divider-label">Student Messages (optional)</div>
+              <div class="form-section-divider-line"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Welcome Message</label>
+              <textarea class="form-control" id="courseWelcomeMessage" rows="2" placeholder="Welcome! I'm excited you're here. In this course you'll…"></textarea>
+              <div class="form-hint">Shown to the student when they first open the course.</div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Completion Message</label>
+              <textarea class="form-control" id="courseCompletionMessage" rows="2" placeholder="Congratulations! You've completed the course. Here's what to do next…"></textarea>
+              <div class="form-hint">Shown when the student finishes all chapters.</div>
             </div>
 
             <!-- Course Stats Summary -->
@@ -3097,6 +3122,72 @@ select.form-control option { background: var(--ink-3); }
               </div>
               <div class="toggle-switch"></div>
             </div>
+            <div onclick="toggleRow('hasVocalsToggle')" class="toggle-row" id="hasVocalsToggle">
+              <div>
+                <div class="toggle-label">Contains Vocals</div>
+                <div class="toggle-sub">This track features vocal performance</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+            <div onclick="toggleRow('loopableToggle')" class="toggle-row" id="loopableToggle">
+              <div>
+                <div class="toggle-label">Loopable</div>
+                <div class="toggle-sub">Track loops seamlessly — suitable for background use</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+
+            <div class="form-section-divider">
+              <div class="form-section-divider-line"></div>
+              <div class="form-section-divider-label">Artist Info</div>
+              <div class="form-section-divider-line"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Track Title</label>
+                <input type="text" class="form-control" id="audioTrackTitle" placeholder="Display title (if different from product title)">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Artist</label>
+                <input type="text" class="form-control" id="audioArtist" placeholder="Artist / producer name">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Album / EP</label>
+                <input type="text" class="form-control" id="audioAlbum" placeholder="Album or EP name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Release Year</label>
+                <input type="number" class="form-control" id="audioReleaseYear" placeholder="2024" min="1900" max="2099">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Allowed Uses</label>
+              <input type="text" class="form-control" id="audioAllowedUses" placeholder="YouTube, Podcasts, Ads, Films… (comma-separated)">
+              <div class="form-hint">Comma-separated list of permitted use cases.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ISRC Code <span style="color:var(--muted);font-size:0.7rem;">(optional)</span></label>
+              <input type="text" class="form-control" id="audioIsrc" placeholder="e.g. USRC17607839">
+            </div>
+
+            <div class="form-section-divider">
+              <div class="form-section-divider-line"></div>
+              <div class="form-section-divider-label">Cover Art</div>
+              <div class="form-section-divider-line"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Cover Art Image <span style="color:var(--muted);font-size:0.7rem;">(optional — separate from product cover)</span></label>
+              <div class="file-upload-zone" id="musicCoverZone" style="padding:18px;">
+                <input type="file" id="musicCoverInput" accept="image/*" onchange="handleMusicCoverSelect(event)">
+                <div id="musicCoverPrompt">
+                  <div class="upload-text">Upload album / single artwork</div>
+                  <div class="upload-sub">JPG, PNG, WebP — recommended 3000×3000px</div>
+                </div>
+                <div id="musicCoverChip" style="display:none;"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -3148,7 +3239,7 @@ select.form-control option { background: var(--ink-3); }
               </div>
             </div>
 
-            <div class="form-row">
+           <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Support Period</label>
                 <input type="text" class="form-control" id="softwareSupport" placeholder="e.g. 12 months">
@@ -3156,6 +3247,273 @@ select.form-control option { background: var(--ink-3); }
               <div class="form-group">
                 <label class="form-label">Update Period</label>
                 <input type="text" class="form-control" id="softwareUpdates" placeholder="e.g. Lifetime">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Max Devices per License</label>
+                <input type="number" class="form-control" id="softwareMaxDevices" placeholder="1" min="1">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Free Trial (days)</label>
+                <input type="number" class="form-control" id="softwareTrialDays" placeholder="0 = no trial" min="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Min OS Version</label>
+                <input type="text" class="form-control" id="softwareMinOs" placeholder="e.g. Windows 10, macOS 12">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Architecture</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" id="softwareArchGrid">
+                  <div class="platform-btn" onclick="toggleSoftwareArch(this,'x64')">x64</div>
+                  <div class="platform-btn" onclick="toggleSoftwareArch(this,'x86')">x86</div>
+                  <div class="platform-btn" onclick="toggleSoftwareArch(this,'arm64')">arm64</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Activation URL</label>
+                <input type="url" class="form-control" id="softwareActivationUrl" placeholder="https://your-app.com/activate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Live Demo URL</label>
+                <input type="url" class="form-control" id="softwareDemoUrl" placeholder="https://demo.your-app.com">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Source / Repo URL</label>
+              <input type="url" class="form-control" id="softwareRepoUrl" placeholder="https://github.com/you/repo (optional)">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Changelog / Release Notes</label>
+              <textarea class="form-control" id="softwareChangelog" rows="3" placeholder="v2.4.1 — Fixed login bug, improved export speed…"></textarea>
+              <div class="form-hint">What's new in this version.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 4: Features & Requirements (always visible) -->
+
+        <!-- CARD 3E: VIDEO TYPE -->
+        <div class="card ptype-panel" id="panel-video" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="section-title">Video Details</div>
+          </div>
+          <div class="card-body">
+            <!-- Delivery mode: hosted file OR external URL -->
+            <div class="form-group">
+              <label class="form-label">How will buyers watch this?</label>
+              <div class="delivery-options">
+                <div class="delivery-opt selected" id="videoDeliveryOptHosted" onclick="selectVideoDelivery('hosted')">
+                  <div class="delivery-opt-icon">☁️</div>
+                  <div class="delivery-opt-label">Upload Video</div>
+                  <div class="delivery-opt-sub">Host on UYEH TECH</div>
+                </div>
+                <div class="delivery-opt" id="videoDeliveryOptLink" onclick="selectVideoDelivery('link')">
+                  <div class="delivery-opt-icon">🔗</div>
+                  <div class="delivery-opt-label">External URL</div>
+                  <div class="delivery-opt-sub">YouTube, Vimeo…</div>
+                </div>
+              </div>
+            </div>
+            <div id="videoHostedSection">
+              <div class="form-group">
+                <label class="form-label">Video File <span class="req">*</span></label>
+                <div class="file-upload-zone" id="videoFileZone">
+                  <input type="file" id="videoFileInput" accept="video/*" onchange="handleVideoFileSelect(event)">
+                  <div id="videoFilePrompt">
+                    <div class="upload-icon">🎬</div>
+                    <div class="upload-text">Upload your video file</div>
+                    <div class="upload-sub">MP4, WebM, MOV — up to 500MB</div>
+                  </div>
+                  <div id="videoFileChip" style="display:none;"></div>
+                  <div class="file-upload-progress" id="videoFileProgress"></div>
+                </div>
+              </div>
+            </div>
+            <div id="videoLinkSection" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Video URL <span class="req">*</span></label>
+                <input type="url" class="form-control" id="videoExternalUrl"
+                  placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
+                <div class="form-hint">YouTube, Vimeo, Google Drive video, or direct .mp4 link.</div>
+              </div>
+            </div>
+            <div class="form-section-divider">
+              <div class="form-section-divider-line"></div>
+              <div class="form-section-divider-label">Video Info</div>
+              <div class="form-section-divider-line"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Genre</label>
+                <input type="text" class="form-control" id="videoGenre" placeholder="Tutorial, Documentary, Short Film…">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Language</label>
+                <input type="text" class="form-control" id="videoLanguage" value="English" placeholder="English">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Resolution</label>
+                <select class="form-control" id="videoResolution">
+                  <option value="">Not specified</option>
+                  <option value="720p">720p HD</option>
+                  <option value="1080p">1080p Full HD</option>
+                  <option value="4K">4K Ultra HD</option>
+                  <option value="480p">480p</option>
+                  <option value="360p">360p</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Release Year</label>
+                <input type="number" class="form-control" id="videoReleaseYear" placeholder="2024" min="1900" max="2099">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">License Type</label>
+              <select class="form-control" id="videoLicenseType">
+                <option value="personal">Personal — non-commercial use</option>
+                <option value="commercial">Commercial — any project</option>
+                <option value="exclusive">Exclusive — sole ownership</option>
+              </select>
+            </div>
+            <div onclick="toggleRow('videoDownloadToggle')" class="toggle-row" id="videoDownloadToggle">
+              <div>
+                <div class="toggle-label">Allow Download</div>
+                <div class="toggle-sub">Buyers can download the video file after purchase</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+            <div onclick="toggleRow('videoCaptionToggle')" class="toggle-row" id="videoCaptionToggle">
+              <div>
+                <div class="toggle-label">Includes Captions / Subtitles</div>
+                <div class="toggle-sub">Closed captions or subtitle files are included</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3F: eBOOK METADATA (extra fields shown when ebook tab active) -->
+        <div class="card ptype-panel" id="panel-ebook-meta" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="section-title">eBook Details</div>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Author</label>
+                <input type="text" class="form-control" id="ebookAuthor" placeholder="Author name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Publisher</label>
+                <input type="text" class="form-control" id="ebookPublisher" placeholder="Publisher or self-published">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Page Count</label>
+                <input type="number" class="form-control" id="ebookPageCount" placeholder="e.g. 220" min="1">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Publication Year</label>
+                <input type="number" class="form-control" id="ebookPublicationYear" placeholder="2024" min="1900" max="2099">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Edition</label>
+                <input type="text" class="form-control" id="ebookEdition" placeholder="e.g. 2nd Edition">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reading Time (mins)</label>
+                <input type="number" class="form-control" id="ebookReadingTime" placeholder="e.g. 180" min="1">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Language</label>
+                <input type="text" class="form-control" id="ebookLanguage" value="English" placeholder="English">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ISBN</label>
+                <input type="text" class="form-control" id="ebookIsbn" placeholder="Optional">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Formats Included</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;" id="ebookFormatGrid">
+                <div class="platform-btn" onclick="toggleEbookFormat(this,'PDF')">📄 PDF</div>
+                <div class="platform-btn" onclick="toggleEbookFormat(this,'EPUB')">📱 EPUB</div>
+                <div class="platform-btn" onclick="toggleEbookFormat(this,'MOBI')">📚 MOBI</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3G: DESIGN METADATA (Template / Component / Script) -->
+        <div class="card ptype-panel" id="panel-design-meta" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="section-title">Technical Details</div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Frameworks</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;" id="designFrameworkGrid">
+                <div class="platform-btn" onclick="toggleDesignTag(this,'framework','React')">⚛️ React</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'framework','Vue')">💚 Vue</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'framework','Next.js')">▲ Next.js</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'framework','Angular')">🔴 Angular</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'framework','HTML')">🌐 HTML</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'framework','Svelte')">🔥 Svelte</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CSS / Styling Stack</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;" id="designStackGrid">
+                <div class="platform-btn" onclick="toggleDesignTag(this,'stack','Tailwind')">🌊 Tailwind</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'stack','Bootstrap')">🅱️ Bootstrap</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'stack','SCSS')">🎨 SCSS</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'stack','CSS Modules')">📦 CSS Modules</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'stack','Styled Components')">💅 Styled</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Compatible With</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;" id="designCompatGrid">
+                <div class="platform-btn" onclick="toggleDesignTag(this,'compat','WordPress')">🔵 WordPress</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'compat','Shopify')">🟢 Shopify</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'compat','Webflow')">🌀 Webflow</div>
+                <div class="platform-btn" onclick="toggleDesignTag(this,'compat','Framer')">🖼️ Framer</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Live Preview URL</label>
+                <input type="url" class="form-control" id="designLivePreviewUrl" placeholder="https://your-demo.vercel.app">
+              </div>
+              <div class="form-group">
+                <label class="form-label">GitHub / Repo URL</label>
+                <input type="url" class="form-control" id="designRepoUrl" placeholder="https://github.com/you/repo">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Figma File URL</label>
+              <input type="url" class="form-control" id="designFigmaUrl" placeholder="https://figma.com/file/...">
+            </div>
+            <div class="form-row" style="margin-bottom:0;">
+              <div onclick="toggleRow('designResponsiveToggle')" class="toggle-row" id="designResponsiveToggle" style="border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;">
+                <div><div class="toggle-label">Responsive</div></div>
+                <div class="toggle-switch"></div>
+              </div>
+              <div onclick="toggleRow('designDarkModeToggle')" class="toggle-row" id="designDarkModeToggle" style="border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;">
+                <div><div class="toggle-label">Dark Mode</div></div>
+                <div class="toggle-switch"></div>
               </div>
             </div>
           </div>
@@ -3410,6 +3768,27 @@ select.form-control option { background: var(--ink-3); }
             <input type="number" class="form-control" id="chapterDurSec" placeholder="secs" min="0" max="59" style="flex:1;">
           </div>
           <div class="form-hint">Leave blank to auto-detect from uploaded file.</div>
+        </div>
+
+        <!-- Notes & Transcript -->
+        <div class="form-group">
+          <label class="form-label">Chapter Notes <span style="color:var(--muted);font-size:0.7rem;">(optional — shown to students)</span></label>
+          <textarea class="form-control" id="chapterNotesInput" rows="2" placeholder="Key points, code snippets, or extra context for this chapter…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transcript <span style="color:var(--muted);font-size:0.7rem;">(optional)</span></label>
+          <textarea class="form-control" id="chapterTranscriptInput" rows="3" placeholder="Full text transcript for accessibility and search…"></textarea>
+        </div>
+
+        <!-- Chapter Resources -->
+        <div class="form-group" style="margin-bottom:4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <label class="form-label" style="margin:0;">Resource Links <span style="color:var(--muted);font-size:0.7rem;">(optional)</span></label>
+            <button class="btn btn-ghost btn-sm" onclick="addChapterResource()" type="button">
+              <i class="fas fa-plus"></i> Add Link
+            </button>
+          </div>
+          <div id="chapterResourcesList" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:4px;">
@@ -4485,6 +4864,14 @@ let currentProductType = 'download';
 let currentDeliveryMode = 'hosted';
 let currentMusicLicense = 'personal';
 let currentPreviewType = 'none';
+let currentVideoDelivery = 'hosted';   // 'hosted' | 'link'
+let uploadedMusicCoverData = null;     // { coverUrl, publicId }
+let uploadedVideoFileData  = null;     // { publicId, secureUrl, resourceType, bytes, format, fileSizeLabel }
+let activeEbookFormats     = [];       // ['PDF','EPUB','MOBI']
+let designFrameworks       = [];       // ['React','Vue',...]
+let designStack            = [];       // ['Tailwind',...]
+let designCompat           = [];       // ['WordPress',...]
+let softwareArchitectures  = [];       // ['x64','arm64',...]
 let selectedProductFile = null;
 let selectedPreviewFile = null;
 let uploadedProductFileData = null;  // { publicId, secureUrl, resourceType, bytes, format, fileSizeLabel }
@@ -4895,33 +5282,108 @@ async function editProduct(id) {
   // Music extras
   if (product.productType === 'music' && product.audioData) {
     const ad = product.audioData;
-    const bpmEl = document.getElementById('audioBpm');
-    const keyEl = document.getElementById('audioKey');
-    const genreEl = document.getElementById('audioGenre');
-    const moodEl = document.getElementById('audioMood');
-    if (bpmEl) bpmEl.value = ad.bpm || '';
-    if (keyEl) keyEl.value = ad.key || '';
-    if (genreEl) genreEl.value = ad.genre || '';
-    if (moodEl) moodEl.value = ad.mood || '';
+    if (document.getElementById('audioBpm'))          document.getElementById('audioBpm').value          = ad.bpm || '';
+    if (document.getElementById('audioKey'))          document.getElementById('audioKey').value          = ad.key || '';
+    if (document.getElementById('audioGenre'))        document.getElementById('audioGenre').value        = ad.genre || '';
+    if (document.getElementById('audioMood'))         document.getElementById('audioMood').value         = ad.mood || '';
+    if (document.getElementById('audioTrackTitle'))   document.getElementById('audioTrackTitle').value   = ad.trackTitle || '';
+    if (document.getElementById('audioArtist'))       document.getElementById('audioArtist').value       = ad.artist || '';
+    if (document.getElementById('audioAlbum'))        document.getElementById('audioAlbum').value        = ad.album || '';
+    if (document.getElementById('audioReleaseYear'))  document.getElementById('audioReleaseYear').value  = ad.releaseYear || '';
+    if (document.getElementById('audioAllowedUses'))  document.getElementById('audioAllowedUses').value  = (ad.allowedUses||[]).join(', ');
+    if (document.getElementById('audioIsrc'))         document.getElementById('audioIsrc').value         = ad.isrc || '';
     selectMusicLicense(ad.license || 'personal');
-    if (ad.stems) toggleRow('stemsToggle');
+    if (ad.stems)     toggleRow('stemsToggle');
+    if (ad.hasVocals) toggleRow('hasVocalsToggle');
+    if (ad.loopable)  toggleRow('loopableToggle');
+    if (ad.coverUrl) {
+      uploadedMusicCoverData = { coverUrl: ad.coverUrl };
+      const chip = document.getElementById('musicCoverChip');
+      if (chip) { chip.style.display='flex'; chip.innerHTML=`<span class="uploaded-file-chip">🖼️ Saved cover <button class="remove-file" onclick="clearMusicCover()">✕</button></span>`; }
+      const pr = document.getElementById('musicCoverPrompt'); if(pr) pr.style.display='none';
+    }
   }
 
   // Software extras
   if (product.productType === 'software' && product.softwareData) {
     const sd = product.softwareData;
-    const ltEl = document.getElementById('softwareLicenseType');
-    const supEl = document.getElementById('softwareSupport');
-    const updEl = document.getElementById('softwareUpdates');
-    const svEl = document.getElementById('softwareVersion');
-    if (ltEl) ltEl.value = sd.licenseType || 'single';
-    if (supEl) supEl.value = sd.supportPeriod || '';
-    if (updEl) updEl.value = sd.updatePeriod || '';
-    if (svEl) svEl.value = product.version || '';
+    if (document.getElementById('softwareLicenseType'))  document.getElementById('softwareLicenseType').value  = sd.licenseType || 'single';
+    if (document.getElementById('softwareSupport'))      document.getElementById('softwareSupport').value      = sd.supportPeriod || '';
+    if (document.getElementById('softwareUpdates'))      document.getElementById('softwareUpdates').value      = sd.updatePeriod || '';
+    if (document.getElementById('softwareVersion'))      document.getElementById('softwareVersion').value      = product.version || '';
+    if (document.getElementById('softwareMaxDevices'))   document.getElementById('softwareMaxDevices').value   = sd.maxDevices || '';
+    if (document.getElementById('softwareTrialDays'))    document.getElementById('softwareTrialDays').value    = sd.trialDays || '';
+    if (document.getElementById('softwareMinOs'))        document.getElementById('softwareMinOs').value        = sd.minOsVersion || '';
+    if (document.getElementById('softwareActivationUrl'))document.getElementById('softwareActivationUrl').value= sd.activationUrl || '';
+    if (document.getElementById('softwareDemoUrl'))      document.getElementById('softwareDemoUrl').value      = sd.demoUrl || '';
+    if (document.getElementById('softwareRepoUrl'))      document.getElementById('softwareRepoUrl').value      = sd.repoUrl || '';
+    if (document.getElementById('softwareChangelog'))    document.getElementById('softwareChangelog').value    = sd.changelog || '';
     activePlatforms = sd.platform || [];
+    softwareArchitectures = sd.architecture || [];
     document.querySelectorAll('#platformGrid .platform-btn').forEach(btn => {
       const p = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
       btn.classList.toggle('active', activePlatforms.includes(p));
+    });
+    document.querySelectorAll('#softwareArchGrid .platform-btn').forEach(btn => {
+      const a = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', softwareArchitectures.includes(a));
+    });
+  }
+
+  // Video extras
+  if (product.productType === 'video' && product.videoData) {
+    const vd = product.videoData;
+    if (document.getElementById('videoGenre'))       document.getElementById('videoGenre').value       = vd.genre || '';
+    if (document.getElementById('videoLanguage'))    document.getElementById('videoLanguage').value    = vd.language || 'English';
+    if (document.getElementById('videoResolution'))  document.getElementById('videoResolution').value  = vd.resolution || '';
+    if (document.getElementById('videoReleaseYear')) document.getElementById('videoReleaseYear').value = vd.releaseYear || '';
+    if (document.getElementById('videoLicenseType')) document.getElementById('videoLicenseType').value = vd.license || 'personal';
+    if (vd.allowDownload) toggleRow('videoDownloadToggle');
+    if (vd.hasCaption)    toggleRow('videoCaptionToggle');
+    if (product.externalVideoUrl) {
+      selectVideoDelivery('link');
+      if (document.getElementById('videoExternalUrl')) document.getElementById('videoExternalUrl').value = product.externalVideoUrl;
+    }
+  }
+
+  // eBook extras
+  if (product.productType === 'ebook' && product.ebookData) {
+    const eb = product.ebookData;
+    if (document.getElementById('ebookAuthor'))          document.getElementById('ebookAuthor').value          = eb.author || '';
+    if (document.getElementById('ebookPublisher'))       document.getElementById('ebookPublisher').value       = eb.publisher || '';
+    if (document.getElementById('ebookPageCount'))       document.getElementById('ebookPageCount').value       = eb.pageCount || '';
+    if (document.getElementById('ebookPublicationYear')) document.getElementById('ebookPublicationYear').value = eb.publicationYear || '';
+    if (document.getElementById('ebookEdition'))         document.getElementById('ebookEdition').value         = eb.edition || '';
+    if (document.getElementById('ebookReadingTime'))     document.getElementById('ebookReadingTime').value     = eb.readingTimeMin || '';
+    if (document.getElementById('ebookLanguage'))        document.getElementById('ebookLanguage').value        = eb.language || 'English';
+    if (document.getElementById('ebookIsbn'))            document.getElementById('ebookIsbn').value            = eb.isbn || '';
+    activeEbookFormats = eb.format || [];
+    document.querySelectorAll('#ebookFormatGrid .platform-btn').forEach(btn => {
+      const f = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', activeEbookFormats.includes(f));
+    });
+  }
+
+  // Template / Component / Script design extras
+  if (['template','component','script'].includes(product.productType) && product.designData) {
+    const dd = product.designData;
+    designFrameworks = dd.framework || []; designStack = dd.stack || []; designCompat = dd.compatible || [];
+    if (document.getElementById('designLivePreviewUrl')) document.getElementById('designLivePreviewUrl').value = dd.livePreviewUrl || '';
+    if (document.getElementById('designRepoUrl'))        document.getElementById('designRepoUrl').value        = dd.repoUrl || '';
+    if (document.getElementById('designFigmaUrl'))       document.getElementById('designFigmaUrl').value       = dd.figmaUrl || '';
+    if (dd.responsive) toggleRow('designResponsiveToggle');
+    if (dd.darkMode)   toggleRow('designDarkModeToggle');
+    document.querySelectorAll('#designFrameworkGrid .platform-btn').forEach(btn => {
+      const v = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', designFrameworks.includes(v));
+    });
+    document.querySelectorAll('#designStackGrid .platform-btn').forEach(btn => {
+      const v = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', designStack.includes(v));
+    });
+    document.querySelectorAll('#designCompatGrid .platform-btn').forEach(btn => {
+      const v = btn.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+      btn.classList.toggle('active', designCompat.includes(v));
     });
   }
 
@@ -4933,6 +5395,12 @@ async function editProduct(id) {
     if (lvl) lvl.value = cd.level || 'all';
     if (lang) lang.value = cd.language || 'English';
     if (cd.certificate) toggleRow('certToggle');
+    if (cd.targetAudience?.length && document.getElementById('courseTargetAudience'))
+      document.getElementById('courseTargetAudience').value = cd.targetAudience.map(l=>'• '+l).join('\n');
+    if (cd.welcomeMessage && document.getElementById('courseWelcomeMessage'))
+      document.getElementById('courseWelcomeMessage').value = cd.welcomeMessage;
+    if (cd.completionMessage && document.getElementById('courseCompletionMessage'))
+      document.getElementById('courseCompletionMessage').value = cd.completionMessage;
     // Map each chapter to a clean plain object the builder can work with safely
     courseSections = (cd.sections || []).map(function(sec) {
       return {
@@ -5075,31 +5543,104 @@ async function submitProduct() {
 
   // ── Strip stale type-specific data — prevent hybrid corrupt documents ────
   // e.g. a course must never carry downloadLink; a download must never carry courseData
-  if (currentProductType !== 'course')    delete payload.courseData;
-  if (currentProductType !== 'music')     delete payload.audioData;
-  if (currentProductType !== 'software')  delete payload.softwareData;
-  if (currentProductType === 'course')    payload.downloadLink = '';
+  // Strip stale type-specific blobs
+  if (currentProductType !== 'course')                               delete payload.courseData;
+  if (currentProductType !== 'music')                                delete payload.audioData;
+  if (currentProductType !== 'software')                             delete payload.softwareData;
+  if (currentProductType !== 'video')                                delete payload.videoData;
+  if (currentProductType !== 'ebook')                                delete payload.ebookData;
+  if (!['template','component','script'].includes(currentProductType)) delete payload.designData;
+  if (currentProductType === 'course')                               payload.downloadLink = '';
 
   // ── Type-specific extras ──────────────────────────────────────────────────
   if (currentProductType === 'music') {
+    const allowedUsesRaw = document.getElementById('audioAllowedUses')?.value || '';
     payload.audioData = {
-      bpm:      parseInt(document.getElementById('audioBpm')?.value) || null,
-      key:      document.getElementById('audioKey')?.value || null,
-      genre:    document.getElementById('audioGenre')?.value || null,
-      mood:     document.getElementById('audioMood')?.value || null,
-      license:  currentMusicLicense,
-      stems:    document.getElementById('stemsToggle')?.classList.contains('on') || false,
+      bpm:             parseInt(document.getElementById('audioBpm')?.value) || null,
+      key:             document.getElementById('audioKey')?.value || null,
+      genre:           document.getElementById('audioGenre')?.value || null,
+      mood:            document.getElementById('audioMood')?.value || null,
+      license:         currentMusicLicense,
+      stems:           document.getElementById('stemsToggle')?.classList.contains('on') || false,
+      hasVocals:       document.getElementById('hasVocalsToggle')?.classList.contains('on') || false,
+      loopable:        document.getElementById('loopableToggle')?.classList.contains('on') || false,
+      trackTitle:      document.getElementById('audioTrackTitle')?.value || null,
+      artist:          document.getElementById('audioArtist')?.value || null,
+      album:           document.getElementById('audioAlbum')?.value || null,
+      releaseYear:     parseInt(document.getElementById('audioReleaseYear')?.value) || null,
+      allowedUses:     allowedUsesRaw ? allowedUsesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [],
+      isrc:            document.getElementById('audioIsrc')?.value || null,
+      coverUrl:        uploadedMusicCoverData?.coverUrl || null,
     };
   }
 
   if (currentProductType === 'software') {
     payload.softwareData = {
-      platform:      activePlatforms,
-      licenseType:   document.getElementById('softwareLicenseType')?.value || 'single',
-      supportPeriod: document.getElementById('softwareSupport')?.value || '',
-      updatePeriod:  document.getElementById('softwareUpdates')?.value || '',
+      platform:        activePlatforms,
+      licenseType:     document.getElementById('softwareLicenseType')?.value || 'single',
+      supportPeriod:   document.getElementById('softwareSupport')?.value || '',
+      updatePeriod:    document.getElementById('softwareUpdates')?.value || '',
+      maxDevices:      parseInt(document.getElementById('softwareMaxDevices')?.value) || 1,
+      trialDays:       parseInt(document.getElementById('softwareTrialDays')?.value) || 0,
+      minOsVersion:    document.getElementById('softwareMinOs')?.value || '',
+      architecture:    softwareArchitectures,
+      activationUrl:   document.getElementById('softwareActivationUrl')?.value || null,
+      demoUrl:         document.getElementById('softwareDemoUrl')?.value || null,
+      repoUrl:         document.getElementById('softwareRepoUrl')?.value || null,
+      changelog:       document.getElementById('softwareChangelog')?.value || null,
     };
     payload.version = document.getElementById('softwareVersion')?.value || payload.version;
+  }
+
+  if (currentProductType === 'video') {
+    payload.videoData = {
+      genre:          document.getElementById('videoGenre')?.value || null,
+      language:       document.getElementById('videoLanguage')?.value || 'English',
+      resolution:     document.getElementById('videoResolution')?.value || null,
+      releaseYear:    parseInt(document.getElementById('videoReleaseYear')?.value) || null,
+      license:        document.getElementById('videoLicenseType')?.value || 'personal',
+      allowDownload:  document.getElementById('videoDownloadToggle')?.classList.contains('on') || false,
+      hasCaption:     document.getElementById('videoCaptionToggle')?.classList.contains('on') || false,
+    };
+    // For video type, external URL goes into externalVideoUrl
+    if (currentVideoDelivery === 'link') {
+      payload.externalVideoUrl = document.getElementById('videoExternalUrl')?.value?.trim() || null;
+    }
+  }
+
+  if (currentProductType === 'ebook') {
+    payload.ebookData = {
+      author:          document.getElementById('ebookAuthor')?.value || null,
+      publisher:       document.getElementById('ebookPublisher')?.value || null,
+      pageCount:       parseInt(document.getElementById('ebookPageCount')?.value) || null,
+      publicationYear: parseInt(document.getElementById('ebookPublicationYear')?.value) || null,
+      edition:         document.getElementById('ebookEdition')?.value || null,
+      readingTimeMin:  parseInt(document.getElementById('ebookReadingTime')?.value) || null,
+      language:        document.getElementById('ebookLanguage')?.value || 'English',
+      isbn:            document.getElementById('ebookIsbn')?.value || null,
+      format:          activeEbookFormats,
+    };
+  }
+
+  if (['template','component','script'].includes(currentProductType)) {
+    payload.designData = {
+      framework:      designFrameworks,
+      stack:          designStack,
+      compatible:     designCompat,
+      livePreviewUrl: document.getElementById('designLivePreviewUrl')?.value || null,
+      repoUrl:        document.getElementById('designRepoUrl')?.value || null,
+      figmaUrl:       document.getElementById('designFigmaUrl')?.value || null,
+      responsive:     document.getElementById('designResponsiveToggle')?.classList.contains('on') || false,
+      darkMode:       document.getElementById('designDarkModeToggle')?.classList.contains('on') || false,
+    };
+  }
+
+  if (currentProductType === 'course') {
+    payload.courseData = payload.courseData || {};
+    payload.courseData.targetAudience  = (document.getElementById('courseTargetAudience')?.value || '')
+      .split('\n').map(l=>l.replace(/^[•\-]\s*/,'')).filter(Boolean);
+    payload.courseData.welcomeMessage    = document.getElementById('courseWelcomeMessage')?.value || null;
+    payload.courseData.completionMessage = document.getElementById('courseCompletionMessage')?.value || null;
   }
 
   if (currentProductType === 'course') {
@@ -5294,12 +5835,27 @@ function clearUploadForm() {
 
   // Reset music / software / toggles
   selectMusicLicense('personal');
-  activePlatforms = [];
-  document.querySelectorAll('#platformGrid .platform-btn').forEach(b => b.classList.remove('active'));
-  ['stemsToggle','certToggle'].forEach(id => {
+  activePlatforms = []; softwareArchitectures = [];
+  activeEbookFormats = []; designFrameworks = []; designStack = []; designCompat = [];
+  uploadedMusicCoverData = null; uploadedVideoFileData = null;
+  document.querySelectorAll('#platformGrid .platform-btn, #softwareArchGrid .platform-btn, #ebookFormatGrid .platform-btn, #designFrameworkGrid .platform-btn, #designStackGrid .platform-btn, #designCompatGrid .platform-btn').forEach(b => b.classList.remove('active'));
+  ['stemsToggle','certToggle','hasVocalsToggle','loopableToggle',
+   'videoDownloadToggle','videoCaptionToggle','designResponsiveToggle','designDarkModeToggle'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('on');
   });
+  clearMusicCover();
+  clearVideoFile();
+  ['audioTrackTitle','audioArtist','audioAlbum','audioReleaseYear','audioAllowedUses','audioIsrc',
+   'videoExternalUrl','videoGenre','videoLanguage','videoReleaseYear',
+   'ebookAuthor','ebookPublisher','ebookPageCount','ebookPublicationYear','ebookEdition',
+   'ebookReadingTime','ebookLanguage','ebookIsbn',
+   'designLivePreviewUrl','designRepoUrl','designFigmaUrl',
+   'softwareMaxDevices','softwareTrialDays','softwareMinOs','softwareActivationUrl',
+   'softwareDemoUrl','softwareRepoUrl','softwareChangelog',
+   'courseTargetAudience','courseWelcomeMessage','courseCompletionMessage'
+  ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  selectVideoDelivery('hosted');
 
   // Reset course
   courseSections = [];
@@ -6419,12 +6975,13 @@ function showToast(msg, type = 'green') {
 const PRODUCT_TYPES = {
   download:  { icon: '📦', label: 'Download',  color: '#00ff88', panels: ['panel-download'] },
   course:    { icon: '🎓', label: 'Course',     color: '#a78bfa', panels: ['panel-course']   },
-  template:  { icon: '🎨', label: 'Template',  color: '#f6ad55', panels: ['panel-download'] },
-  component: { icon: '🧩', label: 'Component', color: '#63b3ed', panels: ['panel-download'] },
-  script:    { icon: '⚙️', label: 'Script',    color: '#68d391', panels: ['panel-download'] },
+  template:  { icon: '🎨', label: 'Template',  color: '#f6ad55', panels: ['panel-download','panel-design-meta'] },
+  component: { icon: '🧩', label: 'Component', color: '#63b3ed', panels: ['panel-download','panel-design-meta'] },
+  script:    { icon: '⚙️', label: 'Script',    color: '#68d391', panels: ['panel-download','panel-design-meta'] },
   software:  { icon: '💻', label: 'Software',  color: '#76e4f7', panels: ['panel-software'] },
   music:     { icon: '🎵', label: 'Music',      color: '#fc8181', panels: ['panel-music']    },
-  ebook:     { icon: '📖', label: 'eBook',      color: '#fbb6ce', panels: ['panel-download'] },
+  ebook:     { icon: '📖', label: 'eBook',      color: '#fbb6ce', panels: ['panel-download','panel-ebook-meta'] },
+  video:     { icon: '🎬', label: 'Video',      color: '#f6e05e', panels: ['panel-video']    },
 };
 
 function switchProductType(type, tabEl) {
@@ -6563,17 +7120,21 @@ async function handleProductFileSelect(event, context) {
   try {
     showToast('☁️ Uploading file to Cloudinary...', 'blue');
 
-    const form = new FormData();
+  const form = new FormData();
     form.append('file', file);
 
     const token = localStorage.getItem('token');
-    const res = await fetch(API_URL + '/api/upload/creator-product-file', {
+    // Route to the type-specific endpoint so files land in the correct Cloudinary folder
+    const uploadEndpoint = context === 'music'    ? '/api/upload/music-file'
+                         : context === 'software' ? '/api/upload/software-file'
+                         : '/api/upload/creator-product-file';
+    const res = await fetch(API_URL + uploadEndpoint, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + token },
       body: form
     });
 
-    // Parse response — handle non-JSON (e.g. 502 HTML from Render)
+    // Parse respaonse — handle non-JSON (e.g. 502 HTML from Render)
     let data;
     const contentType = res.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
@@ -6717,6 +7278,183 @@ function togglePlatform(el, platform) {
   }
 }
 
+// ── VIDEO DELIVERY MODE ───────────────────────────────────────
+function selectVideoDelivery(mode) {
+  currentVideoDelivery = mode;
+  document.getElementById('videoDeliveryOptHosted').classList.toggle('selected', mode === 'hosted');
+  document.getElementById('videoDeliveryOptLink').classList.toggle('selected', mode === 'link');
+  document.getElementById('videoHostedSection').style.display = mode === 'hosted' ? '' : 'none';
+  document.getElementById('videoLinkSection').style.display   = mode === 'link'   ? '' : 'none';
+}
+
+// ── MUSIC COVER UPLOAD ────────────────────────────────────────
+async function handleMusicCoverSelect(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  showToast('☁️ Uploading cover art...', 'blue');
+  try {
+    const form = new FormData();
+    form.append('cover', file);
+    const token = localStorage.getItem('token');
+    const res  = await fetch(API_URL + '/api/upload/music-cover', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    });
+    const data = await res.json();
+    if (data.success) {
+      uploadedMusicCoverData = { coverUrl: data.coverUrl, publicId: data.publicId };
+      const chip   = document.getElementById('musicCoverChip');
+      const prompt = document.getElementById('musicCoverPrompt');
+      chip.style.display = 'flex';
+      chip.innerHTML = `<span class="uploaded-file-chip">🖼️ ${file.name} <button class="remove-file" onclick="clearMusicCover()">✕</button></span>`;
+      if (prompt) prompt.style.display = 'none';
+      showToast('✅ Cover art uploaded!', 'green');
+    } else { throw new Error(data.message || 'Cover upload failed'); }
+  } catch (err) { showToast('❌ Cover upload failed: ' + err.message, 'red'); }
+}
+
+function clearMusicCover() {
+  uploadedMusicCoverData = null;
+  const chip   = document.getElementById('musicCoverChip');
+  const prompt = document.getElementById('musicCoverPrompt');
+  const inp    = document.getElementById('musicCoverInput');
+  if (chip)   { chip.style.display = 'none'; chip.innerHTML = ''; }
+  if (prompt)  prompt.style.display = '';
+  if (inp)     inp.value = '';
+}
+
+// ── VIDEO FILE UPLOAD ─────────────────────────────────────────
+async function handleVideoFileSelect(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  isUploadingFile = true;
+  const progress = document.getElementById('videoFileProgress');
+  document.getElementById('videoFilePrompt').style.display = 'none';
+  document.getElementById('videoFileZone').classList.add('has-file');
+  progress.style.width = '0%'; progress.style.display = 'block';
+  let pct = 0;
+  const iv = setInterval(() => { pct = Math.min(pct + 5, 85); progress.style.width = pct + '%'; }, 300);
+  showToast('☁️ Uploading video file...', 'blue');
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    const token = localStorage.getItem('token');
+    const res  = await fetch(API_URL + '/api/upload/video-file', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    });
+    const data = await res.json();
+    clearInterval(iv); progress.style.width = '100%';
+    if (data.success && data.file) {
+      uploadedVideoFileData = data.file;
+      uploadedProductFileData = data.file; // shared slot used by submitProduct
+      const sizeEl = document.getElementById('uploadFileSize');
+      if (sizeEl) sizeEl.value = data.file.fileSizeLabel || '';
+      const chip = document.getElementById('videoFileChip');
+      chip.style.display = 'flex';
+      chip.innerHTML = `<span class="uploaded-file-chip">🎬 ${file.name} <span style="opacity:.65;">(${data.file.fileSizeLabel||''})</span> <button class="remove-file" onclick="clearVideoFile()">✕</button></span>`;
+      showToast('✅ Video uploaded!', 'green');
+      setTimeout(() => { progress.style.display = 'none'; }, 800);
+    } else { throw new Error(data.message || 'Upload failed'); }
+  } catch (err) {
+    clearInterval(iv); progress.style.width = '0%'; progress.style.display = 'none';
+    document.getElementById('videoFilePrompt').style.display = '';
+    document.getElementById('videoFileZone').classList.remove('has-file');
+    uploadedVideoFileData = null;
+    showToast('❌ Video upload failed: ' + err.message, 'red');
+  } finally { isUploadingFile = false; }
+}
+
+function clearVideoFile() {
+  uploadedVideoFileData = null;
+  uploadedProductFileData = null;
+  const chip = document.getElementById('videoFileChip');
+  const prompt = document.getElementById('videoFilePrompt');
+  const inp  = document.getElementById('videoFileInput');
+  if (chip)   { chip.style.display = 'none'; chip.innerHTML = ''; }
+  if (prompt)  prompt.style.display = '';
+  if (inp)     inp.value = '';
+  document.getElementById('videoFileZone').classList.remove('has-file');
+}
+
+// ── eBOOK FORMAT TOGGLES ──────────────────────────────────────
+function toggleEbookFormat(el, fmt) {
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) {
+    if (!activeEbookFormats.includes(fmt)) activeEbookFormats.push(fmt);
+  } else {
+    activeEbookFormats = activeEbookFormats.filter(f => f !== fmt);
+  }
+}
+
+// ── DESIGN TAG TOGGLES (framework / stack / compat) ───────────
+function toggleDesignTag(el, category, value) {
+  el.classList.toggle('active');
+  const map = { framework: designFrameworks, stack: designStack, compat: designCompat };
+  const arr = map[category];
+  if (!arr) return;
+  if (el.classList.contains('active')) { if (!arr.includes(value)) arr.push(value); }
+  else { map[category] = arr.filter(v => v !== value); }
+  if (category === 'framework') designFrameworks = map.framework;
+  if (category === 'stack')     designStack      = map.stack;
+  if (category === 'compat')    designCompat     = map.compat;
+}
+
+// ── SOFTWARE ARCHITECTURE TOGGLES ────────────────────────────
+function toggleSoftwareArch(el, arch) {
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) {
+    if (!softwareArchitectures.includes(arch)) softwareArchitectures.push(arch);
+  } else {
+    softwareArchitectures = softwareArchitectures.filter(a => a !== arch);
+  }
+}
+
+// ── CHAPTER RESOURCE LINKS ────────────────────────────────────
+function addChapterResource() {
+  const container = document.getElementById('chapterResourcesList');
+  const idx = container.children.length;
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input type="text" class="form-control" placeholder="Label (e.g. GitHub repo)"
+      id="chResLabel_${idx}" style="flex:1;">
+    <input type="url"  class="form-control" placeholder="https://..."
+      id="chResUrl_${idx}" style="flex:2;">
+    <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" type="button"
+      style="flex-shrink:0;">✕</button>`;
+  container.appendChild(row);
+}
+
+function getChapterResources() {
+  const container = document.getElementById('chapterResourcesList');
+  if (!container) return [];
+  return Array.from(container.children).map(row => {
+    const inputs = row.querySelectorAll('input');
+    return { label: inputs[0]?.value?.trim() || '', url: inputs[1]?.value?.trim() || '', type: 'link' };
+  }).filter(r => r.label || r.url);
+}
+
+function renderChapterResources(resources) {
+  const container = document.getElementById('chapterResourcesList');
+  if (!container) return;
+  container.innerHTML = '';
+  (resources || []).forEach((r, idx) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+    row.innerHTML = `
+      <input type="text" class="form-control" value="${r.label||''}"
+        id="chResLabel_${idx}" style="flex:1;">
+      <input type="url"  class="form-control" value="${r.url||''}"
+        id="chResUrl_${idx}" style="flex:2;">
+      <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" type="button"
+        style="flex-shrink:0;">✕</button>`;
+    container.appendChild(row);
+  });
+}
+
 function toggleRow(id) {
   const el = document.getElementById(id);
   if (el) el.classList.toggle('on');
@@ -6806,6 +7544,11 @@ function openChapterUpload(sectionIdx, chapterIdx) {
   // Populate URL fields
   document.getElementById('chapterVideoUrl').value = ch.embedVideoUrl || '';
   document.getElementById('chapterAudioUrl').value = ch.embedAudioUrl || '';
+  var notesEl      = document.getElementById('chapterNotesInput');
+  var transcriptEl = document.getElementById('chapterTranscriptInput');
+  if (notesEl)      notesEl.value      = ch.notes      || '';
+  if (transcriptEl) transcriptEl.value = ch.transcript || '';
+  renderChapterResources(ch.resources || []);
 
   document.getElementById('chapterDurMin').value = ch.duration ? Math.floor(ch.duration / 60) : '';
   document.getElementById('chapterDurSec').value = ch.duration ? ch.duration % 60 : '';
@@ -7012,6 +7755,14 @@ function confirmChapterFile() {
     ch.embedType  = null;
     ch.playerType = null;
   }
+
+  // Save notes, transcript, resources
+  var ch = courseSections[sectionIdx].chapters[chapterIdx];
+  var notesEl      = document.getElementById('chapterNotesInput');
+  var transcriptEl = document.getElementById('chapterTranscriptInput');
+  if (notesEl)      ch.notes      = notesEl.value.trim();
+  if (transcriptEl) ch.transcript = transcriptEl.value.trim();
+  ch.resources = getChapterResources();
 
   // Save duration
   var mins = parseInt(document.getElementById('chapterDurMin').value) || 0;
