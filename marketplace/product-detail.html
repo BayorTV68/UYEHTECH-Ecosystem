@@ -522,7 +522,9 @@ async function boot() {
   STATE.access = access;
 
   // If access data reveals it's a course, fetch progress if not already done
-  if (!isCourse && (access.productType === 'course' || access.mediaType === 'course')) {
+  if (!isCourse && (access.productType === 'course'
+      || access.mediaType === 'course'
+      || !!access.courseData)) {     // ← catches courses where mediaType is absent
     await fetchProgress();
   }
 
@@ -696,7 +698,10 @@ function firstPlayable(sections) {
     const chs = sections[si].chapters || [];
     for (let ci = 0; ci < chs.length; ci++) {
       const ch = chs[ci];
-      if (ch.cloudinaryUrl || ch.embedUrl || ch.embedVideoUrl || ch.embedAudioUrl) {
+      // Include PDF chapters (they use pdfUrl, not cloudinaryUrl)
+      if (ch.cloudinaryUrl || ch.embedUrl || ch.embedVideoUrl
+          || ch.embedAudioUrl || ch.pdfUrl
+          || ch.playerType === 'pdf_viewer' || ch.chapterType === 'pdf') {
         return { sectionIdx: si, chapterIdx: ci, ch };
       }
     }
@@ -753,14 +758,18 @@ function buildCourseSidebar(sections, cd) {
       const hasContent = !!(
         ch.cloudinaryUrl ||
         ch.embedUrl      ||
-        ch.embedVideoUrl ||   // new split field
-        ch.embedAudioUrl      // new split field
+        ch.embedVideoUrl ||
+        ch.embedAudioUrl ||
+        ch.pdfUrl        ||        // ← PDF chapters
+        ch.playerType === 'pdf_viewer' // ← PDF chapters (server flag)
       );
       const done       = isChapterDone(sec.sectionOrder, ch.chapterOrder);
       const isActive   = STATE.activeChapter?.sectionIdx === si && STATE.activeChapter?.chapterIdx === ci;
       // Chapter type icon
       const typeIcons  = {video:'▶',audio:'♪',text:'📄',pdf:'📑'};
-      const chIcon     = typeIcons[ch.chapterType] || (ch.cloudinaryUrl ? '☁' : '🔗');
+      const isPdfCh = ch.chapterType === 'pdf' || ch.playerType === 'pdf_viewer' || !!ch.pdfUrl;
+      const chIcon  = typeIcons[ch.chapterType]
+        || (isPdfCh ? '📑' : ch.cloudinaryUrl ? '☁' : '🔗');
 
       html += `
         <div class="ch-item${done?' done':''}${isActive?' active':''}${!hasContent?' locked':''}"
@@ -874,7 +883,8 @@ function loadChapter(sectionIdx, chapterIdx, chObj, userClicked) {
 
   // My Notes tab — load saved note for this chapter
   loadMyNote(sectionIdx, chapterIdx);
-
+// Clear any pending note save from the previous chapter before switching
+  if (_noteSaveTimer) { clearTimeout(_noteSaveTimer); _noteSaveTimer = null; }
   renderPlayer(ch);
 
   if (userClicked && STATE.progress !== undefined) {
@@ -984,10 +994,11 @@ function buildVideoSidebar(p, data, vd) {
   if (vd.director)      rows += sbRow('Director',    vd.director);
   if (vd.releaseYear)   rows += sbRow('Year',        vd.releaseYear);
   if (vd.license)       rows += sbRow('License',     capitalise(vd.license));
-  if (vd.allowDownload && data.cloudinaryUrl) {
+  if (vd.allowDownload && (data.downloadUrl || data.cloudinaryUrl)) {
     rows += `<div class="receipt-row">
-      <a href="${escA(data.cloudinaryUrl)}" download target="_blank" rel="noopener"
-         class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin:4px 0">
+      <a href="${escA(data.downloadUrl || data.cloudinaryUrl)}" download target="_blank" rel="noopener"
+         class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin:4px 0"
+         onclick="handleDownloadClick(event, this)">
         <i class="fas fa-download"></i> Download Video
       </a>
     </div>`;
@@ -1090,15 +1101,15 @@ function renderDownload(data, p, type) {
   if (ge('sbToggleBtn')) ge('sbToggleBtn').style.display = 'none';
 
   // Download card
-  const dlHtml = data.downloadUrl ? `
+    const dlHtml = data.downloadUrl ? `
     <div class="dl-card">
       <a href="${escA(data.downloadUrl)}" target="_blank" rel="noopener" download
          class="btn btn-primary" style="justify-content:center;width:100%"
-         onclick="toast('Download starting…','success')">
+         onclick="handleDownloadClick(event, this)">
         <i class="fas fa-download"></i> Download ${label}
       </a>
       ${expMin ? `<div class="dl-expire">🔒 Secure link expires in ${expMin} min — refresh if needed</div>` : ''}
-      ${p.downloadLimit ? `<div class="dl-limit">Downloads: ${p.downloadCount||0} / ${p.downloadLimit}</div>` : ''}
+      ${p.downloadLimit ? `<div class="dl-limit" id="dlLimitLabel">Downloads: ${p.downloadCount||0} / ${p.downloadLimit}</div>` : ''}
     </div>` : '';
 
   // Software extras
@@ -1184,6 +1195,34 @@ function renderDownload(data, p, type) {
   STATE._downloadExtraHtml = (dlHtml||'') + swHtml + ebHtml + designHtml;
 }
 
+
+async function handleDownloadClick(event, anchor) {
+  // Let the browser follow the href naturally (download starts immediately)
+  toast('Download starting…', 'success');
+
+  // Track the download asynchronously — don't block the download
+  try {
+    const r = await fetch(`${API}/api/orders/track-download`, {
+      method:  'POST',
+      headers: authH(),
+      body:    JSON.stringify({ productId: STATE.productId, orderId: STATE.orderId }),
+    });
+    const d = await r.json();
+    if (!d.success) {
+      // Server rejected — limit reached or expired
+      toast(d.message || 'Download limit reached.', 'error');
+    } else {
+      // Update the visible counter in the UI
+      const lbl = ge('dlLimitLabel');
+      if (lbl && STATE.product?.downloadLimit) {
+        const newCount = (STATE.product.downloadCount || 0) + 1;
+        STATE.product.downloadCount = newCount;
+        lbl.textContent = `Downloads: ${newCount} / ${STATE.product.downloadLimit}`;
+      }
+    }
+  } catch (_) { /* tracking failure is non-fatal — download already started */ }
+}
+
 /* ═══════════════════════════════════════════════════════
    PLAYER RENDERER (shared — course chapters + video + audio products)
 ═══════════════════════════════════════════════════════ */
@@ -1197,20 +1236,33 @@ function renderPlayer(ch) {
   const playerType    = ch.playerType     || null;
   const cloudinaryUrl = ch.cloudinaryUrl  || null;
 
-  // If nothing is set at all, bail early
-  if (!cloudinaryUrl && !embedUrl) {
+ // ── PDF check — must come BEFORE the "nothing set" bail-out ───────────────
+  // Server sets playerType:'pdf_viewer' + pdfUrl, and cloudinaryUrl=null.
+  // Without this block, PDF chapters fall through to setPlayerEmpty().
+  const isPdf = ch.playerType === 'pdf_viewer'
+    || ch.chapterType === 'pdf'
+    || ch.hostedFileFormat === 'pdf'
+    || !!ch.pdfUrl
+    || /\.pdf(\?|$)/i.test(cloudinaryUrl || '')
+    || /\.pdf(\?|$)/i.test(embedUrl || '');
+
+  // Resolve the PDF source: prefer the new dedicated pdfUrl field
+  const pdfSourceUrl = ch.pdfUrl || cloudinaryUrl || embedUrl || null;
+
+  // If nothing is set at all, bail early (but only if it's not a PDF)
+  if (!isPdf && !cloudinaryUrl && !embedUrl) {
     setPlayerEmpty('No playable content for this chapter.');
     return;
   }
 
-  // (resource_type:'raw' on Cloudinary).
-  const isPdf = ch.chapterType === 'pdf'
-    || ch.hostedFileFormat === 'pdf'
-    || /\.pdf(\?|$)/i.test(cloudinaryUrl || '')
-    || /\.pdf(\?|$)/i.test(embedUrl || '');
+  // If it's a PDF but we have no URL at all, bail gracefully
+  if (isPdf && !pdfSourceUrl) {
+    setPlayerEmpty('PDF file not yet available.');
+    return;
+  }
 
   if (isPdf) {
-    const pdfSrc = cloudinaryUrl || embedUrl;
+    const pdfSrc = ch.pdfUrl || pdfSourceUrl || cloudinaryUrl || embedUrl;
     if (pdfSrc) {
       // Google Docs viewer works on ALL browsers including mobile Android
       const gdocsUrl = `https://docs.google.com/gviewer?embedded=true&url=${encodeURIComponent(pdfSrc)}`;
@@ -1443,11 +1495,11 @@ function renderPlayer(ch) {
           </video>
           ${markDoneBtn()}
         </div>`;
+      attachPlayerErrorHandler(embedUrl);
       attachEndHandler();
       return;
     }
   }
-
  // ── Direct HTML5 audio ────────────────────────────────
   if (embedUrl && (playerType === 'html5_audio' || ch.chapterType === 'audio')) {
     const ad = STATE.access?.audioData || {};
@@ -1465,6 +1517,7 @@ function renderPlayer(ch) {
         </audio>
         ${markDoneBtn()}
       </div>`;
+    attachPlayerErrorHandler(embedUrl);
     attachEndHandler();
     return;
   }
@@ -1476,7 +1529,10 @@ function markDoneBtn() {
   const { sectionIdx, chapterIdx } = STATE.activeChapter;
   const sec = STATE.access?.courseData?.sections?.[sectionIdx];
   const ch  = sec?.chapters?.[chapterIdx];
-  if (!sec || !ch || STATE.access?.productType !== 'course') return '';
+  const isAccessCourse = STATE.access?.productType === 'course'
+    || STATE.access?.mediaType === 'course'
+    || !!STATE.access?.courseData;
+  if (!sec || !ch || !isAccessCourse) return '';
   const done = isChapterDone(sec.sectionOrder, ch.chapterOrder);
   if (done) return `<div style="padding:8px 12px;font-size:.75rem;color:var(--g);font-family:'DM Mono',monospace;text-align:right">✓ Completed</div>`;
   return `<div style="padding:8px 12px;text-align:right">
@@ -1632,7 +1688,9 @@ async function saveMyNoteNow(si, ci, sectionOrder, chapterOrder, content) {
     if (d.success) {
       _notesSaved[`${sectionOrder}:${chapterOrder}`] = text;
       if (statusEl) {
-        statusEl.textContent = `✓ Saved ${fmtDate(new Date())}`;
+       const now = new Date();
+        const t = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        statusEl.textContent = `✓ Saved at ${t}`;
         statusEl.style.color = 'var(--g)';
         setTimeout(() => { if (statusEl) statusEl.style.color = 'var(--t3)'; }, 2000);
       }
@@ -1928,8 +1986,6 @@ function buildOverviewPanel(data, p, type) {
   ge('panel-overview').innerHTML = _dlExtra + html;
   loadReviews(STATE.productId);
 
-  // FIX #7: load and render existing approved reviews
-  loadReviews(STATE.productId);
 }
 
 
@@ -2221,9 +2277,11 @@ function resolveType(data, p) {
   if (data.mediaType === 'course' || data.productType === 'course') return 'course';
   if (p.productType === 'course' || p.hasCourse) return 'course';
   if (data.productType === 'video' || data.mediaType === 'video' || p.productType === 'video') return 'video';
-  if (data.mediaType === 'audio' || p.mediaType === 'audio' || p.productType === 'music') return 'audio';
+ if (data.mediaType === 'audio' || data.productType === 'music' || p.mediaType === 'audio' || p.productType === 'music') return 'audio';
   if (data.productType === 'software' || p.productType === 'software') return 'software';
-  if (data.productType === 'ebook'    || p.productType === 'ebook')    return 'ebook';
+  if (data.productType === 'ebook'    || p.productType === 'ebook'
+      || data.playerType === 'pdf_viewer' && (data.productType !== 'software'))
+    return 'ebook';
   if (data.productType === 'template' || p.productType === 'template') return 'template';
   if (data.productType === 'script'   || p.productType === 'script')   return 'script';
   if (data.productType === 'component'|| p.productType === 'component')return 'component';
