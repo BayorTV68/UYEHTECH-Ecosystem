@@ -5411,7 +5411,7 @@ async function editProduct(id) {
           return {
             chapterTitle:  ch.chapterTitle  || '',
             chapterOrder:  ch.chapterOrder  || 0,
-            chapterType:   ch.chapterType   || (ch.embedAudioUrl || ch.embedAudioType ? 'audio' : 'video'),
+            chapterType:   ch.chapterType   || (ch.embedAudioUrl || ch.embedAudioType ? 'audio' : (ch.hostedFile?.format === 'pdf' ? 'pdf' : 'video')),
             duration:      ch.duration      || 0,
             isFree:        ch.isFree        || false,
             isPreview:     ch.isPreview     || ch.isFree || false,
@@ -5654,7 +5654,7 @@ async function submitProduct() {
       return Object.assign({}, section, {
         chapters: section.chapters.map(function(ch) {
           return Object.assign({}, ch, {
-            chapterType:   ch.chapterType   || (ch.embedAudioUrl ? 'audio' : 'video'),
+            chapterType:   ch.chapterType   || (ch.embedAudioUrl ? 'audio' : ((ch.hostedFile?.format || '').toLowerCase() === 'pdf' ? 'pdf' : 'video')),
             embedVideoUrl: ch.embedVideoUrl || '',
             embedAudioUrl: ch.embedAudioUrl || '',
             // Keep legacy externalUrl populated for server backwards compat
@@ -7683,6 +7683,22 @@ async function handleChapterFileChange(event) {
       // Store in section
       const { sectionIdx, chapterIdx } = currentChapterTarget;
       courseSections[sectionIdx].chapters[chapterIdx].hostedFile = data.chapter;
+
+      // Auto-set chapterType from the actual uploaded file format
+      (function () {
+        const fmt = (data.chapter.format || '').toLowerCase();
+        const AUDIO_FMTS = ['mp3','wav','ogg','aac','flac','m4a','wma','opus'];
+        const ch = courseSections[sectionIdx].chapters[chapterIdx];
+        if (fmt === 'pdf') {
+          ch.chapterType = 'pdf';
+        } else if (AUDIO_FMTS.includes(fmt)) {
+          ch.chapterType = 'audio';
+        } else if (['mp4','webm','mov','avi','mkv'].includes(fmt)) {
+          ch.chapterType = 'video';
+        }
+        // ZIP / exe / doc: leave chapterType as-is ('video' neutral default is fine —
+        // server uses resourceType:'raw' to serve these as downloads regardless)
+      })();
 
       // Auto-fill duration from Cloudinary if available
       if (data.chapter.duration) {
