@@ -950,19 +950,35 @@ function updateProgressUI() {
 ═══════════════════════════════════════════════════════ */
 function renderVideo(data, p) {
   const vd = data.videoData || {};
-  const isYouTube = data.embedType === 'youtube' || data.embedVideoType === 'youtube';
-  const ytUrl = isYouTube ? (data.embedUrl?.replace('/embed/', '/watch?v=') || data.externalVideoUrl || null) : null;
+  const isYouTube = data.embedVideoType === 'youtube' || data.embedType === 'youtube';
+
+  // Build the YouTube watch URL from the original source, NOT from the embed URL.
+  // data.embedVideoUrl is already /embed/ID — extracting the ID is safer than
+  // doing a fragile string replace that breaks if URL params are present.
+  let ytUrl = null;
+  if (isYouTube) {
+    // Prefer the raw external source stored in the order
+    const rawSrc = data.externalVideoUrl || data.externalUrl || '';
+    if (rawSrc) {
+      ytUrl = rawSrc; // already a watch/share URL
+    } else {
+      // Fallback: extract video ID from embed URL and reconstruct watch URL
+      const embedSrc = data.embedVideoUrl || data.embedUrl || '';
+      const idMatch  = embedSrc.match(/(?:embed\/|youtu\.be\/)([^/?&]+)/);
+      ytUrl = idMatch ? `https://www.youtube.com/watch?v=${idMatch[1]}` : null;
+    }
+  }
 
   renderPlayer(data);
 
-  // YouTube "Open on YouTube" button pinned above player
+  // YouTube "Watch on YouTube" button pinned above player
   if (isYouTube && ytUrl) {
     const zone = ge('playerZone');
-    const btn = document.createElement('a');
-    btn.href = ytUrl;
+    const btn  = document.createElement('a');
+    btn.href   = ytUrl;
     btn.target = '_blank';
-    btn.rel = 'noopener';
-    btn.className = 'btn btn-ghost btn-sm';
+    btn.rel    = 'noopener';
+    btn.className  = 'btn btn-ghost btn-sm';
     btn.style.cssText = 'position:absolute;bottom:52px;right:12px;z-index:10;font-size:.72rem;' +
                         'background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.2)';
     btn.innerHTML = '<i class="fab fa-youtube" style="color:#ff4444"></i> Watch on YouTube';
@@ -970,14 +986,13 @@ function renderVideo(data, p) {
     zone.appendChild(btn);
   }
 
-
   // Meta pills
   const pills = [];
   if (vd.genre)      pills.push(`<span class="badge badge-video">${esc(vd.genre)}</span>`);
   if (vd.resolution) pills.push(`<span class="badge badge-soft">${esc(vd.resolution)}</span>`);
   if (vd.language)   pills.push(`<span class="badge badge-ebook">${esc(vd.language)}</span>`);
   if (vd.license)    pills.push(`<span class="badge badge-file">${capitalise(vd.license)} License</span>`);
-  if (vd.hasCaption) pills.push(`<span class="badge badge-ebook">CC Captions</span>`);   // ← GAP FIX
+  if (vd.hasCaption) pills.push(`<span class="badge badge-ebook">CC Captions</span>`);
   if (data.fileSize || p.fileSize) pills.push(`<span class="badge badge-file">${esc(data.fileSize||p.fileSize)}</span>`);
   ge('infoMeta').innerHTML = pills.join('');
 
@@ -1096,17 +1111,74 @@ function renderDownload(data, p, type) {
   const label = labels[type] || 'File';
   const expMin = data.expiresInSecs ? Math.round(data.expiresInSecs/60) : null;
 
-  ge('playerZone').innerHTML = `
-    <div class="player-empty" style="min-height:220px">
-      <div class="pe-icon">${icon}</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px">${label} Ready</div>
-      <div style="font-size:.82rem;color:var(--t3)">Use the Download button below</div>
-    </div>`;
+  // PDF products (ebooks, templates saved as PDF) — render inline viewer
+  // data.pdfUrl is the authenticated proxy URL; data.cloudinaryUrl is the raw Cloudinary URL.
+  const isPdfProduct = !!data.pdfUrl
+    || data.playerType === 'pdf_viewer'
+    || (data.format || '').toLowerCase() === 'pdf';
+
+  if (isPdfProduct && data.pdfUrl) {
+    const pdfSrc    = data.pdfUrl;
+    const directUrl = data.cloudinaryUrl || data.fileUrl || pdfSrc;
+    ge('playerZone').innerHTML = `
+      <div style="background:#111;width:100%">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
+             background:var(--card);border-bottom:1px solid var(--line)">
+          <i class="fas fa-file-pdf" style="color:var(--red);font-size:1rem;flex-shrink:0"></i>
+          <span style="font-size:.83rem;color:var(--t2);flex:1;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap">
+            ${esc(data.title || p.title || label)}
+          </span>
+          <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
+             style="font-size:.72rem;color:var(--g);text-decoration:none;
+                    padding:4px 10px;border:1px solid var(--line3);border-radius:6px;
+                    white-space:nowrap;font-family:'DM Mono',monospace;flex-shrink:0">
+            ↗ Open
+          </a>
+        </div>
+        <div id="pdfViewerWrap" style="width:100%;min-height:520px;background:#111;position:relative">
+          <div id="pdfLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;
+               align-items:center;justify-content:center;gap:12px;background:#111;z-index:2">
+            <div class="spin"></div>
+            <div style="font-size:.8rem;color:var(--t3)">Loading PDF…</div>
+          </div>
+          <iframe id="pdfIframe"
+            src="${escA(pdfSrc)}"
+            style="width:100%;height:75vh;min-height:520px;border:none;display:block"
+            title="${esc(data.title || label)}"
+            loading="lazy"
+            onload="ge('pdfLoading').style.display='none'"
+            onerror="showPdfFallback('${escA(pdfSrc)}','${escA(directUrl)}')">
+          </iframe>
+        </div>
+        <div style="display:flex;gap:8px;padding:12px 16px;background:var(--card);
+             border-top:1px solid var(--line);flex-wrap:wrap">
+          <a href="${escA(pdfSrc)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">
+            <i class="fas fa-external-link-alt"></i> Open in new tab
+          </a>
+          <a href="${escA(directUrl)}" download target="_blank" rel="noopener"
+             class="btn btn-ghost btn-sm">
+            <i class="fas fa-download"></i> Download PDF
+          </a>
+          <button class="btn btn-ghost btn-sm" onclick="reloadPdfViewer('${escA(pdfSrc)}')">
+            <i class="fas fa-sync-alt"></i> Reload
+          </button>
+        </div>
+      </div>`;
+  } else {
+    // Non-PDF download products — original empty player zone
+    ge('playerZone').innerHTML = `
+      <div class="player-empty" style="min-height:220px">
+        <div class="pe-icon">${icon}</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px">${label} Ready</div>
+        <div style="font-size:.82rem;color:var(--t3)">Use the Download button below</div>
+      </div>`;
+  }
 
   const pills = [];
-  if (p.fileSize || data.fileSize)   pills.push(`<span class="badge badge-file">${esc(p.fileSize||data.fileSize)}</span>`);
-  if (p.version)                     pills.push(`<span class="badge badge-soft">v${esc(p.version)}</span>`);
-  if (data.ebookData?.format?.length) pills.push(`<span class="badge badge-ebook">${esc(data.ebookData.format.join(', '))}</span>`);
+  if (p.fileSize || data.fileSize)        pills.push(`<span class="badge badge-file">${esc(p.fileSize||data.fileSize)}</span>`);
+  if (p.version)                          pills.push(`<span class="badge badge-soft">v${esc(p.version)}</span>`);
+  if (data.ebookData?.format?.length)     pills.push(`<span class="badge badge-ebook">${esc(data.ebookData.format.join(', '))}</span>`);
   if (data.designData?.framework?.length) pills.push(`<span class="badge badge-soft">${esc(data.designData.framework.join(' · '))}</span>`);
   ge('infoMeta').innerHTML = pills.join('');
 
@@ -1253,8 +1325,10 @@ function renderPlayer(ch) {
   const cloudinaryUrl = ch.cloudinaryUrl  || null;
 
  // ── PDF check — must come BEFORE the "nothing set" bail-out ───────────────
-  // Server sets playerType:'pdf_viewer' + pdfUrl, and cloudinaryUrl=null.
-  // Without this block, PDF chapters fall through to setPlayerEmpty().
+  // Server sets playerType:'pdf_viewer' + pdfUrl (authenticated proxy).
+  // We render the PDF directly in an <iframe> — NO Google Docs wrapper,
+  // because Google's servers cannot pass our JWT token to the proxy endpoint.
+  // The iframe points straight at our authenticated /api/orders/…/pdf-chapter URL.
   const isPdf = ch.playerType === 'pdf_viewer'
     || ch.chapterType === 'pdf'
     || ch.hostedFileFormat === 'pdf'
@@ -1262,10 +1336,11 @@ function renderPlayer(ch) {
     || /\.pdf(\?|$)/i.test(cloudinaryUrl || '')
     || /\.pdf(\?|$)/i.test(embedUrl || '');
 
-  // Resolve the PDF source: prefer the new dedicated pdfUrl field
+  // Resolve the PDF source URL — prefer the dedicated pdfUrl proxy field.
+  // This is already a fully-authenticated URL — no Google Docs wrapper needed.
   const pdfSourceUrl = ch.pdfUrl || cloudinaryUrl || embedUrl || null;
 
-  // If nothing is set at all, bail early (but only if it's not a PDF)
+  // If nothing is set at all, bail early (only when it is not a PDF)
   if (!isPdf && !cloudinaryUrl && !embedUrl) {
     setPlayerEmpty('No playable content for this chapter.');
     return;
@@ -1278,61 +1353,59 @@ function renderPlayer(ch) {
   }
 
   if (isPdf) {
-    const pdfSrc = ch.pdfUrl || pdfSourceUrl || cloudinaryUrl || embedUrl;
-    if (pdfSrc) {
-      // Google Docs viewer works on ALL browsers including mobile Android
-      const gdocsUrl = `https://docs.google.com/gviewer?embedded=true&url=${encodeURIComponent(pdfSrc)}`;
-      zone.innerHTML = `
-        <div style="background:#111;width:100%">
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
-               background:var(--card);border-bottom:1px solid var(--line)">
-            <i class="fas fa-file-pdf" style="color:var(--red);font-size:1rem;flex-shrink:0"></i>
-            <span style="font-size:.83rem;color:var(--t2);flex:1;overflow:hidden;
-                  text-overflow:ellipsis;white-space:nowrap">
-              ${esc(ch.chapterTitle || 'PDF Document')}
-            </span>
-            <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
-               style="font-size:.72rem;color:var(--g);text-decoration:none;
-                      padding:4px 10px;border:1px solid var(--line3);border-radius:6px;
-                      white-space:nowrap;font-family:'DM Mono',monospace;flex-shrink:0">
-              ↗ Open
-            </a>
+    const pdfSrc = pdfSourceUrl;   // authenticated proxy URL — use directly
+    // Cloudinary raw URL (for download button only — NOT for Google Docs viewer)
+    const directUrl = ch.cloudinaryUrl || cloudinaryUrl || pdfSrc;
+    zone.innerHTML = `
+      <div style="background:#111;width:100%">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
+             background:var(--card);border-bottom:1px solid var(--line)">
+          <i class="fas fa-file-pdf" style="color:var(--red);font-size:1rem;flex-shrink:0"></i>
+          <span style="font-size:.83rem;color:var(--t2);flex:1;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap">
+            ${esc(ch.chapterTitle || 'PDF Document')}
+          </span>
+          <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
+             style="font-size:.72rem;color:var(--g);text-decoration:none;
+                    padding:4px 10px;border:1px solid var(--line3);border-radius:6px;
+                    white-space:nowrap;font-family:'DM Mono',monospace;flex-shrink:0">
+            ↗ Open
+          </a>
+        </div>
+        <div id="pdfViewerWrap" style="width:100%;min-height:520px;background:#111;
+             position:relative">
+          <div id="pdfLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;
+               align-items:center;justify-content:center;gap:12px;background:#111;z-index:2">
+            <div class="spin"></div>
+            <div style="font-size:.8rem;color:var(--t3)">Loading PDF…</div>
           </div>
-          <div id="pdfViewerWrap" style="width:100%;min-height:520px;background:#f5f5f5;
-               position:relative">
-            <div id="pdfLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;
-                 align-items:center;justify-content:center;gap:12px;background:#111;z-index:2">
-              <div class="spin"></div>
-              <div style="font-size:.8rem;color:var(--t3)">Loading PDF…</div>
-            </div>
-            <iframe id="pdfIframe"
-              src="${escA(gdocsUrl)}"
-              style="width:100%;height:70vh;min-height:520px;border:none;display:block"
-              title="${esc(ch.chapterTitle || 'PDF Document')}"
-              loading="lazy"
-              onload="ge('pdfLoading').style.display='none'"
-              onerror="showPdfFallback('${escA(pdfSrc)}')">
-            </iframe>
-          </div>
-          <div style="display:flex;gap:8px;padding:12px 16px;background:var(--card);
-               border-top:1px solid var(--line);flex-wrap:wrap">
-            <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
-               class="btn btn-ghost btn-sm">
-              <i class="fas fa-external-link-alt"></i> Open in new tab
-            </a>
-            <a href="${escA(pdfSrc)}" download
-               class="btn btn-ghost btn-sm">
-              <i class="fas fa-download"></i> Download PDF
-            </a>
-            <button class="btn btn-ghost btn-sm"
-              onclick="switchPdfViewer('${escA(pdfSrc)}','${escA(gdocsUrl)}')">
-              <i class="fas fa-sync-alt"></i> Switch Viewer
-            </button>
-          </div>
-          ${markDoneBtn()}
-        </div>`;
-      return;
-    }
+          <iframe id="pdfIframe"
+            src="${escA(pdfSrc)}"
+            style="width:100%;height:75vh;min-height:520px;border:none;display:block"
+            title="${esc(ch.chapterTitle || 'PDF Document')}"
+            loading="lazy"
+            onload="ge('pdfLoading').style.display='none'"
+            onerror="showPdfFallback('${escA(pdfSrc)}','${escA(directUrl)}')">
+          </iframe>
+        </div>
+        <div style="display:flex;gap:8px;padding:12px 16px;background:var(--card);
+             border-top:1px solid var(--line);flex-wrap:wrap">
+          <a href="${escA(pdfSrc)}" target="_blank" rel="noopener"
+             class="btn btn-ghost btn-sm">
+            <i class="fas fa-external-link-alt"></i> Open in new tab
+          </a>
+          <a href="${escA(directUrl)}" download target="_blank" rel="noopener"
+             class="btn btn-ghost btn-sm">
+            <i class="fas fa-download"></i> Download PDF
+          </a>
+          <button class="btn btn-ghost btn-sm"
+            onclick="reloadPdfViewer('${escA(pdfSrc)}')">
+            <i class="fas fa-sync-alt"></i> Reload
+          </button>
+        </div>
+        ${markDoneBtn()}
+      </div>`;
+    return;
   }
 
   // ── Text chapter ─────────────────────────────────────────────────────────
@@ -1414,35 +1487,35 @@ function renderPlayer(ch) {
   }
 
   // ── Audio embed platforms ─────────────────────────────
-  // playerType 'soundcloud_widget' is used for ALL audio iframe embeds:
+  // playerType 'soundcloud_widget' covers ALL audio iframe embeds:
   // SoundCloud, Spotify, Audiomack, YouTube Music, Mixcloud, Bandcamp,
-  // Apple Music, Deezer — the server already builds the correct embed URL
-  // for each platform inside parseExternalMediaUrl / sanitiseChapters_PATCHED.
-  // We just need to render the URL in an iframe at the right dimensions.
+  // Apple Music, Deezer — server already builds the correct embed URL.
   const AUDIO_EMBED_TYPES = ['soundcloud','spotify','audiomack','youtube_music',
                               'mixcloud','bandcamp','apple_music','deezer'];
-  const embedSrc = ch.embedAudioUrl || embedUrl;   // prefer split field, fallback to legacy
 
-  if (playerType === 'soundcloud_widget' || AUDIO_EMBED_TYPES.includes(embedType || '')) {
+  // Always prefer the dedicated split audio field.
+  // embedType (collapsed) may point to video type — use ch.embedAudioType for audio lookups.
+  const embedSrc      = ch.embedAudioUrl || (AUDIO_EMBED_TYPES.includes(ch.embedAudioType || '') ? embedUrl : null) || embedUrl;
+  const audioEmbedType = ch.embedAudioType || (AUDIO_EMBED_TYPES.includes(embedType || '') ? embedType : null) || '';
+
+  if (playerType === 'soundcloud_widget' || AUDIO_EMBED_TYPES.includes(audioEmbedType)) {
     if (!embedSrc) { setPlayerEmpty('No audio URL for this chapter.'); return; }
 
-    // Per-platform iframe heights (some widgets need more vertical space)
+    // Per-platform iframe heights
     const iframeHeights = {
-      spotify:      80,    // Spotify compact player
+      spotify:       80,
       apple_music:  175,
-      deezer:       92,
-      youtube_music: 315,  // embeds as a full video player
+      deezer:        92,
+      youtube_music:315,
       audiomack:    252,
       mixcloud:     120,
       bandcamp:     120,
       soundcloud:   166,
     };
-    const iframeH = iframeHeights[embedType] || iframeHeights[ch.embedAudioType] || 166;
+    // Use audioEmbedType (not the collapsed embedType) for accurate height lookup
+    const iframeH   = iframeHeights[audioEmbedType] || 166;
+    const isYTMusic = audioEmbedType === 'youtube_music';
 
-    // YouTube Music embeds as a 16:9 video — use responsive wrapper
-    const isYTMusic = embedType === 'youtube_music' || ch.embedAudioType === 'youtube_music';
-
-    // Platform labels for the header badge
     const platformLabels = {
       soundcloud:    '☁ SoundCloud',
       spotify:       '🎵 Spotify',
@@ -1453,12 +1526,9 @@ function renderPlayer(ch) {
       apple_music:   '🍎 Apple Music',
       deezer:        '🎵 Deezer',
     };
-    const platformLabel = platformLabels[embedType]
-                        || platformLabels[ch.embedAudioType]
-                        || '🎵 Audio';
+    const platformLabel = platformLabels[audioEmbedType] || '🎵 Audio';
 
     if (isYTMusic) {
-      // Responsive 16:9 wrapper
       zone.innerHTML = `
         <div style="background:var(--card);padding:0">
           <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;
@@ -1746,21 +1816,26 @@ async function deleteMyNote(si, ci, sectionOrder, chapterOrder) {
   } catch (_) {}
 }
 
-// PDF viewer switcher — toggles between Google Docs viewer and direct iframe
-let _pdfViewerMode = 'gdocs';
-function switchPdfViewer(rawUrl, gdocsUrl) {
-  const iframe = ge('pdfIframe');
+// Reload the PDF iframe (replaces the old toggle-between-gdocs/direct approach).
+// The iframe points directly at our authenticated proxy — no Google Docs needed.
+function reloadPdfViewer(pdfSrc) {
+  const iframe  = ge('pdfIframe');
   const loading = ge('pdfLoading');
   if (!iframe) return;
   if (loading) loading.style.display = 'flex';
-  _pdfViewerMode = _pdfViewerMode === 'gdocs' ? 'direct' : 'gdocs';
-  iframe.src = _pdfViewerMode === 'gdocs' ? gdocsUrl : rawUrl;
+  // Append a cache-bust param so the browser actually reloads
+  const sep = pdfSrc.includes('?') ? '&' : '?';
+  iframe.src = pdfSrc + sep + '_r=' + Date.now();
 }
 
-// Called when the PDF iframe fails to load at all
-function showPdfFallback(rawUrl) {
+// Called when the PDF iframe fires onerror.
+// pdfSrc  = authenticated proxy URL (for re-open)
+// directUrl = raw Cloudinary URL (for download, no auth needed)
+function showPdfFallback(pdfSrc, directUrl) {
   const wrap = ge('pdfViewerWrap');
   if (!wrap) return;
+  const openUrl     = pdfSrc     || directUrl || '';
+  const downloadUrl = directUrl  || pdfSrc    || '';
   wrap.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
          gap:16px;padding:40px;min-height:300px;background:var(--card)">
@@ -1769,11 +1844,18 @@ function showPdfFallback(rawUrl) {
         PDF cannot render here
       </div>
       <div style="font-size:.82rem;color:var(--t3);text-align:center;max-width:300px">
-        Your browser blocked the PDF viewer. Use the buttons below to open or download it.
+        Your browser blocked the inline viewer. Open or download the PDF below.
       </div>
-      <a href="${escA(rawUrl)}" target="_blank" rel="noopener" class="btn btn-primary">
-        <i class="fas fa-external-link-alt"></i> Open PDF
-      </a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <a href="${escA(openUrl)}" target="_blank" rel="noopener" class="btn btn-primary">
+          <i class="fas fa-external-link-alt"></i> Open PDF
+        </a>
+        ${downloadUrl ? `
+        <a href="${escA(downloadUrl)}" download target="_blank" rel="noopener"
+           class="btn btn-ghost">
+          <i class="fas fa-download"></i> Download
+        </a>` : ''}
+      </div>
     </div>`;
 }
 
@@ -2393,14 +2475,17 @@ function resolveType(data, p) {
   if (data.mediaType === 'course' || data.productType === 'course') return 'course';
   if (p.productType === 'course' || p.hasCourse) return 'course';
   if (data.productType === 'video' || data.mediaType === 'video' || p.productType === 'video') return 'video';
- if (data.mediaType === 'audio' || data.productType === 'music' || p.mediaType === 'audio' || p.productType === 'music') return 'audio';
+  if (data.mediaType === 'audio' || data.productType === 'music' || p.mediaType === 'audio' || p.productType === 'music') return 'audio';
   if (data.productType === 'software' || p.productType === 'software') return 'software';
-  if (data.productType === 'ebook'    || p.productType === 'ebook'
-      || data.playerType === 'pdf_viewer' && (data.productType !== 'software'))
+  // Ebook/PDF detection: check productType, playerType, AND pdfUrl
+  // (old records have blank playerType but pdfUrl is now reliably set by the server fix)
+  if (data.productType === 'ebook' || p.productType === 'ebook'
+      || (data.playerType === 'pdf_viewer' && data.productType !== 'software')
+      || (!!data.pdfUrl && data.productType !== 'software'))
     return 'ebook';
-  if (data.productType === 'template' || p.productType === 'template') return 'template';
-  if (data.productType === 'script'   || p.productType === 'script')   return 'script';
-  if (data.productType === 'component'|| p.productType === 'component')return 'component';
+  if (data.productType === 'template'  || p.productType === 'template')  return 'template';
+  if (data.productType === 'script'    || p.productType === 'script')    return 'script';
+  if (data.productType === 'component' || p.productType === 'component') return 'component';
   const AUDIO_EMBED_TYPES_RT = ['soundcloud','spotify','audiomack','youtube_music','mixcloud','bandcamp','apple_music','deezer'];
   if (data.embedUrl || data.cloudinaryUrl || data.embedAudioUrl) {
     const isAudio = AUDIO_EMBED_TYPES_RT.includes(data.embedType)
