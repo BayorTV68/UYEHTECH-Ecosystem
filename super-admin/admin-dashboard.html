@@ -496,6 +496,231 @@ tr:hover {
     border-color: var(--warning);
 }
 
+
+/* ========== CREATOR PRODUCT REVIEW PANEL ========== */
+.review-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.review-drawer {
+    width: min(820px, 100vw);
+    height: 100vh;
+    background: #0f0f0f;
+    border-left: 1px solid rgba(0,255,136,.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: drawerIn .22s ease;
+}
+@keyframes drawerIn {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+.review-drawer-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,255,136,.03);
+    flex-shrink: 0;
+}
+.review-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+.review-drawer-footer {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,0,0,.4);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.rv-section {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.rv-section:last-child { border-bottom: none; }
+.rv-section-title {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--primary);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.rv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+.rv-field {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+.rv-field-label {
+    font-size: .68rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 4px;
+}
+.rv-field-value {
+    font-size: .85rem;
+    color: #e5e7eb;
+    font-weight: 500;
+    word-break: break-all;
+}
+.rv-field-value a {
+    color: var(--primary);
+    text-decoration: none;
+}
+.rv-field-value a:hover { text-decoration: underline; }
+.rv-img-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.rv-img-strip img {
+    width: 110px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.08);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: border-color .2s;
+}
+.rv-img-strip img:hover { border-color: var(--primary); }
+.rv-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    background: rgba(0,255,136,.08);
+    border: 1px solid rgba(0,255,136,.15);
+    border-radius: 10px;
+    font-size: .72rem;
+    color: var(--primary);
+    margin: 2px 3px 2px 0;
+}
+.rv-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.rv-list li {
+    padding: 5px 0 5px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-size: .82rem;
+    color: #d1d5db;
+    position: relative;
+}
+.rv-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-size: .72rem;
+}
+.rv-list.reqs li::before { content: '→'; color: #9ca3af; }
+.rv-chapter-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-top: 1px solid rgba(255,255,255,.04);
+    font-size: .78rem;
+}
+.rv-chapter-row:hover { background: rgba(255,255,255,.02); }
+.rv-ch-num {
+    color: #6b7280;
+    min-width: 22px;
+    text-align: right;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+.rv-ch-info { flex: 1; min-width: 0; }
+.rv-ch-title { color: #e5e7eb; margin-bottom: 3px; }
+.rv-ch-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.rv-pill {
+    font-size: .67rem;
+    padding: 1px 7px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.06);
+    color: #9ca3af;
+}
+.rv-pill.green { background: rgba(0,255,136,.1); color: var(--primary); }
+.rv-pill.blue  { background: rgba(96,165,250,.1); color: #60a5fa; }
+.rv-pill.red   { background: rgba(255,68,68,.1);  color: #ff8888; }
+.rv-pill.purple{ background: rgba(167,139,250,.1);color: #b794f4; }
+.rv-orders-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+.rv-orders-table th {
+    text-align: left;
+    padding: 6px 10px;
+    color: var(--primary);
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,255,136,.15);
+}
+.rv-orders-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    color: #d1d5db;
+}
+.rv-preview-embed {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #000;
+    display: block;
+}
+.rv-hosted-file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(0,255,136,.04);
+    border: 1px solid rgba(0,255,136,.12);
+    border-radius: 10px;
+}
+.rv-hosted-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+.rv-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .82rem;
+    margin-bottom: 16px;
+}
+.rv-status-bar.pending  { background: rgba(255,165,0,.07); border:1px solid rgba(255,165,0,.2); color: #fbbf24; }
+.rv-status-bar.approved { background: rgba(0,255,136,.06); border:1px solid rgba(0,255,136,.2); color: var(--primary); }
+.rv-status-bar.rejected { background: rgba(255,68,68,.07); border:1px solid rgba(255,68,68,.2); color: #ff8888; }
+
 /* ========== AGENT SPECIFIC STYLES ========== */
 .agent-card {
     background: linear-gradient(135deg, rgba(15, 15, 15, 0.95), rgba(10, 10, 10, 0.95));
@@ -6029,13 +6254,12 @@ function renderCreatorProducts(products) {
 
             <!-- Actions -->
             <div class="cr-actions">
-                 ${isPending ? `
-                ${p.productType === 'course' ? `
-                <button class="btn btn-secondary btn-sm" onclick="previewCourseStructure('${p._id}','${esc(p.title)}',${p.suggestedPrice||0})">
-                    <i class="fas fa-graduation-cap"></i> Preview Course
-                </button>` : ''}
+                <button class="btn btn-secondary btn-sm" onclick="openProductReviewDrawer('${p._id}')">
+                    <i class="fas fa-search"></i> Full Review
+                </button>
+                ${isPending ? `
                 <button class="btn btn-primary btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'approve','${p.productType||'download'}'))">
-                    <i class="fas fa-check"></i> Approve & Set Price
+                    <i class="fas fa-check"></i> Approve
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'reject','${p.productType||'download'}'))">
                     <i class="fas fa-times"></i> Reject
@@ -6292,6 +6516,524 @@ async function submitCreatorReview(creatorId, action) {
     closeCrModal();
     fetchCreatorApps();
     refreshCreatorBadges();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CREATOR PRODUCT FULL REVIEW DRAWER
+// Opens a right-side drawer showing every stored field for a product.
+// Admin can review everything then approve or reject from within the drawer.
+// ════════════════════════════════════════════════════════════════════════════
+
+function closeReviewDrawer() {
+    const el = document.getElementById('reviewDrawerOverlay');
+    if (el) el.remove();
+}
+
+async function openProductReviewDrawer(productId) {
+    closeReviewDrawer();
+
+    // Inject loading skeleton immediately
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="review-drawer-overlay" id="reviewDrawerOverlay">
+        <div class="review-drawer">
+            <div class="review-drawer-header">
+                <button onclick="closeReviewDrawer()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.1rem;padding:4px;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <span style="font-size:.9rem;color:#9ca3af;">Loading product…</span>
+            </div>
+            <div class="review-drawer-body" style="display:flex;align-items:center;justify-content:center;min-height:300px;">
+                <div style="text-align:center;color:#6b7280;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);margin-bottom:14px;"></i>
+                    <div style="font-size:.85rem;">Fetching full product details…</div>
+                </div>
+            </div>
+        </div>
+    </div>`);
+
+    let data;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/creator-products/${productId}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        data = await r.json();
+    } catch (e) {
+        closeReviewDrawer();
+        showToast('Network error loading product detail.', 'error');
+        return;
+    }
+
+    if (!data.success) {
+        closeReviewDrawer();
+        showToast(data.message || 'Failed to load product', 'error');
+        return;
+    }
+
+    const p   = data.product;
+    const cu  = data.creatorUser  || {};
+    const cr  = p.creatorId       || {};
+    const orders = data.recentOrders || [];
+
+    const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+    const fmtDur  = s => !s ? null : s >= 3600
+        ? `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`
+        : `${Math.floor(s/60)}m ${s%60}s`;
+    const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const pill = (txt, cls='') => `<span class="rv-pill ${cls}">${esc2(txt)}</span>`;
+    const field = (label, value, full=false) => value ? `
+        <div class="rv-field${full?' style="grid-column:1/-1"':''}">
+            <div class="rv-field-label">${label}</div>
+            <div class="rv-field-value">${value}</div>
+        </div>` : '';
+
+    const isPending  = p.status === 'pending_review';
+    const isApproved = p.status === 'approved';
+    const isRejected = p.status === 'rejected';
+
+    // ── Status bar ───────────────────────────────────────────────────────────
+    const statusKey = isPending ? 'pending' : p.status;
+    const statusIcons = { pending_review:'⏳', approved:'✅', rejected:'❌' };
+    const statusBar = `
+    <div class="rv-status-bar ${statusKey}">
+        <span>${statusIcons[p.status]||''} <strong>${(p.status||'').replace('_',' ').toUpperCase()}</strong></span>
+        ${isApproved && p.approvedPrice ? `<span>· Listed @ <strong>$${Number(p.approvedPrice).toFixed(2)}</strong></span>` : ''}
+        ${isApproved && p.approvedAt   ? `<span>· Approved ${fmtDate(p.approvedAt)}</span>` : ''}
+        ${isRejected && p.rejectionReason ? `<span style="flex:1">· ${esc2(p.rejectionReason)}</span>` : ''}
+        ${p.adminNotes ? `<span style="opacity:.7;font-size:.75rem;">Note: ${esc2(p.adminNotes)}</span>` : ''}
+    </div>`;
+
+    // ── Images ───────────────────────────────────────────────────────────────
+    const images = (p.images||[]).filter(Boolean);
+    const imagesHtml = images.length ? `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-images"></i> Images (${images.length})</div>
+        <div class="rv-img-strip">
+            ${images.map(img => `
+            <img src="${esc2(img)}" alt="" loading="lazy"
+                 onclick="window.open('${esc2(img)}','_blank')"
+                 title="Click to open full size">`).join('')}
+        </div>
+    </div>` : '';
+
+    // ── Core info ────────────────────────────────────────────────────────────
+    const coreHtml = `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-info-circle"></i> Product Info</div>
+        <div class="rv-grid">
+            ${field('Product Type', `<span style="text-transform:capitalize;">${esc2(p.productType||'download')}</span>`)}
+            ${field('Category', esc2(p.category||'General'))}
+            ${field('Suggested Price', `<strong style="color:var(--primary);">$${Number(p.suggestedPrice||0).toFixed(2)}</strong>`)}
+            ${field('File Size', esc2(p.fileSize))}
+            ${field('Version', esc2(p.version))}
+            ${field('Submitted', fmtDate(p.submittedAt||p.createdAt))}
+            ${field('Last Updated', fmtDate(p.updatedAt))}
+            ${field('Total Sales', p.totalSales != null ? `<strong>${p.totalSales}</strong>` : null)}
+            ${field('Total Revenue', p.totalRevenue ? `<strong style="color:var(--primary);">$${Number(p.totalRevenue).toFixed(2)}</strong>` : null)}
+        </div>
+        ${p.description ? `
+        <div class="rv-field" style="margin-top:10px;">
+            <div class="rv-field-label">Description</div>
+            <div class="rv-field-value" style="line-height:1.65;white-space:pre-wrap;font-size:.82rem;">${esc2(p.description)}</div>
+        </div>` : ''}
+        ${p.notes ? `
+        <div class="rv-field" style="margin-top:10px;">
+            <div class="rv-field-label">Creator Notes (shown to buyers)</div>
+            <div class="rv-field-value" style="line-height:1.65;font-size:.82rem;">${esc2(p.notes)}</div>
+        </div>` : ''}
+        ${(p.tags||[]).length ? `
+        <div style="margin-top:10px;">
+            <div class="rv-field-label" style="font-size:.68rem;color:#6b7280;margin-bottom:5px;">TAGS</div>
+            ${p.tags.map(t => `<span class="rv-tag">#${esc2(t)}</span>`).join('')}
+        </div>` : ''}
+    </div>`;
+
+    // ── Creator info ─────────────────────────────────────────────────────────
+    const creatorHtml = `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-store"></i> Creator</div>
+        <div class="rv-grid">
+            ${field('Store Name', `<strong>${esc2(cr.storeName||'—')}</strong>`)}
+            ${field('Full Name', esc2(cu.fullName))}
+            ${field('Email', cu.email ? `<a href="mailto:${esc2(cu.email)}">${esc2(cu.email)}</a>` : null)}
+            ${field('Account Status', cr.applicationStatus ? `<span class="rv-pill ${cr.applicationStatus==='approved'?'green':''}">${esc2(cr.applicationStatus)}</span>` : null)}
+            ${field('Platform Commission', cr.platformCommissionRate != null ? `${cr.platformCommissionRate}%` : null)}
+            ${field('Affiliate Commission', cr.affiliateCommissionRate != null ? `${cr.affiliateCommissionRate}%` : null)}
+            ${field('Creator Joined', fmtDate(cu.createdAt))}
+        </div>
+    </div>`;
+
+    // ── Hosted file ──────────────────────────────────────────────────────────
+    const hf = p.hostedFile;
+    const hostedFileHtml = hf?.publicId ? `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-cloud"></i> Hosted File (Cloudinary)</div>
+        <div class="rv-hosted-file">
+            <div class="rv-hosted-icon">
+                ${ (hf.format||'').toLowerCase() === 'pdf' ? '📄'
+                 : (hf.resourceType||'') === 'video'       ? '🎬'
+                 : (hf.resourceType||'') === 'image'       ? '🖼️'
+                 : '📦' }
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:.82rem;color:#e5e7eb;margin-bottom:4px;">
+                    ${esc2(hf.originalName || hf.publicId.split('/').pop())}
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                    ${hf.format       ? pill(hf.format.toUpperCase(), 'blue') : ''}
+                    ${hf.resourceType ? pill(hf.resourceType, '')             : ''}
+                    ${hf.bytes        ? pill(hf.bytes > 1048576
+                        ? (hf.bytes/1048576).toFixed(1)+' MB'
+                        : (hf.bytes/1024).toFixed(0)+' KB', 'green')         : ''}
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                ${hf.secureUrl ? `
+                <a href="${esc2(hf.secureUrl)}" target="_blank" rel="noopener"
+                   class="btn btn-secondary btn-sm" style="font-size:.72rem;">
+                    <i class="fas fa-external-link-alt"></i> Open File
+                </a>` : ''}
+            </div>
+        </div>
+    </div>` : '';
+
+    // ── External media ───────────────────────────────────────────────────────
+    const hasMedia = p.externalVideoUrl || p.externalAudioUrl || p.embedUrl;
+    const mediaSectionHtml = hasMedia ? `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-play-circle"></i> External Media</div>
+        <div class="rv-grid">
+            ${field('Embed Type', p.embedType ? pill(p.embedType, 'blue') : null)}
+            ${field('Media Type', p.mediaType ? pill(p.mediaType, 'purple') : null)}
+            ${p.externalVideoUrl ? field('Video URL', `<a href="${esc2(p.externalVideoUrl)}" target="_blank">🎬 ${esc2(p.externalVideoUrl.substring(0,50))}…</a>`) : ''}
+            ${p.externalAudioUrl ? field('Audio URL', `<a href="${esc2(p.externalAudioUrl)}" target="_blank">🎵 ${esc2(p.externalAudioUrl.substring(0,50))}…</a>`) : ''}
+        </div>
+        ${p.embedUrl ? (() => {
+            const et = p.embedType || '';
+            if (['youtube','vimeo','dailymotion'].includes(et)) {
+                return `<div style="margin-top:12px;position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:8px;overflow:hidden;">
+                    <iframe src="${esc2(p.embedUrl)}" class="rv-preview-embed"
+                        style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                        allow="accelerometer;autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe>
+                </div>`;
+            }
+            return `<div style="margin-top:8px;"><a href="${esc2(p.embedUrl)}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt"></i> Open Embed URL</a></div>`;
+        })() : ''}
+    </div>` : '';
+
+    // ── Preview ──────────────────────────────────────────────────────────────
+    const previewHtml = p.previewUrl && p.previewType !== 'none' ? `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-eye"></i> Public Preview</div>
+        ${ p.previewType === 'image' ? `<img src="${esc2(p.previewUrl)}" style="max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:1px solid rgba(255,255,255,.08);">` : '' }
+        ${ p.previewType === 'video' ? `<video src="${esc2(p.previewUrl)}" controls style="width:100%;max-height:200px;border-radius:8px;"></video>` : '' }
+        ${ p.previewType === 'audio' ? `<audio src="${esc2(p.previewUrl)}" controls style="width:100%;margin-top:8px;"></audio>` : '' }
+        ${ p.previewType === 'iframe' ? `<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:8px;overflow:hidden;">
+            <iframe src="${esc2(p.previewUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" loading="lazy"></iframe>
+        </div>` : '' }
+    </div>` : '';
+
+    // ── Features & Requirements ──────────────────────────────────────────────
+    const features = (p.features||[]).filter(Boolean);
+    const reqs     = (p.requirements||[]).filter(Boolean);
+    const featReqHtml = (features.length || reqs.length) ? `
+    <div class="rv-section">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            ${features.length ? `
+            <div>
+                <div class="rv-section-title"><i class="fas fa-star"></i> Features (${features.length})</div>
+                <ul class="rv-list">${features.map(f => `<li>${esc2(f)}</li>`).join('')}</ul>
+            </div>` : ''}
+            ${reqs.length ? `
+            <div>
+                <div class="rv-section-title"><i class="fas fa-tools"></i> Requirements (${reqs.length})</div>
+                <ul class="rv-list reqs">${reqs.map(r => `<li>${esc2(r)}</li>`).join('')}</ul>
+            </div>` : ''}
+        </div>
+    </div>` : '';
+
+    // ── Type-specific metadata ────────────────────────────────────────────────
+    let typeMetaHtml = '';
+
+    if (p.audioData && p.productType === 'music') {
+        const ad = p.audioData;
+        typeMetaHtml = `
+        <div class="rv-section">
+            <div class="rv-section-title"><i class="fas fa-music"></i> Audio Metadata</div>
+            <div class="rv-grid">
+                ${field('BPM',      esc2(ad.bpm))}
+                ${field('Key',      esc2(ad.key))}
+                ${field('Genre',    esc2(ad.genre))}
+                ${field('License',  esc2(ad.license))}
+                ${field('Stems',    ad.stems ? '✅ Included' : '❌ Not included')}
+                ${field('Duration', fmtDur(ad.duration))}
+                ${field('Format',   esc2(ad.format))}
+                ${field('Mood',     esc2(ad.mood))}
+            </div>
+        </div>`;
+    }
+
+    if (p.softwareData && p.productType === 'software') {
+        const sd = p.softwareData;
+        typeMetaHtml = `
+        <div class="rv-section">
+            <div class="rv-section-title"><i class="fas fa-laptop-code"></i> Software Metadata</div>
+            <div class="rv-grid">
+                ${field('Platform',        Array.isArray(sd.platform) ? sd.platform.join(', ') : esc2(sd.platform))}
+                ${field('License Type',    esc2(sd.licenseType))}
+                ${field('Support Period',  esc2(sd.supportPeriod))}
+                ${field('License Key',     sd.licenseKey ? `<code style="font-size:.75rem;color:#a5b4fc;">${esc2(sd.licenseKey)}</code>` : null)}
+                ${field('License Keys Pool', sd.licenseKeys?.length ? `${sd.licenseKeys.length} keys` : null)}
+                ${field('Framework',       esc2(sd.framework))}
+            </div>
+        </div>`;
+    }
+
+    if (p.videoData && p.productType === 'video') {
+        const vd = p.videoData;
+        typeMetaHtml = `
+        <div class="rv-section">
+            <div class="rv-section-title"><i class="fas fa-film"></i> Video Metadata</div>
+            <div class="rv-grid">
+                ${field('Duration',    fmtDur(vd.duration))}
+                ${field('Resolution',  esc2(vd.resolution))}
+                ${field('Genre',       esc2(vd.genre))}
+                ${field('Language',    esc2(vd.language))}
+                ${field('License',     esc2(vd.license))}
+                ${field('Captions',    vd.hasCaption ? '✅ Yes' : '❌ No')}
+                ${field('Allow Download', vd.allowDownload ? '✅ Yes' : '❌ No')}
+            </div>
+        </div>`;
+    }
+
+    if (p.ebookData) {
+        const ed = p.ebookData;
+        typeMetaHtml = `
+        <div class="rv-section">
+            <div class="rv-section-title"><i class="fas fa-book"></i> eBook Metadata</div>
+            <div class="rv-grid">
+                ${field('Pages',    esc2(ed.pages))}
+                ${field('Language', esc2(ed.language))}
+                ${field('Format',   Array.isArray(ed.format) ? ed.format.join(', ') : esc2(ed.format))}
+                ${field('Author',   esc2(ed.author))}
+                ${field('ISBN',     esc2(ed.isbn))}
+            </div>
+        </div>`;
+    }
+
+    if (p.designData && ['template','script','component'].includes(p.productType)) {
+        const dd = p.designData;
+        typeMetaHtml = `
+        <div class="rv-section">
+            <div class="rv-section-title"><i class="fas fa-paint-brush"></i> Design / Dev Metadata</div>
+            <div class="rv-grid">
+                ${field('Framework',    Array.isArray(dd.framework) ? dd.framework.join(', ') : esc2(dd.framework))}
+                ${field('Compatibility',esc2(dd.compatibility))}
+                ${field('Design Tool',  esc2(dd.designTool))}
+                ${field('Responsive',   dd.responsive ? '✅ Yes' : dd.responsive===false ? '❌ No' : null)}
+            </div>
+        </div>`;
+    }
+
+    // ── Course structure ─────────────────────────────────────────────────────
+    let courseHtml = '';
+    if (p.productType === 'course' && p.courseData) {
+        const cd = p.courseData;
+        const sections = cd.sections || [];
+        const totalChapters = sections.reduce((a,s) => a + (s.chapters||[]).length, 0);
+        const withContent   = sections.reduce((a,s) =>
+            a + (s.chapters||[]).filter(c => c.externalUrl||c.embedUrl||c.hostedFile?.publicId).length, 0);
+
+        const statsRow = `
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+            ${pill(`${sections.length} sections`)}
+            ${pill(`${totalChapters} chapters`, 'blue')}
+            ${pill(`${withContent} with content`, withContent===totalChapters&&totalChapters>0?'green':'red')}
+            ${fmtDur(cd.totalDuration) ? pill('⏱ '+fmtDur(cd.totalDuration)) : ''}
+            ${cd.level    ? pill(cd.level,    '') : ''}
+            ${cd.language ? pill(cd.language, '') : ''}
+            ${cd.certificate ? pill('🏆 Certificate', 'green') : ''}
+        </div>`;
+
+        const whatYouLearn = (cd.whatYouLearn||[]).filter(Boolean);
+        const audience     = (cd.targetAudience||[]).filter(Boolean);
+
+        const courseMetaGrid = `
+        <div class="rv-grid" style="margin-bottom:12px;">
+            ${cd.welcomeMessage    ? field('Welcome Message',    esc2(cd.welcomeMessage),    true) : ''}
+            ${cd.completionMessage ? field('Completion Message', esc2(cd.completionMessage), true) : ''}
+        </div>
+        ${whatYouLearn.length ? `
+        <div style="margin-bottom:10px;">
+            <div class="rv-field-label" style="font-size:.68rem;color:#6b7280;margin-bottom:5px;">WHAT YOU'LL LEARN</div>
+            <ul class="rv-list">${whatYouLearn.map(w => `<li>${esc2(w)}</li>`).join('')}</ul>
+        </div>` : ''}
+        ${audience.length ? `
+        <div style="margin-bottom:10px;">
+            <div class="rv-field-label" style="font-size:.68rem;color:#6b7280;margin-bottom:5px;">TARGET AUDIENCE</div>
+            <ul class="rv-list reqs">${audience.map(a => `<li>${esc2(a)}</li>`).join('')}</ul>
+        </div>` : ''}`;
+
+        const sectionsHtml2 = sections.length ? sections.map((sec, si) => {
+            const chs = sec.chapters || [];
+            return `
+            <div style="margin-bottom:8px;border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;
+                     background:rgba(0,255,136,.05);cursor:pointer;"
+                     onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+                    <span style="background:var(--primary);color:#000;border-radius:50%;width:20px;height:20px;
+                          display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;">${si+1}</span>
+                    <span style="flex:1;font-size:.8rem;font-weight:700;color:var(--primary);">${esc2(sec.sectionTitle||'Untitled Section')}</span>
+                    ${sec.sectionDescription ? `<span style="font-size:.68rem;color:#9ca3af;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc2(sec.sectionDescription)}</span>` : ''}
+                    <span style="font-size:.7rem;color:#6b7280;">${chs.length} ch</span>
+                    <i class="fas fa-chevron-down" style="font-size:.6rem;color:#6b7280;"></i>
+                </div>
+                <div>
+                ${chs.length ? chs.map((ch, ci) => {
+                    const hasFile    = !!ch.hostedFile?.publicId;
+                    const hasUrl     = !!(ch.externalUrl||ch.embedUrl||ch.embedVideoUrl||ch.embedAudioUrl);
+                    const hasContent = hasFile || hasUrl;
+                    const fmt        = ch.hostedFile?.format;
+                    const contentSrc = hasFile
+                        ? (fmt ? fmt.toUpperCase() : '☁ Hosted')
+                        : hasUrl ? (ch.embedVideoType||ch.embedAudioType||ch.embedType||'External') : 'Empty';
+                    const liveUrl    = ch.externalUrl||ch.embedUrl||ch.embedVideoUrl||ch.embedAudioUrl||null;
+                    const chBytes    = ch.hostedFile?.bytes;
+                    return `
+                    <div class="rv-chapter-row" style="background:${hasContent?'transparent':'rgba(255,68,68,.03)'}">
+                        <span class="rv-ch-num">${ci+1}.</span>
+                        <div class="rv-ch-info">
+                            <div class="rv-ch-title">${esc2(ch.chapterTitle||'Untitled Chapter')}</div>
+                            <div class="rv-ch-meta">
+                                ${pill(contentSrc, hasContent?'blue':'red')}
+                                ${ch.chapterType ? pill(ch.chapterType)            : ''}
+                                ${fmtDur(ch.duration) ? pill('⏱ '+fmtDur(ch.duration)) : ''}
+                                ${ch.isFree    ? pill('FREE', 'green')              : ''}
+                                ${ch.transcript? pill('📝 Transcript')              : ''}
+                                ${ch.notes     ? pill('📌 Notes')                   : ''}
+                                ${chBytes      ? pill(chBytes>1048576
+                                    ? (chBytes/1048576).toFixed(1)+' MB'
+                                    : (chBytes/1024).toFixed(0)+' KB')              : ''}
+                                ${(ch.resources||[]).length ? pill(`📎 ${ch.resources.length} resource${ch.resources.length>1?'s':''}`, 'purple') : ''}
+                                ${liveUrl ? `<a href="${esc2(liveUrl)}" target="_blank"
+                                    style="font-size:.67rem;color:var(--primary);text-decoration:none;">↗ Open</a>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')
+                : `<div style="padding:10px 12px;font-size:.75rem;color:#6b7280;font-style:italic;">No chapters yet.</div>`}
+                </div>
+            </div>`;
+        }).join('')
+        : `<div style="text-align:center;padding:20px;color:#6b7280;font-size:.82rem;font-style:italic;">No sections added yet.</div>`;
+
+        const readinessColor = withContent === 0 ? '#ff8888' : withContent < totalChapters ? '#fbbf24' : 'var(--primary)';
+        const readinessMsg   = withContent === 0 && totalChapters > 0
+            ? '⛔ No chapters have content — cannot approve yet'
+            : withContent < totalChapters
+            ? `⚠️ ${totalChapters - withContent} chapter(s) have no content`
+            : totalChapters === 0 ? '⛔ No chapters — cannot approve yet'
+            : '✅ All chapters have content';
+
+        courseHtml = `
+        <div class="rv-section">
+            <div class="rv-section-title"><i class="fas fa-graduation-cap"></i> Course Structure</div>
+            ${statsRow}
+            <div style="padding:8px 12px;background:rgba(255,255,255,.02);border-radius:6px;
+                 border-left:3px solid ${readinessColor};font-size:.78rem;color:${readinessColor};margin-bottom:12px;">
+                ${readinessMsg}
+            </div>
+            ${courseMetaGrid}
+            ${sectionsHtml2}
+        </div>`;
+    }
+
+    // ── Recent orders ─────────────────────────────────────────────────────────
+    const ordersHtml = orders.length ? `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-receipt"></i> Recent Orders (${orders.length})</div>
+        <table class="rv-orders-table">
+            <thead><tr>
+                <th>Date</th><th>Amount</th><th>Status</th>
+            </tr></thead>
+            <tbody>
+            ${orders.map(o => `
+            <tr>
+                <td>${fmtDate(o.createdAt)}</td>
+                <td><strong style="color:var(--primary);">$${Number(o.amount||0).toFixed(2)}</strong></td>
+                <td><span class="rv-pill ${o.status==='completed'?'green':o.status==='pending'?'':'red'}">${esc2(o.status||'—')}</span></td>
+            </tr>`).join('')}
+            </tbody>
+        </table>
+    </div>` : '';
+
+    // ── Footer actions ────────────────────────────────────────────────────────
+    const footerHtml = `
+    <div style="flex:1;display:flex;gap:8px;align-items:center;">
+        <span style="font-size:.75rem;color:#6b7280;">ID: ${esc2(p._id)}</span>
+    </div>
+    ${isPending ? `
+    <button class="btn btn-danger" onclick="closeReviewDrawer(); openProductReviewModal('${p._id}','${esc2(p.title)}',${p.suggestedPrice||0},'reject','${p.productType||'download'}')">
+        <i class="fas fa-times"></i> Reject
+    </button>
+    <button class="btn btn-primary" onclick="closeReviewDrawer(); openProductReviewModal('${p._id}','${esc2(p.title)}',${p.suggestedPrice||0},'approve','${p.productType||'download'}')">
+        <i class="fas fa-check"></i> Approve & Set Price
+    </button>` : isApproved ? `
+    <button class="btn btn-warning" onclick="closeReviewDrawer(); openProductReviewModal('${p._id}','${esc2(p.title)}',${p.approvedPrice||p.suggestedPrice||0},'reject','${p.productType||'download'}')">
+        <i class="fas fa-ban"></i> Revoke Approval
+    </button>` : isRejected ? `
+    <button class="btn btn-primary" onclick="closeReviewDrawer(); openProductReviewModal('${p._id}','${esc2(p.title)}',${p.suggestedPrice||0},'approve','${p.productType||'download'}')">
+        <i class="fas fa-redo"></i> Re-approve
+    </button>` : ''}
+    <button class="btn btn-secondary" onclick="closeReviewDrawer()">Close</button>`;
+
+    // ── Assemble and inject ───────────────────────────────────────────────────
+    const overlay = document.getElementById('reviewDrawerOverlay');
+    if (!overlay) return;
+
+    overlay.innerHTML = `
+    <div style="flex:1;cursor:pointer;" onclick="closeReviewDrawer()"></div>
+    <div class="review-drawer">
+        <div class="review-drawer-header">
+            <button onclick="closeReviewDrawer()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.1rem;padding:4px 8px;border-radius:6px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:.95rem;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    ${esc2(p.title)}
+                </div>
+                <div style="font-size:.72rem;color:#6b7280;margin-top:2px;">
+                    ${esc2(cr.storeName||'Unknown Store')}
+                    &nbsp;·&nbsp; ${esc2((p.productType||'download').replace('_',' '))}
+                    &nbsp;·&nbsp; Submitted ${fmtDate(p.submittedAt||p.createdAt)}
+                </div>
+            </div>
+            <span class="cr-badge cr-badge-${p.status==='pending_review'?'pending':p.status}" style="flex-shrink:0;">
+                ${(p.status||'').replace('_',' ').toUpperCase()}
+            </span>
+        </div>
+
+        <div class="review-drawer-body">
+            ${statusBar}
+            ${imagesHtml}
+            ${coreHtml}
+            ${creatorHtml}
+            ${hostedFileHtml}
+            ${mediaSectionHtml}
+            ${previewHtml}
+            ${featReqHtml}
+            ${typeMetaHtml}
+            ${courseHtml}
+            ${ordersHtml}
+        </div>
+
+        <div class="review-drawer-footer">
+            ${footerHtml}
+        </div>
+    </div>`;
+
+    // ESC key closes drawer
+    const onEsc = (e) => { if (e.key === 'Escape') { closeReviewDrawer(); document.removeEventListener('keydown', onEsc); } };
+    document.addEventListener('keydown', onEsc);
 }
 
 async function openProductReviewModal(productId, title, suggestedPrice, action, productType = 'download') {
