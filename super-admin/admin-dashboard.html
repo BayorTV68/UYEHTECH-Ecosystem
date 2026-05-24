@@ -496,6 +496,589 @@ tr:hover {
     border-color: var(--warning);
 }
 
+/* ========== USER DETAIL DRAWER ========== */
+.ud-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.ud-drawer {
+    width: min(820px, 100vw);
+    height: 100vh;
+    background: #0f0f0f;
+    border-left: 1px solid rgba(0,255,136,.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: drawerIn .22s ease;
+}
+.ud-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,255,136,.03);
+    flex-shrink: 0;
+}
+.ud-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+.ud-footer {
+    flex-shrink: 0;
+    padding: 14px 24px;
+    border-top: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,0,0,.4);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.ud-section {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.ud-section:last-child { border-bottom: none; }
+.ud-section-title {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--primary);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.ud-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 9px;
+}
+.ud-field {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px;
+    padding: 9px 13px;
+}
+.ud-field.full { grid-column: 1 / -1; }
+.ud-field-label {
+    font-size: .64rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 3px;
+}
+.ud-field-value {
+    font-size: .83rem;
+    color: #e5e7eb;
+    font-weight: 500;
+    word-break: break-word;
+}
+.ud-field-value a { color: var(--primary); text-decoration: none; }
+.ud-stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+    gap: 8px;
+}
+.ud-stat {
+    background: rgba(0,255,136,.05);
+    border: 1px solid rgba(0,255,136,.12);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+}
+.ud-stat-num {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--primary);
+    font-family: 'DM Mono', monospace;
+}
+.ud-stat-lbl {
+    font-size: .62rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-top: 3px;
+}
+.ud-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .77rem;
+}
+.ud-table th {
+    text-align: left;
+    padding: 6px 10px;
+    font-size: .63rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,255,136,.15);
+    white-space: nowrap;
+}
+.ud-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    color: #d1d5db;
+    vertical-align: middle;
+}
+.ud-table tr:hover td { background: rgba(255,255,255,.02); }
+.ud-notice {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .78rem;
+    margin-bottom: 10px;
+}
+.ud-notice.error { background: rgba(255,68,68,.07);  border-left: 3px solid #ff4444; color: #ff8888; }
+.ud-notice.warn  { background: rgba(255,165,0,.07);  border-left: 3px solid #fbbf24; color: #fbbf24; }
+.ud-notice.info  { background: rgba(96,165,250,.07); border-left: 3px solid #60a5fa; color: #93c5fd; }
+.ud-notice.ok    { background: rgba(0,255,136,.06);  border-left: 3px solid var(--primary); color: var(--primary); }
+.ud-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: .7rem;
+    font-weight: 700;
+    margin: 2px 4px 2px 0;
+}
+.ud-role-pill.admin   { background: rgba(251,191,36,.12); color: #fbbf24; border: 1px solid rgba(251,191,36,.2); }
+.ud-role-pill.agent   { background: rgba(96,165,250,.12); color: #60a5fa; border: 1px solid rgba(96,165,250,.2); }
+.ud-role-pill.creator { background: rgba(167,139,250,.12);color: #b794f4; border: 1px solid rgba(167,139,250,.2); }
+.ud-role-pill.affiliate{background: rgba(34,211,238,.12); color: #22d3ee; border: 1px solid rgba(34,211,238,.2); }
+.ud-role-pill.user    { background: rgba(255,255,255,.06); color: #9ca3af; border: 1px solid rgba(255,255,255,.1); }
+
+/* ========== CREATOR DETAIL DRAWER ========== */
+.cd-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.cd-drawer {
+    width: min(860px, 100vw);
+    height: 100vh;
+    background: #0f0f0f;
+    border-left: 1px solid rgba(0,255,136,.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: drawerIn .22s ease;
+}
+.cd-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,255,136,.03);
+    flex-shrink: 0;
+}
+.cd-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+.cd-footer {
+    flex-shrink: 0;
+    padding: 14px 24px;
+    border-top: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,0,0,.4);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.cd-section {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.cd-section:last-child { border-bottom: none; }
+.cd-section-title {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--primary);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.cd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 9px;
+}
+.cd-field {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px;
+    padding: 9px 13px;
+}
+.cd-field.full { grid-column: 1 / -1; }
+.cd-field-label {
+    font-size: .65rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 3px;
+}
+.cd-field-value {
+    font-size: .83rem;
+    color: #e5e7eb;
+    font-weight: 500;
+    word-break: break-word;
+}
+.cd-field-value a { color: var(--primary); text-decoration: none; }
+.cd-field-value a:hover { text-decoration: underline; }
+.cd-stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.cd-stat {
+    background: rgba(0,255,136,.05);
+    border: 1px solid rgba(0,255,136,.12);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+}
+.cd-stat-num {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--primary);
+    font-family: 'DM Mono', monospace;
+}
+.cd-stat-lbl {
+    font-size: .64rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-top: 3px;
+}
+.cd-store-visual {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.cd-banner {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    background: rgba(255,255,255,.04);
+}
+.cd-banner-placeholder {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(0,255,136,.06), rgba(96,165,250,.06));
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px;
+}
+.cd-logo-wrap {
+    position: absolute;
+    bottom: -20px;
+    left: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    border: 2px solid #0f0f0f;
+    overflow: hidden;
+    background: rgba(255,255,255,.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cd-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.cd-social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: .73rem;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    color: #d1d5db;
+    text-decoration: none;
+    margin: 3px 4px 3px 0;
+    transition: border-color .15s;
+}
+.cd-social-link:hover { border-color: var(--primary); color: var(--primary); }
+.cd-product-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-top: 1px solid rgba(255,255,255,.04);
+    font-size: .78rem;
+    cursor: pointer;
+    transition: background .12s;
+}
+.cd-product-row:hover { background: rgba(255,255,255,.03); }
+.cd-product-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: rgba(255,255,255,.05);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border: 1px solid rgba(255,255,255,.06);
+}
+.cd-earning-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 10px;
+    border-top: 1px solid rgba(255,255,255,.04);
+    font-size: .78rem;
+}
+.cd-payout-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-top: 1px solid rgba(255,255,255,.04);
+    font-size: .78rem;
+}
+.cd-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(0,255,136,.07);
+    border: 1px solid rgba(0,255,136,.14);
+    border-radius: 10px;
+    font-size: .7rem;
+    color: var(--primary);
+    margin: 2px 3px 2px 0;
+}
+.cd-inline-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px;
+}
+.cd-inline-form label {
+    font-size: .68rem;
+    color: #9ca3af;
+    display: block;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.cd-inline-form input[type=number] {
+    width: 90px;
+    padding: 7px 10px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 7px;
+    color: #e5e7eb;
+    font-size: .83rem;
+}
+.cd-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .82rem;
+    margin-bottom: 16px;
+}
+.cd-status-bar.approved  { background: rgba(0,255,136,.06);  border: 1px solid rgba(0,255,136,.2);  color: var(--primary); }
+.cd-status-bar.pending   { background: rgba(255,165,0,.07);  border: 1px solid rgba(255,165,0,.2);  color: #fbbf24; }
+.cd-status-bar.rejected  { background: rgba(255,68,68,.07);  border: 1px solid rgba(255,68,68,.2);  color: #ff8888; }
+.cd-status-bar.suspended { background: rgba(255,68,68,.07);  border: 1px solid rgba(255,68,68,.2);  color: #ff8888; }
+.cd-notice {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .78rem;
+    margin-bottom: 10px;
+}
+.cd-notice.warn  { background: rgba(255,165,0,.07);  border-left: 3px solid #fbbf24; color: #fbbf24; }
+.cd-notice.error { background: rgba(255,68,68,.07);  border-left: 3px solid #ff4444; color: #ff8888; }
+.cd-notice.info  { background: rgba(96,165,250,.07); border-left: 3px solid #60a5fa; color: #93c5fd; }
+
+/* ========== COMPACT PRODUCT LIST ========== */
+.cp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.cp-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 10px;
+    transition: border-color .15s, background .15s;
+}
+.cp-row:hover {
+    border-color: rgba(0,255,136,.15);
+    background: rgba(0,255,136,.02);
+}
+.cp-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(255,255,255,.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.06);
+}
+.cp-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cp-thumb-icon { font-size: 1.3rem; }
+.cp-info {
+    flex: 1;
+    min-width: 0;
+}
+.cp-title {
+    font-size: .88rem;
+    font-weight: 700;
+    color: #e5e7eb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+.cp-meta {
+    font-size: .71rem;
+    color: #6b7280;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.cp-dot { opacity: .4; }
+.cp-signals { display: flex; flex-wrap: wrap; gap: 5px; }
+.cp-signal {
+    font-size: .65rem;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+}
+.cp-signal.ok   { background: rgba(0,255,136,.1);  color: #00ff88; }
+.cp-signal.warn { background: rgba(255,165,0,.1);  color: #fbbf24; }
+.cp-signal.info { background: rgba(96,165,250,.1); color: #60a5fa; }
+.cp-price-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    flex-shrink: 0;
+}
+.cp-price {
+    font-size: .9rem;
+    font-weight: 800;
+    color: var(--primary);
+    font-family: 'DM Mono', monospace;
+}
+.cp-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    align-items: center;
+}
+@media (max-width: 640px) {
+    .cp-row { flex-wrap: wrap; }
+    .cp-price-col { flex-direction: row; align-items: center; gap: 8px; }
+    .cp-actions { width: 100%; justify-content: flex-end; }
+}
+
+/* ── In-drawer media player ── */
+.rv-media-player {
+    width: 100%;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.rv-media-player video,
+.rv-media-player audio,
+.rv-media-player iframe {
+    width: 100%;
+    display: block;
+    border: none;
+}
+.rv-media-player video { aspect-ratio: 16/9; }
+.rv-media-player iframe.video-frame { aspect-ratio: 16/9; }
+.rv-media-player iframe.audio-frame { height: 166px; }
+.rv-media-player iframe.pdf-frame   { height: 70vh; min-height: 460px; }
+.rv-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: rgba(0,255,136,.1);
+    border: 1px solid rgba(0,255,136,.25);
+    border-radius: 8px;
+    color: var(--primary);
+    font-size: .8rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s;
+    margin-top: 10px;
+    margin-right: 8px;
+}
+.rv-dl-btn:hover { background: rgba(0,255,136,.18); }
+.rv-media-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.rv-media-tab {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.04);
+    color: #9ca3af;
+    transition: all .15s;
+}
+.rv-media-tab.active {
+    background: rgba(0,255,136,.12);
+    border-color: rgba(0,255,136,.3);
+    color: var(--primary);
+}
 
 /* ========== CREATOR PRODUCT REVIEW PANEL ========== */
 .review-drawer-overlay {
@@ -3328,33 +3911,35 @@ console.log('✅ Part 2/5 loaded: Dashboard & Analytics');
 // ========== USERS MANAGEMENT ==========
 async function loadUsersData(page = 1, search = '', status = 'all', role = 'all') {
     const usersPage = document.getElementById('usersPage');
-    
+
     usersPage.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">User Management</h1>
-            <p class="page-subtitle">Manage all registered users</p>
+            <p class="page-subtitle">All registered users — click View for full details</p>
         </div>
         <div class="filter-section">
             <div class="filter-grid">
                 <div class="filter-item">
                     <label class="filter-label">Search</label>
-                    <input type="text" class="form-input" placeholder="Search..." id="userSearchInput" value="${search}">
+                    <input type="text" class="form-input" placeholder="Name or email…"
+                           id="userSearchInput" value="${esc(search)}">
                 </div>
                 <div class="filter-item">
                     <label class="filter-label">Status</label>
                     <select class="form-select" id="userStatusFilter">
-                        <option value="all" ${status === 'all' ? 'selected' : ''}>All</option>
-                        <option value="active" ${status === 'active' ? 'selected' : ''}>Active</option>
-                        <option value="banned" ${status === 'banned' ? 'selected' : ''}>Banned</option>
+                        <option value="all"    ${status==='all'   ?'selected':''}>All</option>
+                        <option value="active" ${status==='active'?'selected':''}>Active</option>
+                        <option value="banned" ${status==='banned'?'selected':''}>Banned</option>
                     </select>
                 </div>
                 <div class="filter-item">
                     <label class="filter-label">Role</label>
                     <select class="form-select" id="userRoleFilter">
-                        <option value="all" ${role === 'all' ? 'selected' : ''}>All</option>
-                        <option value="user" ${role === 'user' ? 'selected' : ''}>Users</option>
-                        <option value="agent" ${role === 'agent' ? 'selected' : ''}>Agents</option>
-                        <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admins</option>
+                        <option value="all"     ${role==='all'    ?'selected':''}>All</option>
+                        <option value="user"    ${role==='user'   ?'selected':''}>Users</option>
+                        <option value="agent"   ${role==='agent'  ?'selected':''}>Agents</option>
+                        <option value="creator" ${role==='creator'?'selected':''}>Creators</option>
+                        <option value="admin"   ${role==='admin'  ?'selected':''}>Admins</option>
                     </select>
                 </div>
             </div>
@@ -3362,85 +3947,524 @@ async function loadUsersData(page = 1, search = '', status = 'all', role = 'all'
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Name</th><th>Email</th><th>Orders</th><th>Chats</th><th>Spent</th><th>Status</th><th>Actions</th></tr>
+                    <tr>
+                        <th>User</th>
+                        <th>Roles</th>
+                        <th>Orders</th>
+                        <th>Spent</th>
+                        <th>Downloads</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody id="usersTable">
-                    <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                    <tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading…
+                    </td></tr>
                 </tbody>
             </table>
             <div class="pagination" id="usersPagination"></div>
-        </div>
-    `;
-    
-    document.getElementById('userSearchInput').addEventListener('input', (e) => {
-        loadUsersData(1, e.target.value, document.getElementById('userStatusFilter').value, document.getElementById('userRoleFilter').value);
-    });
-    
-    document.getElementById('userStatusFilter').addEventListener('change', (e) => {
-        loadUsersData(1, document.getElementById('userSearchInput').value, e.target.value, document.getElementById('userRoleFilter').value);
-    });
-    
-    document.getElementById('userRoleFilter').addEventListener('change', (e) => {
-        loadUsersData(1, document.getElementById('userSearchInput').value, document.getElementById('userStatusFilter').value, e.target.value);
-    });
-    
+        </div>`;
+
+    // Wire filters
+    const si = document.getElementById('userSearchInput');
+    const sf = document.getElementById('userStatusFilter');
+    const rf = document.getElementById('userRoleFilter');
+    let _st;
+    si.addEventListener('input',  e => { clearTimeout(_st); _st = setTimeout(()=>loadUsersData(1,e.target.value,sf.value,rf.value),350); });
+    sf.addEventListener('change', e => loadUsersData(1,si.value,e.target.value,rf.value));
+    rf.addEventListener('change', e => loadUsersData(1,si.value,sf.value,e.target.value));
+
     try {
-        const response = await fetch(`${API_URL}/api/admin/users?page=${page}&limit=20&search=${search}&status=${status}&role=${role}`, {
+        const r = await fetch(
+            `${API_URL}/api/admin/users?page=${page}&limit=25&search=${encodeURIComponent(search)}&status=${status}&role=${role}`,
+            { headers: { 'Authorization': `Bearer ${adminToken}` } }
+        );
+        const data = await r.json();
+        const tbody = document.getElementById('usersTable');
+        if (!data.success) throw new Error(data.message);
+
+        if (!data.users?.length) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">No users found</td></tr>`;
+            return;
+        }
+
+        const fd = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+
+        tbody.innerHTML = data.users.map(u => {
+            const roles = [];
+            if (u.isAdmin)   roles.push(`<span class="ud-role-pill admin">👑 Admin</span>`);
+            if (u.isAgent)   roles.push(`<span class="ud-role-pill agent">🎧 Agent</span>`);
+            if (u.isCreator) roles.push(`<span class="ud-role-pill creator">🏪 Creator</span>`);
+            if (!u.isAdmin && !u.isAgent && !u.isCreator)
+                             roles.push(`<span class="ud-role-pill user">👤 User</span>`);
+
+            return `
+            <tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:9px;">
+                        ${u.profileImage
+                            ? `<img src="${esc(u.profileImage)}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.1);" onerror="this.style.display='none'">`
+                            : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(0,255,136,.1);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;">👤</div>`}
+                        <div>
+                            <div style="font-weight:600;color:#e5e7eb;font-size:.83rem;">${esc(u.fullName)}</div>
+                            <div style="font-size:.7rem;color:#6b7280;">${esc(u.email)}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${roles.join('')}</td>
+                <td style="font-weight:600;color:var(--primary);">${u.orderCount||0}</td>
+                <td style="font-family:'DM Mono',monospace;font-size:.8rem;">$${(u.totalSpent||0).toFixed(2)}</td>
+                <td>${u.downloadCount||0}</td>
+                <td style="font-size:.75rem;color:#9ca3af;">${fd(u.createdAt)}</td>
+                <td>
+                    <span class="status-badge ${u.isBanned?'status-inactive':'status-active'}">
+                        ${u.isBanned?'Banned':'Active'}
+                    </span>
+                    ${!u.emailVerified?'<span style="font-size:.65rem;color:#fbbf24;margin-left:4px;" title="Email not verified">⚠️</span>':''}
+                </td>
+                <td>
+                    <div class="action-btns">
+                        <button class="btn btn-secondary btn-sm" onclick="viewUserDetail('${u._id}')"
+                            style="font-size:.72rem;padding:4px 10px;">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        ${!u.isAdmin ? `
+                        <button class="action-btn ${u.isBanned?'':'danger'}"
+                            onclick="toggleBanUser('${u._id}',${!u.isBanned})"
+                            title="${u.isBanned?'Unban':'Ban'}">
+                            <i class="fas fa-${u.isBanned?'check':'ban'}"></i>
+                        </button>` : ''}
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+
+        if (data.pagination) {
+            updatePagination('usersPagination', data.pagination,
+                p => loadUsersData(p, search, status, role));
+        }
+    } catch (err) {
+        const tbody = document.getElementById('usersTable');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#ff8888;">${esc(err.message)}</td></tr>`;
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// USER FULL DETAIL DRAWER
+// ════════════════════════════════════════════════════════════════════════════
+
+function closeUdDrawer() {
+    document.getElementById('udDrawerOverlay')?.remove();
+}
+
+async function viewUserDetail(userId) {
+    closeUdDrawer();
+
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="ud-overlay" id="udDrawerOverlay">
+        <div style="flex:1;cursor:pointer;" onclick="closeUdDrawer()"></div>
+        <div class="ud-drawer">
+            <div class="ud-header">
+                <button onclick="closeUdDrawer()"
+                    style="background:none;border:none;color:#9ca3af;cursor:pointer;
+                           font-size:1.1rem;padding:4px 8px;border-radius:6px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <span style="font-size:.88rem;color:#9ca3af;">Loading user…</span>
+            </div>
+            <div class="ud-body" style="display:flex;align-items:center;justify-content:center;min-height:300px;">
+                <div style="text-align:center;color:#6b7280;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);margin-bottom:14px;"></i>
+                    <div style="font-size:.85rem;">Fetching full user details…</div>
+                </div>
+            </div>
+        </div>
+    </div>`);
+
+    let data;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/users/${userId}`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
-
-        const data = await response.json();
-
-        if (data.success) {
-            const tbody = document.getElementById('usersTable');
-            
-            if (!data.users || data.users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No users found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = data.users.map(user => `
-                <tr>
-                    <td>${user.fullName}</td>
-                    <td>${user.email}</td>
-                    <td>${user.orderCount || 0}</td>
-                    <td>${user.chatCount || 0}</td>
-                    <td>$${(user.totalSpent || 0).toFixed(2)}</td>
-                    <td>
-                        <span class="status-badge ${user.isBanned ? 'status-inactive' : 'status-active'}">
-                            ${user.isBanned ? 'Banned' : 'Active'}
-                        </span>
-                        ${user.isAdmin ? '<span class="status-badge status-completed">Admin</span>' : ''}
-                        ${user.isAgent ? '<span class="status-badge status-in-progress">Agent</span>' : ''}
-                    </td>
-                    <td>
-                        <div class="action-btns">
-                            ${!user.isAdmin ? `
-                                ${!user.isAgent ? `
-                                    <button class="action-btn" onclick="openPromoteAgentModal('${user._id}', '${user.fullName}')" title="Promote to Agent">
-                                        <i class="fas fa-user-plus"></i>
-                                    </button>
-                                ` : ''}
-                                <button class="action-btn" onclick="toggleBanUser('${user._id}', ${!user.isBanned})" title="${user.isBanned ? 'Unban' : 'Ban'}">
-                                    <i class="fas fa-${user.isBanned ? 'check' : 'ban'}"></i>
-                                </button>
-                                <button class="action-btn danger" onclick="deleteUser('${user._id}')" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            ` : '<span style="color: var(--gray);">Admin</span>'}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            
-            if (data.pagination) {
-                updatePagination('usersPagination', data.pagination, (p) => loadUsersData(p, search, status, role));
-            }
-        }
-    } catch (error) {
-        console.error('Users error:', error);
-        showNotification('Failed to load users', 'error');
+        data = await r.json();
+    } catch (e) {
+        closeUdDrawer();
+        showToast('Network error loading user.', 'error');
+        return;
     }
+    if (!data.success) {
+        closeUdDrawer();
+        showToast(data.message || 'Failed to load user', 'error');
+        return;
+    }
+
+    const u   = data.user;
+    const ai  = u.agentInfo        || {};
+    const ci  = u.creatorInfo      || {};
+    const cr  = u.creatorProfile   || null;
+    const aff = u.affiliateProfile || null;
+    const np  = u.notificationPreferences || {};
+
+    const e2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fd  = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    const fdt = d => d ? new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const f   = (label, val, full=false) => val !== null && val !== undefined && val !== '' ? `
+        <div class="ud-field${full?' full':''}">
+            <div class="ud-field-label">${label}</div>
+            <div class="ud-field-value">${val}</div>
+        </div>` : '';
+
+    // ── Notices ──────────────────────────────────────────────────────────────
+    const notices = `
+        ${u.isBanned  ? `<div class="ud-notice error"><i class="fas fa-ban"></i> <strong>Banned</strong>${u.banReason ? ': '+e2(u.banReason) : ''}</div>` : ''}
+        ${!u.emailVerified ? `<div class="ud-notice warn"><i class="fas fa-envelope"></i> Email address not verified</div>` : ''}
+        ${u.twoFactorEnabled ? `<div class="ud-notice ok"><i class="fas fa-shield-alt"></i> Two-factor authentication enabled</div>` : ''}`;
+
+    // ── Roles bar ────────────────────────────────────────────────────────────
+    const rolesBar = `
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+            ${u.isAdmin   ? `<span class="ud-role-pill admin">👑 Administrator</span>`   : ''}
+            ${u.isAgent   ? `<span class="ud-role-pill agent">🎧 Support Agent</span>`   : ''}
+            ${u.isCreator ? `<span class="ud-role-pill creator">🏪 Creator</span>`        : ''}
+            ${aff         ? `<span class="ud-role-pill affiliate">🔗 Affiliate</span>`    : ''}
+            ${!u.isAdmin && !u.isAgent && !u.isCreator
+                          ? `<span class="ud-role-pill user">👤 Regular User</span>`      : ''}
+        </div>`;
+
+    // ── Identity ─────────────────────────────────────────────────────────────
+    const identitySection = `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-user-circle"></i> Identity</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+            ${u.profileImage
+                ? `<img src="${e2(u.profileImage)}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,255,136,.3);" onerror="this.style.display='none'">`
+                : `<div style="width:64px;height:64px;border-radius:50%;background:rgba(0,255,136,.1);border:2px solid rgba(0,255,136,.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">👤</div>`}
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:#e5e7eb;">${e2(u.fullName)}</div>
+                <div style="font-size:.78rem;color:#6b7280;margin-top:2px;">${e2(u.email)}</div>
+                <div style="margin-top:6px;">${rolesBar}</div>
+            </div>
+        </div>
+        <div class="ud-grid">
+            ${f('Phone',            e2(u.phone))}
+            ${f('Country',          e2(u.country))}
+            ${f('Email Verified',   u.emailVerified  ? '✅ Yes' : '❌ No')}
+            ${f('2FA Enabled',      u.twoFactorEnabled ? '🔐 Yes' : '❌ No')}
+            ${f('Member Since',     fd(u.createdAt))}
+            ${f('Last Login',       fdt(u.lastLogin))}
+            ${f('Last Activity',    fdt(u.lastActivity))}
+            ${f('Profile Updated',  fd(u.updatedAt))}
+            ${f('Notifications',    `Email: ${np.email?'✅':'❌'} · Orders: ${np.orders?'✅':'❌'} · Marketing: ${np.marketing?'✅':'❌'}`)}
+        </div>
+        ${u.bio ? `
+        <div class="ud-field full" style="margin-top:9px;">
+            <div class="ud-field-label">Bio</div>
+            <div class="ud-field-value" style="font-size:.81rem;line-height:1.65;">${e2(u.bio)}</div>
+        </div>` : ''}
+    </div>`;
+
+    // ── Stats ────────────────────────────────────────────────────────────────
+    const statsSection = `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-chart-bar"></i> Activity Summary</div>
+        <div class="ud-stat-row">
+            <div class="ud-stat"><div class="ud-stat-num">${u.orderCount||0}</div><div class="ud-stat-lbl">Orders</div></div>
+            <div class="ud-stat"><div class="ud-stat-num">${u.completedOrders||0}</div><div class="ud-stat-lbl">Completed</div></div>
+            <div class="ud-stat"><div class="ud-stat-num" style="${u.pendingOrderCount>0?'color:#fbbf24':''}">${u.pendingOrderCount||0}</div><div class="ud-stat-lbl">Pending</div></div>
+            <div class="ud-stat"><div class="ud-stat-num">$${(u.totalSpent||0).toFixed(2)}</div><div class="ud-stat-lbl">Total Spent</div></div>
+            <div class="ud-stat"><div class="ud-stat-num">${u.downloadCount||0}</div><div class="ud-stat-lbl">Downloads</div></div>
+            <div class="ud-stat"><div class="ud-stat-num">${u.chatCount||0}</div><div class="ud-stat-lbl">Support Chats</div></div>
+            <div class="ud-stat"><div class="ud-stat-num">${u.reviewCount||0}</div><div class="ud-stat-lbl">Reviews</div></div>
+        </div>
+    </div>`;
+
+    // ── Agent info ───────────────────────────────────────────────────────────
+    const agentSection = u.isAgent ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-headset"></i> Agent Info</div>
+        <div class="ud-grid">
+            ${f('Department',    e2(ai.department))}
+            ${f('Status',        ai.status ? `<span style="text-transform:capitalize;color:${ai.status==='online'?'var(--primary)':ai.status==='busy'?'#fbbf24':'#9ca3af'}">${ai.status}</span>` : null)}
+            ${f('Active Chats',  ai.activeChats != null ? `${ai.activeChats} / ${ai.maxChats} max` : null)}
+            ${f('Total Chats',   ai.totalChats)}
+            ${f('Resolved',      ai.resolvedChats)}
+            ${f('Agent Rating',  ai.rating != null ? `${'★'.repeat(Math.round(ai.rating))}${'☆'.repeat(5-Math.round(ai.rating))} ${Number(ai.rating).toFixed(1)}` : null)}
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+            <button class="btn btn-danger btn-sm"
+                onclick="udDemoteAgent('${u._id}','${e2(u.fullName)}')">
+                <i class="fas fa-user-minus"></i> Demote Agent
+            </button>
+        </div>
+    </div>` : `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-headset"></i> Agent Role</div>
+        <div style="color:#6b7280;font-size:.82rem;margin-bottom:12px;">This user is not a support agent.</div>
+        <button class="btn btn-secondary btn-sm"
+            onclick="closeUdDrawer();openPromoteAgentModal('${u._id}','${e2(u.fullName)}')">
+            <i class="fas fa-user-plus"></i> Promote to Agent
+        </button>
+    </div>`;
+
+    // ── Creator profile ──────────────────────────────────────────────────────
+    const creatorSection = cr ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-store"></i> Creator Profile</div>
+        <div class="ud-grid">
+            ${f('Store Name',   `<strong style="color:var(--primary)">${e2(cr.storeName)}</strong>`)}
+            ${f('Store Slug',   `<code style="font-size:.75rem;color:#a5b4fc;">/${e2(cr.storeSlug)}</code>`)}
+            ${f('Status',       `<span class="cr-badge cr-badge-${cr.applicationStatus}" style="font-size:.65rem;">${(cr.applicationStatus||'').toUpperCase()}</span>`)}
+            ${f('Products',     cr.totalProducts)}
+            ${f('Total Sales',  cr.totalSales)}
+            ${f('Revenue',      cr.totalRevenue != null ? `$${Number(cr.totalRevenue).toFixed(2)}` : null)}
+            ${f('Earnings',     cr.totalEarnings != null ? `$${Number(cr.totalEarnings).toFixed(2)}` : null)}
+            ${f('Pending $',    cr.pendingPayout != null ? `$${Number(cr.pendingPayout).toFixed(2)}` : null)}
+            ${f('Creator Since',fd(cr.createdAt))}
+        </div>
+        <div style="margin-top:10px;">
+            <button class="btn btn-secondary btn-sm"
+                onclick="closeUdDrawer();viewCreatorDetail('${cr._id||''}')">
+                <i class="fas fa-external-link-alt"></i> Open Creator Detail
+            </button>
+        </div>
+    </div>` : '';
+
+    // ── Affiliate profile ────────────────────────────────────────────────────
+    const affiliateSection = aff ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-link"></i> Affiliate Profile</div>
+        <div class="ud-grid">
+            ${f('Status',       e2(aff.status))}
+            ${f('Total Earned', aff.totalEarnings != null ? `$${Number(aff.totalEarnings).toFixed(2)}` : null)}
+            ${f('Pending',      aff.pendingEarnings != null ? `$${Number(aff.pendingEarnings).toFixed(2)}` : null)}
+            ${f('Total Clicks', aff.totalClicks)}
+            ${f('Conversions',  aff.totalConversions)}
+            ${f('Affiliate Since', fd(aff.createdAt))}
+        </div>
+    </div>` : '';
+
+    // ── Recent orders ────────────────────────────────────────────────────────
+    const ordersSection = (u.recentOrders||[]).length ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-receipt"></i> Recent Orders (${(u.recentOrders||[]).length})</div>
+        <table class="ud-table">
+            <thead><tr>
+                <th>Ref</th><th>Date</th><th>Amount</th><th>Status</th>
+            </tr></thead>
+            <tbody>
+            ${(u.recentOrders||[]).map(o => `
+            <tr>
+                <td style="font-family:'DM Mono',monospace;font-size:.72rem;color:#9ca3af;">
+                    ${e2(o.orderReference||o._id?.toString().slice(-8)||'—')}
+                </td>
+                <td style="color:#9ca3af;">${fd(o.createdAt)}</td>
+                <td style="font-weight:700;color:var(--primary);font-family:'DM Mono',monospace;">
+                    $${(o.total||o.amount||0).toFixed(2)}
+                </td>
+                <td>
+                    <span style="font-size:.68rem;padding:1px 7px;border-radius:8px;
+                        background:${o.status==='completed'?'rgba(0,255,136,.1)':o.status==='pending'?'rgba(255,165,0,.1)':'rgba(255,68,68,.1)'};
+                        color:${o.status==='completed'?'var(--primary)':o.status==='pending'?'#fbbf24':'#ff8888'};">
+                        ${e2(o.status||'—')}
+                    </span>
+                </td>
+            </tr>`).join('')}
+            </tbody>
+        </table>
+    </div>` : '';
+
+    // ── Recent downloads ─────────────────────────────────────────────────────
+    const downloadsSection = (u.recentDownloads||[]).length ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-download"></i> Recent Downloads (${(u.recentDownloads||[]).length})</div>
+        <table class="ud-table">
+            <thead><tr><th>Product</th><th>Type</th><th>Downloaded</th></tr></thead>
+            <tbody>
+            ${(u.recentDownloads||[]).map(d => `
+            <tr>
+                <td>${e2(d.productId?.title||'—')}</td>
+                <td style="text-transform:capitalize;font-size:.72rem;color:#9ca3af;">${e2(d.productId?.productType||'—')}</td>
+                <td style="color:#9ca3af;">${fd(d.downloadedAt)}</td>
+            </tr>`).join('')}
+            </tbody>
+        </table>
+    </div>` : '';
+
+    // ── Support chats ────────────────────────────────────────────────────────
+    const chatsSection = (u.recentChats||[]).length ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-comments"></i> Support Chats (${(u.recentChats||[]).length})</div>
+        <table class="ud-table">
+            <thead><tr><th>Chat ID</th><th>Subject</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            ${(u.recentChats||[]).map(ch => `
+            <tr>
+                <td style="font-family:'DM Mono',monospace;font-size:.68rem;color:#9ca3af;">
+                    ${e2(ch.chatId||ch._id?.toString().slice(-8)||'—')}
+                </td>
+                <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    ${e2(ch.subject||'—')}
+                </td>
+                <td>
+                    <span style="font-size:.68rem;padding:1px 7px;border-radius:8px;
+                        background:${ch.status==='resolved'?'rgba(0,255,136,.1)':ch.status==='open'?'rgba(255,165,0,.1)':'rgba(255,255,255,.06)'};
+                        color:${ch.status==='resolved'?'var(--primary)':ch.status==='open'?'#fbbf24':'#9ca3af'};">
+                        ${e2(ch.status||'—')}
+                    </span>
+                </td>
+                <td style="color:#9ca3af;">${fd(ch.createdAt)}</td>
+            </tr>`).join('')}
+            </tbody>
+        </table>
+    </div>` : '';
+
+    // ── Support tickets ──────────────────────────────────────────────────────
+    const ticketsSection = (u.supportTickets||[]).length ? `
+    <div class="ud-section">
+        <div class="ud-section-title"><i class="fas fa-ticket-alt"></i> Support Tickets (${(u.supportTickets||[]).length})</div>
+        <table class="ud-table">
+            <thead><tr><th>ID</th><th>Subject</th><th>Priority</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            ${(u.supportTickets||[]).map(t => `
+            <tr>
+                <td style="font-family:'DM Mono',monospace;font-size:.68rem;color:#9ca3af;">${e2(t.ticketId||'—')}</td>
+                <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e2(t.subject||'—')}</td>
+                <td style="text-transform:capitalize;font-size:.72rem;
+                    color:${t.priority==='urgent'?'#ff8888':t.priority==='high'?'#fbbf24':'#9ca3af'};">
+                    ${e2(t.priority||'—')}
+                </td>
+                <td>
+                    <span style="font-size:.68rem;padding:1px 7px;border-radius:8px;
+                        background:${t.status==='resolved'?'rgba(0,255,136,.1)':'rgba(255,255,255,.06)'};
+                        color:${t.status==='resolved'?'var(--primary)':'#9ca3af'};">
+                        ${e2(t.status||'—')}
+                    </span>
+                </td>
+                <td style="color:#9ca3af;">${fd(t.createdAt)}</td>
+            </tr>`).join('')}
+            </tbody>
+        </table>
+    </div>` : '';
+
+    // ── Footer actions ───────────────────────────────────────────────────────
+    const footerHtml = `
+        <div style="flex:1;font-size:.72rem;color:#4b5563;">ID: ${e2(u._id)}</div>
+        ${!u.isAdmin ? `
+        <button class="btn btn-${u.isBanned?'success':'danger'} btn-sm"
+            onclick="udToggleBan('${u._id}',${!u.isBanned})">
+            <i class="fas fa-${u.isBanned?'check':'ban'}"></i>
+            ${u.isBanned ? 'Unban User' : 'Ban User'}
+        </button>
+        ${!u.isAgent ? `
+        <button class="btn btn-secondary btn-sm"
+            onclick="closeUdDrawer();openPromoteAgentModal('${u._id}','${e2(u.fullName)}')">
+            <i class="fas fa-user-plus"></i> Make Agent
+        </button>` : ''}
+        <button class="btn btn-danger btn-sm"
+            onclick="udDeleteUser('${u._id}','${e2(u.fullName)}')">
+            <i class="fas fa-trash"></i> Delete
+        </button>` : '<span style="font-size:.75rem;color:#6b7280;">Admin account — protected</span>'}
+        <button class="btn btn-secondary btn-sm" onclick="closeUdDrawer()">Close</button>`;
+
+    // ── Assemble ─────────────────────────────────────────────────────────────
+    const overlay = document.getElementById('udDrawerOverlay');
+    if (!overlay) return;
+    overlay.innerHTML = `
+    <div style="flex:1;cursor:pointer;" onclick="closeUdDrawer()"></div>
+    <div class="ud-drawer">
+        <div class="ud-header">
+            <button onclick="closeUdDrawer()"
+                style="background:none;border:none;color:#9ca3af;cursor:pointer;
+                       font-size:1.1rem;padding:4px 8px;border-radius:6px;">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:.95rem;font-weight:700;color:#fff;
+                     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    ${u.profileImage
+                        ? `<img src="${e2(u.profileImage)}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none'">`
+                        : ''}
+                    ${e2(u.fullName)}
+                </div>
+                <div style="font-size:.72rem;color:#6b7280;margin-top:2px;">
+                    ${e2(u.email)}
+                    &nbsp;·&nbsp; Joined ${fd(u.createdAt)}
+                    ${u.isBanned ? '&nbsp;·&nbsp; <span style="color:#ff8888;">🚫 Banned</span>' : ''}
+                </div>
+            </div>
+            <span class="status-badge ${u.isBanned?'status-inactive':'status-active'}" style="flex-shrink:0;">
+                ${u.isBanned?'Banned':'Active'}
+            </span>
+        </div>
+
+        <div class="ud-body">
+            ${notices}
+            ${identitySection}
+            ${statsSection}
+            ${agentSection}
+            ${creatorSection}
+            ${affiliateSection}
+            ${ordersSection}
+            ${downloadsSection}
+            ${chatsSection}
+            ${ticketsSection}
+        </div>
+
+        <div class="ud-footer">${footerHtml}</div>
+    </div>`;
+
+    const onEsc = e => { if (e.key === 'Escape') { closeUdDrawer(); document.removeEventListener('keydown', onEsc); } };
+    document.addEventListener('keydown', onEsc);
+}
+
+// ── Drawer action helpers ──────────────────────────────────────────────────
+async function udToggleBan(userId, shouldBan) {
+    const reason = shouldBan ? (prompt('Enter ban reason:') || '') : '';
+    if (shouldBan && !reason) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/users/${userId}/ban`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isBanned: shouldBan, banReason: reason })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`User ${shouldBan?'banned':'unbanned'} ✅`, 'success');
+        closeUdDrawer();
+        loadUsersData();
+    } catch (e) { showToast(e.message || 'Failed', 'error'); }
+}
+
+async function udDemoteAgent(userId, name) {
+    if (!confirm(`Remove agent role from ${name}?`)) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/users/${userId}/demote-agent`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast('Agent demoted ✅', 'success');
+        closeUdDrawer();
+        loadUsersData();
+    } catch (e) { showToast(e.message || 'Failed', 'error'); }
+}
+
+async function udDeleteUser(userId, name) {
+    if (!confirm(`Permanently delete "${name}" and all their data? This cannot be undone.`)) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast('User deleted ✅', 'success');
+        closeUdDrawer();
+        loadUsersData();
+    } catch (e) { showToast(e.message || 'Failed', 'error'); }
 }
 
 async function toggleBanUser(userId, shouldBan) {
@@ -5389,118 +6413,209 @@ let adminNotifications = [];
 
 async function loadAdminNotifications() {
     try {
-        const response = await fetch(`${API_URL}/api/admin/notifications`, {
+        const r = await fetch(`${API_URL}/api/admin/notifications`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
-        const data = await response.json();
+        const data = await r.json();
+        if (!data.success) return;
 
-        if (data.success) {
-            adminNotifications = data.notifications;
-            updateNotificationBadge(data.count);
-            renderNotificationDropdown(data.notifications);
-        }
-    } catch (error) {
-        console.error('Failed to load notifications:', error);
+        adminNotifications = data.notifications;
+        updateNotificationBadge(data.counts?.total || data.notifications.length);
+        renderNotificationDropdown(data.notifications, data.counts || {});
+    } catch (err) {
+        console.error('Failed to load notifications:', err);
     }
 }
 
 function updateNotificationBadge(count) {
-    const badge = document.querySelector('.topbar-btn .badge');
-    if (badge) {
-        badge.textContent = count > 9 ? '9+' : count;
-        badge.style.display = count > 0 ? 'flex' : 'none';
+    // Target the bell button specifically by ID — not a fragile class selector
+    const bellBtn = document.getElementById('bellBtn')
+                 || document.querySelectorAll('.topbar-btn')[1];
+    if (!bellBtn) return;
+    let badge = bellBtn.querySelector('.notif-badge');
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'notif-badge';
+        badge.style.cssText = `
+            position:absolute;top:-5px;right:-5px;
+            background:#ff4444;color:#fff;border-radius:50%;
+            width:18px;height:18px;font-size:10px;font-weight:700;
+            display:flex;align-items:center;justify-content:center;
+            pointer-events:none;`;
+        bellBtn.style.position = 'relative';
+        bellBtn.appendChild(badge);
     }
+    badge.textContent  = count > 99 ? '99+' : count > 9 ? '9+' : count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
 }
 
-function renderNotificationDropdown(notifications) {
-    // Find or create the dropdown
+function renderNotificationDropdown(notifications, counts) {
     let dropdown = document.getElementById('notificationDropdown');
- 
     if (!dropdown) {
         dropdown = document.createElement('div');
         dropdown.id = 'notificationDropdown';
         dropdown.style.cssText = `
-            position: absolute; top: 55px; right: 0;
-            width: 340px; background: #1a1a1a;
-            border: 1px solid rgba(0,255,136,0.3);
-            border-radius: 12px; z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: none; max-height: 420px; overflow-y: auto;
-        `;
- 
-        // ↓ Fixed: use id="bellBtn" instead of broken attribute selector
+            position:absolute;top:calc(100% + 8px);right:0;
+            width:360px;background:#111;
+            border:1px solid rgba(0,255,136,.25);
+            border-radius:14px;z-index:9999;
+            box-shadow:0 12px 40px rgba(0,0,0,.6);
+            display:none;overflow:hidden;`;
         const bellBtn = document.getElementById('bellBtn')
-                     || document.querySelector('.topbar-btn[onclick*="Notification"]')
-                     || document.querySelectorAll('.topbar-btn')[1]; // 2nd btn = bell fallback
- 
+                     || document.querySelectorAll('.topbar-btn')[1];
         if (bellBtn) {
             bellBtn.style.position = 'relative';
             bellBtn.appendChild(dropdown);
-        } else {
-            // Last resort: append to topbar-actions
-            const actions = document.querySelector('.topbar-actions');
-            if (actions) {
-                actions.style.position = 'relative';
-                actions.appendChild(dropdown);
-            }
         }
     }
- 
-    const icons = { chat: '💬', ticket: '🎫', order: '📦', creator: '🏪', payout: '💰', affiliate: '🔗' };
- 
+
+    const icons = {
+        chat:                '💬',
+        ticket:              '🎫',
+        order:               '📦',
+        creator_application: '🏪',
+        product_review:      '📋',
+        payout:              '💰',
+    };
+    const labels = {
+        chat:                'Chats',
+        ticket:              'Tickets',
+        order:               'Orders',
+        creator_application: 'Creators',
+        product_review:      'Products',
+        payout:              'Payouts',
+    };
+
+    // Category summary row
+    const catSummary = Object.entries({
+        chats:               counts.chats,
+        tickets:             counts.tickets,
+        orders:              counts.orders,
+        creatorApplications: counts.creatorApplications,
+        productReviews:      counts.productReviews,
+        payouts:             counts.payouts,
+    }).filter(([,v]) => v > 0).map(([k, v]) => {
+        const typeMap = {
+            chats:'chat', tickets:'ticket', orders:'order',
+            creatorApplications:'creator_application',
+            productReviews:'product_review', payouts:'payout'
+        };
+        return `<span onclick="handleNotificationClick('${typeMap[k]}','')"
+            style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;
+                   padding:3px 8px;border-radius:10px;font-size:.68rem;font-weight:700;
+                   background:rgba(0,255,136,.1);color:var(--primary);
+                   border:1px solid rgba(0,255,136,.2);transition:background .15s;"
+            onmouseover="this.style.background='rgba(0,255,136,.2)'"
+            onmouseout="this.style.background='rgba(0,255,136,.1)'">
+            ${icons[typeMap[k]]||'🔔'} ${v} ${labels[typeMap[k]]||k}
+        </span>`;
+    }).join('');
+
     dropdown.innerHTML = `
-        <div style="padding:15px;border-bottom:1px solid rgba(0,255,136,0.2);
-             font-weight:600;color:var(--primary);display:flex;justify-content:space-between;align-items:center;">
-            🔔 Notifications (${notifications.length})
+        <div style="padding:14px 16px;border-bottom:1px solid rgba(0,255,136,.15);
+             display:flex;justify-content:space-between;align-items:center;
+             background:rgba(0,255,136,.04);">
+            <span style="font-weight:700;color:var(--primary);font-size:.9rem;">
+                🔔 Notifications
+                ${notifications.length > 0
+                    ? `<span style="font-size:.72rem;color:#6b7280;margin-left:6px;">(${notifications.length})</span>`
+                    : ''}
+            </span>
             <button onclick="document.getElementById('notificationDropdown').style.display='none'"
-                style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:1rem;">✕</button>
+                style="background:none;border:none;color:#6b7280;cursor:pointer;
+                       font-size:1rem;padding:2px 6px;border-radius:6px;"
+                onmouseover="this.style.color='#fff'"
+                onmouseout="this.style.color='#6b7280'">✕</button>
         </div>
+        ${catSummary ? `
+        <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);
+             display:flex;flex-wrap:wrap;gap:5px;">
+            ${catSummary}
+        </div>` : ''}
+        <div style="max-height:380px;overflow-y:auto;">
         ${notifications.length === 0 ? `
-            <div style="padding:20px;text-align:center;color:var(--gray);">
-                <div style="font-size:2rem;margin-bottom:8px;opacity:.3;">🔔</div>
-                No new notifications
+            <div style="padding:32px 20px;text-align:center;color:#6b7280;">
+                <div style="font-size:2rem;margin-bottom:10px;opacity:.3;">🔔</div>
+                <div style="font-size:.82rem;">All clear — no pending items</div>
             </div>
         ` : notifications.map(n => `
-            <div onclick="handleNotificationClick('${n.type}','${n.chatId || n.ticketId || n.orderId || ''}')"
-                 style="padding:14px 15px;border-bottom:1px solid rgba(255,255,255,0.05);
-                        cursor:pointer;transition:background .2s;"
-                 onmouseover="this.style.background='rgba(0,255,136,0.05)'"
+            <div onclick="handleNotificationClick('${n.type}','${n.chatId||n.ticketId||n.orderId||n.creatorId||n.productId||n.payoutId||''}')"
+                 style="padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.04);
+                        cursor:pointer;display:flex;gap:11px;align-items:flex-start;
+                        transition:background .15s;"
+                 onmouseover="this.style.background='rgba(0,255,136,.04)'"
                  onmouseout="this.style.background='transparent'">
-                <div style="display:flex;gap:10px;align-items:flex-start;">
-                    <span style="font-size:1.3rem;flex-shrink:0;">${icons[n.type] || '🔔'}</span>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:600;font-size:.88rem;color:#fff;">${n.title}</div>
-                        <div style="color:var(--gray);font-size:.78rem;margin-top:3px;
-                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${n.message}</div>
-                        <div style="color:var(--gray);font-size:.72rem;margin-top:4px;">
-                            ${new Date(n.timestamp).toLocaleString()}
-                        </div>
+                <span style="font-size:1.25rem;flex-shrink:0;margin-top:1px;">${icons[n.type]||'🔔'}</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;font-size:.83rem;color:#e5e7eb;
+                         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${n.title}
+                    </div>
+                    <div style="color:#6b7280;font-size:.75rem;margin-top:2px;
+                         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${n.message}
+                    </div>
+                    <div style="color:#4b5563;font-size:.68rem;margin-top:4px;">
+                        ${timeAgo ? timeAgo(n.timestamp) : new Date(n.timestamp).toLocaleString()}
                     </div>
                 </div>
+                <i class="fas fa-chevron-right" style="color:#374151;font-size:.6rem;
+                   flex-shrink:0;margin-top:4px;"></i>
             </div>
         `).join('')}
-    `;
+        </div>
+        <div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);
+             text-align:center;">
+            <button onclick="loadAdminNotifications()"
+                style="background:none;border:none;color:#6b7280;cursor:pointer;
+                       font-size:.75rem;padding:4px 10px;border-radius:6px;
+                       transition:color .15s;"
+                onmouseover="this.style.color='var(--primary)'"
+                onmouseout="this.style.color='#6b7280'">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>`;
 }
- 
-// Also add 'creator' and 'payout' click handlers:
+
+// ONE definition — handles all 6 notification types correctly
 function handleNotificationClick(type, id) {
     const dropdown = document.getElementById('notificationDropdown');
     if (dropdown) dropdown.style.display = 'none';
-    const map = {
-        chat:     'chats',
-        ticket:   'chats',
-        order:    'orders',
-        creator:  'creator-applications',
-        payout:   'creator-payouts',
-        affiliate:'affiliates',
+    const navMap = {
+        chat:                'chats',
+        ticket:              'chats',
+        order:               'orders',
+        creator_application: 'creator-applications',
+        product_review:      'creator-products',
+        payout:              'creator-payouts',
     };
-    if (map[type]) navigateTo(map[type]);
+    if (navMap[type]) navigateTo(navMap[type]);
 }
- 
+
 function toggleNotificationDropdown() {
     const dropdown = document.getElementById('notificationDropdown');
-    if (!dropdown) {
-        loadAdminNotifications();
+    if (!dropdown) { loadAdminNotifications(); return; }
+    const isVisible = dropdown.style.display !== 'none';
+    dropdown.style.display = isVisible ? 'none' : 'block';
+    if (!isVisible) loadAdminNotifications();
+}
+
+// Close when clicking outside
+document.addEventListener('click', e => {
+    const dropdown = document.getElementById('notificationDropdown');
+    if (!dropdown) return;
+    const bellBtn = document.getElementById('bellBtn')
+                 || document.querySelectorAll('.topbar-btn')[1];
+    if (dropdown.style.display !== 'none' && !bellBtn?.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+
+// Auto-refresh every 45 seconds
+setInterval(loadAdminNotifications, 45000);
+
+// Load on init
+loadAdminNotifications();
         return;
     }
     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
@@ -6060,219 +7175,129 @@ function renderCreatorProducts(products) {
         list.innerHTML = `<div class="cr-empty"><i class="fas fa-box-open"></i><p>No products found.</p></div>`;
         return;
     }
+
     list.innerHTML = products.map(p => {
         const creator   = p.creatorId || {};
         const isPending = p.status === 'pending_review';
+        const isApproved = p.status === 'approved';
         const statusKey = p.status === 'pending_review' ? 'pending' : p.status;
-        const features  = (p.features  || []).filter(Boolean);
-        const reqs      = (p.requirements || []).filter(Boolean);
-        const images    = (p.images || []).filter(Boolean);
+
+        // One-line content signal — what kind of file/media does this product have
+        let contentSignal = '';
+        if (p.productType === 'course' && p.courseData) {
+            const secs = p.courseData.sections || [];
+            let total = 0, withContent = 0;
+            secs.forEach(s => (s.chapters||[]).forEach(ch => {
+                total++;
+                if (ch.hostedFile?.publicId || ch.externalUrl || ch.embedUrl) withContent++;
+            }));
+            const ok = total > 0 && withContent === total;
+            contentSignal = `<span style="font-size:.65rem;padding:1px 7px;border-radius:8px;font-weight:700;font-family:'DM Mono',monospace;
+                background:${ok?'rgba(0,255,136,.1)':'rgba(255,165,0,.1)'};
+                color:${ok?'var(--primary)':'#fbbf24'};">
+                ${withContent}/${total} ch
+            </span>`;
+        } else if (p.hostedFile?.publicId) {
+            const fmt = (p.hostedFile.format || '').toUpperCase() || '☁';
+            contentSignal = `<span style="font-size:.65rem;padding:1px 7px;border-radius:8px;font-weight:700;
+                font-family:'DM Mono',monospace;background:rgba(96,165,250,.1);color:#60a5fa;">${fmt}</span>`;
+        } else if (p.externalVideoUrl || p.externalAudioUrl || p.embedUrl) {
+            const et = p.embedType || p.embedVideoType || p.embedAudioType || 'embed';
+            contentSignal = `<span style="font-size:.65rem;padding:1px 7px;border-radius:8px;font-weight:700;
+                font-family:'DM Mono',monospace;background:rgba(167,139,250,.1);color:#b794f4;">${esc(et)}</span>`;
+        } else {
+            contentSignal = `<span style="font-size:.65rem;padding:1px 7px;border-radius:8px;font-weight:700;
+                font-family:'DM Mono',monospace;background:rgba(255,68,68,.1);color:#ff8888;">No file</span>`;
+        }
+
+        // Thumbnail — first image or emoji icon fallback
+        const thumb = (p.images||[]).find(Boolean);
+        const typeIcon = {course:'🎓',music:'🎵',video:'🎬',ebook:'📖',software:'💻',template:'🎨',script:'📜',component:'🧩'}[p.productType] || '📦';
 
         return `
-        <div class="cr-card">
-            <!-- Header -->
-            <div class="cr-card-top">
+        <div class="cr-card" style="padding:10px 14px;">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+
+                <!-- Thumbnail -->
+                <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;
+                     background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+                     display:flex;align-items:center;justify-content:center;">
+                    ${thumb
+                        ? `<img src="${esc(thumb)}" alt="" style="width:100%;height:100%;object-fit:cover;"
+                               onerror="this.parentNode.innerHTML='<span style=font-size:1.2rem>${typeIcon}</span>'">`
+                        : `<span style="font-size:1.2rem;">${typeIcon}</span>`}
+                </div>
+
+                <!-- Title + meta -->
                 <div style="flex:1;min-width:0;">
-                    <div class="cr-store-name">${esc(p.title)}</div>
-                    <div class="cr-meta">
-                        <span><i class="fas fa-store"></i>${esc(creator.storeName || '—')}</span>
-                        <span><i class="fas fa-tag"></i>${esc(p.category || 'General')}</span>
-                        <span><i class="fas fa-cube"></i>${esc(p.productType || 'download')}</span>
-                        <span><i class="fas fa-clock"></i>${timeAgo(p.submittedAt || p.createdAt)}</span>
+                    <div style="font-size:.88rem;font-weight:700;color:#e5e7eb;
+                         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${esc(p.title)}
+                    </div>
+                    <div style="font-size:.71rem;color:#6b7280;display:flex;flex-wrap:wrap;
+                         align-items:center;gap:4px;margin-top:2px;">
+                        <span>${esc(creator.storeName||'—')}</span>
+                        <span style="opacity:.4">·</span>
+                        <span style="text-transform:capitalize;">${esc(p.productType||'download')}</span>
+                        <span style="opacity:.4">·</span>
+                        <span>${esc(p.category||'General')}</span>
+                        <span style="opacity:.4">·</span>
+                        <span>${timeAgo(p.submittedAt||p.createdAt)}</span>
+                    </div>
+                    <!-- Content + rejection signals -->
+                    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center;">
+                        ${contentSignal}
+                        ${p.rejectionReason
+                            ? `<span style="font-size:.65rem;padding:1px 7px;border-radius:8px;
+                               background:rgba(255,68,68,.1);color:#ff8888;"
+                               title="${esc(p.rejectionReason)}">❌ Rejected</span>` : ''}
+                        ${p.adminNotes
+                            ? `<span style="font-size:.65rem;padding:1px 7px;border-radius:8px;
+                               background:rgba(96,165,250,.1);color:#60a5fa;"
+                               title="${esc(p.adminNotes)}">📝 Note</span>` : ''}
                     </div>
                 </div>
-                <div style="text-align:right;">
-                    <span class="cr-badge cr-badge-${statusKey}">${p.status.replace('_',' ').toUpperCase()}</span>
-                    <div style="font-size:.85rem;font-weight:800;color:var(--primary);margin-top:6px;">
-                        $${(p.approvedPrice || p.suggestedPrice || 0).toFixed(2)}
-                        ${p.approvedPrice && p.approvedPrice !== p.suggestedPrice
-                            ? `<span style="font-size:.7rem;color:#9ca3af;text-decoration:line-through;margin-left:4px;">$${p.suggestedPrice.toFixed(2)}</span>`
-                            : ''}
+
+                <!-- Price + status -->
+                <div style="display:flex;flex-direction:column;align-items:flex-end;
+                     gap:5px;flex-shrink:0;">
+                    <span class="cr-badge cr-badge-${statusKey}" style="font-size:.6rem;padding:2px 7px;">
+                        ${(p.status||'').replace('_',' ').toUpperCase()}
+                    </span>
+                    <div style="font-size:.88rem;font-weight:800;color:var(--primary);
+                         font-family:'DM Mono',monospace;">
+                        $${(p.approvedPrice||p.suggestedPrice||0).toFixed(2)}
                     </div>
                 </div>
+
             </div>
 
-            <!-- Images -->
-            ${images.length ? `
-            <div style="display:flex;gap:8px;overflow-x:auto;margin-top:12px;padding-bottom:4px;">
-                ${images.slice(0,4).map(img => `
-                    <img src="${esc(img)}" alt="" style="width:80px;height:60px;object-fit:cover;
-                         border-radius:7px;border:1px solid rgba(255,255,255,.08);flex-shrink:0;">
-                `).join('')}
-                ${images.length > 4 ? `<div style="width:80px;height:60px;border-radius:7px;background:rgba(255,255,255,.05);
-                    display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#9ca3af;flex-shrink:0;">
-                    +${images.length-4} more</div>` : ''}
-            </div>
-            ` : ''}
-
-            <!-- Description -->
-            <div class="cr-section-label">Description</div>
-            <div style="font-size:.83rem;color:#d1d5db;line-height:1.65;">
-                ${esc(p.description || '—')}
-            </div>
-
-            <!-- File info -->
-            ${(p.downloadLink || p.fileSize || p.version) ? `
-            <div class="cr-section-label">File Info</div>
-            <div class="cr-field-row">
-                ${p.fileSize ? `<div class="cr-field"><div class="cr-field-label">File Size</div><div class="cr-field-value">${esc(p.fileSize)}</div></div>` : ''}
-                ${p.version  ? `<div class="cr-field"><div class="cr-field-label">Version</div><div class="cr-field-value">${esc(p.version)}</div></div>` : ''}
-            </div>
-            ${p.downloadLink ? `
-            <div class="cr-field" style="margin-top:8px;">
-                <div class="cr-field-label">Download / Preview Link</div>
-                <div class="cr-field-value" style="font-size:.78rem;">
-                    <a href="${esc(p.downloadLink)}" target="_blank" style="color:var(--primary);word-break:break-all;">
-                        <i class="fas fa-external-link-alt"></i> ${esc(p.downloadLink)}
-                    </a>
-                </div>
-            </div>
-            ` : ''}
-            ` : ''}
-
-            <!-- Features -->
-            ${features.length ? `
-            <div class="cr-section-label">Key Features</div>
-            <ul class="cr-feature-list">
-                ${features.map(f => `<li>${esc(f)}</li>`).join('')}
-            </ul>
-            ` : ''}
-
-            <!-- Requirements -->
-            ${reqs.length ? `
-            <div class="cr-section-label">Requirements</div>
-            <ul class="cr-feature-list" style="--bullet:'•';">
-                ${reqs.map(r => `<li>${esc(r)}</li>`).join('')}
-            </ul>
-            ` : ''}
-            <!-- Course info -->
-            ${p.productType === 'course' ? `
-            <div class="cr-section-label">Course Structure</div>
-            ${p.courseData ? (() => {
-                const cd = p.courseData;
-                const fmtDur = s => !s ? null : s >= 3600
-                    ? `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`
-                    : `${Math.floor(s/60)}m`;
-                const sections = cd.sections || [];
-                let liveChapters = 0, liveContent = 0;
-                sections.forEach(s => { (s.chapters||[]).forEach(ch => { liveChapters++; if(ch.hostedFile?.publicId||ch.externalUrl||ch.embedUrl) liveContent++; }); });
-
-                const statsRow = `
-                <div class="cr-field-row" style="margin-bottom:10px;">
-                    ${cd.totalSections||sections.length ? `<div class="cr-field"><div class="cr-field-label">Sections</div><div class="cr-field-value">${cd.totalSections||sections.length}</div></div>` : ''}
-                    ${liveChapters ? `<div class="cr-field"><div class="cr-field-label">Chapters</div><div class="cr-field-value">${liveChapters}</div></div>` : ''}
-                    ${liveContent  ? `<div class="cr-field"><div class="cr-field-label">With Content</div><div class="cr-field-value" style="color:var(--primary);">${liveContent}/${liveChapters}</div></div>` : ''}
-                    ${cd.totalDuration ? `<div class="cr-field"><div class="cr-field-label">Duration</div><div class="cr-field-value">${fmtDur(cd.totalDuration)}</div></div>` : ''}
-                    ${cd.level    ? `<div class="cr-field"><div class="cr-field-label">Level</div><div class="cr-field-value" style="text-transform:capitalize;">${cd.level}</div></div>` : ''}
-                    ${cd.language ? `<div class="cr-field"><div class="cr-field-label">Language</div><div class="cr-field-value">${cd.language}</div></div>` : ''}
-                    ${cd.certificate ? `<div class="cr-field"><div class="cr-field-label">Certificate</div><div class="cr-field-value" style="color:var(--primary);">✓ Yes</div></div>` : ''}
-                </div>`;
-
-                const sectionTree = sections.length ? sections.map((sec, si) => `
-                <div style="margin-bottom:10px;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;">
-                    <div style="padding:7px 12px;background:rgba(0,255,136,.06);font-size:.75rem;font-weight:700;
-                         color:var(--primary);letter-spacing:.02em;display:flex;align-items:center;gap:8px;">
-                        <span style="background:var(--primary);color:#000;border-radius:50%;width:18px;height:18px;
-                              display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;">
-                            ${si+1}
-                        </span>
-                        ${esc(sec.sectionTitle||'Untitled Section')}
-                        <span style="margin-left:auto;font-size:.68rem;color:#9ca3af;font-weight:400;">
-                            ${(sec.chapters||[]).length} chapter${(sec.chapters||[]).length!==1?'s':''}
-                        </span>
-                    </div>
-                    ${(sec.chapters||[]).length ? (sec.chapters||[]).map((ch, ci) => {
-                        const hasFile = !!(ch.hostedFile?.publicId);
-                        const hasUrl  = !!(ch.externalUrl||ch.embedUrl);
-                        const hasContent = hasFile||hasUrl;
-                        const contentIcon = hasFile ? '☁️' : hasUrl ? '🔗' : '⚪';
-                        const contentLabel = hasFile
-                            ? (ch.hostedFile?.format ? ch.hostedFile.format.toUpperCase() : 'Hosted')
-                            : hasUrl ? (ch.embedType||'External') : 'No content';
-                        const url = ch.externalUrl||ch.embedUrl||null;
-                        return `
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 12px;
-                             border-top:1px solid rgba(255,255,255,.04);font-size:.78rem;
-                             background:${hasContent?'transparent':'rgba(255,68,68,.03)'};">
-                            <span style="color:#9ca3af;flex-shrink:0;min-width:22px;text-align:right;">${ci+1}.</span>
-                            <div style="flex:1;min-width:0;">
-                                <div style="color:#e5e7eb;margin-bottom:2px;">${esc(ch.chapterTitle||'Untitled Chapter')}</div>
-                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                                    <span style="font-size:.7rem;color:${hasContent?'#60a5fa':'#6b7280'};">
-                                        ${contentIcon} ${esc(contentLabel)}
-                                    </span>
-                                    ${url ? `<a href="${esc(url)}" target="_blank" style="font-size:.68rem;color:var(--primary);">↗ Open</a>` : ''}
-                                    ${ch.duration ? `<span style="font-size:.68rem;color:#9ca3af;">${fmtDur(ch.duration)}</span>` : ''}
-                                    ${ch.isFree   ? `<span style="font-size:.65rem;padding:1px 5px;border-radius:8px;
-                                        background:rgba(0,255,136,.12);color:var(--primary);">FREE</span>` : ''}
-                                    ${ch.transcript ? `<span style="font-size:.65rem;color:#9ca3af;">📝 Transcript</span>` : ''}
-                                    ${ch.notes      ? `<span style="font-size:.65rem;color:#9ca3af;">📌 Notes</span>` : ''}
-                                </div>
-                            </div>
-                        </div>`;
-                    }).join('') : `<div style="padding:8px 12px;font-size:.75rem;color:#6b7280;font-style:italic;">No chapters in this section.</div>`}
-                </div>`).join('')
-                : `<div style="font-size:.8rem;color:#6b7280;padding:10px 0;font-style:italic;">No sections added yet.</div>`;
-
-                const warning = liveContent === 0 && liveChapters > 0
-                    ? `<div style="margin-top:8px;padding:8px 12px;background:rgba(255,165,0,.07);border-left:3px solid orange;
-                        border-radius:4px;font-size:.75rem;color:#fbbf24;">
-                        ⚠️ ${liveChapters} chapter(s) have no video URL or uploaded file — admin approval will be blocked until at least one chapter has content.
-                       </div>` : '';
-
-                return statsRow + sectionTree + warning;
-            })() : `
-            <div style="font-size:.8rem;color:#6b7280;padding:8px 0;font-style:italic;">
-                Course structure not yet built by creator.
-            </div>`}
-            ` : ''}
-
-            <!-- Media info (music/video) -->
-            ${(p.externalVideoUrl || p.externalAudioUrl || p.embedUrl) ? `
-            <div class="cr-section-label">Media</div>
-            <div class="cr-field-row">
-                ${p.embedType ? `<div class="cr-field"><div class="cr-field-label">Embed Type</div><div class="cr-field-value">${esc(p.embedType)}</div></div>` : ''}
-                ${p.externalVideoUrl ? `<div class="cr-field"><div class="cr-field-label">Video URL</div><div class="cr-field-value" style="font-size:.75rem;"><a href="${esc(p.externalVideoUrl)}" target="_blank" style="color:var(--primary);">🎬 View</a></div></div>` : ''}
-                ${p.externalAudioUrl ? `<div class="cr-field"><div class="cr-field-label">Audio URL</div><div class="cr-field-value" style="font-size:.75rem;"><a href="${esc(p.externalAudioUrl)}" target="_blank" style="color:var(--primary);">🎵 Listen</a></div></div>` : ''}
-            </div>
-            ` : ''}
-            
-            <!-- Tags -->
-            ${p.tags?.length ? `
-            <div class="cr-tags" style="margin-top:10px;">
-                ${p.tags.map(t => `<span class="cr-tag">#${esc(t)}</span>`).join('')}
-            </div>
-            ` : ''}
-
-            <!-- Rejection reason -->
-            ${p.rejectionReason ? `
-            <div style="margin-top:10px;padding:10px 12px;background:rgba(255,68,68,.07);
-                 border-left:3px solid #ff4444;border-radius:4px;font-size:.8rem;color:#ff8888;">
-                <strong>Rejection reason:</strong> ${esc(p.rejectionReason)}
-            </div>
-            ` : ''}
-
-            <!-- Actions -->
-            <div class="cr-actions">
-                <button class="btn btn-secondary btn-sm" onclick="openProductReviewDrawer('${p._id}')">
+            <!-- Actions row — sits below, full width -->
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;
+                 padding-top:10px;border-top:1px solid rgba(255,255,255,.05);flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm"
+                    onclick="openProductReviewDrawer('${p._id}')">
                     <i class="fas fa-search"></i> Full Review
                 </button>
                 ${isPending ? `
-                <button class="btn btn-primary btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'approve','${p.productType||'download'}'))">
+                <button class="btn btn-primary btn-sm"
+                    onclick="withDebounce(this,()=>openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'approve','${p.productType||'download'}'))">
                     <i class="fas fa-check"></i> Approve
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="withDebounce(this, () => openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'reject','${p.productType||'download'}'))">
+                <button class="btn btn-danger btn-sm"
+                    onclick="withDebounce(this,()=>openProductReviewModal('${p._id}','${esc(p.title)}',${p.suggestedPrice||0},'reject','${p.productType||'download'}'))">
                     <i class="fas fa-times"></i> Reject
-                </button>
-                ` : ''}
-                ${p.approvedPrice ? `<span style="font-size:.75rem;color:#9ca3af;margin-left:auto;align-self:center;">
-                    Approved @ $${p.approvedPrice.toFixed(2)}
+                </button>` : ''}
+                ${isApproved ? `
+                <span style="font-size:.73rem;color:#6b7280;margin-left:auto;align-self:center;">
+                    Approved @ $${(p.approvedPrice||0).toFixed(2)}
                 </span>` : ''}
             </div>
+
         </div>`;
     }).join('');
 }
-
 // ════════════════════════════════════════════════════════════════════════════
 // PAGE 4 — CREATOR PAYOUTS
 // ════════════════════════════════════════════════════════════════════════════
@@ -6662,63 +7687,168 @@ async function openProductReviewDrawer(productId) {
         </div>
     </div>`;
 
-    // ── Hosted file ──────────────────────────────────────────────────────────
+    // ── Media verification section ────────────────────────────────────────────
+    // Admin can play, read, or download directly inside the drawer for verification.
     const hf = p.hostedFile;
-    const hostedFileHtml = hf?.publicId ? `
-    <div class="rv-section">
-        <div class="rv-section-title"><i class="fas fa-cloud"></i> Hosted File (Cloudinary)</div>
-        <div class="rv-hosted-file">
-            <div class="rv-hosted-icon">
-                ${ (hf.format||'').toLowerCase() === 'pdf' ? '📄'
-                 : (hf.resourceType||'') === 'video'       ? '🎬'
-                 : (hf.resourceType||'') === 'image'       ? '🖼️'
-                 : '📦' }
-            </div>
-            <div style="flex:1;min-width:0;">
-                <div style="font-size:.82rem;color:#e5e7eb;margin-bottom:4px;">
-                    ${esc2(hf.originalName || hf.publicId.split('/').pop())}
+    const hfFmt   = (hf?.format || '').toLowerCase();
+    const hfUrl   = (hf?.secureUrl || '').toLowerCase().split('?')[0];
+    const hfName  = (hf?.originalName || hf?.publicId || '').toLowerCase();
+    const isPdfFile = hfFmt === 'pdf' || hfUrl.endsWith('.pdf') || hfName.endsWith('.pdf');
+    const isVideoFile = hf?.resourceType === 'video' && !['mp3','wav','ogg','aac','flac','m4a','opus','aiff'].includes(hfFmt);
+    const isAudioFile = hf?.resourceType === 'video' && ['mp3','wav','ogg','aac','flac','m4a','opus','aiff'].includes(hfFmt);
+    const isImageFile = hf?.resourceType === 'image';
+
+    const AUDIO_EMBED_TYPES = ['soundcloud','spotify','audiomack','youtube_music','mixcloud','bandcamp','apple_music','deezer'];
+    const VIDEO_EMBED_TYPES = ['youtube','vimeo','dailymotion','gdrive'];
+    const embedSrc   = p.embedVideoUrl || p.embedAudioUrl || p.embedUrl || p.externalVideoUrl || p.externalAudioUrl || null;
+    const embedType  = p.embedVideoType || p.embedAudioType || p.embedType || null;
+    const isVideoEmbed = VIDEO_EMBED_TYPES.includes(embedType);
+    const isAudioEmbed = AUDIO_EMBED_TYPES.includes(embedType);
+
+    // Build the inline player / viewer based on content type
+    let mediaPlayerHtml = '';
+
+    if (hf?.secureUrl && isPdfFile) {
+        // PDF — inline iframe viewer + download button
+        mediaPlayerHtml = `
+        <div class="rv-media-player">
+            <div id="rvPdfWrap" style="position:relative;">
+                <div id="rvPdfLoading" style="position:absolute;inset:0;background:#111;
+                     display:flex;align-items:center;justify-content:center;z-index:2;border-radius:10px;">
+                    <div style="text-align:center;color:#6b7280;">
+                        <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);margin-bottom:10px;"></i>
+                        <div style="font-size:.78rem;">Loading PDF…</div>
+                    </div>
                 </div>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                    ${hf.format       ? pill(hf.format.toUpperCase(), 'blue') : ''}
-                    ${hf.resourceType ? pill(hf.resourceType, '')             : ''}
-                    ${hf.bytes        ? pill(hf.bytes > 1048576
-                        ? (hf.bytes/1048576).toFixed(1)+' MB'
-                        : (hf.bytes/1024).toFixed(0)+' KB', 'green')         : ''}
-                </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                ${hf.secureUrl ? `
-                <a href="${esc2(hf.secureUrl)}" target="_blank" rel="noopener"
-                   class="btn btn-secondary btn-sm" style="font-size:.72rem;">
-                    <i class="fas fa-external-link-alt"></i> Open File
-                </a>` : ''}
+                <iframe src="${esc2(hf.secureUrl)}" class="pdf-frame"
+                    style="width:100%;height:70vh;min-height:460px;border:none;border-radius:10px;"
+                    onload="document.getElementById('rvPdfLoading').style.display='none'"
+                    loading="lazy">
+                </iframe>
             </div>
         </div>
+        <a href="${esc2(hf.secureUrl)}" target="_blank" rel="noopener" class="rv-dl-btn">
+            <i class="fas fa-external-link-alt"></i> Open Full PDF
+        </a>
+        <a href="${esc2(hf.secureUrl)}" download target="_blank" rel="noopener" class="rv-dl-btn">
+            <i class="fas fa-download"></i> Download PDF
+        </a>`;
+
+    } else if (hf?.secureUrl && isVideoFile) {
+        // Video — native HTML5 player
+        mediaPlayerHtml = `
+        <div class="rv-media-player">
+            <video controls controlsList="nodownload" preload="metadata" playsinline
+                   style="width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;">
+                <source src="${esc2(hf.secureUrl)}">
+                Your browser doesn't support video playback.
+            </video>
+        </div>
+        <a href="${esc2(hf.secureUrl)}" target="_blank" rel="noopener" class="rv-dl-btn">
+            <i class="fas fa-external-link-alt"></i> Open Video
+        </a>`;
+
+    } else if (hf?.secureUrl && isAudioFile) {
+        // Audio — native HTML5 player
+        mediaPlayerHtml = `
+        <div class="rv-media-player" style="padding:16px;background:rgba(167,139,250,.06);border-radius:10px;border:1px solid rgba(167,139,250,.15);">
+            <audio controls preload="metadata" style="width:100%;accent-color:var(--primary);">
+                <source src="${esc2(hf.secureUrl)}">
+            </audio>
+        </div>
+        <a href="${esc2(hf.secureUrl)}" target="_blank" rel="noopener" class="rv-dl-btn">
+            <i class="fas fa-external-link-alt"></i> Open Audio
+        </a>`;
+
+    } else if (hf?.secureUrl && isImageFile) {
+        // Image — preview + open link
+        mediaPlayerHtml = `
+        <div style="margin-top:10px;border-radius:10px;overflow:hidden;max-height:320px;background:#000;display:flex;align-items:center;justify-content:center;">
+            <img src="${esc2(hf.secureUrl)}" alt="" style="max-width:100%;max-height:320px;object-fit:contain;"
+                 onclick="window.open('${esc2(hf.secureUrl)}','_blank')">
+        </div>`;
+
+    } else if (hf?.secureUrl) {
+        // Raw file (ZIP, software, etc.) — download button only
+        mediaPlayerHtml = `
+        <div style="margin-top:10px;padding:16px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);border-radius:10px;display:flex;align-items:center;gap:12px;">
+            <span style="font-size:2rem;">📦</span>
+            <div>
+                <div style="font-size:.83rem;color:#e5e7eb;margin-bottom:4px;">${esc2(hf.originalName || hf.publicId.split('/').pop())}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    ${hfFmt ? pill(hfFmt.toUpperCase(),'blue') : ''}
+                    ${hf.bytes ? pill(hf.bytes>1048576?(hf.bytes/1048576).toFixed(1)+' MB':(hf.bytes/1024).toFixed(0)+' KB','green') : ''}
+                </div>
+            </div>
+            <a href="${esc2(hf.secureUrl)}" download target="_blank" rel="noopener" class="rv-dl-btn" style="margin-top:0;margin-left:auto;">
+                <i class="fas fa-download"></i> Download & Verify
+            </a>
+        </div>`;
+    }
+
+    // External embed (YouTube, SoundCloud, Audiomack, etc.)
+    let embedPlayerHtml = '';
+    if (embedSrc) {
+        if (isVideoEmbed) {
+            embedPlayerHtml = `
+            <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:10px;overflow:hidden;margin-top:10px;">
+                <iframe src="${esc2(embedSrc)}"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+                    allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen"
+                    allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
+            </div>
+            <a href="${esc2(p.externalVideoUrl||embedSrc)}" target="_blank" rel="noopener" class="rv-dl-btn">
+                <i class="fas fa-external-link-alt"></i> Open on ${embedType||'site'}
+            </a>`;
+        } else if (isAudioEmbed) {
+            const iframeH = {soundcloud:166,spotify:80,audiomack:252,mixcloud:120,bandcamp:120,deezer:92,apple_music:175}[embedType]||166;
+            embedPlayerHtml = `
+            <div style="margin-top:10px;border-radius:10px;overflow:hidden;">
+                <iframe src="${esc2(embedSrc)}" scrolling="no" frameborder="no"
+                    style="width:100%;height:${iframeH}px;border:none;border-radius:10px;"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"></iframe>
+            </div>
+            <a href="${esc2(p.externalAudioUrl||embedSrc)}" target="_blank" rel="noopener" class="rv-dl-btn">
+                <i class="fas fa-external-link-alt"></i> Open on ${embedType||'platform'}
+            </a>`;
+        } else {
+            // Unknown embed — open link only
+            embedPlayerHtml = `
+            <div style="margin-top:10px;">
+                <a href="${esc2(embedSrc)}" target="_blank" rel="noopener" class="rv-dl-btn">
+                    <i class="fas fa-external-link-alt"></i> Open Media URL
+                </a>
+            </div>`;
+        }
+    }
+
+    const hasAnyMedia = !!(hf?.secureUrl || embedSrc);
+    const mediaHtml = hasAnyMedia ? `
+    <div class="rv-section">
+        <div class="rv-section-title"><i class="fas fa-play-circle"></i> Media Preview & Verification</div>
+
+        <!-- File info row -->
+        ${hf?.publicId ? `
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;">
+            ${pill(esc2(hf.originalName || hf.publicId.split('/').pop()), '')}
+            ${hfFmt ? pill(hfFmt.toUpperCase(), 'blue') : ''}
+            ${hf.resourceType ? pill(hf.resourceType, '') : ''}
+            ${hf.bytes ? pill(hf.bytes>1048576?(hf.bytes/1048576).toFixed(1)+' MB':(hf.bytes/1024).toFixed(0)+' KB','green') : ''}
+        </div>` : ''}
+
+        ${embedSrc ? `
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
+            ${embedType ? pill(embedType, 'blue') : ''}
+            ${p.mediaType ? pill(p.mediaType, 'purple') : ''}
+        </div>` : ''}
+
+        ${mediaPlayerHtml}
+        ${embedPlayerHtml}
     </div>` : '';
 
-    // ── External media ───────────────────────────────────────────────────────
-    const hasMedia = p.externalVideoUrl || p.externalAudioUrl || p.embedUrl;
-    const mediaSectionHtml = hasMedia ? `
-    <div class="rv-section">
-        <div class="rv-section-title"><i class="fas fa-play-circle"></i> External Media</div>
-        <div class="rv-grid">
-            ${field('Embed Type', p.embedType ? pill(p.embedType, 'blue') : null)}
-            ${field('Media Type', p.mediaType ? pill(p.mediaType, 'purple') : null)}
-            ${p.externalVideoUrl ? field('Video URL', `<a href="${esc2(p.externalVideoUrl)}" target="_blank">🎬 ${esc2(p.externalVideoUrl.substring(0,50))}…</a>`) : ''}
-            ${p.externalAudioUrl ? field('Audio URL', `<a href="${esc2(p.externalAudioUrl)}" target="_blank">🎵 ${esc2(p.externalAudioUrl.substring(0,50))}…</a>`) : ''}
-        </div>
-        ${p.embedUrl ? (() => {
-            const et = p.embedType || '';
-            if (['youtube','vimeo','dailymotion'].includes(et)) {
-                return `<div style="margin-top:12px;position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:8px;overflow:hidden;">
-                    <iframe src="${esc2(p.embedUrl)}" class="rv-preview-embed"
-                        style="position:absolute;top:0;left:0;width:100%;height:100%;"
-                        allow="accelerometer;autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe>
-                </div>`;
-            }
-            return `<div style="margin-top:8px;"><a href="${esc2(p.embedUrl)}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt"></i> Open Embed URL</a></div>`;
-        })() : ''}
-    </div>` : '';
+    const hostedFileHtml = '';     // merged into mediaHtml above
+    const mediaSectionHtml = '';   // merged into mediaHtml above
 
     // ── Preview ──────────────────────────────────────────────────────────────
     const previewHtml = p.previewUrl && p.previewType !== 'none' ? `
@@ -7015,10 +8145,9 @@ async function openProductReviewDrawer(productId) {
         <div class="review-drawer-body">
             ${statusBar}
             ${imagesHtml}
+            ${mediaHtml}
             ${coreHtml}
             ${creatorHtml}
-            ${hostedFileHtml}
-            ${mediaSectionHtml}
             ${previewHtml}
             ${featReqHtml}
             ${typeMetaHtml}
@@ -7236,24 +8365,67 @@ async function previewCourseStructure(productId, title, suggestedPrice) {
                         ${esc(ch.chapterTitle||'Untitled Chapter')}
                     </div>
                     <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
-                        <!-- Content source badge -->
+                        <!-- Content source badge (Hosted / soundcloud / youtube / etc.) -->
                         <span style="font-size:.68rem;padding:1px 7px;border-radius:8px;
                               background:${hasContent?'rgba(96,165,250,.12)':'rgba(107,114,128,.12)'};
                               color:${hasContent?'#60a5fa':'#6b7280'};">
                             ${hasContent ? '🔗' : '⚪'} ${esc(srcLabel)}
                         </span>
-                        ${url ? `<a href="${esc(url)}" target="_blank"
-                            style="font-size:.68rem;color:var(--primary);text-decoration:none;">↗ Open</a>` : ''}
-                        ${ch.hostedFileFormat ? `<span style="font-size:.67rem;color:#9ca3af;">
-                            ${ch.hostedFileFormat.toUpperCase()}</span>` : ''}
-                        ${ch.hostedFileSize   ? `<span style="font-size:.67rem;color:#9ca3af;">
-                            ${esc(ch.hostedFileSize)}</span>` : ''}
-                        ${fmtDur(ch.duration) ? `<span style="font-size:.67rem;color:#9ca3af;">
-                            ⏱ ${fmtDur(ch.duration)}</span>` : ''}
-                        ${ch.isFree ? `<span style="font-size:.65rem;padding:1px 6px;border-radius:8px;
-                            background:rgba(0,255,136,.12);color:var(--primary);">FREE</span>` : ''}
+
+                        <!-- Chapter type badge — PDF / audio / video / text
+                             Shown separately from contentSource so it's always visible.
+                             Colour-coded: red=PDF, purple=audio, blue=video, grey=text -->
+                        ${(() => {
+                            const ct = ch.chapterType || '';
+                            if (!ct) return '';
+                            const typeColors = {
+                                pdf:   ['rgba(239,68,68,.15)',  '#fca5a5', '📄'],
+                                audio: ['rgba(167,139,250,.15)','#b794f4', '🎵'],
+                                video: ['rgba(96,165,250,.15)', '#60a5fa', '🎬'],
+                                text:  ['rgba(156,163,175,.12)','#9ca3af', '📝'],
+                            };
+                            const [bg, color, icon] = typeColors[ct] || ['rgba(255,255,255,.07)','#9ca3af',''];
+                            return `<span style="font-size:.67rem;padding:1px 7px;border-radius:8px;
+                                background:${bg};color:${color};">
+                                ${icon} ${ct.toUpperCase()}
+                            </span>`;
+                        })()}
+
+                        <!-- Format pill (MP4, MP3, PDF, ZIP etc.) -->
+                        ${ch.hostedFileFormat ? `
+                        <span style="font-size:.67rem;padding:1px 7px;border-radius:8px;
+                              background:rgba(255,255,255,.06);color:#9ca3af;">
+                            ${ch.hostedFileFormat.toUpperCase()}
+                        </span>` : ''}
+
+                        <!-- File size -->
+                        ${ch.hostedFileSize ? `
+                        <span style="font-size:.67rem;color:#9ca3af;">
+                            ${esc(ch.hostedFileSize)}
+                        </span>` : ''}
+
+                        <!-- Duration -->
+                        ${fmtDur(ch.duration) ? `
+                        <span style="font-size:.67rem;color:#9ca3af;">
+                            ⏱ ${fmtDur(ch.duration)}
+                        </span>` : ''}
+
+                        <!-- External URL open link -->
+                        ${url ? `
+                        <a href="${esc(url)}" target="_blank"
+                           style="font-size:.68rem;color:var(--primary);text-decoration:none;">
+                           ↗ Open
+                        </a>` : ''}
+
+                        <!-- Free badge -->
+                        ${ch.isFree ? `
+                        <span style="font-size:.65rem;padding:1px 6px;border-radius:8px;
+                              background:rgba(0,255,136,.12);color:var(--primary);">FREE</span>` : ''}
+
+                        <!-- Transcript / Notes / Resources -->
                         ${ch.transcript ? `<span style="font-size:.65rem;color:#9ca3af;">📝 Transcript</span>` : ''}
                         ${ch.notes      ? `<span style="font-size:.65rem;color:#9ca3af;">📌 Notes</span>`      : ''}
+                        ${ch.resources  ? `<span style="font-size:.65rem;color:#b794f4;">📎 ${ch.resources} resource${ch.resources>1?'s':''}</span>` : ''}
                     </div>
                 </div>
             </div>`;
@@ -7425,101 +8597,463 @@ async function suspendCreator(creatorId, storeName, suspend) {
     refreshCreatorBadges();
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// CREATOR FULL DETAIL DRAWER
+// ════════════════════════════════════════════════════════════════════════════
+
+function closeCdDrawer() {
+    document.getElementById('cdDrawerOverlay')?.remove();
+}
+
 async function viewCreatorDetail(creatorId) {
-    closeCrModal();
-    const html = `
-    <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
-        <div class="cr-modal wide">
-            <h3><i class="fas fa-store"></i> Creator Full Detail</h3>
-            <div id="creatorDetailBody">
-                <div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+    closeCdDrawer();
+
+    // Inject loading shell instantly
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="cd-overlay" id="cdDrawerOverlay">
+        <div style="flex:1;cursor:pointer;" onclick="closeCdDrawer()"></div>
+        <div class="cd-drawer">
+            <div class="cd-header">
+                <button onclick="closeCdDrawer()"
+                    style="background:none;border:none;color:#9ca3af;cursor:pointer;
+                           font-size:1.1rem;padding:4px 8px;border-radius:6px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <span style="font-size:.88rem;color:#9ca3af;">Loading creator…</span>
             </div>
-            <div class="cr-modal-actions">
-                <button class="btn btn-secondary" onclick="closeCrModal()">Close</button>
+            <div class="cd-body" style="display:flex;align-items:center;justify-content:center;min-height:300px;">
+                <div style="text-align:center;color:#6b7280;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);margin-bottom:14px;"></i>
+                    <div style="font-size:.85rem;">Fetching full creator details…</div>
+                </div>
             </div>
         </div>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', html);
+    </div>`);
+
+    let data;
     try {
         const r = await fetch(`${API_URL}/api/admin/creators/${creatorId}`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
+        data = await r.json();
+    } catch (e) {
+        closeCdDrawer();
+        showToast('Network error loading creator detail.', 'error');
+        return;
+    }
+    if (!data.success) {
+        closeCdDrawer();
+        showToast(data.message || 'Failed to load creator', 'error');
+        return;
+    }
+
+    const c    = data.creator;
+    const user = c.userId   || {};
+    const pd   = c.payoutDetails || {};
+    const prods = (c.products?.list || []);
+    const earnings = c.recentEarnings  || [];
+    const payouts  = c.payoutHistory   || [];
+    const rs       = c.reviewStats     || {};
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    const e2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fd  = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    const fdt = d => d ? new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const f   = (label, val, full=false) => val !== null && val !== undefined && val !== '' ? `
+        <div class="cd-field${full?' full':''}">
+            <div class="cd-field-label">${label}</div>
+            <div class="cd-field-value">${val}</div>
+        </div>` : '';
+
+    const status    = c.applicationStatus || 'pending';
+    const statusIcon = {approved:'✅',pending:'⏳',rejected:'❌',suspended:'🚫'}[status] || '❓';
+
+    // ── Status bar ───────────────────────────────────────────────────────────
+    const statusBar = `
+    <div class="cd-status-bar ${status}">
+        <span>${statusIcon} <strong>${status.toUpperCase()}</strong></span>
+        ${c.isVerified  ? '<span>· ✅ Verified</span>'  : ''}
+        ${c.isFeatured  ? '<span>· ⭐ Featured</span>'  : ''}
+        ${c.isSuspended ? `<span>· 🚫 Suspended${c.suspensionReason ? ': '+e2(c.suspensionReason) : ''}</span>` : ''}
+        ${c.approvedAt  ? `<span style="margin-left:auto;font-size:.75rem;opacity:.7;">Approved ${fd(c.approvedAt)}</span>` : ''}
+    </div>
+    ${user.isBanned ? `<div class="cd-notice error"><i class="fas fa-ban"></i> User account is <strong>banned</strong>${user.banReason ? ': '+e2(user.banReason) : ''}</div>` : ''}
+    ${!user.emailVerified ? `<div class="cd-notice warn"><i class="fas fa-envelope"></i> Email address not verified</div>` : ''}
+    ${c.rejectionReason ? `<div class="cd-notice error"><i class="fas fa-times-circle"></i> Rejection reason: ${e2(c.rejectionReason)}</div>` : ''}
+    ${c.applicationMessage ? `<div class="cd-notice info"><i class="fas fa-comment"></i> Application message: "${e2(c.applicationMessage)}"</div>` : ''}`;
+
+    // ── Store visuals ────────────────────────────────────────────────────────
+    const storeVisual = `
+    <div class="cd-store-visual">
+        ${c.storeBanner
+            ? `<img src="${e2(c.storeBanner)}" class="cd-banner" alt="banner"
+                    onerror="this.style.display='none'">`
+            : `<div class="cd-banner-placeholder"></div>`}
+        ${c.storeLogo ? `
+        <div class="cd-logo-wrap" style="${c.storeBanner ? '' : 'position:static;display:inline-flex;margin-top:8px;'}">
+            <img src="${e2(c.storeLogo)}" alt="logo"
+                 onerror="this.style.display='none'">
+        </div>` : ''}
+    </div>
+    ${c.storeBanner && c.storeLogo ? '<div style="height:24px;"></div>' : ''}`;
+
+    // ── Store identity ───────────────────────────────────────────────────────
+    const storeSection = `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-store"></i> Store Identity</div>
+        ${storeVisual}
+        <div class="cd-grid">
+            ${f('Store Name',        `<strong style="color:var(--primary)">${e2(c.storeName)}</strong>`)}
+            ${f('Store Slug',        `<code style="font-size:.75rem;color:#a5b4fc;">/${e2(c.storeSlug)}</code>`)}
+            ${f('Business Type',     e2(c.businessType))}
+            ${f('Business Name',     e2(c.businessName))}
+            ${f('Country',           e2(c.country))}
+            ${f('Website',           c.website ? `<a href="${e2(c.website)}" target="_blank" rel="noopener">${e2(c.website)}</a>` : null)}
+            ${f('Categories',        (c.categories||[]).length ? c.categories.map(cat=>`<span class="cd-tag">${e2(cat)}</span>`).join('') : null)}
+            ${f('Rating',            c.rating ? `${'★'.repeat(Math.round(c.rating))}${'☆'.repeat(5-Math.round(c.rating))} ${c.rating.toFixed(1)} (${c.totalRatings} ratings)` : null)}
+            ${f('Buyer Reviews',     rs.avgRating ? `${rs.avgRating}/5 avg · ${rs.totalReviews} reviews` : null)}
+            ${f('Creator Since',     fd(c.createdAt))}
+            ${f('Last Updated',      fd(c.updatedAt))}
+        </div>
+        ${c.storeDescription ? `
+        <div class="cd-field full" style="margin-top:9px;">
+            <div class="cd-field-label">Store Description</div>
+            <div class="cd-field-value" style="line-height:1.65;font-size:.81rem;white-space:pre-wrap;">${e2(c.storeDescription)}</div>
+        </div>` : ''}
+        ${(c.socialLinks && Object.values(c.socialLinks).some(Boolean)) ? `
+        <div style="margin-top:10px;">
+            <div class="cd-field-label" style="font-size:.65rem;color:#6b7280;margin-bottom:6px;">SOCIAL LINKS</div>
+            ${c.socialLinks.twitter   ? `<a href="${e2(c.socialLinks.twitter)}"   target="_blank" class="cd-social-link"><i class="fab fa-twitter"   style="color:#1da1f2"></i>Twitter</a>`   : ''}
+            ${c.socialLinks.instagram ? `<a href="${e2(c.socialLinks.instagram)}" target="_blank" class="cd-social-link"><i class="fab fa-instagram" style="color:#e1306c"></i>Instagram</a>` : ''}
+            ${c.socialLinks.linkedin  ? `<a href="${e2(c.socialLinks.linkedin)}"  target="_blank" class="cd-social-link"><i class="fab fa-linkedin"  style="color:#0a66c2"></i>LinkedIn</a>`  : ''}
+            ${c.socialLinks.youtube   ? `<a href="${e2(c.socialLinks.youtube)}"   target="_blank" class="cd-social-link"><i class="fab fa-youtube"   style="color:#ff0000"></i>YouTube</a>`   : ''}
+        </div>` : ''}
+    </div>`;
+
+    // ── Account owner ────────────────────────────────────────────────────────
+    const ownerSection = `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-user"></i> Account Owner</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+            ${user.profileImage
+                ? `<img src="${e2(user.profileImage)}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,255,136,.3);" onerror="this.style.display='none'">`
+                : `<div style="width:52px;height:52px;border-radius:50%;background:rgba(0,255,136,.12);border:2px solid rgba(0,255,136,.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">👤</div>`}
+            <div>
+                <div style="font-size:.92rem;font-weight:700;color:#e5e7eb;">${e2(user.fullName||'—')}</div>
+                <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">${e2(user.email||'—')}</div>
+            </div>
+        </div>
+        <div class="cd-grid">
+            ${f('Phone',             e2(user.phone || c.phone))}
+            ${f('Country',           e2(user.country || c.country))}
+            ${f('Email Verified',    user.emailVerified ? '✅ Yes' : '❌ No')}
+            ${f('2FA Enabled',       user.twoFactorEnabled ? '🔐 Yes' : '—')}
+            ${f('User Since',        fd(user.createdAt))}
+            ${f('Last Login',        fdt(user.lastLogin))}
+            ${f('Last Activity',     fdt(user.lastActivity))}
+            ${f('User Banned',       user.isBanned ? `<span style="color:#ff8888;font-weight:700;">⛔ Yes — ${e2(user.banReason||'No reason given')}</span>` : null)}
+            ${f('Notifications',     user.notificationPreferences
+                ? `Email: ${user.notificationPreferences.email?'✅':'❌'} · Orders: ${user.notificationPreferences.orders?'✅':'❌'} · Marketing: ${user.notificationPreferences.marketing?'✅':'❌'}`
+                : null)}
+        </div>
+        ${user.bio ? `
+        <div class="cd-field full" style="margin-top:9px;">
+            <div class="cd-field-label">Bio</div>
+            <div class="cd-field-value" style="font-size:.81rem;line-height:1.6;">${e2(user.bio)}</div>
+        </div>` : ''}
+    </div>`;
+
+    // ── Application info ─────────────────────────────────────────────────────
+    const reviewedByName = c.reviewedBy?.fullName || '—';
+    const appSection = (c.applicationMessage || c.rejectionReason || c.reviewedBy || c.reviewedAt) ? `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-clipboard-check"></i> Application & Review</div>
+        <div class="cd-grid">
+            ${f('Reviewed By',   e2(reviewedByName))}
+            ${f('Reviewed At',   fdt(c.reviewedAt))}
+            ${f('Approved At',   fd(c.approvedAt))}
+        </div>
+        ${c.applicationMessage ? `
+        <div class="cd-field full" style="margin-top:9px;">
+            <div class="cd-field-label">Creator's Application Message</div>
+            <div class="cd-field-value" style="font-size:.81rem;line-height:1.65;font-style:italic;">"${e2(c.applicationMessage)}"</div>
+        </div>` : ''}
+        ${c.rejectionReason ? `
+        <div class="cd-field full" style="margin-top:9px;border-color:rgba(255,68,68,.2);">
+            <div class="cd-field-label" style="color:#ff8888;">Rejection Reason</div>
+            <div class="cd-field-value" style="color:#ff8888;">${e2(c.rejectionReason)}</div>
+        </div>` : ''}
+    </div>` : '';
+
+    // ── Stats ────────────────────────────────────────────────────────────────
+    const statsSection = `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-chart-bar"></i> Performance & Earnings</div>
+        <div class="cd-stat-row">
+            <div class="cd-stat"><div class="cd-stat-num">${c.products?.total||0}</div><div class="cd-stat-lbl">Products</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">${c.products?.approved||0}</div><div class="cd-stat-lbl">Approved</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">${c.products?.pending||0}</div><div class="cd-stat-lbl">Pending</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">${c.products?.rejected||0}</div><div class="cd-stat-lbl">Rejected</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">${c.totalSales||0}</div><div class="cd-stat-lbl">Sales</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">$${(c.totalRevenue||0).toFixed(2)}</div><div class="cd-stat-lbl">Revenue</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">$${(c.totalEarnings||0).toFixed(2)}</div><div class="cd-stat-lbl">Earned</div></div>
+            <div class="cd-stat"><div class="cd-stat-num" style="color:#fbbf24;">$${(c.pendingPayout||0).toFixed(2)}</div><div class="cd-stat-lbl">Pending $</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">$${(c.totalPaidOut||0).toFixed(2)}</div><div class="cd-stat-lbl">Paid Out</div></div>
+            <div class="cd-stat"><div class="cd-stat-num">$${(c.payoutThreshold||50).toFixed(0)}</div><div class="cd-stat-lbl">Min Payout</div></div>
+        </div>
+
+        <!-- Commission editor inline -->
+        <div class="cd-inline-form" id="cdCommissionForm_${c._id}">
+            <div>
+                <label>Platform Commission %</label>
+                <input type="number" id="cdPlatformRate_${c._id}" value="${c.platformCommissionRate||20}" min="0" max="100">
+            </div>
+            <div>
+                <label>Affiliate Commission %</label>
+                <input type="number" id="cdAffiliateRate_${c._id}" value="${c.affiliateCommissionRate||10}" min="0" max="100">
+            </div>
+            <button class="btn btn-primary btn-sm"
+                onclick="cdSaveCommissions('${c._id}')">
+                <i class="fas fa-save"></i> Save Rates
+            </button>
+        </div>
+    </div>`;
+
+    // ── Payout details ───────────────────────────────────────────────────────
+    const methodLabel = (c.payoutMethod||'').replace(/_/g,' ').toUpperCase();
+    const payoutSection = `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-wallet"></i> Payout Details</div>
+        ${c.payoutMethod
+            ? `<div style="display:inline-block;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);border-radius:8px;padding:5px 13px;font-size:.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">${methodLabel}</div>`
+            : `<div class="cd-notice warn">No payout method configured yet.</div>`}
+        <div class="cd-grid">
+            ${f('Payout Country',   e2(pd.country))}
+            <!-- Bank Transfer -->
+            ${f('Bank Name',        e2(pd.bankName))}
+            ${f('Account Number',   pd.accountNumber ? `<code style="letter-spacing:.1em;color:#a5b4fc;">${e2(pd.accountNumber)}</code>` : null)}
+            ${f('Account Name',     e2(pd.accountName))}
+            ${f('Sort Code',        e2(pd.sortCode))}
+            ${f('SWIFT / BIC',      e2(pd.swift))}
+            ${f('IBAN',             pd.iban ? `<code style="font-size:.76rem;color:#a5b4fc;">${e2(pd.iban)}</code>` : null)}
+            ${f('Routing Number',   e2(pd.routingNumber))}
+            ${f('Other Details',    e2(pd.otherDetails))}
+            <!-- PayPal -->
+            ${f('PayPal Email',     pd.paypalEmail ? `<a href="mailto:${e2(pd.paypalEmail)}">${e2(pd.paypalEmail)}</a>` : null)}
+            ${f('PayPal Name',      e2(pd.paypalName))}
+            <!-- Flutterwave -->
+            ${f('FLW Email',        pd.flwEmail ? `<a href="mailto:${e2(pd.flwEmail)}">${e2(pd.flwEmail)}</a>` : null)}
+            ${f('FLW Account',      e2(pd.flwAccount))}
+            ${f('FLW Bank',         e2(pd.flwBank))}
+            ${f('FLW Country',      e2(pd.flwCountry))}
+            <!-- Crypto -->
+            ${f('Crypto Type',      e2(pd.cryptoType))}
+            ${f('Crypto Name',      e2(pd.cryptoName))}
+            ${f('Wallet Address',   pd.cryptoAddress ? `<code style="font-size:.72rem;word-break:break-all;color:#a5b4fc;">${e2(pd.cryptoAddress)}</code>` : null)}
+        </div>
+    </div>`;
+
+    // ── Products list ────────────────────────────────────────────────────────
+    const typeIcon = {course:'🎓',music:'🎵',video:'🎬',ebook:'📖',software:'💻',template:'🎨',script:'📜',component:'🧩'};
+    const prodSection = prods.length ? `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-box-open"></i> Products (${prods.length})</div>
+        <div style="border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;">
+            ${prods.map(p => {
+                const sk = p.status === 'pending_review' ? 'pending' : p.status;
+                const thumb = (p.images||[])[0];
+                const icon  = typeIcon[p.productType] || '📦';
+                return `
+                <div class="cd-product-row" onclick="openProductReviewDrawer('${p._id}')">
+                    <div class="cd-product-thumb">
+                        ${thumb
+                            ? `<img src="${e2(thumb)}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" onerror="this.parentNode.innerHTML='${icon}'">`
+                            : icon}
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e2(p.title)}</div>
+                        <div style="font-size:.68rem;color:#6b7280;margin-top:2px;text-transform:capitalize;">
+                            ${e2(p.productType||'download')} · ${fd(p.submittedAt||p.createdAt)}
+                        </div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-size:.78rem;font-weight:700;color:var(--primary);font-family:'DM Mono',monospace;">
+                            $${(p.approvedPrice||p.suggestedPrice||0).toFixed(2)}
+                        </div>
+                        <span class="cr-badge cr-badge-${sk}" style="font-size:.58rem;padding:1px 6px;">
+                            ${(p.status||'').replace('_',' ').toUpperCase()}
+                        </span>
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:.65rem;color:#4b5563;flex-shrink:0;"></i>
+                </div>`;
+            }).join('')}
+        </div>
+    </div>` : '';
+
+    // ── Recent earnings ──────────────────────────────────────────────────────
+    const earningsSection = earnings.length ? `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-coins"></i> Recent Earnings (last ${earnings.length})</div>
+        <div style="border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 90px 90px;padding:6px 12px;
+                 background:rgba(0,255,136,.04);border-bottom:1px solid rgba(0,255,136,.1);">
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Date</span>
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Type</span>
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Amount</span>
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Status</span>
+            </div>
+            ${earnings.map(e => `
+            <div class="cd-earning-row" style="display:grid;grid-template-columns:1fr 1fr 90px 90px;">
+                <span style="color:#9ca3af;">${fd(e.createdAt)}</span>
+                <span style="color:#d1d5db;text-transform:capitalize;">${e2(e.type||'sale')}</span>
+                <span style="color:var(--primary);font-weight:700;font-family:'DM Mono',monospace;">$${(e.amount||0).toFixed(2)}</span>
+                <span style="font-size:.7rem;padding:1px 7px;border-radius:8px;width:fit-content;
+                    background:${e.status==='paid'?'rgba(0,255,136,.1)':'rgba(255,165,0,.1)'};
+                    color:${e.status==='paid'?'var(--primary)':'#fbbf24'};">
+                    ${e2(e.status||'pending')}
+                </span>
+            </div>`).join('')}
+        </div>
+    </div>` : '';
+
+    // ── Payout history ───────────────────────────────────────────────────────
+    const payoutSection2 = payouts.length ? `
+    <div class="cd-section">
+        <div class="cd-section-title"><i class="fas fa-paper-plane"></i> Payout Requests (last ${payouts.length})</div>
+        <div style="border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:1fr 100px 90px 90px;padding:6px 12px;
+                 background:rgba(0,255,136,.04);border-bottom:1px solid rgba(0,255,136,.1);">
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Requested</span>
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Method</span>
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Amount</span>
+                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Status</span>
+            </div>
+            ${payouts.map(p => {
+                const sc = {approved:'rgba(0,255,136,.1)',pending:'rgba(255,165,0,.1)',rejected:'rgba(255,68,68,.1)'}[p.status]||'rgba(255,255,255,.06)';
+                const tc = {approved:'var(--primary)',pending:'#fbbf24',rejected:'#ff8888'}[p.status]||'#9ca3af';
+                return `
+                <div class="cd-payout-row" style="display:grid;grid-template-columns:1fr 100px 90px 90px;">
+                    <span style="color:#9ca3af;">${fd(p.requestedAt)}</span>
+                    <span style="color:#d1d5db;font-size:.75rem;text-transform:capitalize;">${e2((p.method||'').replace(/_/g,' '))}</span>
+                    <span style="color:var(--primary);font-weight:700;font-family:'DM Mono',monospace;">$${(p.amount||0).toFixed(2)}</span>
+                    <span style="font-size:.7rem;padding:1px 7px;border-radius:8px;width:fit-content;
+                        background:${sc};color:${tc};">
+                        ${e2(p.status||'pending')}
+                    </span>
+                </div>`;
+            }).join('')}
+        </div>
+    </div>` : '';
+
+    // ── Footer actions ───────────────────────────────────────────────────────
+    const isSuspended = c.isSuspended || status === 'suspended';
+    const footerHtml = `
+        <div style="flex:1;font-size:.72rem;color:#4b5563;">
+            ID: ${e2(c._id)}
+        </div>
+        ${!isSuspended && status === 'approved' ? `
+        <button class="btn btn-warning btn-sm"
+            onclick="cdSuspend('${c._id}','${e2(c.storeName)}',true)">
+            <i class="fas fa-ban"></i> Suspend
+        </button>` : status !== 'approved' ? `
+        <button class="btn btn-success btn-sm"
+            onclick="cdSuspend('${c._id}','${e2(c.storeName)}',false)">
+            <i class="fas fa-undo"></i> Reinstate
+        </button>` : ''}
+        ${status === 'pending' ? `
+        <button class="btn btn-danger btn-sm"
+            onclick="withDebounce(this,()=>reviewCreatorAccount('${c._id}','reject'))">
+            <i class="fas fa-times"></i> Reject
+        </button>
+        <button class="btn btn-primary btn-sm"
+            onclick="withDebounce(this,()=>reviewCreatorAccount('${c._id}','approve'))">
+            <i class="fas fa-check"></i> Approve
+        </button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="closeCdDrawer()">Close</button>`;
+
+    // ── Assemble ─────────────────────────────────────────────────────────────
+    const overlay = document.getElementById('cdDrawerOverlay');
+    if (!overlay) return;
+    overlay.innerHTML = `
+    <div style="flex:1;cursor:pointer;" onclick="closeCdDrawer()"></div>
+    <div class="cd-drawer">
+        <div class="cd-header">
+            <button onclick="closeCdDrawer()"
+                style="background:none;border:none;color:#9ca3af;cursor:pointer;
+                       font-size:1.1rem;padding:4px 8px;border-radius:6px;">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:.95rem;font-weight:700;color:#fff;
+                     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    🏪 ${e2(c.storeName)}
+                </div>
+                <div style="font-size:.72rem;color:#6b7280;margin-top:2px;">
+                    ${e2(user.fullName||'—')}
+                    &nbsp;·&nbsp; ${e2(user.email||'—')}
+                    &nbsp;·&nbsp; Since ${fd(c.createdAt)}
+                </div>
+            </div>
+            <span class="cr-badge cr-badge-${status === 'pending_review' ? 'pending' : status}"
+                  style="flex-shrink:0;">
+                ${status.replace('_',' ').toUpperCase()}
+            </span>
+        </div>
+
+        <div class="cd-body">
+            ${statusBar}
+            ${storeSection}
+            ${ownerSection}
+            ${appSection}
+            ${statsSection}
+            ${payoutSection}
+            ${prodSection}
+            ${earningsSection}
+            ${payoutSection2}
+        </div>
+
+        <div class="cd-footer">
+            ${footerHtml}
+        </div>
+    </div>`;
+
+    // ESC to close
+    const onEsc = e => { if (e.key === 'Escape') { closeCdDrawer(); document.removeEventListener('keydown', onEsc); } };
+    document.addEventListener('keydown', onEsc);
+}
+
+// ── Inline commission save from drawer ───────────────────────────────────────
+async function cdSaveCommissions(creatorId) {
+    const pRate = parseFloat(document.getElementById(`cdPlatformRate_${creatorId}`)?.value);
+    const aRate = parseFloat(document.getElementById(`cdAffiliateRate_${creatorId}`)?.value);
+    if (isNaN(pRate) || isNaN(aRate)) { showToast('Enter valid rates.', 'error'); return; }
+    try {
+        const r = await fetch(`${API_URL}/api/admin/creators/${creatorId}/commissions`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platformCommissionRate: pRate, affiliateCommissionRate: aRate })
+        });
         const d = await r.json();
         if (!d.success) throw new Error(d.message);
-        const c    = d.creator;
-        const user = c.userId || {};
-        const pd   = c.payoutDetails || {};
-        document.getElementById('creatorDetailBody').innerHTML = `
-            <!-- Identity -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Store Identity</div>
-                <div class="cr-detail-grid">
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Store Name</div><div class="cr-detail-item-value" style="font-weight:700;color:var(--primary);">${esc(c.storeName)}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Store Slug</div><div class="cr-detail-item-value" style="font-family:monospace;font-size:.78rem;">${esc(c.storeSlug || '—')}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Status</div><div class="cr-detail-item-value"><span class="cr-badge cr-badge-${c.applicationStatus}">${c.applicationStatus.toUpperCase()}</span></div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Business Type</div><div class="cr-detail-item-value">${esc(c.businessType || '—')}</div></div>
-                </div>
-            </div>
-            <!-- Owner -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Account Owner</div>
-                <div class="cr-detail-grid">
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Full Name</div><div class="cr-detail-item-value">${esc(user.fullName || '—')}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Email</div><div class="cr-detail-item-value" style="font-size:.82rem;">${esc(user.email || '—')}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Country</div><div class="cr-detail-item-value">${esc(c.country || '—')}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Phone</div><div class="cr-detail-item-value">${esc(c.phone || '—')}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Member Since</div><div class="cr-detail-item-value">${fmtDate(user.createdAt)}</div></div>
-                    <div class="cr-detail-item"><div class="cr-detail-item-label">Approved</div><div class="cr-detail-item-value">${fmtDate(c.approvedAt)}</div></div>
-                </div>
-            </div>
-            <!-- Products -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Products</div>
-                <div class="cr-stats" style="margin-top:0;">
-                    <div class="cr-stat"><div class="cr-stat-num">${c.products?.total||0}</div><div class="cr-stat-lbl">Total</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">${c.products?.approved||0}</div><div class="cr-stat-lbl">Approved</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">${c.products?.pending||0}</div><div class="cr-stat-lbl">Pending</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">${c.products?.rejected||0}</div><div class="cr-stat-lbl">Rejected</div></div>
-                </div>
-            </div>
-            <!-- Earnings -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Earnings & Commissions</div>
-                <div class="cr-stats" style="margin-top:0;">
-                    <div class="cr-stat"><div class="cr-stat-num">${c.totalSales||0}</div><div class="cr-stat-lbl">Sales</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(c.totalRevenue||0).toFixed(2)}</div><div class="cr-stat-lbl">Revenue</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(c.totalEarnings||0).toFixed(2)}</div><div class="cr-stat-lbl">Earned</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(c.pendingPayout||0).toFixed(2)}</div><div class="cr-stat-lbl">Pending</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(c.totalPaidOut||0).toFixed(2)}</div><div class="cr-stat-lbl">Paid Out</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">${c.platformCommissionRate||20}% / ${c.affiliateCommissionRate||10}%</div><div class="cr-stat-lbl">Platform/Affiliate</div></div>
-                </div>
-            </div>
-            <!-- Payout Details -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">💳 Payout Method & Payment Details</div>
-                ${c.payoutMethod ? `
-                <div style="display:inline-block;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);
-                     border-radius:8px;padding:6px 14px;font-size:.82rem;font-weight:700;
-                     color:#00ff88;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">
-                    ${esc(c.payoutMethod.replace(/_/g,' '))}
-                </div>
-                ` : '<div style="color:#9ca3af;font-size:.82rem;">No payout method configured yet.</div>'}
-                ${Object.keys(pd).length ? `
-                <div class="payout-details-grid">
-                    ${pd.bankName      ? `<div class="payout-detail-item"><div class="payout-detail-label">🏦 Bank Name</div><div class="payout-detail-value">${esc(pd.bankName)}</div></div>` : ''}
-                    ${pd.accountNumber ? `<div class="payout-detail-item"><div class="payout-detail-label">🔢 Account Number</div><div class="payout-detail-value highlight">${esc(String(pd.accountNumber))}</div></div>` : ''}
-                    ${pd.accountName   ? `<div class="payout-detail-item"><div class="payout-detail-label">👤 Account Name</div><div class="payout-detail-value">${esc(pd.accountName)}</div></div>` : ''}
-                    ${pd.routingNumber ? `<div class="payout-detail-item"><div class="payout-detail-label">#️⃣ Routing Number</div><div class="payout-detail-value">${esc(pd.routingNumber)}</div></div>` : ''}
-                    ${pd.paypalEmail   ? `<div class="payout-detail-item"><div class="payout-detail-label">💳 PayPal Email</div><div class="payout-detail-value highlight">${esc(pd.paypalEmail)}</div></div>` : ''}
-                    ${pd.cryptoAddress ? `<div class="payout-detail-item"><div class="payout-detail-label">🔑 Wallet Address</div><div class="payout-detail-value highlight" style="font-size:.75rem;word-break:break-all;">${esc(pd.cryptoAddress)}</div></div>` : ''}
-                    ${pd.cryptoType    ? `<div class="payout-detail-item"><div class="payout-detail-label">₿ Crypto Type</div><div class="payout-detail-value">${esc(pd.cryptoType)}</div></div>` : ''}
-                </div>
-                ` : (c.payoutMethod ? `<div style="color:#ffa500;font-size:.82rem;margin-top:8px;"><i class="fas fa-exclamation-triangle"></i> Method set but no payment details provided yet.</div>` : '')}
-            </div>
-        `;
-    } catch(e) {
-        document.getElementById('creatorDetailBody').innerHTML = `<p style="color:#ff4444;">${e.message}</p>`;
-    }
+        showToast('Commission rates updated ✅', 'success');
+    } catch (e) { showToast(e.message || 'Failed to save', 'error'); }
+}
+
+// ── Suspend / reinstate from drawer ──────────────────────────────────────────
+async function cdSuspend(creatorId, storeName, suspend) {
+    const reason = suspend ? (prompt(`Suspension reason for "${storeName}":`) || '') : '';
+    try {
+        const r = await fetch(`${API_URL}/api/admin/creators/${creatorId}/suspend`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ suspend, reason })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`Creator ${suspend ? 'suspended' : 'reinstated'} ✅`, 'success');
+        closeCdDrawer();
+        fetchCreatorAccounts();
+    } catch (e) { showToast(e.message || 'Failed', 'error'); }
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────────────
