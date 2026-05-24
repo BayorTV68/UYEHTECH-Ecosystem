@@ -6629,9 +6629,6 @@ document.addEventListener('click', (e) => {
 // Auto-refresh notifications every 30 seconds
 setInterval(loadAdminNotifications, 30000);
 
-// Load on init
-loadAdminNotifications();
-
 console.log('✅ Part 5/5 loaded: Coupons, Blog & Settings');
 console.log('🎉 Admin Dashboard v7.0 - COMPLETE! All 5 parts loaded successfully!');
 console.log('📋 Summary:');
@@ -6875,122 +6872,601 @@ async function fetchCreatorApps() {
     }
 }
 
+// ── Drawer data store ─────────────────────────────────────────────────────
+let _crAppDrawerData = {};
+
+// ── Inject drawer CSS (runs once) ─────────────────────────────────────────
+function _ensureAppDrawer() {
+    if (document.getElementById('crAppDrawer')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Compact application card */
+        .cr-app-card {
+            background: #141414;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            cursor: default;
+            transition: border-color .2s, box-shadow .2s, transform .15s;
+        }
+        .cr-app-card:hover {
+            border-color: rgba(0,255,136,.25);
+            box-shadow: 0 4px 20px rgba(0,255,136,.06);
+            transform: translateY(-1px);
+        }
+        .cr-app-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .cr-app-store {
+            font-size: .98rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .cr-app-slug {
+            font-size: .68rem;
+            color: #4a5568;
+            font-family: monospace;
+        }
+        .cr-app-meta {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .cr-app-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .75rem;
+            color: #9ca3af;
+        }
+        .cr-app-meta-item i { font-size: .7rem; opacity: .6; }
+        .cr-app-snippet {
+            font-size: .78rem;
+            color: #6b7280;
+            margin-top: 10px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .cr-app-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,.05);
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .cr-app-time { font-size: .7rem; color: #4a5568; }
+        .cr-view-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(0,255,136,.08);
+            border: 1px solid rgba(0,255,136,.2);
+            color: #00ff88;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, box-shadow .15s;
+            font-family: 'Montserrat', sans-serif;
+            width: 100%;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        .cr-view-btn:hover {
+            background: rgba(0,255,136,.15);
+            box-shadow: 0 0 12px rgba(0,255,136,.15);
+        }
+        .cr-view-btn .cr-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            flex-shrink: 0;
+        }
+
+        /* Drawer overlay */
+        #crAppDrawerOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            z-index: 8999;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+        #crAppDrawerOverlay.open { display: block; }
+
+        /* Drawer panel */
+        #crAppDrawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: min(520px, 100vw);
+            height: 100vh;
+            background: #111;
+            border-left: 1px solid rgba(255,255,255,.1);
+            z-index: 9000;
+            overflow-y: auto;
+            transition: right .3s cubic-bezier(.4,0,.2,1);
+            box-shadow: -8px 0 40px rgba(0,0,0,.6);
+            display: flex;
+            flex-direction: column;
+        }
+        #crAppDrawer.open { right: 0; }
+
+        /* Drawer header */
+        .crad-header {
+            position: sticky;
+            top: 0;
+            background: #111;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+        .crad-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.12);
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            flex-shrink: 0;
+            transition: background .15s, color .15s;
+        }
+        .crad-close:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .crad-title {
+            font-size: .95rem;
+            font-weight: 700;
+            color: #fff;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Drawer body */
+        .crad-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex: 1;
+        }
+        .crad-section-title {
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #4a5568;
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,.05);
+        }
+        .crad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .crad-field {
+            background: rgba(255,255,255,.03);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .crad-field.full { grid-column: 1 / -1; }
+        .crad-label {
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #4a5568;
+            margin-bottom: 3px;
+        }
+        .crad-value {
+            font-size: .83rem;
+            color: #e2e8f0;
+            font-weight: 500;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .crad-value a { color: var(--primary); text-decoration: none; }
+        .crad-value a:hover { text-decoration: underline; }
+        .crad-msg {
+            background: rgba(255,255,255,.03);
+            border-left: 3px solid rgba(0,255,136,.35);
+            border-radius: 4px;
+            padding: 12px 14px;
+            font-size: .82rem;
+            color: #d1d5db;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .crad-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .crad-tag {
+            background: rgba(0,255,136,.08);
+            color: #00ff88;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: .7rem;
+            border: 1px solid rgba(0,255,136,.15);
+        }
+        .crad-social-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .8rem;
+            color: #9ca3af;
+            padding: 5px 0;
+        }
+        .crad-social-link i { width: 16px; text-align: center; }
+        .crad-social-link a { color: var(--primary); text-decoration: none; font-size: .78rem; }
+        .crad-social-link a:hover { text-decoration: underline; }
+        .crad-rejection-box {
+            background: rgba(255,68,68,.07);
+            border: 1px solid rgba(255,68,68,.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .crad-rejection-box .crad-label { color: #ff6b6b; }
+        .crad-rejection-box .crad-value { color: #fca5a5; }
+
+        /* Drawer footer */
+        .crad-footer {
+            position: sticky;
+            bottom: 0;
+            background: #111;
+            border-top: 1px solid rgba(255,255,255,.08);
+            padding: 14px 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+    `;
+    document.head.appendChild(style);
+
+    const overlay = document.createElement('div');
+    overlay.id = 'crAppDrawerOverlay';
+    overlay.onclick = closeCreatorAppDrawer;
+    document.body.appendChild(overlay);
+
+    const drawer = document.createElement('div');
+    drawer.id = 'crAppDrawer';
+    drawer.innerHTML = `
+        <div class="crad-header">
+            <button class="crad-close" onclick="closeCreatorAppDrawer()"><i class="fas fa-times"></i></button>
+            <div class="crad-title" id="cradTitle">Application Details</div>
+            <span class="cr-badge" id="cradBadge"></span>
+        </div>
+        <div class="crad-body" id="cradBody"></div>
+        <div class="crad-footer" id="cradFooter"></div>
+    `;
+    document.body.appendChild(drawer);
+}
+
+function openCreatorAppDrawer(creatorId) {
+    _ensureAppDrawer();
+    const c = _crAppDrawerData[creatorId];
+    if (!c) return;
+
+    const user        = c.userId || {};
+    const status      = c.applicationStatus || 'pending';
+    const isPending   = status === 'pending';
+    const socialLinks = c.socialLinks || {};
+    const hasSocial   = Object.values(socialLinks).some(Boolean);
+    const pd          = c.payoutDetails || {};
+
+    document.getElementById('cradTitle').textContent = '🏪 ' + (c.storeName || 'Application Details');
+    const badge = document.getElementById('cradBadge');
+    badge.textContent = status.toUpperCase();
+    badge.className = 'cr-badge cr-badge-' + status;
+
+    document.getElementById('cradBody').innerHTML = `
+
+        <!-- ── STORE IDENTITY ── -->
+        <div>
+            <div class="crad-section-title">Store Identity</div>
+            <div class="crad-grid">
+                <div class="crad-field">
+                    <div class="crad-label">Store Name</div>
+                    <div class="crad-value">${esc(c.storeName || '—')}</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Store Slug</div>
+                    <div class="crad-value" style="font-family:monospace;font-size:.78rem;">/${esc(c.storeSlug || '—')}</div>
+                </div>
+                ${c.storeDescription ? `
+                <div class="crad-field full">
+                    <div class="crad-label">Store Description</div>
+                    <div class="crad-value">${esc(c.storeDescription)}</div>
+                </div>` : ''}
+                ${c.storeLogo ? `
+                <div class="crad-field full">
+                    <div class="crad-label">Store Logo</div>
+                    <div class="crad-value">
+                        <img src="${esc(c.storeLogo)}" alt="Logo"
+                             style="height:48px;border-radius:8px;object-fit:contain;background:rgba(255,255,255,.05);padding:4px;">
+                    </div>
+                </div>` : ''}
+            </div>
+        </div>
+
+        <!-- ── APPLICANT (User account info) ── -->
+        <div>
+            <div class="crad-section-title">Applicant Account</div>
+            <div class="crad-grid">
+                <div class="crad-field">
+                    <div class="crad-label">Full Name</div>
+                    <div class="crad-value">${esc(user.fullName || '—')}</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Email</div>
+                    <div class="crad-value" style="font-size:.76rem;">${esc(user.email || '—')}</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Email Verified</div>
+                    <div class="crad-value">
+                        ${user.emailVerified
+                            ? '<span style="color:#00ff88;"><i class="fas fa-check-circle"></i> Yes</span>'
+                            : '<span style="color:#ffa500;"><i class="fas fa-exclamation-circle"></i> No — not verified</span>'}
+                    </div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Account Created</div>
+                    <div class="crad-value">${user.createdAt ? timeAgo(user.createdAt) : '—'}</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Last Login</div>
+                    <div class="crad-value">${user.lastLogin ? timeAgo(user.lastLogin) : '—'}</div>
+                </div>
+                ${(user.phone || c.phone) ? `
+                <div class="crad-field">
+                    <div class="crad-label">Phone</div>
+                    <div class="crad-value">${esc(c.phone || user.phone)}</div>
+                </div>` : ''}
+                ${(user.country || c.country) ? `
+                <div class="crad-field">
+                    <div class="crad-label">Country</div>
+                    <div class="crad-value">${esc(c.country || user.country)}</div>
+                </div>` : ''}
+                ${user.bio ? `
+                <div class="crad-field full">
+                    <div class="crad-label">User Bio</div>
+                    <div class="crad-value" style="font-style:italic;color:#9ca3af;">${esc(user.bio)}</div>
+                </div>` : ''}
+            </div>
+        </div>
+
+        <!-- ── BUSINESS INFO ── -->
+        <div>
+            <div class="crad-section-title">Business Details</div>
+            <div class="crad-grid">
+                <div class="crad-field">
+                    <div class="crad-label">Business Type</div>
+                    <div class="crad-value" style="text-transform:capitalize;">${esc(c.businessType || 'individual')}</div>
+                </div>
+                ${c.businessName ? `
+                <div class="crad-field">
+                    <div class="crad-label">Business Name</div>
+                    <div class="crad-value">${esc(c.businessName)}</div>
+                </div>` : ''}
+                ${c.website ? `
+                <div class="crad-field full">
+                    <div class="crad-label">Website</div>
+                    <div class="crad-value"><a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a></div>
+                </div>` : ''}
+            </div>
+        </div>
+
+        <!-- ── APPLICATION MESSAGE ── -->
+        ${c.applicationMessage ? `
+        <div>
+            <div class="crad-section-title">Why They Want to Join</div>
+            <div class="crad-msg">"${esc(c.applicationMessage)}"</div>
+        </div>` : ''}
+
+        <!-- ── PRODUCT CATEGORIES ── -->
+        ${c.categories?.length ? `
+        <div>
+            <div class="crad-section-title">Product Categories</div>
+            <div class="crad-tags">${c.categories.map(cat => `<span class="crad-tag">${esc(cat)}</span>`).join('')}</div>
+        </div>` : ''}
+
+        <!-- ── SOCIAL LINKS ── -->
+        ${hasSocial ? `
+        <div>
+            <div class="crad-section-title">Social Links</div>
+            ${socialLinks.twitter   ? `<div class="crad-social-link"><i class="fab fa-twitter" style="color:#1da1f2;"></i><a href="${esc(socialLinks.twitter)}" target="_blank">${esc(socialLinks.twitter)}</a></div>` : ''}
+            ${socialLinks.instagram ? `<div class="crad-social-link"><i class="fab fa-instagram" style="color:#e1306c;"></i><a href="${esc(socialLinks.instagram)}" target="_blank">${esc(socialLinks.instagram)}</a></div>` : ''}
+            ${socialLinks.linkedin  ? `<div class="crad-social-link"><i class="fab fa-linkedin" style="color:#0a66c2;"></i><a href="${esc(socialLinks.linkedin)}" target="_blank">${esc(socialLinks.linkedin)}</a></div>` : ''}
+            ${socialLinks.youtube   ? `<div class="crad-social-link"><i class="fab fa-youtube" style="color:#ff0000;"></i><a href="${esc(socialLinks.youtube)}" target="_blank">${esc(socialLinks.youtube)}</a></div>` : ''}
+        </div>` : ''}
+
+        <!-- ── PAYOUT INFO (if already set) ── -->
+        ${c.payoutMethod && c.payoutMethod !== 'bank_transfer' || Object.values(pd).some(Boolean) ? `
+        <div>
+            <div class="crad-section-title">Payout Information</div>
+            <div class="crad-grid">
+                <div class="crad-field">
+                    <div class="crad-label">Payout Method</div>
+                    <div class="crad-value" style="text-transform:capitalize;">${esc((c.payoutMethod || '—').replace('_',' '))}</div>
+                </div>
+                ${pd.country ? `<div class="crad-field"><div class="crad-label">Payout Country</div><div class="crad-value">${esc(pd.country)}</div></div>` : ''}
+                ${pd.bankName ? `<div class="crad-field"><div class="crad-label">Bank Name</div><div class="crad-value">${esc(pd.bankName)}</div></div>` : ''}
+                ${pd.accountName ? `<div class="crad-field"><div class="crad-label">Account Name</div><div class="crad-value">${esc(pd.accountName)}</div></div>` : ''}
+                ${pd.accountNumber ? `<div class="crad-field"><div class="crad-label">Account Number</div><div class="crad-value" style="font-family:monospace;">${esc(pd.accountNumber)}</div></div>` : ''}
+                ${pd.sortCode ? `<div class="crad-field"><div class="crad-label">Sort Code</div><div class="crad-value" style="font-family:monospace;">${esc(pd.sortCode)}</div></div>` : ''}
+                ${pd.swift ? `<div class="crad-field"><div class="crad-label">SWIFT/BIC</div><div class="crad-value" style="font-family:monospace;">${esc(pd.swift)}</div></div>` : ''}
+                ${pd.iban ? `<div class="crad-field full"><div class="crad-label">IBAN</div><div class="crad-value" style="font-family:monospace;">${esc(pd.iban)}</div></div>` : ''}
+                ${pd.routingNumber ? `<div class="crad-field"><div class="crad-label">Routing Number</div><div class="crad-value" style="font-family:monospace;">${esc(pd.routingNumber)}</div></div>` : ''}
+                ${pd.paypalEmail ? `<div class="crad-field full"><div class="crad-label">PayPal Email</div><div class="crad-value">${esc(pd.paypalEmail)}</div></div>` : ''}
+                ${pd.paypalName ? `<div class="crad-field"><div class="crad-label">PayPal Name</div><div class="crad-value">${esc(pd.paypalName)}</div></div>` : ''}
+                ${pd.flwEmail ? `<div class="crad-field"><div class="crad-label">Flutterwave Email</div><div class="crad-value">${esc(pd.flwEmail)}</div></div>` : ''}
+                ${pd.flwBank ? `<div class="crad-field"><div class="crad-label">Flutterwave Bank</div><div class="crad-value">${esc(pd.flwBank)}</div></div>` : ''}
+                ${pd.flwAccount ? `<div class="crad-field"><div class="crad-label">Flutterwave Account</div><div class="crad-value" style="font-family:monospace;">${esc(pd.flwAccount)}</div></div>` : ''}
+                ${pd.cryptoType ? `<div class="crad-field"><div class="crad-label">Crypto Type</div><div class="crad-value">${esc(pd.cryptoType)}</div></div>` : ''}
+                ${pd.cryptoAddress ? `<div class="crad-field full"><div class="crad-label">Crypto Address</div><div class="crad-value" style="font-family:monospace;font-size:.72rem;word-break:break-all;">${esc(pd.cryptoAddress)}</div></div>` : ''}
+                ${pd.cryptoName ? `<div class="crad-field"><div class="crad-label">Crypto Name</div><div class="crad-value">${esc(pd.cryptoName)}</div></div>` : ''}
+                ${pd.otherDetails ? `<div class="crad-field full"><div class="crad-label">Other Details</div><div class="crad-value">${esc(pd.otherDetails)}</div></div>` : ''}
+            </div>
+        </div>` : ''}
+
+        <!-- ── COMMISSION RATES (if already set/approved) ── -->
+        ${status === 'approved' ? `
+        <div>
+            <div class="crad-section-title">Commission Rates</div>
+            <div class="crad-grid">
+                <div class="crad-field">
+                    <div class="crad-label">Platform Takes</div>
+                    <div class="crad-value" style="color:var(--primary);font-size:1.1rem;font-weight:800;">${c.platformCommissionRate ?? 20}%</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Creator Keeps</div>
+                    <div class="crad-value" style="color:#00ff88;font-size:1.1rem;font-weight:800;">${100 - (c.platformCommissionRate ?? 20)}%</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Affiliate Earns</div>
+                    <div class="crad-value">${c.affiliateCommissionRate ?? 10}%</div>
+                </div>
+                <div class="crad-field">
+                    <div class="crad-label">Payout Threshold</div>
+                    <div class="crad-value">$${c.payoutThreshold ?? 50}</div>
+                </div>
+            </div>
+        </div>` : ''}
+
+        <!-- ── TIMELINE ── -->
+        <div>
+            <div class="crad-section-title">Timeline</div>
+            <div class="crad-grid">
+                <div class="crad-field">
+                    <div class="crad-label">Applied</div>
+                    <div class="crad-value">${c.createdAt ? timeAgo(c.createdAt) : '—'}</div>
+                </div>
+                ${c.reviewedAt ? `
+                <div class="crad-field">
+                    <div class="crad-label">Reviewed</div>
+                    <div class="crad-value">${timeAgo(c.reviewedAt)}</div>
+                </div>` : ''}
+                ${c.approvedAt ? `
+                <div class="crad-field">
+                    <div class="crad-label">Approved</div>
+                    <div class="crad-value">${timeAgo(c.approvedAt)}</div>
+                </div>` : ''}
+            </div>
+        </div>
+
+        <!-- ── REJECTION REASON ── -->
+        ${c.rejectionReason ? `
+        <div class="crad-rejection-box">
+            <div class="crad-label">Rejection Reason</div>
+            <div class="crad-value" style="margin-top:4px;">${esc(c.rejectionReason)}</div>
+        </div>` : ''}
+    `;
+
+    let footerHTML = '';
+    if (isPending) {
+        footerHTML += `
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="closeCreatorAppDrawer(); withDebounce(this, () => openCreatorReviewModal('${c._id}','${esc(c.storeName)}','approve'))">
+                <i class="fas fa-check"></i> Approve
+            </button>
+            <button class="btn btn-danger btn-sm" style="flex:1;" onclick="closeCreatorAppDrawer(); withDebounce(this, () => openCreatorReviewModal('${c._id}','${esc(c.storeName)}','reject'))">
+                <i class="fas fa-times"></i> Reject
+            </button>`;
+    } else if (status === 'approved') {
+        footerHTML += `
+            <button class="btn btn-warning btn-sm" onclick="closeCreatorAppDrawer(); withDebounce(this, () => suspendCreator('${c._id}','${esc(c.storeName)}',true))">
+                <i class="fas fa-ban"></i> Suspend
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="closeCreatorAppDrawer(); openCommissionModal('${c._id}','${esc(c.storeName)}',${c.platformCommissionRate||20},${c.affiliateCommissionRate||10})">
+                <i class="fas fa-percent"></i> Commissions
+            </button>`;
+    } else if (status === 'suspended') {
+        footerHTML += `
+            <button class="btn btn-success btn-sm" onclick="closeCreatorAppDrawer(); withDebounce(this, () => suspendCreator('${c._id}','${esc(c.storeName)}',false))">
+                <i class="fas fa-undo"></i> Reinstate
+            </button>`;
+    }
+    footerHTML += `<button class="btn btn-secondary btn-sm" onclick="closeCreatorAppDrawer()"><i class="fas fa-times"></i> Close</button>`;
+    document.getElementById('cradFooter').innerHTML = footerHTML;
+
+    document.getElementById('crAppDrawerOverlay').classList.add('open');
+    document.getElementById('crAppDrawer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCreatorAppDrawer() {
+    const drawer  = document.getElementById('crAppDrawer');
+    const overlay = document.getElementById('crAppDrawerOverlay');
+    if (drawer)  drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
 function renderCreatorApps(creators) {
     const list = document.getElementById('creatorAppsList');
     if (!creators.length) {
         list.innerHTML = `<div class="cr-empty"><i class="fas fa-inbox"></i><p>No applications found for this filter.</p></div>`;
         return;
     }
+
+    _ensureAppDrawer();
+    _crAppDrawerData = {};
+    creators.forEach(c => { _crAppDrawerData[c._id] = c; });
+
     list.innerHTML = creators.map(c => {
-        const user   = c.userId || {};
-        const status = c.applicationStatus || 'pending';
-        const isPending = status === 'pending';
-        const socialLinks = c.socialLinks || {};
+        const user      = c.userId || {};
+        const status    = c.applicationStatus || 'pending';
+        const snippet   = c.applicationMessage || c.storeDescription || '';
 
         return `
-        <div class="cr-card">
-            <!-- Top: store name + badge -->
-            <div class="cr-card-top">
+        <div class="cr-app-card">
+            <div class="cr-app-card-top">
                 <div style="flex:1;min-width:0;">
-                    <div class="cr-store-name">🏪 ${esc(c.storeName)}</div>
-                    <div style="font-size:.72rem;color:#9ca3af;font-family:monospace;margin-top:2px;">
-                        slug: ${esc(c.storeSlug || '—')}
-                    </div>
+                    <div class="cr-app-store">🏪 ${esc(c.storeName)}</div>
+                    <div class="cr-app-slug">/${esc(c.storeSlug || '—')}</div>
                 </div>
                 <span class="cr-badge cr-badge-${status}">${status.toUpperCase()}</span>
             </div>
 
-            <!-- Applicant info -->
-            <div class="cr-section-label" style="margin-top:14px;">Applicant</div>
-            <div class="cr-field-row">
-                <div class="cr-field">
-                    <div class="cr-field-label">Full Name</div>
-                    <div class="cr-field-value">${esc(user.fullName || '—')}</div>
-                </div>
-                <div class="cr-field">
-                    <div class="cr-field-label">Email</div>
-                    <div class="cr-field-value" style="font-size:.78rem;word-break:break-all;">${esc(user.email || '—')}</div>
-                </div>
-                <div class="cr-field">
-                    <div class="cr-field-label">Business Type</div>
-                    <div class="cr-field-value">${esc(c.businessType || 'individual')}</div>
-                </div>
-                <div class="cr-field">
-                    <div class="cr-field-label">Country</div>
-                    <div class="cr-field-value">${esc(c.country || '—')}</div>
-                </div>
-                ${c.phone ? `<div class="cr-field">
-                    <div class="cr-field-label">Phone</div>
-                    <div class="cr-field-value">${esc(c.phone)}</div>
-                </div>` : ''}
-                ${c.website ? `<div class="cr-field">
-                    <div class="cr-field-label">Website</div>
-                    <div class="cr-field-value">
-                        <a href="${esc(c.website)}" target="_blank" style="color:var(--primary);">${esc(c.website)}</a>
-                    </div>
-                </div>` : ''}
+            <div class="cr-app-meta">
+                <div class="cr-app-meta-item"><i class="fas fa-user"></i>${esc(user.fullName || '—')}</div>
+                <div class="cr-app-meta-item"><i class="fas fa-envelope"></i>${esc(user.email || '—')}</div>
+                <div class="cr-app-meta-item"><i class="fas fa-globe"></i>${esc(c.country || '—')}</div>
+                <div class="cr-app-meta-item"><i class="fas fa-briefcase"></i>${esc(c.businessType || 'individual')}</div>
             </div>
 
-            <!-- Application message -->
-            ${c.applicationMessage ? `
-            <div class="cr-section-label">Why They Want to Join</div>
-            <div class="cr-msg">"${esc(c.applicationMessage)}"</div>
-            ` : ''}
+            ${snippet ? `<div class="cr-app-snippet">"${esc(snippet)}"</div>` : ''}
 
-            <!-- Store description -->
-            ${c.storeDescription ? `
-            <div class="cr-section-label">Store Description</div>
-            <div class="cr-msg" style="border-left-color:rgba(99,179,237,.4);">${esc(c.storeDescription)}</div>
-            ` : ''}
-
-            <!-- Categories -->
-            ${c.categories?.length ? `
-            <div class="cr-section-label">Product Categories</div>
-            <div class="cr-tags">${c.categories.map(cat => `<span class="cr-tag">${esc(cat)}</span>`).join('')}</div>
-            ` : ''}
-
-            <!-- Social links -->
-            ${Object.values(socialLinks).some(Boolean) ? `
-            <div class="cr-section-label">Social Links</div>
-            <div class="cr-field-row">
-                ${socialLinks.twitter  ? `<div class="cr-field"><div class="cr-field-label">Twitter</div><div class="cr-field-value"><a href="${esc(socialLinks.twitter)}" target="_blank" style="color:#1da1f2;">${esc(socialLinks.twitter)}</a></div></div>` : ''}
-                ${socialLinks.instagram? `<div class="cr-field"><div class="cr-field-label">Instagram</div><div class="cr-field-value"><a href="${esc(socialLinks.instagram)}" target="_blank" style="color:#e1306c;">${esc(socialLinks.instagram)}</a></div></div>` : ''}
-                ${socialLinks.linkedin ? `<div class="cr-field"><div class="cr-field-label">LinkedIn</div><div class="cr-field-value"><a href="${esc(socialLinks.linkedin)}" target="_blank" style="color:#0a66c2;">${esc(socialLinks.linkedin)}</a></div></div>` : ''}
-                ${socialLinks.youtube  ? `<div class="cr-field"><div class="cr-field-label">YouTube</div><div class="cr-field-value"><a href="${esc(socialLinks.youtube)}" target="_blank" style="color:#ff0000;">${esc(socialLinks.youtube)}</a></div></div>` : ''}
-            </div>
-            ` : ''}
-
-            <!-- Submitted -->
-            <div style="font-size:.72rem;color:#4a5568;margin-top:10px;">
-                <i class="fas fa-clock"></i> Submitted ${timeAgo(c.createdAt)}
-                ${c.reviewedAt ? ` · Reviewed ${timeAgo(c.reviewedAt)}` : ''}
-                ${c.rejectionReason ? `<div style="margin-top:6px;color:#ff4444;"><i class="fas fa-times-circle"></i> Rejection reason: ${esc(c.rejectionReason)}</div>` : ''}
+            <div class="cr-app-footer">
+                <div class="cr-app-time">
+                    <i class="fas fa-clock"></i> ${timeAgo(c.createdAt)}
+                    ${c.rejectionReason ? `<span style="color:#ff4444;margin-left:8px;"><i class="fas fa-times-circle"></i> Rejected</span>` : ''}
+                </div>
             </div>
 
-            <!-- Actions -->
-            <div class="cr-actions">
-                ${isPending ? `
-                <button class="btn btn-primary btn-sm" onclick="withDebounce(this, () => openCreatorReviewModal('${c._id}','${esc(c.storeName)}','approve'))">
-                    <i class="fas fa-check"></i> Approve
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="withDebounce(this, () => openCreatorReviewModal('${c._id}','${esc(c.storeName)}','reject'))">
-                    <i class="fas fa-times"></i> Reject
-                </button>
-                ` : ''}
-                ${status === 'approved' ? `
-                <button class="btn btn-warning btn-sm" onclick="withDebounce(this, () => suspendCreator('${c._id}','${esc(c.storeName)}',true))">
-                    <i class="fas fa-ban"></i> Suspend
-                </button>
-                <button class="btn btn-secondary btn-sm" onclick="openCommissionModal('${c._id}','${esc(c.storeName)}',${c.platformCommissionRate||20},${c.affiliateCommissionRate||10})">
-                    <i class="fas fa-percent"></i> Commissions
-                </button>
-                ` : ''}
-                ${status === 'suspended' ? `
-                <button class="btn btn-success btn-sm" onclick="withDebounce(this, () => suspendCreator('${c._id}','${esc(c.storeName)}',false))">
-                    <i class="fas fa-undo"></i> Reinstate
-                </button>
-                ` : ''}
-            </div>
+            <button class="cr-view-btn" onclick="openCreatorAppDrawer('${c._id}')">
+                <span class="cr-dot"></span> View Application
+            </button>
         </div>`;
     }).join('');
 }
@@ -9094,7 +9570,6 @@ async function refreshCreatorBadges() {
 }
 
 setInterval(refreshCreatorBadges, 60000);
-refreshCreatorBadges();
 
 console.log('✅ Creator Marketplace Module v2.0 Loaded');
 
