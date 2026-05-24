@@ -1119,7 +1119,9 @@ function renderDownload(data, p, type) {
 
   if (isPdfProduct && data.pdfUrl) {
     const pdfSrc    = data.pdfUrl;
+    // directUrl = raw Cloudinary URL for Download button only
     const directUrl = data.cloudinaryUrl || data.fileUrl || pdfSrc;
+
     ge('playerZone').innerHTML = `
       <div style="background:#111;width:100%">
         <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
@@ -1147,8 +1149,8 @@ function renderDownload(data, p, type) {
             style="width:100%;height:75vh;min-height:520px;border:none;display:block"
             title="${esc(data.title || label)}"
             loading="lazy"
-            onload="ge('pdfLoading').style.display='none'"
-            onerror="showPdfFallback('${escA(pdfSrc)}','${escA(directUrl)}')">
+            onload="onPdfIframeLoad()"
+            onerror="showPdfObjectFallback('${escA(pdfSrc)}','${escA(directUrl)}')">
           </iframe>
         </div>
         <div style="display:flex;gap:8px;padding:12px 16px;background:var(--card);
@@ -1156,7 +1158,7 @@ function renderDownload(data, p, type) {
           <a href="${escA(pdfSrc)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">
             <i class="fas fa-external-link-alt"></i> Open in new tab
           </a>
-          <a href="${escA(directUrl)}" download target="_blank" rel="noopener"
+          <a href="${escA(directUrl)}" target="_blank" rel="noopener"
              class="btn btn-ghost btn-sm">
             <i class="fas fa-download"></i> Download PDF
           </a>
@@ -1165,6 +1167,15 @@ function renderDownload(data, p, type) {
           </button>
         </div>
       </div>`;
+
+    // Watchdog — same as course chapter PDF
+    clearTimeout(_pdfWatchdog);
+    _pdfWatchdog = setTimeout(() => {
+      const ld = ge('pdfLoading');
+      if (ld && ld.style.display !== 'none') {
+        showPdfObjectFallback(pdfSrc, directUrl);
+      }
+    }, 4000);
   } else {
     // Non-PDF download products — original empty player zone
     ge('playerZone').innerHTML = `
@@ -1186,9 +1197,15 @@ function renderDownload(data, p, type) {
   if (ge('sbToggleBtn')) ge('sbToggleBtn').style.display = 'none';
 
   // Download card
-    const dlHtml = data.downloadUrl ? `
+  // Use data.fileUrl (proxy route) if available — it streams raw bytes with the
+  // correct filename. Fall back to data.downloadUrl for older cached responses.
+  // Do NOT use the HTML `download` attribute — the proxy sets Content-Disposition
+  // server-side so the browser still prompts Save As. The `download` attribute
+  // would intercept the request before it reaches the server on some browsers.
+  const dlTarget = data.fileUrl || data.downloadUrl || null;
+  const dlHtml = dlTarget ? `
     <div class="dl-card">
-      <a href="${escA(data.downloadUrl)}" target="_blank" rel="noopener" download
+      <a href="${escA(dlTarget)}" target="_blank" rel="noopener"
          class="btn btn-primary" style="justify-content:center;width:100%"
          onclick="handleDownloadClick(event, this)">
         <i class="fas fa-download"></i> Download ${label}
@@ -1353,9 +1370,11 @@ function renderPlayer(ch) {
   }
 
   if (isPdf) {
-    const pdfSrc = pdfSourceUrl;   // authenticated proxy URL — use directly
-    // Cloudinary raw URL (for download button only — NOT for Google Docs viewer)
+    const pdfSrc    = pdfSourceUrl;  // authenticated proxy URL — use directly
+    // directUrl = raw Cloudinary URL used ONLY for the Download button.
+    // Never pass this to Google Docs viewer — Google can't authenticate it.
     const directUrl = ch.cloudinaryUrl || cloudinaryUrl || pdfSrc;
+
     zone.innerHTML = `
       <div style="background:#111;width:100%">
         <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;
@@ -1374,8 +1393,9 @@ function renderPlayer(ch) {
         </div>
         <div id="pdfViewerWrap" style="width:100%;min-height:520px;background:#111;
              position:relative">
-          <div id="pdfLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;
-               align-items:center;justify-content:center;gap:12px;background:#111;z-index:2">
+          <div id="pdfLoading" style="position:absolute;inset:0;display:flex;
+               flex-direction:column;align-items:center;justify-content:center;
+               gap:12px;background:#111;z-index:2">
             <div class="spin"></div>
             <div style="font-size:.8rem;color:var(--t3)">Loading PDF…</div>
           </div>
@@ -1384,8 +1404,8 @@ function renderPlayer(ch) {
             style="width:100%;height:75vh;min-height:520px;border:none;display:block"
             title="${esc(ch.chapterTitle || 'PDF Document')}"
             loading="lazy"
-            onload="ge('pdfLoading').style.display='none'"
-            onerror="showPdfFallback('${escA(pdfSrc)}','${escA(directUrl)}')">
+            onload="onPdfIframeLoad()"
+            onerror="showPdfObjectFallback('${escA(pdfSrc)}','${escA(directUrl)}')">
           </iframe>
         </div>
         <div style="display:flex;gap:8px;padding:12px 16px;background:var(--card);
@@ -1394,7 +1414,7 @@ function renderPlayer(ch) {
              class="btn btn-ghost btn-sm">
             <i class="fas fa-external-link-alt"></i> Open in new tab
           </a>
-          <a href="${escA(directUrl)}" download target="_blank" rel="noopener"
+          <a href="${escA(directUrl)}" target="_blank" rel="noopener"
              class="btn btn-ghost btn-sm">
             <i class="fas fa-download"></i> Download PDF
           </a>
@@ -1405,6 +1425,16 @@ function renderPlayer(ch) {
         </div>
         ${markDoneBtn()}
       </div>`;
+
+    // 4-second watchdog — mobile Chrome/WebView silently blocks PDFs in iframes.
+    // Neither onload nor onerror fires — spinner spins forever without this.
+    clearTimeout(_pdfWatchdog);
+    _pdfWatchdog = setTimeout(() => {
+      const ld = ge('pdfLoading');
+      if (ld && ld.style.display !== 'none') {
+        showPdfObjectFallback(pdfSrc, directUrl);
+      }
+    }, 4000);
     return;
   }
 
@@ -1816,47 +1846,80 @@ async function deleteMyNote(si, ci, sectionOrder, chapterOrder) {
   } catch (_) {}
 }
 
-// Reload the PDF iframe (replaces the old toggle-between-gdocs/direct approach).
-// The iframe points directly at our authenticated proxy — no Google Docs needed.
+// Watchdog timer ref — cleared when iframe loads, fired when mobile silently blocks
+let _pdfWatchdog = null;
+
+// Called by iframe onload — clears spinner and watchdog
+function onPdfIframeLoad() {
+  clearTimeout(_pdfWatchdog);
+  const loading = ge('pdfLoading');
+  if (loading) loading.style.display = 'none';
+}
+
+// Reload PDF iframe with cache-bust — also restarts watchdog
 function reloadPdfViewer(pdfSrc) {
+  clearTimeout(_pdfWatchdog);
   const iframe  = ge('pdfIframe');
   const loading = ge('pdfLoading');
   if (!iframe) return;
   if (loading) loading.style.display = 'flex';
-  // Append a cache-bust param so the browser actually reloads
   const sep = pdfSrc.includes('?') ? '&' : '?';
   iframe.src = pdfSrc + sep + '_r=' + Date.now();
+  _pdfWatchdog = setTimeout(() => {
+    const ld = ge('pdfLoading');
+    if (ld && ld.style.display !== 'none') showPdfObjectFallback(pdfSrc, pdfSrc);
+  }, 4000);
 }
 
-// Called when the PDF iframe fires onerror.
-// pdfSrc  = authenticated proxy URL (for re-open)
-// directUrl = raw Cloudinary URL (for download, no auth needed)
-function showPdfFallback(pdfSrc, directUrl) {
+// Primary fallback: tries <object> tag (works on desktop where iframe is blocked).
+// If <object> also fails, shows open/download buttons.
+// pdfSrc    = authenticated proxy URL
+// directUrl = raw Cloudinary URL (for download)
+function showPdfObjectFallback(pdfSrc, directUrl) {
+  clearTimeout(_pdfWatchdog);
   const wrap = ge('pdfViewerWrap');
   if (!wrap) return;
-  const openUrl     = pdfSrc     || directUrl || '';
-  const downloadUrl = directUrl  || pdfSrc    || '';
+  const openUrl     = pdfSrc    || directUrl || '';
+  const downloadUrl = directUrl || pdfSrc    || '';
+
   wrap.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-         gap:16px;padding:40px;min-height:300px;background:var(--card)">
-      <i class="fas fa-file-pdf" style="font-size:3rem;color:var(--red);opacity:.5"></i>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--t1)">
-        PDF cannot render here
-      </div>
-      <div style="font-size:.82rem;color:var(--t3);text-align:center;max-width:300px">
-        Your browser blocked the inline viewer. Open or download the PDF below.
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <a href="${escA(openUrl)}" target="_blank" rel="noopener" class="btn btn-primary">
-          <i class="fas fa-external-link-alt"></i> Open PDF
-        </a>
-        ${downloadUrl ? `
-        <a href="${escA(downloadUrl)}" download target="_blank" rel="noopener"
-           class="btn btn-ghost">
-          <i class="fas fa-download"></i> Download
-        </a>` : ''}
-      </div>
+    <div style="width:100%;position:relative;min-height:520px;background:#111">
+      <object
+        data="${escA(openUrl)}"
+        type="application/pdf"
+        style="width:100%;height:75vh;min-height:520px;border:none;display:block"
+      >
+        <!-- <object> inner content shows when browser can't render the PDF -->
+        <div style="display:flex;flex-direction:column;align-items:center;
+             justify-content:center;gap:16px;padding:40px;min-height:300px;
+             background:var(--card)">
+          <i class="fas fa-file-pdf" style="font-size:3rem;color:var(--red);opacity:.5"></i>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;
+               font-size:1rem;color:var(--t1)">
+            PDF viewer not supported here
+          </div>
+          <div style="font-size:.82rem;color:var(--t3);text-align:center;max-width:300px">
+            Your browser blocked the inline PDF viewer. Use the buttons below.
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+            <a href="${escA(openUrl)}" target="_blank" rel="noopener"
+               class="btn btn-primary">
+              <i class="fas fa-external-link-alt"></i> Open PDF
+            </a>
+            ${downloadUrl ? `
+            <a href="${escA(downloadUrl)}" target="_blank" rel="noopener"
+               class="btn btn-ghost">
+              <i class="fas fa-download"></i> Download
+            </a>` : ''}
+          </div>
+        </div>
+      </object>
     </div>`;
+}
+
+// Legacy alias — any old inline onerror calls still work
+function showPdfFallback(pdfSrc, directUrl) {
+  showPdfObjectFallback(pdfSrc, directUrl);
 }
 
 function setPlayerEmpty(msg) {
