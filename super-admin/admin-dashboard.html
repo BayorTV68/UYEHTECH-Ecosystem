@@ -6407,7 +6407,6 @@ function escSetting(str) {
 }
 
 
-
 // ========== ADMIN NOTIFICATIONS ==========
 let adminNotifications = [];
 
@@ -6611,16 +6610,6 @@ document.addEventListener('click', e => {
     }
 });
 
-// Auto-refresh every 45 seconds
-setInterval(loadAdminNotifications, 45000);
-
-// Load on init
-loadAdminNotifications();
-        return;
-    }
-    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-    if (dropdown.style.display === 'block') loadAdminNotifications();
-}
 
 function handleNotificationClick(type, id) {
     document.getElementById('notificationDropdown').style.display = 'none';
