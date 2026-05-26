@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <!--
+╔══════════════════════════════════════════════════════════════════╗
+║           UYEH TECH — UNIFIED SIDEBAR TEMPLATE                  ║
+║  Drop this into every page. Set data-page on <body> or          ║
+║  manually add class="active" to the correct .nav-link.          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+USAGE IN EACH PAGE:
+  1. Paste the <style> block into your page's <style> tag (or link sidebar.css)
+  2. Paste the <aside> HTML into your page
+  3. Set the correct .nav-link as active (see comments on each link)
+  4. Paste the JS block at the bottom of your <script>
+
+ALL LINKS USE /marketplace/* format — consistent across every page.
+-->
+
+<!-- ═══════════════════════════ SIDEBAR CSS ═══════════════════════════ -->
+<style>
+/* ── UYEH TECH Sidebar — shared across all pages ───────────────────── */
+:root {
+  --sb-w: 268px;
+  --g:    #00ff88;
+  --g2:   #00c96a;
+  --g3:   rgba(0,255,136,.08);
+  --g4:   rgba(0,255,136,.14);
+  --g5:   rgba(0,255,136,.22);
+  --ink:  #080a0c;
+  --ink2: #0d1018;
+  --ink3: #131820;
+  --line: rgba(255,255,255,.06);
+  --line2:rgba(0,255,136,.18);
+  --t1:   #e8edf2;
+  --t2:   #8a96a8;
+  --t3:   #4a5568;
+  --red:  #ff4d4d;
+}
+
+/* ── Sidebar shell ──────────────────────────────────────────────────── */
+.yt-sidebar {
+  width: var(--sb-w);
+  background: var(--ink2);
+  border-right: 1px solid var(--line);
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+
+/* scrollbar */
+.yt-sidebar::-webkit-scrollbar { width: 3px; }
+.yt-sidebar::-webkit-scrollbar-track { background: transparent; }
+.yt-sidebar::-webkit-scrollbar-thumb { background: rgba(0,255,136,.12); border-radius: 2px; }
+
+/* ── Logo / brand ───────────────────────────────────────────────────── */
+.yt-brand {
+  padding: 22px 18px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity .2s;
+}
+.yt-brand:hover { opacity: .85; }
+
+.yt-brand-mark {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, var(--g2), var(--g));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.yt-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.yt-brand-mark-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: .78rem;
+  color: #0a0a0a;
+  letter-spacing: -.3px;
+  line-height: 1;
+}
+.yt-brand-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--g);
+  letter-spacing: .3px;
+  line-height: 1.15;
+}
+.yt-brand-sub {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .58rem;
+  font-weight: 600;
+  color: var(--t3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* ── User pill at top ──────────────────────────────────────────────── */
+.yt-user-pill {
+  margin: 14px 14px 0;
+  padding: 11px 13px;
+  background: var(--g3);
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.yt-user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--g2), var(--g));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: .78rem;
+  color: #0a0a0a;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.yt-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.yt-user-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: .8rem;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.yt-user-role {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .62rem;
+  color: var(--g);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ── Nav sections ──────────────────────────────────────────────────── */
+.yt-nav {
+  flex: 1;
+  padding: 14px 12px;
+  overflow-y: auto;
+}
+.yt-nav::-webkit-scrollbar { width: 0; }
+
+.yt-section-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .58rem;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 16px 10px 6px;
+}
+.yt-section-label:first-child { padding-top: 4px; }
+
+/* ── Nav link ──────────────────────────────────────────────────────── */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  color: var(--t2);
+  text-decoration: none;
+  border-radius: 9px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: .845rem;
+  margin-bottom: 2px;
+  transition: background .15s, color .15s, transform .12s;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.nav-link:hover {
+  background: var(--g3);
+  color: var(--t1);
+}
+.nav-link.active {
+  background: var(--g4);
+  color: var(--g);
+  border-color: var(--line2);
+}
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 55%;
+  background: var(--g);
+  border-radius: 0 3px 3px 0;
+}
+.nav-link .nav-icon {
+  width: 18px;
+  text-align: center;
+  font-size: .9rem;
+  flex-shrink: 0;
+  opacity: .8;
+}
+.nav-link.active .nav-icon { opacity: 1; }
+.nav-link .nav-label { flex: 1; }
+
+/* Badge on nav items (e.g. unread count) */
+.nav-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--g);
+  color: #0a0a0a;
+  font-size: .58rem;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  display: none; /* shown by JS when > 0 */
+}
+
+/* ── Divider ───────────────────────────────────────────────────────── */
+.yt-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 10px 12px;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+.yt-sidebar-footer {
+  padding: 14px 12px 18px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+/* Store link in footer */
+.yt-store-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  color: var(--t2);
+  text-decoration: none;
+  border-radius: 9px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: .82rem;
+  margin-bottom: 8px;
+  transition: background .15s, color .15s;
+  border: 1px solid transparent;
+}
+.yt-store-link:hover {
+  background: var(--g3);
+  color: var(--g);
+  border-color: var(--line2);
+}
+.yt-store-link .nav-icon { width: 18px; text-align: center; font-size: .88rem; flex-shrink: 0; }
+
+/* Logout */
+.yt-logout-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255,77,77,.06);
+  border: 1px solid rgba(255,77,77,.18);
+  border-radius: 9px;
+  color: var(--red);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.yt-logout-btn:hover { background: rgba(255,77,77,.13); }
+
+/* ── Mobile overlay + toggle ───────────────────────────────────────── */
+.yt-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 299;
+  backdrop-filter: blur(2px);
+}
+.yt-sidebar-overlay.open { display: block; }
+
+.yt-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--t1);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background .15s;
+}
+.yt-menu-btn:hover { background: var(--g3); }
+
+@media (max-width: 900px) {
+  .yt-sidebar { transform: translateX(-100%); }
+  .yt-sidebar.open { transform: translateX(0); }
+  .yt-menu-btn { display: flex; align-items: center; justify-content: center; }
+
+  /* All pages using margin-left: var(--sb-w) need this reset: */
+  .main-content,
+  .main,
+  .page-main { margin-left: 0 !important; }
+}
+</style>
+
+
+<!-- ═════════════════════════ SIDEBAR HTML ════════════════════════════ -->
+<!--
+  Paste this <aside> into each page.
+  Change the class="nav-link active" to match the current page.
+  Page-to-active-link map:
+    dashboard.html   → data-page="dashboard"
+    my-products.html → data-page="my-products"
+    orders.html      → data-page="orders"
+    affiliate.html   → data-page="affiliate"
+    settings.html    → data-page="settings"
+-->
+
+<!-- Mobile overlay (closes sidebar on outside tap) -->
+<div class="yt-sidebar-overlay" id="ytOverlay"></div>
+
+<aside class="yt-sidebar" id="ytSidebar">
+
+  <!-- Brand -->
+  <a href="/marketplace/" class="yt-brand">
+    <div class="yt-brand-mark">
+      <!-- If logo image exists: -->
+      <img src="/marketplace/uyehtech logo.png" alt="UYEH TECH"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+      <span class="yt-brand-mark-text" style="display:none;">UT</span>
+    </div>
+    <div>
+      <div class="yt-brand-name">UYEH TECH</div>
+      <div class="yt-brand-sub">Marketplace</div>
+    </div>
+  </a>
+
+  <!-- Logged-in user pill — populated by JS -->
+  <div class="yt-user-pill" id="ytUserPill">
+    <div class="yt-user-avatar" id="ytUserAvatar">—</div>
+    <div style="min-width:0;">
+      <div class="yt-user-name" id="ytUserName">Loading…</div>
+      <div class="yt-user-role" id="ytUserRole">Member</div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="yt-nav">
+
+    <div class="yt-section-label">Menu</div>
+
+    <a href="/marketplace/dashboard"   class="nav-link" data-key="dashboard">
+      <i class="fas fa-gauge-high nav-icon"></i>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a href="/marketplace/my-products" class="nav-link" data-key="my-products">
+      <i class="fas fa-box-open nav-icon"></i>
+      <span class="nav-label">My Library</span>
+    </a>
+
+    <a href="/marketplace/orders"      class="nav-link" data-key="orders">
+      <i class="fas fa-receipt nav-icon"></i>
+      <span class="nav-label">Order History</span>
+      <span class="nav-badge" id="ytOrderBadge">0</span>
+    </a>
+
+    <a href="/marketplace/affiliate"   class="nav-link" data-key="affiliate">
+      <i class="fas fa-link nav-icon"></i>
+      <span class="nav-label">Affiliate</span>
+    </a>
+
+    <div class="yt-divider"></div>
+    <div class="yt-section-label">Account</div>
+
+    <a href="/marketplace/settings"    class="nav-link" data-key="settings">
+      <i class="fas fa-sliders nav-icon"></i>
+      <span class="nav-label">Settings</span>
+    </a>
+
+    <!-- Creator Dashboard — only shown if user is a creator -->
+    <a href="/marketplace/creator-dashboard" class="nav-link" data-key="creator-dashboard"
+       id="ytCreatorLink" style="display:none;">
+      <i class="fas fa-store nav-icon"></i>
+      <span class="nav-label">Creator Studio</span>
+    </a>
+
+    <!-- Support -->
+    <a href="/marketplace/support" class="nav-link" data-key="support">
+      <i class="fas fa-headset nav-icon"></i>
+      <span class="nav-label">Help & Support</span>
+    </a>
+
+  </nav>
+
+  <!-- Footer -->
+  <div class="yt-sidebar-footer">
+    <a href="/marketplace/" class="yt-store-link">
+      <i class="fas fa-store nav-icon"></i>
+      Browse Store
+    </a>
+    <button class="yt-logout-btn" id="ytLogoutBtn">
+      <i class="fas fa-arrow-right-from-bracket"></i>
+      Log Out
+    </button>
+  </div>
+
+</aside>
+
+
+<!-- ════════════════════════ SIDEBAR SCRIPT ═══════════════════════════ -->
+<!--
+  Paste this <script> block into your page's existing <script> section,
+  or just before </body>. It auto-sets the active link and populates the user pill.
+-->
+<script>
+(function() {
+  'use strict';
+
+  /* ── Determine active page from URL ────────────────────────────── */
+  const pathMap = {
+    'dashboard':        'dashboard',
+    'my-products':      'my-products',
+    'orders':           'orders',
+    'affiliate':        'affiliate',
+    'settings':         'settings',
+    'creator-dashboard':'creator-dashboard',
+    'support':          'support',
+  };
+
+  const pathPart = window.location.pathname.split('/').filter(Boolean).pop() || 'dashboard';
+  const activeKey = pathMap[pathPart] || pathPart;
+
+  document.querySelectorAll('.yt-sidebar .nav-link').forEach(link => {
+    link.classList.toggle('active', link.dataset.key === activeKey);
+  });
+
+  /* ── Populate user pill from localStorage ──────────────────────── */
+  function populateSidebarUser() {
+    try {
+      const raw  = localStorage.getItem('user');
+      const user = raw ? JSON.parse(raw) : null;
+      if (!user) return;
+
+      const nameEl   = document.getElementById('ytUserName');
+      const roleEl   = document.getElementById('ytUserRole');
+      const avatarEl = document.getElementById('ytUserAvatar');
+
+      if (nameEl)   nameEl.textContent   = user.fullName || user.name || 'User';
+      if (roleEl)   roleEl.textContent   = user.isCreator ? 'Creator' : (user.isAgent ? 'Agent' : 'Member');
+      if (avatarEl) {
+        if (user.profileImage) {
+          avatarEl.innerHTML = `<img src="${user.profileImage}" alt="avatar">`;
+        } else {
+          const initials = (user.fullName || user.name || 'U')
+            .split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+          avatarEl.textContent = initials;
+        }
+      }
+
+      /* show Creator Studio link if applicable */
+      const crLink = document.getElementById('ytCreatorLink');
+      if (crLink && user.isCreator) crLink.style.display = 'flex';
+
+    } catch (e) { /* silently ignore */ }
+  }
+
+  populateSidebarUser();
+
+  /* ── Logout ─────────────────────────────────────────────────────── */
+  const logoutBtn = document.getElementById('ytLogoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      ['token', 'user', 'authToken'].forEach(k => localStorage.removeItem(k));
+      window.location.href = '/marketplace/login';
+    });
+  }
+
+  /* ── Mobile toggle ──────────────────────────────────────────────── */
+  const sidebar  = document.getElementById('ytSidebar');
+  const overlay  = document.getElementById('ytOverlay');
+  const menuBtn  = document.getElementById('ytMenuBtn'); // add id="ytMenuBtn" to your toggle button
+
+  function openSidebar()  { sidebar?.classList.add('open');    overlay?.classList.add('open'); }
+  function closeSidebar() { sidebar?.classList.remove('open'); overlay?.classList.remove('open'); }
+
+  menuBtn?.addEventListener('click',   openSidebar);
+  overlay?.addEventListener('click',   closeSidebar);
+
+  /* close on nav click on mobile */
+  document.querySelectorAll('.yt-sidebar .nav-link, .yt-store-link').forEach(link => {
+    link.addEventListener('click', () => { if (window.innerWidth <= 900) closeSidebar(); });
+  });
+
+  /* ── Expose toggle globally for inline buttons ─────────────────── */
+  window.ytToggleSidebar = openSidebar;
+
+})();
+</script>
+
+  
+</body>
+</html>
