@@ -25,6 +25,27 @@ ALL LINKS USE /marketplace/* format — consistent across every page.
 <!-- ═══════════════════════════ SIDEBAR CSS ═══════════════════════════ -->
 <style>
 /* ── UYEH TECH Sidebar — shared across all pages ───────────────────── */
+
+/* ── Global dark theme base (paste into every page's <style> too) ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #080a0c;
+  color: #e8edf2;
+  min-height: 100%;
+}
+
+/* Main content area dark background — covers all layout class names used */
+.main-content,
+.main,
+.page-main,
+.dashboard-main,
+.content-area,
+.page-wrapper {
+  background: #080a0c;
+  min-height: 100vh;
+}
+
 :root {
   --sb-w: 268px;
   --g:    #00ff88;
@@ -322,26 +343,42 @@ ALL LINKS USE /marketplace/* format — consistent across every page.
 
 .yt-menu-btn {
   display: none;
-  background: none;
-  border: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 400;
+  background: var(--ink2);
+  border: 1px solid var(--line);
   color: var(--t1);
   font-size: 1.2rem;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  transition: background .15s;
+  padding: 9px 10px;
+  border-radius: 8px;
+  transition: background .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
-.yt-menu-btn:hover { background: var(--g3); }
+.yt-menu-btn:hover,
+.yt-menu-btn:active { background: var(--g3); border-color: var(--line2); }
 
 @media (max-width: 900px) {
   .yt-sidebar { transform: translateX(-100%); }
   .yt-sidebar.open { transform: translateX(0); }
-  .yt-menu-btn { display: flex; align-items: center; justify-content: center; }
+
+  /* Show hamburger button */
+  .yt-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   /* All pages using margin-left: var(--sb-w) need this reset: */
   .main-content,
   .main,
-  .page-main { margin-left: 0 !important; }
+  .page-main,
+  .dashboard-main,
+  .content-area,
+  .page-wrapper { margin-left: 0 !important; padding-top: 56px; }
 }
 </style>
 
@@ -357,6 +394,15 @@ ALL LINKS USE /marketplace/* format — consistent across every page.
     affiliate.html   → data-page="affiliate"
     settings.html    → data-page="settings"
 -->
+
+<!-- Mobile hamburger button — fixed top-left, only visible on mobile -->
+<button class="yt-menu-btn" id="ytMenuBtn" aria-label="Open menu" aria-expanded="false">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect y="3" width="22" height="2.2" rx="1.1" fill="currentColor"/>
+    <rect y="9.9" width="22" height="2.2" rx="1.1" fill="currentColor"/>
+    <rect y="16.8" width="22" height="2.2" rx="1.1" fill="currentColor"/>
+  </svg>
+</button>
 
 <!-- Mobile overlay (closes sidebar on outside tap) -->
 <div class="yt-sidebar-overlay" id="ytOverlay"></div>
@@ -521,13 +567,31 @@ ALL LINKS USE /marketplace/* format — consistent across every page.
   /* ── Mobile toggle ──────────────────────────────────────────────── */
   const sidebar  = document.getElementById('ytSidebar');
   const overlay  = document.getElementById('ytOverlay');
-  const menuBtn  = document.getElementById('ytMenuBtn'); // add id="ytMenuBtn" to your toggle button
+  const menuBtn  = document.getElementById('ytMenuBtn');
 
-  function openSidebar()  { sidebar?.classList.add('open');    overlay?.classList.add('open'); }
-  function closeSidebar() { sidebar?.classList.remove('open'); overlay?.classList.remove('open'); }
+  function openSidebar() {
+    sidebar?.classList.add('open');
+    overlay?.classList.add('open');
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden'; // prevent scroll-behind on Android
+  }
+  function closeSidebar() {
+    sidebar?.classList.remove('open');
+    overlay?.classList.remove('open');
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
 
-  menuBtn?.addEventListener('click',   openSidebar);
-  overlay?.addEventListener('click',   closeSidebar);
+  if (menuBtn) {
+    // Use both click and touchend for Android reliability
+    menuBtn.addEventListener('click', openSidebar);
+    menuBtn.addEventListener('touchend', function(e) {
+      e.preventDefault(); // prevents ghost click on Android
+      openSidebar();
+    }, { passive: false });
+  }
+
+  overlay?.addEventListener('click', closeSidebar);
 
   /* close on nav click on mobile */
   document.querySelectorAll('.yt-sidebar .nav-link, .yt-store-link').forEach(link => {
