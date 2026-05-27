@@ -1,914 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - UYEH TECH</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-     <script src="/site-controller.js" defer></script>
-    <script src="/pwa-install.js" defer></script>
-    
-    <!-- CSS -->
-
-       <style>
-         /* ========== UYEH TECH - LOGIN PAGE COMPLETE STYLES ========== */
-
-/* ========== RESET ========== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Montserrat', sans-serif;
-    background: #0a0a0a;
-    color: #fff;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    overflow-x: hidden;
-}
-
-/* ========== PARTICLES BACKGROUND ========== */
-.particles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.particle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background: #00ff88;
-    border-radius: 50%;
-    opacity: 0.3;
-    animation: float 15s infinite;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0) translateX(0);
-        opacity: 0;
-    }
-    10% {
-        opacity: 0.3;
-    }
-    90% {
-        opacity: 0.3;
-    }
-    100% {
-        transform: translateY(-100vh) translateX(50px);
-        opacity: 0;
-    }
-}
-
-/* ========== CONTAINER ========== */
-.signup-container {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 480px;
-    animation: fadeInUp 0.6s ease;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ========== LOGO SECTION ========== */
-.auth-logo {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.auth-logo-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 3rem;
-    font-weight: 900;
-    color: #00ff88;
-    text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
-    margin-bottom: 10px;
-    letter-spacing: 2px;
-}
-
-.auth-logo-tagline {
-    color: #9ca3af;
-    font-size: 0.95rem;
-    font-weight: 400;
-}
-
-/* ========== LOGIN/SIGNUP BOX ========== */
-.signup-box {
-    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    border-radius: 25px;
-    padding: 50px 40px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.signup-header {
-    text-align: center;
-    margin-bottom: 35px;
-}
-
-.signup-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    color: #00ff88;
-    margin-bottom: 10px;
-    font-weight: 700;
-}
-
-.signup-subtitle {
-    color: #9ca3af;
-    font-size: 0.95rem;
-}
-
-/* ========== FORM ELEMENTS ========== */
-.form-group {
-    margin-bottom: 22px;
-    position: relative;
-}
-
-.form-label {
-    display: block;
-    color: #00ff88;
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-}
-
-.form-input {
-    width: 100%;
-    padding: 15px 20px;
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    border-radius: 12px;
-    color: #fff;
-    font-size: 1rem;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: #00ff88;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-    background: rgba(0, 255, 136, 0.08);
-}
-
-.form-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.form-input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* ========== PASSWORD WRAPPER ========== */
-.password-wrapper {
-    position: relative;
-}
-
-.password-toggle {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #00ff88;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    padding: 5px;
-}
-
-.password-toggle:hover {
-    transform: translateY(-50%) scale(1.1);
-}
-
-/* ========== FORGOT PASSWORD LINK ========== */
-.forgot-password-link {
-    text-align: right;
-    margin-bottom: 20px;
-}
-
-.forgot-password-link a {
-    color: #00ff88;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.forgot-password-link a:hover {
-    color: #00cc66;
-    text-decoration: underline;
-}
-
-/* ========== BUTTONS ========== */
-.signup-btn {
-    width: 100%;
-    padding: 18px;
-    background: linear-gradient(135deg, #00b359, #00ff88);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
-    margin-bottom: 20px;
-    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
-}
-
-.signup-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
-}
-
-.signup-btn:active {
-    transform: translateY(-1px);
-}
-
-.signup-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* ========== DIVIDER ========== */
-.divider {
-    display: flex;
-    align-items: center;
-    margin: 30px 0;
-    gap: 15px;
-}
-
-.divider::before,
-.divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3), transparent);
-}
-
-.divider span {
-    color: #9ca3af;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0 10px;
-}
-
-/* ========== SOCIAL LOGIN ========== */
-.social-signup {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.social-btn {
-    padding: 14px 20px;
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-    border-radius: 12px;
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.social-btn:hover {
-    background: rgba(0, 255, 136, 0.1);
-    border-color: rgba(0, 255, 136, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
-}
-
-.social-btn:active {
-    transform: translateY(0);
-}
-
-.social-icon {
-    font-size: 1.2rem;
-}
-
-/* ========== MESSAGES ========== */
-.success-message {
-    background: rgba(0, 255, 136, 0.2);
-    border: 1px solid rgba(0, 255, 136, 0.4);
-    color: #00ff88;
-    padding: 12px 18px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: none;
-    align-items: center;
-    gap: 10px;
-    animation: slideDown 0.3s ease;
-}
-
-.success-message.show {
-    display: flex;
-}
-
-.error-message {
-    background: rgba(255, 68, 68, 0.2);
-    border: 1px solid rgba(255, 68, 68, 0.4);
-    color: #ff4444;
-    padding: 12px 18px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: none;
-    align-items: center;
-    gap: 10px;
-    animation: slideDown 0.3s ease;
-}
-
-.error-message.show {
-    display: flex;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ========== LINKS ========== */
-.login-link {
-    text-align: center;
-    color: #9ca3af;
-    margin-top: 20px;
-    font-size: 0.95rem;
-}
-
-.login-link a {
-    color: #00ff88;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.login-link a:hover {
-    color: #00cc66;
-    text-decoration: underline;
-}
-
-/* ========== BACK TO STORE ========== */
-.back-to-store {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.back-link {
-    color: #9ca3af;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95rem;
-}
-
-.back-link:hover {
-    color: #00ff88;
-    transform: translateX(-3px);
-}
-
-/* ========== LOADING STATE ========== */
-.btn-loading {
-    position: relative;
-    color: transparent !important;
-    pointer-events: none;
-}
-
-.btn-loading::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { 
-        transform: translate(-50%, -50%) rotate(360deg); 
-    }
-}
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 600px) {
-    body {
-        padding: 15px;
-    }
-
-    .signup-container {
-        max-width: 100%;
-    }
-
-    .signup-box {
-        padding: 40px 25px;
-        border-radius: 20px;
-    }
-
-    .auth-logo {
-        margin-bottom: 30px;
-    }
-
-    .auth-logo-text {
-        font-size: 2.5rem;
-    }
-
-    .auth-logo-tagline {
-        font-size: 0.85rem;
-    }
-
-    .signup-title {
-        font-size: 1.8rem;
-    }
-
-    .signup-subtitle {
-        font-size: 0.9rem;
-    }
-
-    .form-input {
-        padding: 13px 18px;
-        font-size: 0.95rem;
-    }
-
-    .form-label {
-        font-size: 0.9rem;
-    }
-
-    .signup-btn {
-        padding: 16px;
-        font-size: 1rem;
-    }
-
-    .password-toggle {
-        font-size: 1.1rem;
-        right: 12px;
-    }
-
-    .social-signup {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .social-btn {
-        padding: 13px 18px;
-        font-size: 0.9rem;
-    }
-
-    .divider {
-        margin: 25px 0;
-    }
-}
-
-@media (max-width: 400px) {
-    .signup-box {
-        padding: 35px 20px;
-    }
-
-    .auth-logo-text {
-        font-size: 2.2rem;
-    }
-
-    .signup-title {
-        font-size: 1.6rem;
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    .social-icon {
-        font-size: 1.1rem;
-    }
-}
-
-/* ========== FOCUS STYLES ========== */
-*:focus {
-    outline: 2px solid rgba(0, 255, 136, 0.5);
-    outline-offset: 2px;
-}
-
-button:focus,
-input:focus,
-a:focus {
-    outline: 2px solid rgba(0, 255, 136, 0.5);
-    outline-offset: 2px;
-}
-
-/* ========== SMOOTH SCROLLING ========== */
-html {
-    scroll-behavior: smooth;
-}
-
-/* ========== SELECTION STYLES ========== */
-::selection {
-    background: rgba(0, 255, 136, 0.3);
-    color: #fff;
-}
-
-::-moz-selection {
-    background: rgba(0, 255, 136, 0.3);
-    color: #fff;
-}
-
-/* ========== HOVER EFFECTS FOR LINKS ========== */
-a {
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-/* ========== ADDITIONAL POLISH ========== */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-    -webkit-text-fill-color: #fff;
-    -webkit-box-shadow: 0 0 0px 1000px rgba(0, 255, 136, 0.05) inset;
-    transition: background-color 5000s ease-in-out 0s;
-    border: 1px solid rgba(0, 255, 136, 0.3);
-}
-
-/* ========== ENHANCED ANIMATIONS ========== */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
-.loading-pulse {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* ========== CUSTOM SCROLLBAR (if content overflows) ========== */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(0, 255, 136, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(0, 255, 136, 0.3);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 255, 136, 0.5);
-}
-       </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — UYEH TECH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="/site-controller.js" defer></script>
+  <script src="/pwa-install.js" defer></script>
+<style>
+:root{
+  --g:#00ff88;--g2:#00c96a;--g3:rgba(0,255,136,.08);--g4:rgba(0,255,136,.14);
+  --ink:#080a0c;--ink2:#0d1018;--line:rgba(255,255,255,.07);--line2:rgba(0,255,136,.2);
+  --t1:#e8edf2;--t2:#8a96a8;--t3:#4a5568;
+  --red:#ff4d4d;--ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--ink);color:var(--t1);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:24px 20px;overflow-x:hidden;
+}
+
+/* ── Background mesh ── */
+.bg-mesh{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%,rgba(0,255,136,.04) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(0,201,106,.03) 0%,transparent 60%);
+}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:2px;height:2px;background:var(--g);border-radius:50%;opacity:0;animation:float 18s infinite;}
+@keyframes float{0%,100%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:.25;}90%{opacity:.2;}100%{transform:translateY(-100vh) translateX(40px);opacity:0;}}
+
+/* ── Container ── */
+.auth-wrap{
+  position:relative;z-index:1;
+  width:100%;max-width:460px;
+  animation:fadeUp .55s var(--ease) both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── Logo ── */
+.auth-logo{text-align:center;margin-bottom:36px;}
+.logo-mark{
+  width:60px;height:60px;border-radius:16px;
+  background:linear-gradient(135deg,var(--g2),var(--g));
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;overflow:hidden;
+  box-shadow:0 0 30px rgba(0,255,136,.25);
+}
+.logo-mark img{width:100%;height:100%;object-fit:contain;}
+.logo-initials{font-family:'Playfair Display',serif;font-weight:900;font-size:.9rem;color:#080a0c;}
+.logo-name{
+  font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;
+  color:var(--g);letter-spacing:1px;
+  text-shadow:0 0 40px rgba(0,255,136,.3);
+  line-height:1;margin-bottom:6px;
+}
+.logo-tagline{font-size:.78rem;color:var(--t3);letter-spacing:.5px;}
+
+/* ── Card ── */
+.auth-card{
+  background:var(--ink2);
+  border:1px solid var(--line2);
+  border-radius:22px;
+  padding:42px 38px;
+  box-shadow:0 0 60px rgba(0,255,136,.06),0 24px 64px rgba(0,0,0,.5);
+  position:relative;overflow:hidden;
+}
+.auth-card::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:200px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);
+}
+.auth-card-head{text-align:center;margin-bottom:32px;}
+.auth-card-title{
+  font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:900;
+  color:var(--t1);margin-bottom:6px;
+}
+.auth-card-sub{font-size:.82rem;color:var(--t3);}
+
+/* ── Alert boxes ── */
+.alert{
+  display:none;padding:12px 16px;border-radius:10px;
+  font-size:.8rem;font-weight:600;margin-bottom:20px;
+  align-items:center;gap:9px;line-height:1.5;
+}
+.alert.show{display:flex;}
+.alert-error{background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.25);color:var(--red);}
+.alert-success{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);color:var(--g);}
+.alert-info{background:rgba(59,158,255,.08);border:1px solid rgba(59,158,255,.25);color:#3b9eff;}
+
+/* ── Form ── */
+.form-group{margin-bottom:18px;position:relative;}
+.form-label{
+  display:block;font-size:.72rem;font-weight:700;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;
+}
+.form-input{
+  width:100%;padding:12px 16px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;color:var(--t1);font-size:.9rem;font-family:'Syne',sans-serif;
+  outline:none;transition:all .2s var(--ease);
+}
+.form-input:focus{border-color:var(--g);background:var(--g3);box-shadow:0 0 0 3px rgba(0,255,136,.07);}
+.form-input::placeholder{color:var(--t3);}
+.form-input.error{border-color:var(--red);background:rgba(255,77,77,.04);}
+.field-err{font-size:.7rem;color:var(--red);margin-top:4px;display:none;}
+.field-err.show{display:block;}
+
+/* ── Password wrapper ── */
+.pw-wrap{position:relative;}
+.pw-wrap .form-input{padding-right:44px;}
+.pw-toggle{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--t3);cursor:pointer;
+  font-size:.9rem;padding:4px;transition:color .2s;line-height:1;
+}
+.pw-toggle:hover{color:var(--g);}
+
+/* ── Submit button ── */
+.btn-submit{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--g2),var(--g));
+  border:none;border-radius:11px;color:#080a0c;
+  font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;
+  cursor:pointer;transition:all .25s var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  margin-bottom:6px;
+}
+.btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,255,136,.35);}
+.btn-submit:active:not(:disabled){transform:translateY(0);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── Forgot password ── */
+.forgot-row{text-align:right;margin-bottom:16px;}
+.forgot-row a{font-size:.78rem;color:var(--g);text-decoration:none;font-weight:600;transition:opacity .2s;}
+.forgot-row a:hover{opacity:.7;}
+
+/* ── Divider ── */
+.divider{display:flex;align-items:center;gap:12px;margin:24px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+.divider span{font-size:.75rem;color:var(--t3);font-weight:600;}
+
+/* ── Social buttons ── */
+.social-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;}
+.btn-social{
+  padding:11px 16px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);
+  border-radius:10px;color:var(--t2);font-family:'Syne',sans-serif;
+  font-size:.8rem;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;
+}
+.btn-social:hover{background:var(--g3);border-color:var(--line2);color:var(--t1);}
+.btn-social img{width:17px;height:17px;border-radius:3px;}
+
+/* ── Auth link ── */
+.auth-link{text-align:center;font-size:.82rem;color:var(--t3);}
+.auth-link a{color:var(--g);text-decoration:none;font-weight:700;transition:opacity .2s;}
+.auth-link a:hover{opacity:.75;}
+
+/* ── Back links ── */
+.back-links{text-align:center;margin-top:22px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;}
+.back-links a{font-size:.75rem;color:var(--t3);text-decoration:none;transition:color .2s;}
+.back-links a:hover{color:var(--g);}
+
+/* ── Toast container ── */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{padding:12px 18px;border-radius:10px;font-size:.8rem;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:toastIn .3s var(--ease);pointer-events:auto;max-width:320px;display:flex;align-items:center;gap:8px;}
+.toast.success{background:linear-gradient(135deg,var(--g2),var(--g));color:#080a0c;}
+.toast.error{background:linear-gradient(135deg,#c0392b,var(--red));color:#fff;}
+.toast.info{background:var(--ink2);border:1px solid var(--line2);color:var(--t1);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+@media(max-width:480px){
+  .auth-card{padding:30px 22px;}
+  .social-grid{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-    <!-- Particles Background -->
-    <div class="particles">
-        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
-        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
-        <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
-        <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
-        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
-        <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
-        <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
-        <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+<div class="bg-mesh"></div>
+<div class="particles" id="particles"></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="auth-wrap">
+  <!-- Logo -->
+  <div class="auth-logo">
+    <div class="logo-mark">
+      <img src="/marketplace/uyehtech logo.png" alt="UYEH TECH" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="logo-initials" style="display:none;">UT</span>
+    </div>
+    <div class="logo-name">UYEH TECH</div>
+    <div class="logo-tagline">Digital Products Marketplace</div>
+  </div>
+
+  <!-- Card -->
+  <div class="auth-card">
+    <div class="auth-card-head">
+      <div class="auth-card-title">Welcome Back</div>
+      <div class="auth-card-sub">Log in to your account to continue</div>
     </div>
 
-    <!-- Login Container -->
-    <div class="signup-container">
-        <!-- Logo -->
-        <div class="auth-logo">
-            <div class="auth-logo-text">UYEH TECH</div>
-            <div class="auth-logo-tagline">Digital Products Store</div>
+    <!-- Alerts -->
+    <div class="alert alert-error" id="alertError"><i class="fas fa-circle-exclamation"></i><span id="alertErrorText"></span></div>
+    <div class="alert alert-success" id="alertSuccess"><i class="fas fa-circle-check"></i><span>Login successful! Redirecting to your dashboard…</span></div>
+    <div class="alert alert-info" id="alertInfo"><i class="fas fa-circle-info"></i><span id="alertInfoText"></span></div>
+
+    <!-- Form -->
+    <form id="loginForm" autocomplete="on">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+        <div class="field-err" id="emailErr"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility"><i class="fas fa-eye"></i></button>
         </div>
+        <div class="field-err" id="passwordErr"></div>
+      </div>
 
-        <!-- Login Box -->
-        <div class="signup-box">
-            <div class="signup-header">
-                <h1 class="signup-title">Welcome Back</h1>
-                <p class="signup-subtitle">Login to your account</p>
-            </div>
+      <div class="forgot-row">
+        <a href="/marketplace/forgot-password">Forgot Password?</a>
+      </div>
 
-            <!-- Error Message -->
-            <div class="error-message" id="errorMessage">
-                <span>⚠️</span>
-                <span id="errorText">Error message</span>
-            </div>
+      <button type="submit" class="btn-submit" id="loginBtn">
+        <i class="fas fa-arrow-right-to-bracket"></i> Log In
+      </button>
+    </form>
 
-            <!-- Success Message -->
-            <div class="success-message" id="successMessage">
-                <span>✅</span>
-                <span>Login successful! Redirecting...</span>
-            </div>
+    <!-- Divider -->
+    <div class="divider"><span>OR</span></div>
 
-            <!-- Login Form -->
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input 
-                        type="email" 
-                        class="form-input" 
-                        id="email"
-                        placeholder="your.email@example.com"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <div class="password-wrapper">
-                        <input 
-                            type="password" 
-                            class="form-input" 
-                            id="password"
-                            placeholder="Enter your password"
-                            required
-                        >
-                        <button 
-                            type="button" 
-                            class="password-toggle" 
-                            id="passwordToggle"
-                        >
-                            👁️
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Forgot Password Link -->
-                <div style="text-align: right; margin-bottom: 20px;">
-                    <a href="/marketplace/forgot-password" style="color: #00ff88; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.3s;">
-                        Forgot Password?
-                    </a>
-                </div>
-
-                <button type="submit" class="signup-btn" id="loginBtn">
-                    🔓 Login
-                </button>
-            </form>
-
-            <!-- Divider -->
-            <div class="divider">
-                <span>OR</span>
-            </div>
-
-            <!-- Social Login -->
-            <div class="social-signup">
-                <button class="social-btn" onclick="socialLogin('google')">
-                    <span class="social-icon">🔵</span>
-                    Google
-                </button>
-                <button class="social-btn" onclick="socialLogin('facebook')">
-                    <span class="social-icon">📘</span>
-                    Facebook
-                </button>
-            </div>
-
-            <!-- Signup Link -->
-            <div class="login-link">
-                Don't have an account? <a href="/marketplace/signup">Sign Up</a>
-            </div>
-        </div>
-
-        <!-- Back to Store -->
-        <div class="back-to-store">
-            <a href="/marketplace/" class="back-link">
-                ← Back to Store
-            </a><br>
-            <a href="/" class="back-link">
-                ← Back to Uyeh Tech Home
-            </a>
-        </div>
+    <!-- Social (coming soon) -->
+    <div class="social-grid">
+      <button class="btn-social" onclick="socialLogin('google')">
+        <img src="https://www.google.com/favicon.ico" alt="G"> Google
+      </button>
+      <button class="btn-social" onclick="socialLogin('facebook')">
+        <img src="https://www.facebook.com/favicon.ico" alt="fb"> Facebook
+      </button>
     </div>
 
-    <!-- JavaScript -->
-    <script>
-      // ========== UYEH TECH - LOGIN PAGE JAVASCRIPT ==========
+    <div class="auth-link">
+      Don't have an account? <a href="/marketplace/signup">Sign Up Free</a>
+    </div>
+  </div>
 
-// Configuration
-const API_URL = 'https://uyehtechbackend.onrender.com'; // Change to your deployed backend URL
+  <div class="back-links">
+    <a href="/marketplace/"><i class="fas fa-store" style="margin-right:5px;"></i>Back to Store</a>
+    <a href="/"><i class="fas fa-house" style="margin-right:5px;"></i>UYEH TECH Home</a>
+  </div>
+</div>
 
-// DOM Elements
-const loginForm = document.getElementById('loginForm');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const passwordToggle = document.getElementById('passwordToggle');
-const loginBtn = document.getElementById('loginBtn');
-const errorMessage = document.getElementById('errorMessage');
-const errorText = document.getElementById('errorText');
-const successMessage = document.getElementById('successMessage');
+<script>
+'use strict';
+const API_URL = 'https://uyehtechbackend.onrender.com';
 
-// ========== TOGGLE PASSWORD VISIBILITY ==========
-passwordToggle.addEventListener('click', function() {
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        passwordToggle.textContent = '🙈';
+/* ── Redirect if already logged in ── */
+(function(){
+  if (localStorage.getItem('token') && localStorage.getItem('user')) {
+    window.location.replace('/marketplace/dashboard');
+  }
+})();
+
+/* ── Particles ── */
+(function(){
+  const c = document.getElementById('particles');
+  const positions = [5,15,25,35,45,55,65,75,85,95];
+  const delays    = [0,2,4,1,3,5,2.5,4.5,1.5,3.5];
+  positions.forEach((l,i) => {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${l}%;animation-delay:${delays[i]}s;animation-duration:${14+i}s;`;
+    c.appendChild(p);
+  });
+})();
+
+/* ── DOM refs ── */
+const loginForm   = document.getElementById('loginForm');
+const emailInput  = document.getElementById('email');
+const passInput   = document.getElementById('password');
+const loginBtn    = document.getElementById('loginBtn');
+const pwToggle    = document.getElementById('pwToggle');
+
+/* ── Password toggle ── */
+pwToggle.addEventListener('click', () => {
+  const hidden = passInput.type === 'password';
+  passInput.type = hidden ? 'text' : 'password';
+  pwToggle.innerHTML = `<i class="fas fa-eye${hidden ? '-slash' : ''}"></i>`;
+});
+
+/* ── Enter key navigation ── */
+emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); passInput.focus(); } });
+passInput.addEventListener('keydown',  e => { if (e.key === 'Enter') { e.preventDefault(); loginForm.requestSubmit(); } });
+
+/* ── Clear field errors on input ── */
+emailInput.addEventListener('input', () => clearFieldErr('emailErr', 'email'));
+passInput.addEventListener('input',  () => clearFieldErr('passwordErr', 'password'));
+
+/* ── Form submit ── */
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  hideAlerts();
+
+  const email    = emailInput.value.trim().toLowerCase();
+  const password = passInput.value;
+
+  // Client-side validation
+  let valid = true;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showFieldErr('emailErr', 'email', 'Enter a valid email address'); valid = false;
+  }
+  if (!password) {
+    showFieldErr('passwordErr', 'password', 'Password is required'); valid = false;
+  }
+  if (!valid) return;
+
+  setLoading(true);
+
+  try {
+    const res  = await fetch(`${API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user',  JSON.stringify(data.user));
+      showAlert('alertSuccess');
+      // Slight delay so success message is visible
+      setTimeout(() => window.location.replace('/marketplace/dashboard'), 1200);
     } else {
-        passwordInput.type = 'password';
-        passwordToggle.textContent = '👁️';
+      // Map specific server errors to field-level hints
+      const msg = data.message || 'Login failed. Please try again.';
+      if (msg.toLowerCase().includes('password')) {
+        showFieldErr('passwordErr', 'password', msg);
+      } else if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('account')) {
+        showFieldErr('emailErr', 'email', msg);
+      } else if (msg.toLowerCase().includes('banned')) {
+        showAlert('alertError', msg);
+      } else {
+        showAlert('alertError', msg);
+      }
+      setLoading(false);
     }
+  } catch(err) {
+    showAlert('alertError', 'Network error. Check your connection and try again.');
+    setLoading(false);
+  }
 });
 
-// ========== HANDLE LOGIN FORM SUBMISSION ==========
-loginForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    
-    // Validate inputs
-    if (!email || !password) {
-        showError('Please fill in all fields');
-        return;
-    }
-    
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showError('Please enter a valid email address');
-        return;
-    }
-    
-    // Show loading state
-    loginBtn.disabled = true;
-    loginBtn.classList.add('btn-loading');
-    
-    try {
-        const response = await fetch(`${API_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email,
-                password
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Save authentication token and user data
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Show success message
-            successMessage.classList.add('show');
-            
-            // Redirect to dashboard/profile after 1.5 seconds
-            setTimeout(() => {
-                window.location.href = '/marketplace/dashboard';
-            }, 1500);
-        } else {
-            throw new Error(data.message || 'Login failed');
-        }
-        
-    } catch (error) {
-        console.error('Login Error:', error);
-        showError(error.message || 'Login failed. Please check your credentials.');
-        loginBtn.disabled = false;
-        loginBtn.classList.remove('btn-loading');
-    }
-});
-
-// ========== SOCIAL LOGIN FUNCTION ==========
+/* ── Social login (placeholder) ── */
 function socialLogin(provider) {
-    showNotification(`🔄 ${provider.charAt(0).toUpperCase() + provider.slice(1)} login coming soon!`);
-    
-    // TODO: Implement actual social login
-    // For now, show a notification
-    console.log(`Social login with ${provider} clicked`);
+  showToast(`${provider.charAt(0).toUpperCase()+provider.slice(1)} login coming soon!`, 'info');
 }
 
-// ========== SHOW ERROR MESSAGE ==========
-function showError(message) {
-    errorText.textContent = message;
-    errorMessage.classList.add('show');
-    
-    // Hide after 5 seconds
-    setTimeout(() => {
-        errorMessage.classList.remove('show');
-    }, 5000);
+/* ── Helpers ── */
+function setLoading(on) {
+  loginBtn.disabled = on;
+  loginBtn.innerHTML = on
+    ? '<i class="fas fa-spinner fa-spin"></i> Logging in…'
+    : '<i class="fas fa-arrow-right-to-bracket"></i> Log In';
+}
+function hideAlerts() {
+  ['alertError','alertSuccess','alertInfo'].forEach(id => document.getElementById(id).classList.remove('show'));
+}
+function showAlert(id, msg='') {
+  const el = document.getElementById(id);
+  if (msg) { const span = el.querySelector('span'); if(span) span.textContent = msg; }
+  el.classList.add('show');
+}
+function showFieldErr(errId, inputId, msg) {
+  const e = document.getElementById(errId);
+  if (e) { e.textContent = msg; e.classList.add('show'); }
+  const i = document.getElementById(inputId);
+  if (i) i.classList.add('error');
+}
+function clearFieldErr(errId, inputId) {
+  const e = document.getElementById(errId); if(e) { e.classList.remove('show'); }
+  const i = document.getElementById(inputId); if(i) i.classList.remove('error');
+}
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type; t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 4000);
 }
 
-// ========== SHOW NOTIFICATION ==========
-function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 30px;
-        right: 30px;
-        background: linear-gradient(135deg, #00b359, #00ff88);
-        color: white;
-        padding: 18px 25px;
-        border-radius: 12px;
-        font-weight: 600;
-        box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
-        z-index: 10000;
-        max-width: 400px;
-        white-space: pre-line;
-        font-family: 'Montserrat', sans-serif;
-        animation: slideIn 0.3s ease;
-    `;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    // Remove after 5 seconds with animation
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(400px)';
-        notification.style.transition = 'all 0.3s';
-        setTimeout(() => notification.remove(), 300);
-    }, 5000);
-}
+/* ── Auto focus ── */
+window.addEventListener('load', () => emailInput.focus());
 
-// ========== CHECK IF USER IS ALREADY LOGGED IN ==========
-window.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-        // User is already logged in, redirect to dashboard
-        window.location.href = '/marketplace/dashboard';
-    }
+/* ── Back-forward cache ── */
+window.addEventListener('pageshow', e => {
+  if (e.persisted && localStorage.getItem('token')) window.location.replace('/marketplace/dashboard');
 });
-
-// ========== HANDLE ENTER KEY ON INPUT FIELDS ==========
-emailInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        passwordInput.focus();
-    }
-});
-
-passwordInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        loginForm.dispatchEvent(new Event('submit'));
-    }
-});
-
-// ========== AUTO-FOCUS EMAIL INPUT ON PAGE LOAD ==========
-window.addEventListener('load', () => {
-    emailInput.focus();
-});
-
-// ========== HANDLE BROWSER BACK BUTTON ==========
-window.addEventListener('pageshow', function(event) {
-    // If page is loaded from cache (back button), check login status
-    if (event.persisted) {
-        const token = localStorage.getItem('token');
-        if (token) {
-            window.location.href = '/marketplace/dashboard';
-        }
-    }
-});
-    </script>
+</script>
 </body>
 </html>
