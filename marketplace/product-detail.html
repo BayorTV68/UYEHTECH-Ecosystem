@@ -538,9 +538,20 @@ function checkAuth() {
   try { JSON.parse(usr); return true; }
   catch { ['token','user'].forEach(k=>localStorage.removeItem(k)); location.href='/marketplace/login'; return false; }
 }
+
 function ls(k)   { return localStorage.getItem(k); }
 function token() { return ls('token'); }
 function authH() { return {'Authorization':`Bearer ${token()}`,'Content-Type':'application/json'}; }
+
+// Appends the JWT as ?token= so iframe.src requests can authenticate.
+// Browsers cannot send Authorization headers from iframe.src — query param is the only way.
+function _withToken(url) {
+  if (!url) return url;
+  const tok = token();
+  if (!tok) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return url + sep + 'token=' + encodeURIComponent(tok);
+}
 
 /* ── FETCH ───────────────────────────────────────────── */
 async function fetchAccess() {
@@ -1118,9 +1129,9 @@ function renderDownload(data, p, type) {
     || (data.format || '').toLowerCase() === 'pdf';
 
   if (isPdfProduct && data.pdfUrl) {
-    const pdfSrc    = data.pdfUrl;
+    const pdfSrc    = _withToken(data.pdfUrl);
     // directUrl = raw Cloudinary URL for Download button only
-    const directUrl = data.cloudinaryUrl || data.fileUrl || pdfSrc;
+    const directUrl = data.cloudinaryUrl || data.fileUrl || data.pdfUrl;
 
     ge('playerZone').innerHTML = `
       <div style="background:#111;width:100%">
@@ -1370,10 +1381,10 @@ function renderPlayer(ch) {
   }
 
   if (isPdf) {
-    const pdfSrc    = pdfSourceUrl;  // authenticated proxy URL — use directly
+    const pdfSrc    = _withToken(pdfSourceUrl);  // token appended for iframe auth
     // directUrl = raw Cloudinary URL used ONLY for the Download button.
     // Never pass this to Google Docs viewer — Google can't authenticate it.
-    const directUrl = ch.cloudinaryUrl || cloudinaryUrl || pdfSrc;
+    const directUrl = ch.cloudinaryUrl || cloudinaryUrl || pdfSourceUrl;
 
     zone.innerHTML = `
       <div style="background:#111;width:100%">
