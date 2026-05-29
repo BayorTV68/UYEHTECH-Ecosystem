@@ -8818,7 +8818,54 @@ async function previewCourseStructure(productId, title, suggestedPrice) {
             const srcLabel   = ch.contentSource
                 ? ch.contentSource.charAt(0).toUpperCase() + ch.contentSource.slice(1)
                 : (hasContent ? 'External' : 'Empty');
-            const url = ch.externalUrl || null;
+            const adminUrl   = ch.adminPreviewUrl  || null;
+            const extUrl     = ch.adminExternalUrl || ch.externalUrl || null;
+            const isPdfCh    = ch.chapterType === 'pdf';
+            const isAudioCh  = ch.chapterType === 'audio';
+            const isVideoCh  = ch.chapterType === 'video';
+
+            // Build playable preview HTML based on chapter type
+            const previewWidget = (() => {
+              if (adminUrl) {
+                if (isPdfCh) {
+                  return `<div style="margin-top:7px">
+                    <a href="${esc(adminUrl)}" target="_blank" rel="noopener"
+                       style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;
+                              padding:4px 11px;background:rgba(239,68,68,.12);
+                              border:1px solid rgba(239,68,68,.25);border-radius:6px;
+                              color:#fca5a5;text-decoration:none;font-weight:600;">
+                      📄 Open PDF
+                    </a></div>`;
+                }
+                if (isAudioCh) {
+                  return `<div style="margin-top:7px;padding:0 0 2px">
+                    <audio controls controlsList="nodownload" preload="none"
+                           style="width:100%;height:34px;border-radius:7px;outline:none;
+                                  accent-color:var(--primary);">
+                      <source src="${esc(adminUrl)}">
+                      <a href="${esc(adminUrl)}" target="_blank" style="color:var(--primary);font-size:.72rem;">↗ Open audio</a>
+                    </audio></div>`;
+                }
+                if (isVideoCh) {
+                  return `<div style="margin-top:7px">
+                    <video controls controlsList="nodownload" preload="none" playsinline
+                           style="width:100%;max-height:180px;border-radius:8px;
+                                  background:#000;display:block;outline:none;">
+                      <source src="${esc(adminUrl)}">
+                      <a href="${esc(adminUrl)}" target="_blank" style="color:var(--primary);font-size:.72rem;">↗ Open video</a>
+                    </video></div>`;
+                }
+              }
+              if (extUrl) {
+                return `<div style="margin-top:5px">
+                  <a href="${esc(extUrl)}" target="_blank" rel="noopener"
+                     style="font-size:.68rem;color:var(--primary);text-decoration:none;">
+                     ↗ Open
+                  </a></div>`;
+              }
+              return '';
+            })();
+
             return `
             <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;
                  border-top:1px solid rgba(255,255,255,.04);
@@ -8875,9 +8922,9 @@ async function previewCourseStructure(productId, title, suggestedPrice) {
                             ⏱ ${fmtDur(ch.duration)}
                         </span>` : ''}
 
-                        <!-- External URL open link -->
-                        ${url ? `
-                        <a href="${esc(url)}" target="_blank"
+                       <!-- External URL open link (inline badge) -->
+                        ${extUrl && !adminUrl ? `
+                        <a href="${esc(extUrl)}" target="_blank"
                            style="font-size:.68rem;color:var(--primary);text-decoration:none;">
                            ↗ Open
                         </a>` : ''}
@@ -8893,8 +8940,9 @@ async function previewCourseStructure(productId, title, suggestedPrice) {
                         ${ch.resources  ? `<span style="font-size:.65rem;color:#b794f4;">📎 ${ch.resources} resource${ch.resources>1?'s':''}</span>` : ''}
                     </div>
                 </div>
+                ${previewWidget}
             </div>`;
-        }).join('') : `<div style="padding:10px 12px;font-size:.75rem;color:#6b7280;font-style:italic;">
+        }).join(''): `<div style="padding:10px 12px;font-size:.75rem;color:#6b7280;font-style:italic;">
             No chapters in this section yet.</div>`}
         </div>
     </div>`).join('')
