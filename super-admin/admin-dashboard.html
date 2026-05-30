@@ -6015,79 +6015,272 @@ async function deleteBlogPost(postId) {
 }
 
 // ========== SYSTEM SETTINGS ==========
+// ═══════════════════════════════════════════════════════════════════════════
+//  UYEH TECH — Admin Dashboard  ·  Settings Section  · 
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── State ────────────────────────────────────────────────────────────────────
+// _adminSettings    → live settings object (already used elsewhere)
+// _settingsDirty    → tracks unsaved changes for the discard-confirmation guard
+// _settingsTab      → which tab is currently visible
+let _settingsDirty = false;
+let _settingsTab   = 'general';
+
+// ── Entry point ───────────────────────────────────────────────────────────────
 async function loadSettingsData() {
-    const settingsPage = document.getElementById('settingsPage');
- 
-    settingsPage.innerHTML = `
+    const page = document.getElementById('settingsPage');
+    _settingsDirty = false;
+    _settingsTab   = 'general';
+
+    // ── Inject one-time CSS ────────────────────────────────────────────────
+    if (!document.getElementById('settingsSectionCSS')) {
+        const s = document.createElement('style');
+        s.id = 'settingsSectionCSS';
+        s.textContent = `
+            /* ── Tab bar ──────────────────────────────────────── */
+            .st-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:28px; }
+            .st-tab {
+                display:inline-flex; align-items:center; gap:7px;
+                padding:9px 18px; border-radius:10px; border:1px solid rgba(0,255,136,.2);
+                background:rgba(0,255,136,.04); color:var(--gray);
+                cursor:pointer; font-weight:600; font-size:.82rem;
+                transition:all .22s; white-space:nowrap;
+            }
+            .st-tab:hover  { background:rgba(0,255,136,.09); color:var(--gray-light); border-color:rgba(0,255,136,.35); }
+            .st-tab.active { background:rgba(0,255,136,.14); color:var(--primary); border-color:rgba(0,255,136,.55);
+                             box-shadow:0 0 12px rgba(0,255,136,.1); }
+
+            /* ── Section heading inside a panel ──────────────── */
+            .st-panel { padding:2px 0; }
+            .st-section-hd {
+                display:flex; align-items:center; gap:10px;
+                margin:0 0 22px;
+                padding-bottom:14px; border-bottom:1px solid rgba(0,255,136,.1);
+            }
+            .st-section-hd-icon {
+                width:36px; height:36px; border-radius:9px; flex-shrink:0;
+                background:rgba(0,255,136,.1); border:1px solid rgba(0,255,136,.25);
+                display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+            }
+            .st-section-hd h3 { font-size:1.05rem; font-weight:700; color:var(--gray-light); }
+            .st-section-hd p  { font-size:.78rem; color:var(--gray); margin-top:2px; }
+
+            /* ── Two-column grid ──────────────────────────────── */
+            .st-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 24px; }
+            @media(max-width:700px){ .st-grid-2 { grid-template-columns:1fr; } }
+
+            /* ── Toggle row ───────────────────────────────────── */
+            .st-toggle-row {
+                display:flex; align-items:center; justify-content:space-between;
+                padding:14px 18px; border-radius:11px; margin-bottom:10px;
+                background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05);
+                transition:background .2s;
+            }
+            .st-toggle-row:hover { background:rgba(255,255,255,.04); }
+            .st-toggle-row.danger { border-color:rgba(255,77,77,.2); background:rgba(255,77,77,.03); }
+            .st-toggle-label { font-weight:600; font-size:.9rem; color:var(--gray-light); }
+            .st-toggle-desc  { font-size:.76rem; color:var(--gray); margin-top:3px; }
+
+            /* ── Upload zone ──────────────────────────────────── */
+            .st-upload-zone {
+                border:2px dashed rgba(0,255,136,.25); border-radius:12px;
+                padding:28px 20px; text-align:center; cursor:pointer;
+                transition:all .25s; position:relative; overflow:hidden;
+                background:rgba(0,255,136,.02);
+            }
+            .st-upload-zone:hover,
+            .st-upload-zone.dragover { border-color:var(--primary); background:rgba(0,255,136,.06); }
+            .st-upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+            .st-upload-preview {
+                width:72px; height:72px; border-radius:14px; object-fit:contain;
+                margin:0 auto 10px; display:block;
+                border:1px solid rgba(0,255,136,.2);
+                background:rgba(0,0,0,.3);
+            }
+            .st-upload-hint { color:var(--gray); font-size:.8rem; margin-top:6px; }
+            .st-upload-btn  {
+                display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+                padding:8px 18px; border-radius:8px; font-size:.82rem; font-weight:600;
+                background:rgba(0,255,136,.1); border:1px solid rgba(0,255,136,.3);
+                color:var(--primary); cursor:pointer; transition:all .2s;
+            }
+            .st-upload-btn:hover { background:rgba(0,255,136,.18); }
+
+            /* ── Token field with copy button ─────────────────── */
+            .st-token-wrap { display:flex; gap:8px; align-items:stretch; }
+            .st-token-wrap .form-input { font-family:'DM Mono',monospace; font-size:.82rem; letter-spacing:.04em; }
+            .st-copy-btn {
+                flex-shrink:0; padding:0 14px; border-radius:10px; border:1px solid rgba(0,255,136,.3);
+                background:rgba(0,255,136,.08); color:var(--primary); cursor:pointer;
+                font-size:.8rem; font-weight:600; transition:all .2s; white-space:nowrap;
+            }
+            .st-copy-btn:hover { background:rgba(0,255,136,.18); }
+
+            /* ── Banner live preview ──────────────────────────── */
+            .st-banner-preview {
+                border-radius:10px; padding:12px 18px; margin-top:16px;
+                font-size:.88rem; font-weight:500; display:none;
+                animation: stFadeIn .3s ease;
+                align-items:center; gap:10px; justify-content:space-between;
+            }
+            .st-banner-preview.show { display:flex; }
+            .st-banner-preview.info    { background:#0d2d45; border:1px solid #0096ff; color:#bfdbfe; }
+            .st-banner-preview.success { background:#0a2e1a; border:1px solid #00ff88; color:#bbf7d0; }
+            .st-banner-preview.warning { background:#2e1f07; border:1px solid #ffa500; color:#fde68a; }
+            .st-banner-preview.urgent  { background:#2e0b0b; border:1px solid #ff4444; color:#fecaca; }
+            .st-banner-badge {
+                font-size:.68rem; font-weight:700; padding:3px 8px; border-radius:5px;
+                background:rgba(255,255,255,.12); text-transform:uppercase; letter-spacing:.05em;
+                white-space:nowrap;
+            }
+
+            /* ── Danger zone ──────────────────────────────────── */
+            .st-danger-zone {
+                border:1px solid rgba(255,77,77,.25); border-radius:14px;
+                padding:22px 24px; margin-top:28px;
+                background:rgba(255,77,77,.03);
+            }
+            .st-danger-zone-hd {
+                font-size:.82rem; font-weight:700; color:var(--error);
+                letter-spacing:.08em; text-transform:uppercase; margin-bottom:14px;
+                display:flex; align-items:center; gap:8px;
+            }
+            .st-danger-row {
+                display:flex; align-items:center; justify-content:space-between;
+                gap:16px; flex-wrap:wrap; padding:12px 0;
+                border-bottom:1px solid rgba(255,255,255,.04);
+            }
+            .st-danger-row:last-child { border-bottom:none; padding-bottom:0; }
+            .st-danger-row-label  { font-size:.88rem; font-weight:600; color:var(--gray-light); }
+            .st-danger-row-desc   { font-size:.76rem; color:var(--gray); margin-top:2px; }
+
+            /* ── Dirty-state save bar ─────────────────────────── */
+            #settingsSaveBar {
+                position:sticky; bottom:0; z-index:99;
+                display:none; align-items:center; justify-content:space-between;
+                gap:12px; flex-wrap:wrap;
+                background:linear-gradient(135deg,rgba(13,16,24,.97),rgba(19,24,32,.97));
+                border-top:1px solid rgba(0,255,136,.2);
+                padding:14px 24px; margin:0 -4px;
+                backdrop-filter:blur(12px);
+                border-radius:0 0 14px 14px;
+                box-shadow:0 -4px 20px rgba(0,0,0,.4);
+                animation: stFadeIn .25s ease;
+            }
+            #settingsSaveBar.show { display:flex; }
+            .st-unsaved-badge {
+                display:flex; align-items:center; gap:8px;
+                font-size:.82rem; color:var(--warning); font-weight:600;
+            }
+            .st-unsaved-dot {
+                width:8px; height:8px; border-radius:50%; background:var(--warning);
+                animation:stPulse 1.5s ease infinite;
+            }
+
+            /* ── Code editor textarea ─────────────────────────── */
+            .st-code-area {
+                font-family:'DM Mono',monospace; font-size:.81rem; line-height:1.65;
+                tab-size:2; resize:vertical; min-height:200px;
+            }
+
+            /* ── Stat pill ────────────────────────────────────── */
+            .st-stat-pills { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+            .st-stat-pill {
+                padding:8px 16px; border-radius:20px; font-size:.78rem; font-weight:600;
+                background:rgba(0,255,136,.07); border:1px solid rgba(0,255,136,.18); color:var(--primary);
+            }
+
+            /* ── Keyframes ────────────────────────────────────── */
+            @keyframes stFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+            @keyframes stPulse  { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.4; transform:scale(1.4); } }
+        `;
+        document.head.appendChild(s);
+    }
+
+    // ── Shell HTML ────────────────────────────────────────────────────────
+    page.innerHTML = `
+        <!-- Page header -->
         <div class="page-header">
-            <h1 class="page-title">Site Settings</h1>
-            <p class="page-subtitle">Control every aspect of uyeh.netlify.app from here</p>
+            <div>
+                <h1 class="page-title">Site Settings</h1>
+                <p class="page-subtitle">Control every aspect of uyeh.netlify.app from here</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-secondary" id="settingsExportBtn" onclick="exportSettings()" title="Download settings as JSON backup">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+                <label class="btn btn-secondary" style="cursor:pointer;" title="Restore from a JSON backup">
+                    <i class="fas fa-file-import"></i> Import
+                    <input type="file" id="settingsImportInput" accept=".json" style="display:none" onchange="importSettings(this)">
+                </label>
+            </div>
         </div>
- 
-        <!-- ── MAINTENANCE QUICK TOGGLE ──────────────────── -->
+
+        <!-- ── MAINTENANCE QUICK TOGGLE ──────────────────────────────── -->
         <div id="maintenanceQuickCard" style="
-            background:linear-gradient(135deg,rgba(255,165,0,.06),rgba(255,165,0,.12));
-            border:2px solid rgba(255,165,0,.3);
-            border-radius:16px; padding:24px 28px; margin-bottom:28px;
-            display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+            border-radius:16px; padding:22px 28px; margin-bottom:28px;
+            display:flex; align-items:center; justify-content:space-between;
+            gap:20px; flex-wrap:wrap;
+            background:linear-gradient(135deg,rgba(255,165,0,.05),rgba(255,165,0,.10));
+            border:1.5px solid rgba(255,165,0,.25);
         ">
             <div>
-                <div style="font-size:1.1rem;font-weight:700;color:#ffa500;margin-bottom:4px;">
-                    🔧 Maintenance Mode
+                <div style="font-size:1rem;font-weight:700;color:#ffa500;margin-bottom:5px;display:flex;align-items:center;gap:8px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:rgba(255,165,0,.15);font-size:.9rem;">🔧</span>
+                    Maintenance Mode
                 </div>
-                <div id="maintStatusText" style="font-size:.85rem;color:var(--gray);">
-                    Loading…
-                </div>
+                <div id="maintStatusText" style="font-size:.83rem;color:var(--gray);">Loading…</div>
             </div>
             <button id="maintToggleBtn" onclick="toggleMaintenanceQuick()"
-                style="padding:12px 28px;background:linear-gradient(135deg,#cc8400,#ffa500);
-                       border:none;border-radius:10px;color:#fff;font-weight:700;
-                       cursor:pointer;font-size:.95rem;transition:all .3s;min-width:140px;">
+                    class="btn" style="min-width:170px;padding:11px 24px;font-size:.9rem;">
                 Loading…
             </button>
         </div>
- 
-        <!-- ── SETTINGS TABS ──────────────────────────────── -->
-        <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;" id="settingsTabs">
+
+        <!-- ── TAB BAR ──────────────────────────────────────────────── -->
+        <div class="st-tabs" id="settingsTabs">
             ${[
-              ['general',     '⚙️',  'General'],
-              ['maintenance', '🔧',  'Maintenance'],
-              ['banner',      '📢',  'Announcement'],
-              ['features',    '🎛️',  'Features'],
-              ['seo',         '🔍',  'SEO & Analytics'],
-              ['appearance',  '🎨',  'Appearance'],
-            ].map(([tab,icon,label],i) => `
-              <button onclick="switchSettingsTab('${tab}')"
-                      id="settingsTab-${tab}"
-                      class="settings-tab-btn ${i===0?'active':''}"
-                      style="padding:9px 18px;border-radius:9px;border:1px solid rgba(0,255,136,.25);
-                             background:${i===0?'rgba(0,255,136,.12)':'rgba(0,255,136,.04)'};
-                             color:${i===0?'var(--primary)':'var(--gray-light)'};
-                             cursor:pointer;font-weight:600;font-size:.82rem;transition:all .25s;">
-                ${icon} ${label}
-              </button>
+                ['general',     'fas fa-sliders-h',       'General'],
+                ['identity',    'fas fa-id-card',          'Identity & Brand'],
+                ['maintenance', 'fas fa-hard-hat',         'Maintenance'],
+                ['banner',      'fas fa-bullhorn',         'Announcement'],
+                ['features',    'fas fa-toggle-on',        'Features'],
+                ['payments',    'fas fa-credit-card',      'Payments'],
+                ['seo',         'fas fa-search',           'SEO & Analytics'],
+                ['appearance',  'fas fa-paint-brush',      'Appearance'],
+            ].map(([tab, icon, label], i) => `
+                <button onclick="switchSettingsTab('${tab}')" id="settingsTab-${tab}"
+                        class="st-tab ${i === 0 ? 'active' : ''}">
+                    <i class="${icon}" style="font-size:.75rem;"></i> ${label}
+                </button>
             `).join('')}
         </div>
- 
-        <!-- ── TAB PANELS ─────────────────────────────────── -->
-        <div class="table-container" id="settingsBody">
-            <div style="text-align:center;padding:40px;color:var(--gray);">
+
+        <!-- ── TAB BODY ─────────────────────────────────────────────── -->
+        <div class="table-container" id="settingsBody" style="padding:28px 28px 12px;">
+            <div style="text-align:center;padding:48px;color:var(--gray);">
                 <div class="spinner" style="margin:0 auto 16px;"></div>
                 Loading settings…
             </div>
         </div>
- 
-        <!-- ── SAVE BUTTON ────────────────────────────────── -->
-        <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap;">
-            <button class="btn btn-secondary" onclick="loadSettingsData()">
-                <i class="fas fa-sync-alt"></i> Discard Changes
-            </button>
-            <button class="btn btn-primary" onclick="saveSettings()">
-                <i class="fas fa-save"></i> Save All Changes
-            </button>
+
+        <!-- ── STICKY SAVE BAR ──────────────────────────────────────── -->
+        <div id="settingsSaveBar">
+            <div class="st-unsaved-badge">
+                <span class="st-unsaved-dot"></span>
+                You have unsaved changes
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-secondary" onclick="discardSettingsChanges()">
+                    <i class="fas fa-undo"></i> Discard
+                </button>
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
         </div>
- 
-        <!-- ── INFO CARD ──────────────────────────────────── -->
+
+        <!-- ── HOW IT WORKS CARD ─────────────────────────────────────── -->
         <div class="info-card" style="margin-top:24px;">
             <div class="info-card-header">
                 <div class="info-card-icon">💡</div>
@@ -6097,344 +6290,935 @@ async function loadSettingsData() {
                 Every page on <strong style="color:var(--primary);">uyeh.netlify.app</strong> loads
                 <code style="background:rgba(0,255,136,.1);padding:2px 7px;border-radius:5px;font-size:.82rem;">site-controller.js</code>
                 which polls your backend every 60 seconds. When you save here, changes broadcast
-                instantly to all live visitors via WebSocket — no waiting required.
+                <strong>instantly</strong> to all live visitors via WebSocket — no page refresh required.
                 <br><br>
                 <strong>Maintenance bypass:</strong> Visit any page with
                 <code style="background:rgba(0,255,136,.1);padding:2px 7px;border-radius:5px;font-size:.82rem;">?bypass=YOUR_TOKEN</code>
-                to skip maintenance mode as admin.
+                appended to the URL to skip maintenance mode as admin while the site is locked.
             </div>
         </div>
     `;
- 
-    // Inject tab button active styles
-    if (!document.getElementById('settingsTabCSS')) {
-        const s = document.createElement('style');
-        s.id = 'settingsTabCSS';
-        s.textContent = `
-            .settings-tab-btn:hover { background: rgba(0,255,136,.1) !important; color: var(--primary) !important; border-color: rgba(0,255,136,.4) !important; }
-            .settings-tab-btn.active { background: rgba(0,255,136,.12) !important; color: var(--primary) !important; border-color: rgba(0,255,136,.5) !important; }
-        `;
-        document.head.appendChild(s);
-    }
- 
-    // Load actual settings
+
+    // ── Fetch & render ───────────────────────────────────────────────────
     try {
-        const response = await fetch(`${API_URL}/api/admin/settings`, {
+        const res  = await fetch(`${API_URL}/api/admin/settings`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
-        const data = await response.json();
+        const data = await res.json();
         if (data.success && data.settings) {
             window._adminSettings = data.settings;
             updateMaintenanceQuickCard(data.settings);
             renderSettingsTab('general', data.settings);
+        } else {
+            throw new Error(data.message || 'Failed');
         }
-    } catch (error) {
-        console.error('Settings load error:', error);
-        showNotification('Failed to load settings', 'error');
+    } catch (err) {
+        console.error('Settings load error:', err);
+        document.getElementById('settingsBody').innerHTML = `
+            <div style="text-align:center;padding:40px;color:var(--error);">
+                <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                Failed to load settings. <button class="btn btn-secondary" style="margin-top:12px;" onclick="loadSettingsData()">
+                    <i class="fas fa-sync-alt"></i> Retry
+                </button>
+            </div>`;
     }
 }
- 
-// ── Tab switching ────────────────────────────────────────────────
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
 function switchSettingsTab(tab) {
-    document.querySelectorAll('.settings-tab-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`settingsTab-${tab}`);
-    if (activeBtn) activeBtn.classList.add('active');
+    _settingsTab = tab;
+    document.querySelectorAll('.st-tab').forEach(b => b.classList.remove('active'));
+    const active = document.getElementById(`settingsTab-${tab}`);
+    if (active) active.classList.add('active');
     if (window._adminSettings) renderSettingsTab(tab, window._adminSettings);
 }
- 
-// ── Render a tab's form ──────────────────────────────────────────
+
+// ── Mark form dirty when any input changes ────────────────────────────────────
+function _watchSettingsDirty() {
+    const body = document.getElementById('settingsBody');
+    if (!body) return;
+    body.querySelectorAll('input,select,textarea').forEach(el => {
+        el.addEventListener('change', _markDirty, { once: false });
+        el.addEventListener('input',  _markDirty, { once: false });
+    });
+}
+function _markDirty() {
+    if (_settingsDirty) return;
+    _settingsDirty = true;
+    const bar = document.getElementById('settingsSaveBar');
+    if (bar) bar.classList.add('show');
+}
+function discardSettingsChanges() {
+    _settingsDirty = false;
+    const bar = document.getElementById('settingsSaveBar');
+    if (bar) bar.classList.remove('show');
+    if (window._adminSettings) renderSettingsTab(_settingsTab, window._adminSettings);
+}
+
+// ── Render a tab's form ───────────────────────────────────────────────────────
 function renderSettingsTab(tab, s) {
     const body = document.getElementById('settingsBody');
     if (!body) return;
- 
-    const field = (label, name, type, value, help) => `
-        <div class="form-group">
-            <label class="form-label">${label}</label>
-            <input type="${type||'text'}" class="form-input" name="${name}"
-                   value="${escSetting(value||'')}" placeholder="${help||''}">
+
+    // ── Reusable field builders ───────────────────────────────────────────
+    const sectionHd = (icon, title, desc) => `
+        <div class="st-section-hd">
+            <div class="st-section-hd-icon">${icon}</div>
+            <div>
+                <h3>${title}</h3>
+                ${desc ? `<p>${desc}</p>` : ''}
+            </div>
         </div>
     `;
- const toggleField = (label, name, value, help) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;
-         padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);">
-        <div>
-            <div style="font-weight:600;font-size:.9rem;">${label}</div>
-            ${help ? `<div style="font-size:.78rem;color:var(--gray);margin-top:3px;">${help}</div>` : ''}
+
+    const field = (label, name, type, value, placeholder, help, required) => `
+        <div class="form-group">
+            <label class="form-label">
+                ${label}${required ? ' <span style="color:var(--error);">*</span>' : ''}
+                ${help ? `<span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:6px;">${help}</span>` : ''}
+            </label>
+            <input type="${type || 'text'}" class="form-input" name="${name}"
+                   value="${escSetting(value || '')}" placeholder="${placeholder || ''}">
         </div>
-        <label class="uyeh-toggle">
-            <input type="checkbox" name="${name}" ${value ? 'checked' : ''}>
-            <span class="uyeh-toggle-track"></span>
-        </label>
-    </div>
-`;
+    `;
+
+    const textareaField = (label, name, value, placeholder, rows, mono, help) => `
+        <div class="form-group">
+            <label class="form-label">
+                ${label}
+                ${help ? `<span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:6px;">${help}</span>` : ''}
+            </label>
+            <textarea class="form-textarea ${mono ? 'st-code-area' : ''}"
+                      name="${name}" rows="${rows || 3}"
+                      placeholder="${placeholder || ''}">${escSetting(value || '')}</textarea>
+        </div>
+    `;
+
+    const toggleRow = (label, name, value, desc, danger) => `
+        <div class="st-toggle-row ${danger ? 'danger' : ''}">
+            <div>
+                <div class="st-toggle-label">${label}</div>
+                ${desc ? `<div class="st-toggle-desc">${desc}</div>` : ''}
+            </div>
+            <label class="uyeh-toggle">
+                <input type="checkbox" name="${name}" ${value ? 'checked' : ''}>
+                <span class="uyeh-toggle-track"></span>
+            </label>
+        </div>
+    `;
+
+    const divider = (label) => `
+        <div style="display:flex;align-items:center;gap:12px;margin:24px 0 18px;">
+            <div style="flex:1;height:1px;background:rgba(255,255,255,.06);"></div>
+            ${label ? `<span style="font-size:.72rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">${label}</span>` : ''}
+            <div style="flex:1;height:1px;background:rgba(255,255,255,.06);"></div>
+        </div>
+    `;
+
+    const alertBox = (type, icon, msg) => `
+        <div class="alert-box alert-${type}" style="margin-bottom:20px;">
+            <i class="${icon}"></i>
+            <span>${msg}</span>
+        </div>
+    `;
+
+    // ── Tab content map ───────────────────────────────────────────────────
     const tabs = {
+
+        // ── GENERAL ───────────────────────────────────────────────────────
         general: `
-            <div class="table-header"><h3 class="table-title">General Settings</h3></div>
-            ${field('Site Name', 'siteName', 'text', s.siteName, 'UYEH TECH')}
-            ${field('Site Description', 'siteDescription', 'text', s.siteDescription, 'Professional web development...')}
-            ${field('Contact Email', 'contactEmail', 'email', s.contactEmail, 'contact@uyehtech.com')}
-            ${field('Support Email', 'supportEmail', 'email', s.supportEmail, 'support@uyehtech.com')}
-            ${field('Phone', 'phone', 'text', s.phone, '+234...')}
-            <div style="margin-top:8px;font-size:.8rem;color:var(--gray);">
-                Social Media Links
-            </div>
-            ${field('Twitter / X', 'socialMedia.twitter', 'url', s.socialMedia?.twitter, 'https://twitter.com/uyehtech')}
-            ${field('Instagram', 'socialMedia.instagram', 'url', s.socialMedia?.instagram, 'https://instagram.com/uyehtech')}
-            ${field('Facebook', 'socialMedia.facebook', 'url', s.socialMedia?.facebook, 'https://facebook.com/uyehtech')}
-            ${field('YouTube', 'socialMedia.youtube', 'url', s.socialMedia?.youtube, 'https://youtube.com/@uyehtech')}
-            ${field('LinkedIn', 'socialMedia.linkedin', 'url', s.socialMedia?.linkedin, 'https://linkedin.com/...')}
-        `,
- 
-        maintenance: `
-            <div class="table-header"><h3 class="table-title">Maintenance Mode</h3></div>
-            <div class="alert-box alert-warning" style="margin-bottom:20px;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>When maintenance mode is ON, visitors see a maintenance page. Admins with the bypass token can still access the site.</span>
-            </div>
-            ${toggleField('Maintenance Mode', 'maintenanceMode', s.maintenanceMode, 'Turn this on during deployments or emergencies')}
-            ${field('Maintenance Title', 'maintenanceTitle', 'text', s.maintenanceTitle, 'Under Maintenance')}
-            <div class="form-group">
-                <label class="form-label">Maintenance Message</label>
-                <textarea class="form-textarea" name="maintenanceMessage" rows="3" placeholder="We are performing scheduled maintenance…">${escSetting(s.maintenanceMessage||'')}</textarea>
-            </div>
-            ${field('Estimated Return Time', 'maintenanceETA', 'text', s.maintenanceETA, 'e.g. "2 hours" or "Tomorrow 9 AM"')}
-            ${field('Admin Bypass Token', 'maintenanceBypassToken', 'text', s.maintenanceBypassToken, 'Secret token for ?bypass=... URL parameter')}
-            <div class="form-group">
-                <label class="form-label">Which Pages to Block</label>
-                <select class="form-select" name="maintenancePages">
-                    <option value="all" ${(s.maintenancePages||'all')==='all'?'selected':''}>All Pages</option>
-                    <option value="store,checkout,products" ${s.maintenancePages==='store,checkout,products'?'selected':''}>Store Only</option>
-                    <option value="dashboard" ${s.maintenancePages==='dashboard'?'selected':''}>Dashboard Only</option>
-                    <option value="store,dashboard,checkout" ${s.maintenancePages==='store,dashboard,checkout'?'selected':''}>Store + Dashboard</option>
-                    <option value="custom">${s.maintenancePages && !['all','store,checkout,products','dashboard','store,dashboard,checkout'].includes(s.maintenancePages)?'Custom: '+s.maintenancePages:'Custom'}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Custom Page List (comma-separated URL slugs)</label>
-                <input type="text" class="form-input" name="maintenancePagesCustom"
-                      value="${['all','store,checkout,blog','dashboard','store,dashboard,checkout'].includes(s.maintenancePages) ? '' : escSetting(s.maintenancePages||'')}"
-                       placeholder="store,checkout,blog">
-                <small style="color:var(--gray);display:block;margin-top:5px;">
-                    Override the dropdown — list partial URL slugs separated by commas, or type 'all'
-                </small>
-            </div>
-        `,
- 
-        banner: `
-            <div class="table-header"><h3 class="table-title">Announcement Banner</h3></div>
-            <div class="alert-box alert-info" style="margin-bottom:20px;">
-                <i class="fas fa-info-circle"></i>
-                <span>The banner appears at the very top of every page on your site. Use it for promotions, outages, or announcements.</span>
-            </div>
-            ${toggleField('Show Banner', 'bannerEnabled', s.bannerEnabled, 'Instantly shows/hides across all pages')}
-            <div class="form-group">
-                <label class="form-label">Banner Message <span style="color:var(--error);">*</span></label>
-                <input type="text" class="form-input" name="bannerText"
-                       value="${escSetting(s.bannerText||'')}"
-                       placeholder="🎉 Black Friday Sale — 50% off all products this weekend!">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Banner Type</label>
-                <select class="form-select" name="bannerType">
-                    <option value="info"    ${(s.bannerType||'info')==='info'?'selected':''}>ℹ️ Info (blue)</option>
-                    <option value="success" ${s.bannerType==='success'?'selected':''}>✅ Success (green)</option>
-                    <option value="warning" ${s.bannerType==='warning'?'selected':''}>⚠️ Warning (amber)</option>
-                    <option value="urgent"  ${s.bannerType==='urgent' ?'selected':''}>🚨 Urgent (red)</option>
-                </select>
-            </div>
-            ${field('Banner Link URL', 'bannerLink', 'url', s.bannerLink, 'https://uyeh.netlify.app/store, https://uyeh.netlify.app')}
-            ${field('Banner Link Text', 'bannerLinkText', 'text', s.bannerLinkText, 'Shop Now')}
-                <small style="color:var(--gray);display:block;margin-top:-10px;margin-bottom:14px;">
-                    💡 Leave link URL empty to hide the button. Fill URL to show the button (text optional).
-                </small>
-            ${toggleField('Dismissible', 'bannerDismissible', s.bannerDismissible !== false, 'Allow visitors to close the banner')}
-            <div style="margin-top:20px;padding:14px 18px;border-radius:10px;font-size:.85rem;
-                 background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);color:var(--gray-light);">
-                <strong style="color:var(--primary);">Preview:</strong>
-                <div id="bannerPreview" style="margin-top:8px;">
-                    ${s.bannerEnabled && s.bannerText ? `<span style="color:#fff;">${escSetting(s.bannerText)}</span>` : '<em style="opacity:.5;">No banner active</em>'}
+            <div class="st-panel">
+                ${sectionHd('⚙️', 'General Settings', 'Core site identity and contact details')}
+                <div class="st-grid-2">
+                    ${field('Site Name', 'siteName', 'text', s.siteName, 'UYEH TECH', null, true)}
+                    ${field('Contact Email', 'contactEmail', 'email', s.contactEmail, 'contact@uyehtech.com', null, true)}
+                </div>
+                <div class="st-grid-2">
+                    ${field('Support Email', 'supportEmail', 'email', s.supportEmail, 'support@uyehtech.com')}
+                    ${field('Phone', 'phone', 'text', s.phone, '+234 800 000 0000')}
+                </div>
+                ${field('Site Description', 'siteDescription', 'text', s.siteDescription, 'Professional web development, digital products & more')}
+                ${field('Site URL', 'siteUrl', 'url', s.siteUrl, 'https://uyeh.netlify.app')}
+                ${field('Business Address', 'address', 'text', s.address, 'Lagos, Nigeria')}
+                ${divider('Social Media Links')}
+                <div class="st-grid-2">
+                    ${field('Twitter / X', 'socialMedia.twitter', 'url', s.socialMedia?.twitter, 'https://twitter.com/uyehtech')}
+                    ${field('Instagram', 'socialMedia.instagram', 'url', s.socialMedia?.instagram, 'https://instagram.com/uyehtech')}
+                    ${field('Facebook', 'socialMedia.facebook', 'url', s.socialMedia?.facebook, 'https://facebook.com/uyehtech')}
+                    ${field('YouTube', 'socialMedia.youtube', 'url', s.socialMedia?.youtube, 'https://youtube.com/@uyehtech')}
+                    ${field('LinkedIn', 'socialMedia.linkedin', 'url', s.socialMedia?.linkedin, 'https://linkedin.com/company/uyehtech')}
                 </div>
             </div>
         `,
- 
-        features: `
-            <div class="table-header"><h3 class="table-title">Feature Switches</h3></div>
-            <div class="alert-box alert-info" style="margin-bottom:20px;">
-                <i class="fas fa-info-circle"></i>
-                <span>Turning a feature off hides its navigation links and shows a disabled message when a user lands on its page.</span>
+
+        // ── IDENTITY & BRAND ──────────────────────────────────────────────
+        identity: `
+            <div class="st-panel">
+                ${sectionHd('🏷️', 'Identity & Branding', 'Site logo and favicon — used across the site and maintenance overlay')}
+
+                ${alertBox('info', 'fas fa-info-circle',
+                    'Once uploaded, the logo and favicon appear automatically on every page including the maintenance overlay and emails. No HTML editing required.')}
+
+                <div class="st-grid-2">
+                    <!-- LOGO -->
+                    <div class="form-group">
+                        <label class="form-label">Site Logo
+                            <span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:6px;">PNG / JPG / WEBP / SVG · max 2 MB</span>
+                        </label>
+                        <div class="st-upload-zone" id="logoUploadZone"
+                             ondragover="event.preventDefault();this.classList.add('dragover')"
+                             ondragleave="this.classList.remove('dragover')"
+                             ondrop="_handleLogoDrop(event)">
+                            <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                   onchange="_uploadBrandAsset('logo', this)">
+                            ${s.logo
+                                ? `<img src="${escSetting(s.logo)}" class="st-upload-preview" id="logoPreviewImg" alt="Current logo">`
+                                : `<div style="font-size:2.4rem;margin-bottom:8px;">🖼️</div>`}
+                            <div style="font-weight:600;font-size:.88rem;color:var(--gray-light);">
+                                ${s.logo ? 'Click or drag to replace' : 'Click or drag logo here'}
+                            </div>
+                            <div class="st-upload-hint">Recommended: 200×200 px, transparent background</div>
+                            <span class="st-upload-btn">
+                                <i class="fas fa-upload"></i>
+                                ${s.logo ? 'Replace Logo' : 'Upload Logo'}
+                            </span>
+                        </div>
+                        ${s.logo ? `
+                            <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+                                <input type="text" class="form-input" name="logo" value="${escSetting(s.logo)}"
+                                       style="font-size:.75rem;font-family:'DM Mono',monospace;" placeholder="Or paste URL">
+                                <button type="button" class="st-copy-btn" onclick="_copyToClipboard('${escSetting(s.logo)}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>` : `<input type="hidden" name="logo" id="logoUrlField" value="">`}
+                    </div>
+
+                    <!-- FAVICON -->
+                    <div class="form-group">
+                        <label class="form-label">Site Favicon
+                            <span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:6px;">PNG / ICO / SVG · max 512 KB</span>
+                        </label>
+                        <div class="st-upload-zone" id="faviconUploadZone"
+                             ondragover="event.preventDefault();this.classList.add('dragover')"
+                             ondragleave="this.classList.remove('dragover')"
+                             ondrop="_handleFaviconDrop(event)">
+                            <input type="file" id="faviconFileInput" accept="image/png,image/x-icon,image/svg+xml"
+                                   onchange="_uploadBrandAsset('favicon', this)">
+                            ${s.favicon
+                                ? `<img src="${escSetting(s.favicon)}" class="st-upload-preview" id="faviconPreviewImg" alt="Current favicon">`
+                                : `<div style="font-size:2.4rem;margin-bottom:8px;">🌐</div>`}
+                            <div style="font-weight:600;font-size:.88rem;color:var(--gray-light);">
+                                ${s.favicon ? 'Click or drag to replace' : 'Click or drag favicon here'}
+                            </div>
+                            <div class="st-upload-hint">Recommended: 32×32 px or 64×64 px</div>
+                            <span class="st-upload-btn">
+                                <i class="fas fa-upload"></i>
+                                ${s.favicon ? 'Replace Favicon' : 'Upload Favicon'}
+                            </span>
+                        </div>
+                        ${s.favicon ? `
+                            <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+                                <input type="text" class="form-input" name="favicon" value="${escSetting(s.favicon)}"
+                                       style="font-size:.75rem;font-family:'DM Mono',monospace;" placeholder="Or paste URL">
+                                <button type="button" class="st-copy-btn" onclick="_copyToClipboard('${escSetting(s.favicon)}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>` : `<input type="hidden" name="favicon" id="faviconUrlField" value="">`}
+                    </div>
+                </div>
+
+                <!-- Current live preview -->
+                ${(s.logo || s.favicon) ? `
+                    <div style="margin-top:8px;padding:16px 20px;border-radius:12px;
+                                background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);">
+                        <div style="font-size:.76rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">
+                            Live on your site
+                        </div>
+                        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                            ${s.logo ? `
+                                <div style="text-align:center;">
+                                    <img src="${escSetting(s.logo)}" style="height:48px;border-radius:10px;border:1px solid rgba(0,255,136,.2);" alt="logo">
+                                    <div style="font-size:.7rem;color:var(--gray);margin-top:5px;">Logo</div>
+                                </div>` : ''}
+                            ${s.favicon ? `
+                                <div style="text-align:center;">
+                                    <img src="${escSetting(s.favicon)}" style="width:32px;height:32px;border-radius:5px;border:1px solid rgba(0,255,136,.2);" alt="favicon">
+                                    <div style="font-size:.7rem;color:var(--gray);margin-top:5px;">Favicon</div>
+                                </div>` : ''}
+                        </div>
+                    </div>` : ''}
             </div>
-            ${toggleField('🛍️ Store / Products', 'storeEnabled', s.storeEnabled !== false, 'Products, checkout, store pages')}
-            ${toggleField('📝 Blog', 'blogEnabled', s.blogEnabled !== false, 'Blog articles and categories')}
-            ${toggleField('💬 Live Chat', 'chatEnabled', s.chatEnabled !== false, 'Chat widget on all pages')}
-            ${toggleField('🏪 Creator Marketplace', 'creatorEnabled', s.creatorEnabled !== false, 'Creator applications and stores')}
-            ${toggleField('🔗 Affiliate Program', 'affiliatesEnabled', s.affiliatesEnabled !== false, 'Affiliate links and dashboard')}
-            <div style="height:1px;background:rgba(255,255,255,.06);margin:20px 0;"></div>
-            ${toggleField('📧 User Registration', 'allowRegistration', s.allowRegistration !== false, 'Allow new users to create accounts')}
-            ${toggleField('✉️ Email Verification Required', 'requireEmailVerification', s.requireEmailVerification !== false, 'New users must verify email before logging in')}
-            ${toggleField('🛒 Guest Checkout', 'allowGuestCheckout', s.allowGuestCheckout !== false, 'Allow purchases without creating an account')}
         `,
- 
-        seo: `
-            <div class="table-header"><h3 class="table-title">SEO & Analytics</h3></div>
-            ${field('SEO Title Override', 'seoTitle', 'text', s.seoTitle, 'UYEH TECH - Professional Web Development')}
-            <div class="form-group">
-                <label class="form-label">SEO Meta Description</label>
-                <textarea class="form-textarea" name="seoDescription" rows="2"
-                    placeholder="UYEH TECH offers cutting-edge web development...">${escSetting(s.seoDescription||'')}</textarea>
-            </div>
-            ${field('SEO Keywords', 'seoKeywords', 'text', s.seoKeywords, 'web development, mobile apps, UI/UX, UYEH TECH')}
-            <div style="height:1px;background:rgba(255,255,255,.06);margin:20px 0;"></div>
-            ${field('Google Analytics ID', 'googleAnalyticsId', 'text', s.googleAnalyticsId, 'G-XXXXXXXXXX')}
-            ${field('Facebook Pixel ID', 'facebookPixelId', 'text', s.facebookPixelId, '123456789012345')}
-            <div class="alert-box alert-info">
-                <i class="fas fa-info-circle"></i>
-                <span>These IDs are injected automatically on every page via site-controller.js. Just paste the ID — no need to edit any HTML.</span>
+
+        // ── MAINTENANCE ───────────────────────────────────────────────────
+        maintenance: `
+            <div class="st-panel">
+                ${sectionHd('🔧', 'Maintenance Mode', 'Lock the site for all visitors while keeping admin and agent access open')}
+                ${alertBox('warning', 'fas fa-exclamation-triangle',
+                    'When ON, all visitors see a maintenance page. Admins and agents can still log in and access everything normally.')}
+
+                ${toggleRow('Enable Maintenance Mode', 'maintenanceMode', s.maintenanceMode,
+                    'Instantly activates the maintenance overlay on all affected pages', true)}
+
+                ${divider('Overlay Content')}
+                <div class="st-grid-2">
+                    ${field('Overlay Title', 'maintenanceTitle', 'text', s.maintenanceTitle, 'Under Maintenance')}
+                    ${field('Estimated Return Time', 'maintenanceETA', 'text', s.maintenanceETA, 'e.g. "2 hours" or "Tomorrow 9 AM"')}
+                </div>
+                ${textareaField('Maintenance Message', 'maintenanceMessage', s.maintenanceMessage,
+                    "We're performing scheduled maintenance. We'll be back shortly!", 3)}
+
+                ${divider('Access Control')}
+                <div class="form-group">
+                    <label class="form-label">Admin Bypass Token
+                        <span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:6px;">Secret — never share this publicly</span>
+                    </label>
+                    <div class="st-token-wrap">
+                        <input type="text" class="form-input" name="maintenanceBypassToken"
+                               value="${s.hasMaintenanceBypassToken ? '••••••••••••••••' : ''}"
+                               placeholder="Generate or type a secret token"
+                               autocomplete="off" id="bypassTokenInput">
+                        <button type="button" class="st-copy-btn" onclick="_generateBypassToken()">
+                            <i class="fas fa-dice"></i> Generate
+                        </button>
+                    </div>
+                    <small style="color:var(--gray);display:block;margin-top:6px;">
+                        Visit <code style="background:rgba(0,255,136,.1);padding:1px 6px;border-radius:4px;">?bypass=YOUR_TOKEN</code>
+                        to skip maintenance mode as admin.
+                        ${s.hasMaintenanceBypassToken ? '<span style="color:var(--primary);">✓ Token is currently set</span>' : '<span style="color:var(--warning);">⚠ No token set</span>'}
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Which Pages to Block</label>
+                    <select class="form-select" name="maintenancePages" id="maintPagesSelect"
+                            onchange="_syncMaintPagesInput(this)">
+                        <option value="all"                      ${ (s.maintenancePages||'all')==='all' ? 'selected' : '' }>All Pages</option>
+                        <option value="store,checkout,products"  ${ s.maintenancePages==='store,checkout,products' ? 'selected' : '' }>Store Only</option>
+                        <option value="blog"                     ${ s.maintenancePages==='blog' ? 'selected' : '' }>Blog Only</option>
+                        <option value="dashboard"                ${ s.maintenancePages==='dashboard' ? 'selected' : '' }>Dashboard Only</option>
+                        <option value="store,dashboard,checkout" ${ s.maintenancePages==='store,dashboard,checkout' ? 'selected' : '' }>Store + Dashboard</option>
+                        <option value="custom"                   ${ !['all','store,checkout,products','blog','dashboard','store,dashboard,checkout'].includes(s.maintenancePages||'all') ? 'selected' : '' }>Custom…</option>
+                    </select>
+                </div>
+                <div class="form-group" id="maintCustomPagesGroup"
+                     style="display:${ !['all','store,checkout,products','blog','dashboard','store,dashboard,checkout'].includes(s.maintenancePages||'all') ? 'block' : 'none' };">
+                    <label class="form-label">Custom Page Slugs <span style="font-size:.72rem;color:var(--gray);font-weight:400;margin-left:6px;">comma-separated URL fragments</span></label>
+                    <input type="text" class="form-input" name="maintenancePagesCustom"
+                           id="maintCustomPagesInput"
+                           value="${ !['all','store,checkout,products','blog','dashboard','store,dashboard,checkout'].includes(s.maintenancePages||'all') ? escSetting(s.maintenancePages||'') : '' }"
+                           placeholder="store,checkout,blog,creator">
+                    <small style="color:var(--gray);display:block;margin-top:5px;">
+                        Any URL containing one of these fragments will show the maintenance overlay.
+                    </small>
+                </div>
             </div>
         `,
- 
-        appearance: `
-            <div class="table-header"><h3 class="table-title">Appearance</h3></div>
-            <div class="form-group">
-                <label class="form-label">Custom CSS
-                    <span style="font-size:.72rem;color:var(--gray);margin-left:8px;">Applied to every page on your site</span>
-                </label>
-                <textarea class="form-textarea" name="customCSS" rows="10"
-                    style="font-family:monospace;font-size:.82rem;"
-                    placeholder="/* Custom styles applied to your entire site */&#10;&#10;.hero h1 { font-size: 4rem; }&#10;:root { --brand: #00ff88; }">${escSetting(s.customCSS||'')}</textarea>
-                <small style="color:var(--gray);display:block;margin-top:6px;">
-                    Write standard CSS. Changes apply across all pages via site-controller.js injection.
-                    Be careful — bad CSS affects your entire site.
+
+        // ── BANNER ────────────────────────────────────────────────────────
+        banner: `
+            <div class="st-panel">
+                ${sectionHd('📢', 'Announcement Banner', 'Full-width strip at the very top of every page')}
+
+                ${toggleRow('Show Banner', 'bannerEnabled', s.bannerEnabled, 'Appears instantly across all pages via site-controller.js')}
+
+                ${divider('Banner Content')}
+                ${field('Banner Message', 'bannerText', 'text', s.bannerText,
+                    '🎉 Black Friday Sale — 50% off all products this weekend!', null, true)}
+
+                <div class="st-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Banner Type</label>
+                        <select class="form-select" name="bannerType" id="bannerTypeSelect" onchange="_refreshBannerPreview()">
+                            <option value="info"    ${(s.bannerType||'info')==='info'   ?'selected':''}>ℹ️  Info — blue</option>
+                            <option value="success" ${s.bannerType==='success'          ?'selected':''}>✅  Success — green</option>
+                            <option value="warning" ${s.bannerType==='warning'          ?'selected':''}>⚠️  Warning — amber</option>
+                            <option value="urgent"  ${s.bannerType==='urgent'           ?'selected':''}>🚨  Urgent — red</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+                        ${toggleRow('Dismissible', 'bannerDismissible', s.bannerDismissible !== false, 'Allow visitors to close the banner')}
+                    </div>
+                </div>
+
+                <div class="st-grid-2">
+                    ${field('Link URL', 'bannerLink', 'url', s.bannerLink, 'https://uyeh.netlify.app/store')}
+                    ${field('Link Label', 'bannerLinkText', 'text', s.bannerLinkText, 'Shop Now')}
+                </div>
+                <small style="color:var(--gray);display:block;margin-top:-12px;margin-bottom:18px;">
+                    💡 Leave Link URL empty to hide the button entirely.
                 </small>
+
+                ${divider('Live Preview')}
+                <!-- Dynamic preview updated by JS -->
+                <div id="bannerPreviewWrap">
+                    <div class="st-banner-preview ${s.bannerEnabled && s.bannerText ? 'show ' + (s.bannerType||'info') : ''}"
+                         id="bannerPreview">
+                        <span id="bannerPreviewText">
+                            ${s.bannerText ? escSetting(s.bannerText) : ''}
+                            ${s.bannerLink ? `<a href="${escSetting(s.bannerLink)}" style="font-weight:700;text-decoration:underline;margin-left:10px;">${s.bannerLinkText || 'Learn more'} →</a>` : ''}
+                        </span>
+                        <span class="st-banner-badge">${s.bannerType || 'info'}</span>
+                    </div>
+                    ${!s.bannerEnabled || !s.bannerText ? `
+                        <div style="text-align:center;padding:16px;color:var(--gray);font-size:.82rem;
+                                    border:1px dashed rgba(255,255,255,.1);border-radius:10px;">
+                            <i class="fas fa-eye-slash" style="margin-right:6px;"></i>No banner active — toggle on and enter a message to preview
+                        </div>` : ''}
+                </div>
             </div>
-        `
+        `,
+
+        // ── FEATURES ──────────────────────────────────────────────────────
+        features: `
+            <div class="st-panel">
+                ${sectionHd('🎛️', 'Feature Switches', 'Toggle sections of your site on or off instantly')}
+                ${alertBox('info', 'fas fa-info-circle',
+                    'Turning a feature OFF hides its navigation links site-wide and shows a "temporarily unavailable" overlay when a user lands on its page. APIs are also blocked at the server level.')}
+
+                ${divider('Site Sections')}
+                ${toggleRow('🛍️ Store & Products', 'storeEnabled',      s.storeEnabled !== false, 'Products listing, individual product pages, and checkout')}
+                ${toggleRow('📝 Blog',             'blogEnabled',       s.blogEnabled  !== false, 'Blog articles, categories, search, and featured posts')}
+                ${toggleRow('💬 Live Chat',         'chatEnabled',       s.chatEnabled  !== false, 'Chat widget, support tickets, and live agent connections')}
+                ${toggleRow('🏪 Creator Marketplace','creatorEnabled',   s.creatorEnabled !== false, 'Creator applications, storefronts, and product listings')}
+                ${toggleRow('🔗 Affiliate Program', 'affiliatesEnabled', s.affiliatesEnabled !== false, 'Affiliate registration, referral tracking, and payouts')}
+
+                ${divider('Account & Access')}
+                ${toggleRow('📧 User Registration',           'allowRegistration',        s.allowRegistration !== false, 'Allow new users to create accounts')}
+                ${toggleRow('✉️ Email Verification Required', 'requireEmailVerification', s.requireEmailVerification !== false, 'New accounts must verify email before logging in')}
+                ${toggleRow('🛒 Guest Checkout',              'allowGuestCheckout',        s.allowGuestCheckout !== false, 'Allow purchases without creating an account')}
+            </div>
+        `,
+
+        // ── PAYMENTS ──────────────────────────────────────────────────────
+        payments: `
+            <div class="st-panel">
+                ${sectionHd('💳', 'Payment Gateways', 'Enable or disable payment processors')}
+                ${alertBox('warning', 'fas fa-exclamation-triangle',
+                    'Disabling a gateway here blocks it at the API level — the frontend checkout will not offer it as an option. Make sure at least one gateway is active.')}
+
+                <div style="display:flex;flex-direction:column;gap:0;">
+                    <div class="st-toggle-row">
+                        <div>
+                            <div class="st-toggle-label">
+                                <img src="https://img.icons8.com/color/20/flutterwave.png" style="vertical-align:middle;margin-right:6px;border-radius:4px;" alt="">
+                                Flutterwave
+                                <span style="font-size:.72rem;background:rgba(0,255,136,.12);color:var(--primary);padding:2px 8px;border-radius:5px;margin-left:8px;">Recommended</span>
+                            </div>
+                            <div class="st-toggle-desc">Best for African markets — NGN, USD, GHS, KES and more</div>
+                        </div>
+                        <label class="uyeh-toggle">
+                            <input type="checkbox" name="paymentSettings.flutterwaveEnabled"
+                                   ${s.paymentSettings?.flutterwaveEnabled !== false ? 'checked' : ''}>
+                            <span class="uyeh-toggle-track"></span>
+                        </label>
+                    </div>
+                    <div class="st-toggle-row">
+                        <div>
+                            <div class="st-toggle-label">
+                                <img src="https://img.icons8.com/color/20/paystack.png" style="vertical-align:middle;margin-right:6px;border-radius:4px;" alt="">
+                                Paystack
+                            </div>
+                            <div class="st-toggle-desc">Popular in Nigeria and Ghana — NGN, GHS, USD</div>
+                        </div>
+                        <label class="uyeh-toggle">
+                            <input type="checkbox" name="paymentSettings.paystackEnabled"
+                                   ${s.paymentSettings?.paystackEnabled ? 'checked' : ''}>
+                            <span class="uyeh-toggle-track"></span>
+                        </label>
+                    </div>
+                    <div class="st-toggle-row">
+                        <div>
+                            <div class="st-toggle-label">
+                                <img src="https://img.icons8.com/color/20/stripe.png" style="vertical-align:middle;margin-right:6px;border-radius:4px;" alt="">
+                                Stripe
+                            </div>
+                            <div class="st-toggle-desc">Global card payments — USD, EUR, GBP and 135+ currencies</div>
+                        </div>
+                        <label class="uyeh-toggle">
+                            <input type="checkbox" name="paymentSettings.stripeEnabled"
+                                   ${s.paymentSettings?.stripeEnabled ? 'checked' : ''}>
+                            <span class="uyeh-toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `,
+
+        // ── SEO & ANALYTICS ───────────────────────────────────────────────
+        seo: `
+            <div class="st-panel">
+                ${sectionHd('🔍', 'SEO & Analytics', 'Meta tags and tracking IDs injected on every page')}
+
+                ${divider('Search Engine Optimisation')}
+                <div class="st-grid-2">
+                    ${field('SEO Title Override', 'seoTitle', 'text', s.seoTitle, 'UYEH TECH — Professional Web Development')}
+                    ${field('SEO Keywords', 'seoKeywords', 'text', s.seoKeywords, 'web development, mobile apps, UI/UX, UYEH TECH')}
+                </div>
+                ${textareaField('SEO Meta Description', 'seoDescription', s.seoDescription,
+                    'UYEH TECH offers cutting-edge web development, digital products and more.', 2)}
+
+                ${divider('Analytics & Pixels')}
+                ${alertBox('info', 'fas fa-info-circle',
+                    'IDs are injected automatically on every page via site-controller.js. Just paste the ID — no HTML editing needed.')}
+                <div class="st-grid-2">
+                    ${field('Google Analytics ID', 'googleAnalyticsId', 'text', s.googleAnalyticsId, 'G-XXXXXXXXXX',
+                        'Paste your Measurement ID from GA4')}
+                    ${field('Facebook Pixel ID', 'facebookPixelId', 'text', s.facebookPixelId, '123456789012345',
+                        'Paste your Pixel ID from Meta Business Manager')}
+                </div>
+            </div>
+        `,
+
+        // ── APPEARANCE ────────────────────────────────────────────────────
+        appearance: `
+            <div class="st-panel">
+                ${sectionHd('🎨', 'Appearance', 'Custom code injected on every page of your site')}
+                ${alertBox('warning', 'fas fa-exclamation-triangle',
+                    'Bad CSS or JS can break your entire site. Always test locally first. Changes go live as soon as you save.')}
+
+                ${textareaField(
+                    'Custom CSS',
+                    'customCSS', s.customCSS,
+                    '/* Custom styles applied to your entire site */\n\n.hero h1 { font-size: 4rem; }\n:root { --brand: #00ff88; }',
+                    12, true,
+                    'Applied to every page via site-controller.js'
+                )}
+
+                ${textareaField(
+                    'Custom JavaScript',
+                    'customJS', s.customJS,
+                    '// Runs on every page after DOM ready\n// console.log("UYEH TECH custom JS loaded");',
+                    8, true,
+                    'Injected at bottom of every page — use carefully'
+                )}
+
+                ${textareaField(
+                    'Custom <head> HTML',
+                    'customHead', s.customHead,
+                    '<!-- Extra meta tags, link preloads, verification tags -->',
+                    5, true,
+                    'Injected inside <head> on every page'
+                )}
+            </div>
+
+            <!-- Danger zone -->
+            <div class="st-danger-zone">
+                <div class="st-danger-zone-hd">
+                    <i class="fas fa-skull-crossbones"></i> Danger Zone
+                </div>
+                <div class="st-danger-row">
+                    <div>
+                        <div class="st-danger-row-label">Reset All Settings to Defaults</div>
+                        <div class="st-danger-row-desc">Wipes every setting and restores factory defaults. Cannot be undone.</div>
+                    </div>
+                    <button type="button" class="btn btn-danger" style="font-size:.82rem;padding:8px 18px;"
+                            onclick="resetSettingsToDefaults()">
+                        <i class="fas fa-trash-alt"></i> Reset to Defaults
+                    </button>
+                </div>
+            </div>
+        `,
     };
- 
-    body.innerHTML = `<form id="settingsForm" style="padding:0;">${tabs[tab] || tabs.general}</form>`;
- 
-    // Update live banner preview
-    if (tab === 'banner') {
-        const textInput = body.querySelector('[name="bannerText"]');
-        const preview   = document.getElementById('bannerPreview');
-        if (textInput && preview) {
-            textInput.addEventListener('input', () => {
-                preview.innerHTML = textInput.value
-                    ? `<span style="color:#fff;">${textInput.value}</span>`
-                    : '<em style="opacity:.5;">No text entered</em>';
-            });
-        }
+
+    body.innerHTML = `<form id="settingsForm" style="padding:0 2px;">${tabs[tab] || tabs.general}</form>`;
+
+    // ── Wire up live-preview listeners ────────────────────────────────────
+    if (tab === 'banner') _initBannerPreview();
+    if (tab === 'maintenance') {
+        const sel = document.getElementById('maintPagesSelect');
+        if (sel) sel.dispatchEvent(new Event('change'));
+    }
+
+    // ── Watch for dirty state ─────────────────────────────────────────────
+    _watchSettingsDirty();
+}
+
+// ── Banner live preview ───────────────────────────────────────────────────────
+function _initBannerPreview() {
+    const textInput = document.querySelector('[name="bannerText"]');
+    const linkInput = document.querySelector('[name="bannerLink"]');
+    const linkLabel = document.querySelector('[name="bannerLinkText"]');
+    if (textInput) { textInput.addEventListener('input',  _refreshBannerPreview); }
+    if (linkInput) { linkInput.addEventListener('input',  _refreshBannerPreview); }
+    if (linkLabel) { linkLabel.addEventListener('input',  _refreshBannerPreview); }
+}
+function _refreshBannerPreview() {
+    const preview  = document.getElementById('bannerPreview');
+    const textEl   = document.getElementById('bannerPreviewText');
+    const wrap     = document.getElementById('bannerPreviewWrap');
+    if (!preview || !textEl) return;
+
+    const text     = (document.querySelector('[name="bannerText"]')    || {}).value || '';
+    const link     = (document.querySelector('[name="bannerLink"]')    || {}).value || '';
+    const linkTxt  = (document.querySelector('[name="bannerLinkText"]')|| {}).value || 'Learn more';
+    const type     = (document.getElementById('bannerTypeSelect')      || {}).value || 'info';
+
+    preview.className = `st-banner-preview ${text ? 'show' : ''} ${type}`;
+    textEl.innerHTML  = escSetting(text) +
+        (link ? ` <a href="${escSetting(link)}" style="font-weight:700;text-decoration:underline;margin-left:10px;">${escSetting(linkTxt)} →</a>` : '');
+
+    const badge = preview.querySelector('.st-banner-badge');
+    if (badge) badge.textContent = type;
+
+    if (wrap) {
+        const noMsg = wrap.querySelector('div[style*="eye-slash"]');
+        if (noMsg) noMsg.style.display = text ? 'none' : 'block';
     }
 }
- 
-// ── Maintenance quick toggle ─────────────────────────────────────
+
+// ── Maintenance pages dropdown sync ──────────────────────────────────────────
+function _syncMaintPagesInput(sel) {
+    const customGroup = document.getElementById('maintCustomPagesGroup');
+    if (customGroup) customGroup.style.display = sel.value === 'custom' ? 'block' : 'none';
+}
+
+// ── Generate a bypass token ───────────────────────────────────────────────────
+function _generateBypassToken() {
+    const chars  = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    const token  = Array.from({ length: 28 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const input  = document.getElementById('bypassTokenInput');
+    if (input) { input.value = token; input.type = 'text'; _markDirty(); }
+    _copyToClipboard(token);
+    showToast('New bypass token generated and copied to clipboard', 'success');
+}
+
+// ── Brand asset upload (logo / favicon) ──────────────────────────────────────
+async function _uploadBrandAsset(type, inputEl) {
+    const file = inputEl.files[0];
+    if (!file) return;
+
+    const isLogo    = type === 'logo';
+    const maxBytes  = isLogo ? 2 * 1024 * 1024 : 512 * 1024;
+    const maxLabel  = isLogo ? '2 MB' : '512 KB';
+    const endpoint  = `${API_URL}/api/admin/settings/${type}`;
+    const previewId = isLogo ? 'logoPreviewImg' : 'faviconPreviewImg';
+    const fieldName = isLogo ? 'logo' : 'favicon';
+
+    if (file.size > maxBytes) {
+        showToast(`File too large — max ${maxLabel}`, 'error');
+        return;
+    }
+
+    // Show instant local preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        let img = document.getElementById(previewId);
+        if (!img) {
+            img = document.createElement('img');
+            img.id        = previewId;
+            img.className = 'st-upload-preview';
+            img.alt       = type;
+            const zone = document.getElementById(`${type}UploadZone`);
+            if (zone) zone.insertBefore(img, zone.firstChild);
+        }
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to Cloudinary via server
+    const fd = new FormData();
+    fd.append(type, file);
+
+    const zonBtn = document.querySelector(`#${type}UploadZone .st-upload-btn`);
+    if (zonBtn) zonBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading…`;
+
+    try {
+        showLoading();
+        const res  = await fetch(endpoint, {
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+            body:    fd,
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            const url = data.logoUrl || data.faviconUrl;
+            // Update the URL text field / hidden input
+            let urlField = document.querySelector(`[name="${fieldName}"]`);
+            if (!urlField) {
+                urlField = document.getElementById(`${fieldName}UrlField`);
+            }
+            if (urlField) urlField.value = url;
+            if (window._adminSettings) window._adminSettings[fieldName] = url;
+            showToast(`✅ ${type === 'logo' ? 'Logo' : 'Favicon'} uploaded successfully`, 'success');
+            if (zonBtn) zonBtn.innerHTML = `<i class="fas fa-check"></i> Uploaded`;
+        } else {
+            throw new Error(data.message || 'Upload failed');
+        }
+    } catch (err) {
+        showToast(`Failed to upload ${type}: ${err.message}`, 'error');
+        if (zonBtn) zonBtn.innerHTML = `<i class="fas fa-upload"></i> Retry`;
+    } finally {
+        hideLoading();
+    }
+}
+
+// Drag-and-drop shims
+function _handleLogoDrop(e) {
+    e.preventDefault();
+    document.getElementById('logoUploadZone').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        const inp   = document.getElementById('logoFileInput');
+        const dt    = new DataTransfer();
+        dt.items.add(file);
+        inp.files   = dt.files;
+        _uploadBrandAsset('logo', inp);
+    }
+}
+function _handleFaviconDrop(e) {
+    e.preventDefault();
+    document.getElementById('faviconUploadZone').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        const inp   = document.getElementById('faviconFileInput');
+        const dt    = new DataTransfer();
+        dt.items.add(file);
+        inp.files   = dt.files;
+        _uploadBrandAsset('favicon', inp);
+    }
+}
+
+// ── Copy to clipboard ─────────────────────────────────────────────────────────
+function _copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('Copied to clipboard', 'success');
+    }).catch(() => {
+        showToast('Could not copy — please copy manually', 'warning');
+    });
+}
+
+// ── Maintenance quick toggle (top card) ──────────────────────────────────────
 async function toggleMaintenanceQuick() {
     const btn = document.getElementById('maintToggleBtn');
     if (!btn) return;
     btn.disabled = true;
-    btn.textContent = 'Updating…';
- 
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating…';
+
     try {
         const res  = await fetch(`${API_URL}/api/admin/settings/maintenance/toggle`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' }
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
         });
         const data = await res.json();
- 
         if (data.success) {
             if (window._adminSettings) window._adminSettings.maintenanceMode = data.maintenanceMode;
             updateMaintenanceQuickCard({ maintenanceMode: data.maintenanceMode });
+            // If currently on the maintenance tab, refresh the toggle there too
+            if (_settingsTab === 'maintenance' && window._adminSettings) {
+                window._adminSettings.maintenanceMode = data.maintenanceMode;
+                renderSettingsTab('maintenance', window._adminSettings);
+            }
             showToast(data.message, data.maintenanceMode ? 'warning' : 'success');
         } else {
             showToast(data.message || 'Toggle failed', 'error');
         }
-    } catch (e) {
-        showToast('Failed to toggle maintenance', 'error');
+    } catch {
+        showToast('Failed to toggle maintenance mode', 'error');
     } finally {
         btn.disabled = false;
     }
 }
- 
+
 function updateMaintenanceQuickCard(s) {
     const btn  = document.getElementById('maintToggleBtn');
     const text = document.getElementById('maintStatusText');
     if (!btn || !text) return;
- 
+
     if (s.maintenanceMode) {
-        btn.textContent  = '🔓 Disable Maintenance';
+        btn.className = 'btn btn-primary';
+        btn.innerHTML = '<i class="fas fa-lock-open"></i> Disable Maintenance';
         btn.style.background = 'linear-gradient(135deg,#00b359,#00ff88)';
-        text.innerHTML   = '<span style="color:#ff8c00;font-weight:700;">🔴 MAINTENANCE IS ACTIVE</span> — Your site is showing a maintenance page to all visitors';
+        text.innerHTML = `
+            <span style="color:#ff8c00;font-weight:700;">🔴 MAINTENANCE IS ACTIVE</span>
+            <span style="color:var(--gray);"> — Visitors see a maintenance page. Admins &amp; agents still have access.</span>`;
+        document.getElementById('maintenanceQuickCard').style.borderColor = 'rgba(255,80,80,.4)';
+        document.getElementById('maintenanceQuickCard').style.background  = 'linear-gradient(135deg,rgba(255,80,80,.05),rgba(255,80,80,.1))';
     } else {
-        btn.textContent  = '🔧 Enable Maintenance';
-        btn.style.background = 'linear-gradient(135deg,#cc8400,#ffa500)';
-        text.innerHTML   = '<span style="color:#00ff88;font-weight:700;">✅ Site is LIVE</span> — All pages are accessible to visitors';
+        btn.className = 'btn btn-warning';
+        btn.innerHTML = '<i class="fas fa-tools"></i> Enable Maintenance';
+        btn.style.background = '';
+        text.innerHTML = `
+            <span style="color:#00ff88;font-weight:700;">✅ Site is LIVE</span>
+            <span style="color:var(--gray);"> — All pages are accessible to visitors.</span>`;
+        document.getElementById('maintenanceQuickCard').style.borderColor = 'rgba(255,165,0,.25)';
+        document.getElementById('maintenanceQuickCard').style.background  = 'linear-gradient(135deg,rgba(255,165,0,.05),rgba(255,165,0,.10))';
     }
 }
- 
-// ── saveSettings ─────────────────────────────────────────────────
+
+// ── Save settings ─────────────────────────────────────────────────────────────
 async function saveSettings() {
     const form = document.getElementById('settingsForm');
-    if (!form) { showToast('No form to save', 'error'); return; }
- 
+    if (!form) { showToast('No settings form found', 'error'); return; }
+
     const formData = new FormData(form);
     const payload  = {};
- 
-    // Flatten form fields — handle nested keys like 'socialMedia.twitter'
+
+    // Flatten nested keys (e.g. socialMedia.twitter → payload.socialMedia.twitter)
     formData.forEach((value, key) => {
-        if (key.includes('.')) {
-            const [parent, child] = key.split('.');
-            if (!payload[parent]) payload[parent] = {};
-            payload[parent][child] = value;
+        const parts = key.split('.');
+        if (parts.length === 2) {
+            if (!payload[parts[0]]) payload[parts[0]] = {};
+            payload[parts[0]][parts[1]] = value;
         } else {
             payload[key] = value;
         }
     });
- 
-    // Checkboxes: force false when unchecked (FormData omits unchecked)
-    const booleanFields = [
-        'maintenanceMode','allowRegistration','requireEmailVerification','allowGuestCheckout',
-        'storeEnabled','blogEnabled','chatEnabled','creatorEnabled','affiliatesEnabled',
-        'bannerEnabled','bannerDismissible'
+
+    // Boolean fields — FormData omits unchecked checkboxes so we force false
+    const boolFields = [
+        'maintenanceMode',
+        'allowRegistration', 'requireEmailVerification', 'allowGuestCheckout',
+        'storeEnabled', 'blogEnabled', 'chatEnabled', 'creatorEnabled', 'affiliatesEnabled',
+        'bannerEnabled', 'bannerDismissible',
     ];
-    booleanFields.forEach(f => {
-        if (payload[f] === undefined) payload[f] = false;
-        else payload[f] = payload[f] === 'on' || payload[f] === 'true' || payload[f] === true;
+    boolFields.forEach(f => {
+        payload[f] = payload[f] === 'on' || payload[f] === 'true' || payload[f] === true;
     });
- 
-    // Use custom page list over dropdown if filled
-   if (payload.maintenancePagesCustom && payload.maintenancePagesCustom.trim()) {
-    payload.maintenancePages = payload.maintenancePagesCustom.trim();
-    } else {
-        delete payload.maintenancePagesCustom; // keep dropdown value
+
+    // Nested payment booleans
+    if (!payload.paymentSettings) payload.paymentSettings = {};
+    ['flutterwaveEnabled', 'paystackEnabled', 'stripeEnabled'].forEach(f => {
+        payload.paymentSettings[f] = payload.paymentSettings[f] === 'on'
+            || payload.paymentSettings[f] === 'true'
+            || payload.paymentSettings[f] === true;
+    });
+
+    // Maintenance pages — prefer custom input if filled
+    const customPages = (payload.maintenancePagesCustom || '').trim();
+    if (customPages) {
+        payload.maintenancePages = customPages;
     }
     delete payload.maintenancePagesCustom;
- 
+
+    // Strip the masked bypass token placeholder — don't overwrite with bullets
+    if (payload.maintenanceBypassToken === '••••••••••••••••') {
+        delete payload.maintenanceBypassToken;
+    }
+
     try {
         showLoading();
         const res  = await fetch(`${API_URL}/api/admin/settings`, {
             method:  'PUT',
             headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
-            body:    JSON.stringify(payload)
+            body:    JSON.stringify(payload),
         });
         const data = await res.json();
- 
+
         if (data.success) {
             window._adminSettings = data.settings;
             updateMaintenanceQuickCard(data.settings);
+            _settingsDirty = false;
+            const bar = document.getElementById('settingsSaveBar');
+            if (bar) bar.classList.remove('show');
             showToast('✅ Settings saved and broadcast to all live visitors!', 'success');
         } else {
             showToast(data.message || 'Save failed', 'error');
         }
-    } catch (e) {
-        showToast('Failed to save settings', 'error');
+    } catch {
+        showToast('Failed to save settings — check your connection', 'error');
     } finally {
         hideLoading();
     }
 }
- 
-// ── Helper ────────────────────────────────────────────────────────
+
+// ── Export settings ───────────────────────────────────────────────────────────
+async function exportSettings() {
+    try {
+        showLoading();
+        const res  = await fetch(`${API_URL}/api/admin/settings/export`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+        });
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `uyehtech-settings-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Settings exported', 'success');
+    } catch {
+        showToast('Export failed', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// ── Import settings ───────────────────────────────────────────────────────────
+async function importSettings(inputEl) {
+    const file = inputEl.files[0];
+    if (!file) return;
+
+    if (!confirm('Import settings from this file? This will overwrite your current configuration.')) {
+        inputEl.value = '';
+        return;
+    }
+
+    try {
+        showLoading();
+        const text = await file.text();
+        const json = JSON.parse(text);
+        const settingsPayload = json.settings || json;
+
+        const res  = await fetch(`${API_URL}/api/admin/settings/import`, {
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ settings: settingsPayload }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            window._adminSettings = data.settings;
+            updateMaintenanceQuickCard(data.settings);
+            renderSettingsTab(_settingsTab, data.settings);
+            showToast('✅ Settings imported successfully', 'success');
+        } else {
+            throw new Error(data.message || 'Import failed');
+        }
+    } catch (err) {
+        showToast(`Import failed: ${err.message}`, 'error');
+    } finally {
+        hideLoading();
+        inputEl.value = '';
+    }
+}
+
+// ── Reset to factory defaults ─────────────────────────────────────────────────
+async function resetSettingsToDefaults() {
+    const confirmed = confirm(
+        '⚠️ RESET ALL SETTINGS?\n\nThis will wipe every setting and restore factory defaults.\nThis cannot be undone.\n\nType OK to confirm.'
+    );
+    if (!confirmed) return;
+
+    try {
+        showLoading();
+        const res  = await fetch(`${API_URL}/api/admin/settings/reset`, {
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ confirm: true }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            window._adminSettings = data.settings;
+            updateMaintenanceQuickCard(data.settings);
+            renderSettingsTab(_settingsTab, data.settings);
+            showToast('Settings reset to defaults', 'warning');
+        } else {
+            throw new Error(data.message || 'Reset failed');
+        }
+    } catch (err) {
+        showToast(`Reset failed: ${err.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// ── Shared escape helper ──────────────────────────────────────────────────────
 function escSetting(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
 
 // ========== ADMIN NOTIFICATIONS ==========
 let adminNotifications = [];
