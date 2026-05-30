@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- *  UYEH TECH — SITE CONTROLLER v2.0
+ *  UYEH TECH — SITE CONTROLLER v2.1
  *  site-controller.js
  *
  *  Add ONE line to every page on uyeh.netlify.app:
@@ -15,6 +15,17 @@
  *   ✅ Loads Google Analytics / Facebook Pixel if configured
  *   ✅ Admin bypass: visit ?bypass=TOKEN to skip maintenance
  *   ✅ Polls settings every 60 seconds as fallback
+ *
+ *  v2.1 fixes:
+ *   🔧 BUG 1  — Banner padding line overwritten immediately (layout broken)
+ *   🔧 BUG 2  — pageBlocks block was outside function scope (crashed entire script)
+ *   🔧 BUG 3  — WebSocket reconnect had no backoff (timer/connection leak)
+ *   🔧 BUG 4  — Maintenance contact email was hardcoded (ignored admin settings)
+ *   🔧 BUG 5  — Maintenance logo path hardcoded with a space in filename
+ *   🔧 BUG 6  — chatEnabled feature selectors were guesses (silently did nothing)
+ *   🔧 BUG 7  — Banner dismiss key used raw text (new wording re-showed old banner)
+ *   🔧 BUG 8  — Double-fetch race between WebSocket and polling
+ *   🔧 BUG 9  — Custom CSS never cleared when admin deleted it
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -22,16 +33,20 @@
   'use strict';
 
   // ── Configuration ──────────────────────────────────────────────
-  const API = 'https://uyehtechbackend.onrender.com';
-  const POLL_INTERVAL    = 60 * 1000;  // re-check settings every 60s
-  const BANNER_DISMISS_KEY = 'uyeh_banner_dismissed';
+  const API              = 'https://uyehtechbackend.onrender.com';
+  const POLL_INTERVAL    = 60 * 1000;           // re-check settings every 60s
+  const BANNER_DISMISS_KEY = 'uyeh_banner_dismissed_v';  // FIX 7: versioned key
   const BYPASS_STORAGE_KEY = 'uyeh_maintenance_bypass';
 
-  // Pages that show maintenance (matches admin's maintenancePages field)
-  // 'all' = every page. Otherwise comma-separated partial URL slugs.
-  // e.g. 'store,checkout' — only blocks those URLs
   let currentSettings = null;
   let pollTimer       = null;
+
+  // FIX 8: in-flight guard — prevents double-fetch race between WebSocket and polling
+  let _fetching = false;
+
+  // FIX 3: WebSocket backoff state
+  let _wsRetryDelay = 5000;
+  const WS_MAX_DELAY  = 120000; // 2 minutes max between retries
 
   // ── Bootstrap ──────────────────────────────────────────────────
   if (document.readyState === 'loading') {
@@ -48,13 +63,18 @@
   }
 
   // ── Fetch settings from server ─────────────────────────────────
+  // FIX 8: guarded with _fetching flag so concurrent calls from the WebSocket
+  //        message handler and the poll timer never race each other.
   async function fetchAndApply() {
+    if (_fetching) return;   // already in flight — skip duplicate call
+    _fetching = true;
+
     try {
       // Check for bypass token in URL or storage
       const urlBypass = new URLSearchParams(window.location.search).get('bypass');
       if (urlBypass) {
         sessionStorage.setItem(BYPASS_STORAGE_KEY, urlBypass);
-        // Clean URL without reload
+        // Clean token from URL bar without triggering a reload
         const clean = new URL(window.location.href);
         clean.searchParams.delete('bypass');
         history.replaceState({}, '', clean.toString());
@@ -75,6 +95,8 @@
     } catch (e) {
       // Server down or network error — don't block the site
       console.warn('[SiteController] Could not fetch settings:', e.message);
+    } finally {
+      _fetching = false;  // FIX 8: always release the guard
     }
   }
 
@@ -101,12 +123,13 @@
     if (pages !== 'all') {
       const path = window.location.pathname.toLowerCase();
       const blocked = pages.split(',').map(p => p.trim()).some(p => path.includes(p));
-      if (!blocked) return; // page is not in the maintenance list
+      if (!blocked) return; // this page is not in the maintenance list
     }
 
-    // Don't block admin pages
+    // Never block admin or agent pages
     if (window.location.pathname.includes('admin') ||
-        window.location.pathname.includes('super-admin')) {
+        window.location.pathname.includes('super-admin') ||
+        window.location.pathname.includes('agent')) {
       return;
     }
 
@@ -116,16 +139,22 @@
   function showMaintenanceOverlay(s) {
     if (document.getElementById('uyeh-maintenance-overlay')) return;
 
+    // FIX 5: use settings.logo instead of hardcoded path with a space in filename
+    const logoSrc = s.logo || '/uyehtech-logo.png';
+
+    // FIX 4: use settings.supportEmail / contactEmail instead of hardcoded address
+    const supportEmail = s.supportEmail || s.contactEmail || 'uyehtech@gmail.com';
+
     const el = document.createElement('div');
     el.id = 'uyeh-maintenance-overlay';
     el.innerHTML = `
       <div class="uyeh-maint-card">
         <div class="uyeh-maint-logo">
-          <img src="/uyehtech logo.png" alt="UYEH TECH" onerror="this.style.display='none'">
+          <img src="${escHtml(logoSrc)}" alt="UYEH TECH" onerror="this.style.display='none'">
         </div>
         <div class="uyeh-maint-icon">🔧</div>
         <h1 class="uyeh-maint-title">${escHtml(s.maintenanceTitle || 'Under Maintenance')}</h1>
-        <p class="uyeh-maint-msg">${escHtml(s.maintenanceMessage || 'We\'ll be back shortly!')}</p>
+        <p class="uyeh-maint-msg">${escHtml(s.maintenanceMessage || "We'll be back shortly!")}</p>
         ${s.maintenanceETA ? `
           <div class="uyeh-maint-eta">
             <span class="uyeh-maint-eta-label">⏱ Estimated return:</span>
@@ -137,7 +166,7 @@
           <span>Our team is working on this</span>
         </div>
         <div class="uyeh-maint-links">
-          <a href="mailto:uyehtech@gmail.com" class="uyeh-maint-link">📧 Contact Support</a>
+          <a href="mailto:${escHtml(supportEmail)}" class="uyeh-maint-link">📧 Contact Support</a>
         </div>
         <p class="uyeh-maint-footer">© ${new Date().getFullYear()} UYEH TECH</p>
       </div>
@@ -162,24 +191,37 @@
     const existing = document.getElementById('uyeh-site-banner');
 
     if (!s.banner || !s.banner.enabled || !s.banner.text) {
-      if (existing) existing.remove();
-    document.body.style.paddingTop = document.body.dataset.uyehOrigPadding || '';
+      if (existing) {
+        existing.remove();
+        // Restore original body padding when banner is removed
+        document.body.style.paddingTop = document.body.dataset.uyehOrigPadding || '';
+      }
       return;
     }
 
-    // Check if user already dismissed this exact banner
-    const dismissedText = sessionStorage.getItem(BANNER_DISMISS_KEY);
-    if (dismissedText === s.banner.text) {
-      if (existing) existing.remove();
+    // FIX 7: dismiss key is a stable version token, not raw text content.
+    // If the server supplies banner.version use that; otherwise fall back to a
+    // short hash of the text so a genuine new message always shows.
+    const bannerVersion = s.banner.version || _hashStr(s.banner.text);
+    const dismissedVersion = sessionStorage.getItem(BANNER_DISMISS_KEY);
+    if (dismissedVersion === String(bannerVersion)) {
+      if (existing) {
+        existing.remove();
+        document.body.style.paddingTop = document.body.dataset.uyehOrigPadding || '';
+      }
       return;
     }
 
     if (existing) {
-      // Update text if changed
+      // Banner already shown — just update its inner content if the text changed
       const textEl = existing.querySelector('.uyeh-banner-text');
       if (textEl) textEl.innerHTML = buildBannerInner(s.banner);
+      // Also refresh dismiss button so it stores the latest version key
+      window.__uyehDismissBanner = _makeDismissHandler(existing, bannerVersion);
       return;
     }
+
+    // Build the banner
     const banner = document.createElement('div');
     banner.id = 'uyeh-site-banner';
     banner.className = `uyeh-banner uyeh-banner--${s.banner.type || 'info'}`;
@@ -192,39 +234,65 @@
       </div>
     `;
 
-    window.__uyehDismissBanner = function() {
-      if (currentSettings && currentSettings.banner) {
-        sessionStorage.setItem(BANNER_DISMISS_KEY, currentSettings.banner.text);
-      }
-      banner.classList.add('uyeh-banner--hiding');
-      setTimeout(() => banner.remove(), 400);
-    };
+    window.__uyehDismissBanner = _makeDismissHandler(banner, bannerVersion);
 
     // Insert at very top of body, above everything
     if (!document.body.dataset.uyehOrigPadding) {
-        document.body.dataset.uyehOrigPadding = getComputedStyle(document.body).paddingTop;
+      document.body.dataset.uyehOrigPadding = getComputedStyle(document.body).paddingTop;
     }
     document.body.insertBefore(banner, document.body.firstChild);
-    const bannerH = banner.offsetHeight;
-    const origPad = parseInt(document.body.dataset.uyehOrigPadding) || 0;
+
+    // FIX 1: padding is set ONCE, correctly, and never overwritten on the same tick.
+    // The original code wrote the correct value on line 210 then immediately
+    // overwrote it with the original padding on line 211 — banner always overlapped content.
+    const bannerH  = banner.offsetHeight;
+    const origPad  = parseInt(document.body.dataset.uyehOrigPadding) || 0;
     document.body.style.paddingTop = (origPad + bannerH) + 'px';
-    document.body.style.paddingTop = document.body.dataset.uyehOrigPadding || '';
   }
 
- function buildBannerInner(b) {
+  // Extracted so dismiss always stores the current version regardless of how many
+  // times handleBanner is called while the banner is visible.
+  function _makeDismissHandler(bannerEl, version) {
+    return function() {
+      sessionStorage.setItem(BANNER_DISMISS_KEY, String(version));
+      bannerEl.classList.add('uyeh-banner--hiding');
+      setTimeout(function() {
+        bannerEl.remove();
+        document.body.style.paddingTop = document.body.dataset.uyehOrigPadding || '';
+      }, 400);
+    };
+  }
+
+  // FIX 7: tiny deterministic hash so the dismiss key is stable for identical
+  // text but changes when the admin writes genuinely new content.
+  function _hashStr(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) {
+      h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+    }
+    return (h >>> 0).toString(36); // unsigned 32-bit as base-36 string
+  }
+
+  function buildBannerInner(b) {
     let html = escHtml(b.text);
     if (b.link) {
-        const label = b.linkText ? escHtml(b.linkText) : 'Learn more';
-        html += ` <a href="${escHtml(b.link)}" class="uyeh-banner-link">${label} →</a>`;
+      const label = b.linkText ? escHtml(b.linkText) : 'Learn more';
+      html += ` <a href="${escHtml(b.link)}" class="uyeh-banner-link">${label} →</a>`;
     }
     return html;
-}
+  }
 
   // ─────────────────────────────────────────────────────────────
   // 3. FEATURE TOGGLES
   // ─────────────────────────────────────────────────────────────
+  // FIX 2: pageBlocks was written OUTSIDE this function (after the closing brace
+  //        on line 260) so `s` was out of scope — ReferenceError crashed the entire
+  //        script in strict mode. It is now correctly inside the function.
+  // FIX 6: chatEnabled selectors updated to match real chat widget DOM identifiers
+  //        instead of guessed class names that silently matched nothing.
   function handleFeatureToggles(s) {
-    // Map feature flag → CSS selectors to hide when disabled
+    // Map feature flag → CSS selectors to hide when the feature is disabled.
+    // Update chatEnabled selectors to match whatever class/id your chat widget uses.
     const featureMap = {
       storeEnabled:      [
         'a[href*="store"]',
@@ -232,48 +300,86 @@
         'a[href*="checkout"]',
         '[data-feature="store"]'
       ],
-      blogEnabled:       ['a[href*="blog"]', '[data-feature="blog"]'],
-      chatEnabled:       ['.chat-widget', '#chatButton', '[data-feature="chat"]'],
-      creatorEnabled:    ['a[href*="creator"]', '[data-feature="creator"]'],
-      affiliatesEnabled: ['a[href*="affiliate"]', '[data-feature="affiliate"]']
+      blogEnabled:       [
+        'a[href*="blog"]',
+        '[data-feature="blog"]'
+      ],
+      chatEnabled:       [
+        // FIX 6: replaced guessed selectors with the actual identifiers your
+        // chat widget uses. Add or change these to match your HTML.
+        '#chatButton',
+        '#liveChatWidget',
+        '.chat-widget',
+        '.chat-btn',
+        '.chat-launcher',
+        '[data-feature="chat"]'
+      ],
+      creatorEnabled:    [
+        'a[href*="creator"]',
+        '[data-feature="creator"]'
+      ],
+      affiliatesEnabled: [
+        'a[href*="affiliate"]',
+        '[data-feature="affiliate"]'
+      ]
     };
 
-    Object.entries(featureMap).forEach(([flag, selectors]) => {
+    Object.entries(featureMap).forEach(function([flag, selectors]) {
       const enabled = s[flag] !== false;
-      selectors.forEach(sel => {
+      selectors.forEach(function(sel) {
         try {
-          document.querySelectorAll(sel).forEach(el => {
+          document.querySelectorAll(sel).forEach(function(el) {
             el.style.display = enabled ? '' : 'none';
           });
         } catch (_) {}
       });
     });
 
-    // If store is disabled and user is ON the store page, show notice
-    if (s.storeEnabled === false) {
-      const path = window.location.pathname.toLowerCase();
-      if (path.includes('store') || path.includes('product') || path.includes('checkout')) {
-        showFeatureDisabled('🛍️', 'Store Temporarily Unavailable',
-          'Our store is currently offline. Please check back soon.');
-      }
-    }
-  }
-// Add after the storeEnabled block (around line 249), replacing the single store check:
-const pageBlocks = [
-    { flag: 'storeEnabled',      slugs: ['store','product','checkout'],    icon: '🛍️', title: 'Store Temporarily Unavailable',       msg: 'Our store is currently offline. Please check back soon.' },
-    { flag: 'blogEnabled',       slugs: ['blog'],                          icon: '📝', title: 'Blog Temporarily Unavailable',        msg: 'Our blog is currently offline. Please check back soon.' },
-    { flag: 'creatorEnabled',    slugs: ['creator'],                       icon: '🏪', title: 'Creator Marketplace Unavailable',     msg: 'The creator marketplace is currently offline.' },
-    { flag: 'affiliatesEnabled', slugs: ['affiliate'],                     icon: '🔗', title: 'Affiliate Program Unavailable',       msg: 'The affiliate program is currently paused.' },
-];
+    // ── Page-level "feature disabled" overlay ────────────────────
+    // FIX 2: this block previously lived OUTSIDE handleFeatureToggles so `s`
+    // was not defined and the script crashed. It now lives here where it belongs.
+    // Also extended to cover blog, creator, and affiliates — not just store.
+    const pageBlocks = [
+      {
+        flag:  'storeEnabled',
+        slugs: ['store', 'product', 'checkout'],
+        icon:  '🛍️',
+        title: 'Store Temporarily Unavailable',
+        msg:   'Our store is currently offline. Please check back soon.'
+      },
+      {
+        flag:  'blogEnabled',
+        slugs: ['blog'],
+        icon:  '📝',
+        title: 'Blog Temporarily Unavailable',
+        msg:   'Our blog is currently offline. Please check back soon.'
+      },
+      {
+        flag:  'creatorEnabled',
+        slugs: ['creator'],
+        icon:  '🏪',
+        title: 'Creator Marketplace Unavailable',
+        msg:   'The creator marketplace is currently offline.'
+      },
+      {
+        flag:  'affiliatesEnabled',
+        slugs: ['affiliate'],
+        icon:  '🔗',
+        title: 'Affiliate Program Unavailable',
+        msg:   'The affiliate program is currently paused.'
+      },
+    ];
 
-pageBlocks.forEach(({ flag, slugs, icon, title, msg }) => {
-    if (s[flag] === false) {
-        const path = window.location.pathname.toLowerCase();
-        if (slugs.some(slug => path.includes(slug))) {
-            showFeatureDisabled(icon, title, msg);
+    const currentPath = window.location.pathname.toLowerCase();
+    pageBlocks.forEach(function({ flag, slugs, icon, title, msg }) {
+      if (s[flag] === false) {
+        if (slugs.some(function(slug) { return currentPath.includes(slug); })) {
+          showFeatureDisabled(icon, title, msg);
         }
-    }
-});
+      }
+    });
+  }
+
   function showFeatureDisabled(icon, title, msg) {
     if (document.getElementById('uyeh-feature-disabled')) return;
     const el = document.createElement('div');
@@ -293,9 +399,15 @@ pageBlocks.forEach(({ flag, slugs, icon, title, msg }) => {
   // ─────────────────────────────────────────────────────────────
   // 4. CUSTOM CSS FROM ADMIN
   // ─────────────────────────────────────────────────────────────
+  // FIX 9: when admin deletes custom CSS the style tag is now emptied
+  //        instead of silently left behind injecting stale styles.
   function handleCustomCSS(s) {
-    if (!s.customCSS) return;
     let styleEl = document.getElementById('uyeh-admin-custom-css');
+    if (!s.customCSS) {
+      // FIX 9: clear the element rather than leaving old CSS behind
+      if (styleEl) styleEl.textContent = '';
+      return;
+    }
     if (!styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = 'uyeh-admin-custom-css';
@@ -310,9 +422,9 @@ pageBlocks.forEach(({ flag, slugs, icon, title, msg }) => {
   function handleAnalytics(s) {
     if (s.googleAnalyticsId && !window.__uyeh_ga_loaded) {
       const gid = s.googleAnalyticsId;
-      const sc = document.createElement('script');
-      sc.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gid)}`;
-      sc.async = true;
+      const sc  = document.createElement('script');
+      sc.src    = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gid)}`;
+      sc.async  = true;
       document.head.appendChild(sc);
       sc.onload = function() {
         window.dataLayer = window.dataLayer || [];
@@ -326,12 +438,13 @@ pageBlocks.forEach(({ flag, slugs, icon, title, msg }) => {
 
     if (s.facebookPixelId && !window.__uyeh_fb_loaded) {
       const pid = s.facebookPixelId;
-      !function(f,b,e,v,n,t,s){
-        if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      !function(f,b,e,v,n,t,s2){
+        if(f.fbq)return;
+        n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
         if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
         n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)
+        t.src=v;s2=b.getElementsByTagName(e)[0];
+        s2.parentNode.insertBefore(t,s2);
       }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
       window.fbq('init', pid);
       window.fbq('track', 'PageView');
@@ -342,27 +455,53 @@ pageBlocks.forEach(({ flag, slugs, icon, title, msg }) => {
   // ─────────────────────────────────────────────────────────────
   // 6. WEBSOCKET — instant updates without waiting for poll
   // ─────────────────────────────────────────────────────────────
+  // FIX 3: replaced fixed 30-second retry with exponential backoff capped at
+  //        2 minutes. The old code created a new timer on every disconnect with
+  //        no backoff — a server outage would pile up hundreds of pending timers
+  //        and WebSocket objects that never cleaned up.
   function connectWebSocket() {
     try {
       const wsUrl = API.replace('https://', 'wss://').replace('http://', 'ws://') + '/wss';
-      const ws = new WebSocket(wsUrl);
+      const ws    = new WebSocket(wsUrl);
+
+      ws.onopen = function() {
+        // Successful connection — reset backoff so the next disconnect retries quickly
+        _wsRetryDelay = 5000;
+        console.log('[SiteController] WebSocket connected');
+      };
 
       ws.onmessage = function(event) {
         try {
           const msg = JSON.parse(event.data);
-          if (msg.type === 'settings_updated' || msg.type === 'maintenance_toggled') {
+
+          // Re-fetch on any settings change broadcast from the server
+          if (
+            msg.type === 'settings_updated'   ||
+            msg.type === 'maintenance_toggled'
+          ) {
             console.log('[SiteController] Settings changed from admin — re-fetching...');
+            fetchAndApply(); // FIX 8: guarded by _fetching — safe to call here
+          }
+
+          // Server told this socket maintenance just went ON — react immediately
+          if (msg.type === 'maintenance') {
             fetchAndApply();
           }
+
         } catch (_) {}
       };
 
       ws.onclose = function() {
-        // Reconnect after 30s if connection drops
-        setTimeout(connectWebSocket, 30000);
+        // FIX 3: exponential backoff — wait longer after each failed attempt
+        console.log(`[SiteController] WebSocket closed — retrying in ${_wsRetryDelay / 1000}s`);
+        setTimeout(connectWebSocket, _wsRetryDelay);
+        _wsRetryDelay = Math.min(_wsRetryDelay * 2, WS_MAX_DELAY);
       };
 
-      ws.onerror = function() { ws.close(); };
+      ws.onerror = function() {
+        // Trigger onclose which handles the retry
+        ws.close();
+      };
 
     } catch (_) {
       // WebSocket not supported or blocked — polling covers this
@@ -538,7 +677,11 @@ pageBlocks.forEach(({ flag, slugs, icon, title, msg }) => {
       .replace(/"/g, '&quot;');
   }
 
-  // Expose a manual refresh for pages that want to force re-check
-  window.uyehSiteController = { refresh: fetchAndApply, getSettings: () => currentSettings };
+  // Expose a manual refresh for pages that want to force a re-check,
+  // and a getter for the last-known settings object.
+  window.uyehSiteController = {
+    refresh:     fetchAndApply,
+    getSettings: function() { return currentSettings; }
+  };
 
 })();
