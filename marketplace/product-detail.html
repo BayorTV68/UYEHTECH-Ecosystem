@@ -44,7 +44,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);min-he
 .player-zone{background:#000;position:relative;width:100%}
 .player-zone video,
 .player-zone iframe{display:block;width:100%}
-.player-zone video,.player-zone iframe{aspect-ratio:16/9}
+.player-zone video{aspect-ratio:16/9}
+.player-zone iframe{border:none}
 .player-empty{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:12px;background:var(--bg2);color:var(--t3)}
 .player-empty .pe-icon{font-size:3rem;color:var(--g);opacity:.35}
@@ -1536,7 +1537,18 @@ function renderPlayer(ch) {
 
   // Always prefer the dedicated split audio field.
   // embedType (collapsed) may point to video type — use ch.embedAudioType for audio lookups.
-  const embedSrc      = ch.embedAudioUrl || (AUDIO_EMBED_TYPES.includes(ch.embedAudioType || '') ? embedUrl : null) || embedUrl;
+  let embedSrc = ch.embedAudioUrl || (AUDIO_EMBED_TYPES.includes(ch.embedAudioType || '') ? embedUrl : null) || embedUrl;
+
+  // SoundCloud page URLs must be converted to the widget player URL.
+  // The server may store the raw page URL (soundcloud.com/artist/track).
+  // A plain <iframe> only works with the w.soundcloud.com/player/ widget URL.
+  if (embedSrc && (ch.embedAudioType === 'soundcloud' || audioEmbedType === 'soundcloud')) {
+    if (!embedSrc.includes('w.soundcloud.com/player')) {
+      embedSrc = 'https://w.soundcloud.com/player/?url='
+        + encodeURIComponent(embedSrc)
+        + '&color=%2300ff88&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false';
+    }
+  }
   const audioEmbedType = ch.embedAudioType || (AUDIO_EMBED_TYPES.includes(embedType || '') ? embedType : null) || '';
 
   if (playerType === 'soundcloud_widget' || AUDIO_EMBED_TYPES.includes(audioEmbedType)) {
