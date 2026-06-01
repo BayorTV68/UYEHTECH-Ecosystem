@@ -2243,6 +2243,469 @@ tr:hover {
 .uyeh-toggle input:checked + .uyeh-toggle-track::after {
     left: 25px;
 }
+
+.logs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+}
+ 
+.log-stat {
+    background: var(--dark-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    transition: border-color .2s;
+}
+.log-stat:hover { border-color: var(--primary); }
+.log-stat-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    line-height: 1;
+}
+.log-stat-label {
+    font-size: .72rem;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-top: 6px;
+}
+.log-stat.crit .log-stat-num { color: var(--error); }
+.log-stat.warn .log-stat-num { color: var(--warning); }
+.log-stat.ok   .log-stat-num { color: var(--success); }
+.log-stat.info .log-stat-num { color: var(--info); }
+ 
+/* ── FILTER BAR ──────────────────────────────────────────────────────────── */
+.log-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    background: var(--dark-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+.log-filter-bar select,
+.log-filter-bar input[type="text"],
+.log-filter-bar input[type="date"] {
+    padding: 8px 12px;
+    background: rgba(0,255,136,.04);
+    border: 1px solid rgba(0,255,136,.2);
+    border-radius: 8px;
+    color: #e8edf2;
+    font-family: 'Syne', sans-serif;
+    font-size: .82rem;
+    outline: none;
+    transition: border-color .15s;
+    min-width: 120px;
+}
+.log-filter-bar select:focus,
+.log-filter-bar input:focus { border-color: var(--primary); }
+.log-filter-bar select option { background: #131820; }
+.log-filter-bar label {
+    font-size: .72rem;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+ 
+/* ── TABS ────────────────────────────────────────────────────────────────── */
+.log-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+    flex-wrap: wrap;
+}
+.log-tab {
+    padding: 9px 18px;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'Syne', sans-serif;
+    white-space: nowrap;
+}
+.log-tab:hover { color: #fff; }
+.log-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+.log-tab .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    font-size: .65rem;
+    font-weight: 700;
+    margin-left: 6px;
+    background: rgba(0,255,136,.12);
+    color: var(--primary);
+}
+.log-tab.tab-error .tab-count { background: rgba(255,68,68,.15); color: var(--error); }
+.log-tab.tab-warn  .tab-count { background: rgba(255,170,0,.15); color: var(--warning); }
+ 
+/* ── LOG TABLE ───────────────────────────────────────────────────────────── */
+.log-table-wrap {
+    background: var(--dark-light);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.log-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.log-table-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.log-count-pill {
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(0,255,136,.1);
+    color: var(--primary);
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+}
+.log-table-scroll { overflow-x: auto; }
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .8rem;
+    min-width: 900px;
+}
+.log-table th {
+    padding: 11px 14px;
+    text-align: left;
+    color: var(--primary);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    border-bottom: 1px solid rgba(0,255,136,.15);
+    white-space: nowrap;
+    background: rgba(0,255,136,.03);
+}
+.log-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    color: #c9d1db;
+    vertical-align: middle;
+}
+.log-table tr:hover td { background: rgba(255,255,255,.025); }
+.log-table tr.log-row-error   td { border-left: 3px solid var(--error); }
+.log-table tr.log-row-critical td { border-left: 3px solid #ff0000; background: rgba(255,0,0,.03); }
+.log-table tr.log-row-warning  td { border-left: 3px solid var(--warning); }
+.log-table tr.log-row-info     td { border-left: 3px solid transparent; }
+ 
+/* ── SEVERITY BADGES ─────────────────────────────────────────────────────── */
+.sev-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: .67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.sev-info     { background: rgba(59,158,255,.15);  color: var(--info); }
+.sev-warning  { background: rgba(255,170,0,.15);   color: var(--warning); }
+.sev-error    { background: rgba(255,77,77,.15);   color: var(--error); }
+.sev-critical { background: rgba(255,0,0,.2);      color: #ff4444; border: 1px solid rgba(255,0,0,.3); }
+ 
+/* ── CATEGORY CHIPS ──────────────────────────────────────────────────────── */
+.cat-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: .67rem;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+}
+.cat-auth      { background: rgba(167,139,250,.12); color: #b794f4; }
+.cat-admin     { background: rgba(251,191,36,.12);  color: #fbbf24; }
+.cat-user      { background: rgba(255,255,255,.07); color: #9ca3af; }
+.cat-order     { background: rgba(0,255,136,.1);    color: var(--primary); }
+.cat-product   { background: rgba(34,211,238,.1);   color: #22d3ee; }
+.cat-creator   { background: rgba(168,85,247,.12);  color: #c084fc; }
+.cat-affiliate { background: rgba(249,115,22,.12);  color: #fb923c; }
+.cat-chat      { background: rgba(96,165,250,.12);  color: #60a5fa; }
+.cat-ticket    { background: rgba(96,165,250,.09);  color: #93c5fd; }
+.cat-coupon    { background: rgba(251,191,36,.09);  color: #fde68a; }
+.cat-blog      { background: rgba(16,185,129,.1);   color: #6ee7b7; }
+.cat-server    { background: rgba(255,68,68,.1);    color: #ff8888; }
+.cat-error     { background: rgba(255,0,0,.15);     color: #ff4444; }
+.cat-security  { background: rgba(255,0,0,.1);      color: #f87171; }
+.cat-access    { background: rgba(251,191,36,.15);  color: #fbbf24; }
+.cat-upload    { background: rgba(99,102,241,.12);  color: #a5b4fc; }
+.cat-settings  { background: rgba(156,163,175,.1);  color: #9ca3af; }
+.cat-health    { background: rgba(0,255,136,.06);   color: rgba(0,255,136,.7); }
+.cat-websocket { background: rgba(34,211,238,.08);  color: #67e8f9; }
+ 
+/* ── LOG DETAIL DRAWER ───────────────────────────────────────────────────── */
+.ld-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.78);
+    z-index: 3000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.ld-drawer {
+    width: min(680px, 100vw);
+    height: 100vh;
+    background: #0f1117;
+    border-left: 1px solid rgba(0,255,136,.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: drawerIn .2s ease;
+}
+.ld-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(0,255,136,.12);
+    background: rgba(0,255,136,.03);
+    flex-shrink: 0;
+    gap: 12px;
+}
+.ld-head-title {
+    font-weight: 700;
+    font-size: .95rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+.ld-close {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.04);
+    border-radius: 8px;
+    color: var(--gray);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    flex-shrink: 0;
+}
+.ld-close:hover { background: rgba(255,68,68,.1); border-color: var(--error); color: var(--error); }
+.ld-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px;
+}
+.ld-section {
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.ld-section:last-child { border-bottom: none; }
+.ld-section-label {
+    font-size: .63rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 12px;
+}
+.ld-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+    gap: 8px;
+}
+.ld-kv {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px;
+    padding: 9px 12px;
+}
+.ld-kv.full { grid-column: 1 / -1; }
+.ld-kv-key {
+    font-size: .62rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+.ld-kv-val {
+    font-size: .82rem;
+    color: #e5e7eb;
+    word-break: break-all;
+    font-family: 'DM Mono', monospace;
+}
+.ld-json {
+    background: rgba(0,0,0,.4);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: .75rem;
+    font-family: 'DM Mono', monospace;
+    color: #a9b7c6;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+}
+ 
+/* ── LIVE FEED PULSE ─────────────────────────────────────────────────────── */
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse-green 1.4s ease-in-out infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.live-dot.paused { background: var(--gray); animation: none; }
+@keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,.5); }
+    50%       { box-shadow: 0 0 0 6px rgba(0,255,136,0); }
+}
+ 
+/* ── SERVER HEALTH PANEL ─────────────────────────────────────────────────── */
+.health-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.health-card {
+    background: var(--dark-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.health-card.danger  { border-color: rgba(255,68,68,.4);  background: rgba(255,68,68,.04); }
+.health-card.warn    { border-color: rgba(255,170,0,.4);  background: rgba(255,170,0,.04); }
+.health-card.good    { border-color: rgba(0,255,136,.2);  background: rgba(0,255,136,.03); }
+.health-label {
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--gray);
+    font-weight: 700;
+}
+.health-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    font-family: 'DM Mono', monospace;
+    color: #fff;
+}
+.health-card.danger .health-value { color: var(--error); }
+.health-card.warn   .health-value { color: var(--warning); }
+.health-card.good   .health-value { color: var(--success); }
+.health-sub {
+    font-size: .72rem;
+    color: var(--gray);
+}
+ 
+/* ── IP FLAG ROW ─────────────────────────────────────────────────────────── */
+.ip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-size: .8rem;
+    gap: 10px;
+    cursor: pointer;
+    transition: background .12s;
+}
+.ip-row:hover { background: rgba(255,255,255,.025); }
+.ip-addr { font-family: 'DM Mono', monospace; color: #60a5fa; }
+.ip-count {
+    font-family: 'DM Mono', monospace;
+    font-weight: 700;
+    color: var(--error);
+    white-space: nowrap;
+}
+ 
+/* ── EMPTY STATE ─────────────────────────────────────────────────────────── */
+.log-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray);
+}
+.log-empty i { font-size: 2.5rem; margin-bottom: 12px; opacity: .3; }
+.log-empty p { font-size: .9rem; }
+ 
+/* ── CHART BAR ───────────────────────────────────────────────────────────── */
+.mini-bar-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+    padding: 4px 0;
+}
+.mini-bar {
+    flex: 1;
+    background: rgba(0,255,136,.25);
+    border-radius: 3px 3px 0 0;
+    min-height: 3px;
+    transition: background .15s;
+    cursor: pointer;
+    position: relative;
+}
+.mini-bar:hover { background: var(--primary); }
+.mini-bar.has-error { background: rgba(255,77,77,.5); }
+.mini-bar:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e2330;
+    border: 1px solid rgba(0,255,136,.2);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: .65rem;
+    color: #fff;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+}
+ 
 </style>
 
 </head>
@@ -2365,6 +2828,21 @@ tr:hover {
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </div>
+            <div class="nav-section-label" style="
+                padding: 16px 30px 6px;
+                font-size: .65rem;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: rgba(0,255,136,0.45);
+                font-weight: 700;
+            ">System</div>
+            
+            <div class="nav-item" data-page="logs">
+                <i class="fas fa-scroll"></i>
+                <span>Admin Logs</span>
+                <span class="nav-badge" id="criticalLogsBadge" style="display:none;background:rgba(255,68,68,0.3);color:#ff4d4d;">0</span>
+            </div>
+
         </nav>
     </aside>
 
@@ -2417,6 +2895,7 @@ tr:hover {
             <div id="affiliatesPage" class="page-content hidden"></div>
             <div id="ticketsPage"    class="page-content hidden"></div>
             <div id="settingsPage" class="page-content hidden"></div>
+            <div id="logsPage" class="page-content hidden"></div>
         </div>
     </main>
 
@@ -3401,6 +3880,7 @@ function navigateTo(page) {
         case 'affiliates':            loadAffiliatesData();         break; 
         case 'tickets':               loadTicketsData();            break;
         case 'settings':              loadSettingsData();           break;
+        case 'logs':                  loadLogsSection();            break;
     }
 }
  
@@ -6203,7 +6683,7 @@ async function loadSettingsData() {
         <div class="page-header">
             <div>
                 <h1 class="page-title">Site Settings</h1>
-                <p class="page-subtitle">Control every aspect of uyeh.netlify.app from here</p>
+                <p class="page-subtitle">Control every aspect of uyehtech.netlify.app from here</p>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 <button class="btn btn-secondary" id="settingsExportBtn" onclick="exportSettings()" title="Download settings as JSON backup">
@@ -6287,7 +6767,7 @@ async function loadSettingsData() {
                 <div class="info-card-title">How Site Control Works</div>
             </div>
             <div class="info-card-content">
-                Every page on <strong style="color:var(--primary);">uyeh.netlify.app</strong> loads
+                Every page on <strong style="color:var(--primary);">uyehtech.netlify.app</strong> loads
                 <code style="background:rgba(0,255,136,.1);padding:2px 7px;border-radius:5px;font-size:.82rem;">site-controller.js</code>
                 which polls your backend every 60 seconds. When you save here, changes broadcast
                 <strong>instantly</strong> to all live visitors via WebSocket — no page refresh required.
@@ -6438,8 +6918,8 @@ function renderSettingsTab(tab, s) {
                     ${field('Phone', 'phone', 'text', s.phone, '+234 800 000 0000')}
                 </div>
                 ${field('Site Description', 'siteDescription', 'text', s.siteDescription, 'Professional web development, digital products & more')}
-                ${field('Site URL', 'siteUrl', 'url', s.siteUrl, 'https://uyeh.netlify.app')}
-                ${field('Business Address', 'address', 'text', s.address, 'Lagos, Nigeria')}
+                ${field('Site URL', 'siteUrl', 'url', s.siteUrl, 'https://uyehtech.netlify.app')}
+                ${field('Business Address', 'address', 'text', s.address, 'Aks, Nigeria')}
                 ${divider('Social Media Links')}
                 <div class="st-grid-2">
                     ${field('Twitter / X', 'socialMedia.twitter', 'url', s.socialMedia?.twitter, 'https://twitter.com/uyehtech')}
@@ -6642,7 +7122,7 @@ function renderSettingsTab(tab, s) {
                 </div>
 
                 <div class="st-grid-2">
-                    ${field('Link URL', 'bannerLink', 'url', s.bannerLink, 'https://uyeh.netlify.app/store')}
+                    ${field('Link URL', 'bannerLink', 'url', s.bannerLink, 'https://uyehtech.netlify.app/marketplace')}
                     ${field('Link Label', 'bannerLinkText', 'text', s.bannerLinkText, 'Shop Now')}
                 </div>
                 <small style="color:var(--gray);display:block;margin-top:-12px;margin-bottom:18px;">
@@ -11810,7 +12290,1058 @@ function closeSidebar() {
 }
 
 console.log('✅ Admin Ticket System loaded');
-    </script>
+    
+// ═════════════════════════════════════════════════════════════════════════
+// ADMIN LOGS — STATE
+// ═════════════════════════════════════════════════════════════════════════
+ 
+const logsState = {
+    tab:         'all',       // 'all' | 'admin' | 'auth' | 'security' | 'server' | 'live'
+    page:        1,
+    limit:       50,
+    total:       0,
+    // filters
+    category:    '',
+    severity:    '',
+    role:        '',
+    success:     '',
+    search:      '',
+    from:        '',
+    to:          '',
+    // live feed
+    liveActive:  false,
+    liveTimer:   null,
+    liveSince:   null,
+    // detail drawer
+    drawerOpen:  false,
+};
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// MAIN LOADER — called by navigateTo('logs')
+// ═════════════════════════════════════════════════════════════════════════
+ 
+async function loadLogsSection() {
+    const page = document.getElementById('logsPage');
+    if (!page) return;
+ 
+    page.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Admin Logs</h1>
+            <p class="page-subtitle">Every action, every event — full platform audit trail</p>
+        </div>
+ 
+        <!-- STATS ROW -->
+        <div class="logs-grid" id="logsStatsRow">
+            ${[1,2,3,4,5,6].map(() => `
+                <div class="log-stat">
+                    <div class="log-stat-num" style="color:rgba(255,255,255,.1)">—</div>
+                    <div class="log-stat-label" style="background:rgba(255,255,255,.04);border-radius:4px;height:10px;width:70%;margin-top:8px;"></div>
+                </div>`).join('')}
+        </div>
+ 
+        <!-- HEALTH PANEL -->
+        <div class="health-panel" id="logsHealthPanel">
+            ${[1,2,3,4].map(() => `
+                <div class="health-card">
+                    <div class="health-label" style="background:rgba(255,255,255,.04);height:8px;width:60%;border-radius:4px;"></div>
+                    <div style="background:rgba(255,255,255,.06);height:24px;width:80%;border-radius:6px;margin-top:6px;"></div>
+                </div>`).join('')}
+        </div>
+ 
+        <!-- TABS -->
+        <div class="log-tabs" id="logsTabs">
+            <button class="log-tab active" data-tab="all"      onclick="switchLogsTab('all')">      All Events</button>
+            <button class="log-tab"        data-tab="admin"    onclick="switchLogsTab('admin')">    Admin Actions</button>
+            <button class="log-tab"        data-tab="auth"     onclick="switchLogsTab('auth')">     Auth</button>
+            <button class="log-tab tab-error" data-tab="security" onclick="switchLogsTab('security')"> Security</button>
+            <button class="log-tab tab-error" data-tab="server"   onclick="switchLogsTab('server')">   Server & DB</button>
+            <button class="log-tab"        data-tab="live"     onclick="switchLogsTab('live')">
+                <span class="live-dot paused" id="liveDot"></span>&nbsp;Live Feed
+            </button>
+        </div>
+ 
+        <!-- FILTER BAR (hidden on live tab) -->
+        <div class="log-filter-bar" id="logsFilterBar">
+            <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:200px;">
+                <i class="fas fa-search" style="color:var(--gray);font-size:.8rem;"></i>
+                <input type="text" id="logSearch" placeholder="Search email, path, action, target…"
+                    style="flex:1;border:none;background:none;color:#e8edf2;font-family:'Syne',sans-serif;font-size:.82rem;outline:none;"
+                    oninput="debounceLogSearch(this.value)">
+            </div>
+            <select id="logCatFilter"  onchange="applyLogFilters()">
+                <option value="">All Categories</option>
+                <option value="auth">Auth</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+                <option value="order">Order</option>
+                <option value="product">Product</option>
+                <option value="creator">Creator</option>
+                <option value="affiliate">Affiliate</option>
+                <option value="chat">Chat</option>
+                <option value="ticket">Ticket</option>
+                <option value="coupon">Coupon</option>
+                <option value="blog">Blog</option>
+                <option value="access">Access</option>
+                <option value="upload">Upload</option>
+                <option value="settings">Settings</option>
+                <option value="security">Security</option>
+                <option value="server">Server</option>
+                <option value="error">Error</option>
+                <option value="websocket">WebSocket</option>
+                <option value="health">Health</option>
+            </select>
+            <select id="logSevFilter" onchange="applyLogFilters()">
+                <option value="">All Severities</option>
+                <option value="info">Info</option>
+                <option value="warning">Warning</option>
+                <option value="error">Error</option>
+                <option value="critical">Critical</option>
+            </select>
+            <select id="logRoleFilter" onchange="applyLogFilters()">
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="agent">Agent</option>
+                <option value="user">User</option>
+                <option value="creator">Creator</option>
+                <option value="affiliate">Affiliate</option>
+                <option value="guest">Guest</option>
+                <option value="system">System</option>
+            </select>
+            <select id="logSuccessFilter" onchange="applyLogFilters()">
+                <option value="">All Outcomes</option>
+                <option value="true">Success</option>
+                <option value="false">Failed</option>
+            </select>
+            <input type="date" id="logFromDate" onchange="applyLogFilters()" title="From date">
+            <input type="date" id="logToDate"   onchange="applyLogFilters()" title="To date">
+            <button class="btn btn-secondary" style="padding:7px 14px;font-size:.78rem;" onclick="clearLogFilters()">
+                <i class="fas fa-times"></i> Clear
+            </button>
+            <button class="btn btn-secondary" style="padding:7px 14px;font-size:.78rem;" onclick="exportLogsCsv()">
+                <i class="fas fa-file-csv"></i> Export CSV
+            </button>
+        </div>
+ 
+        <!-- LOG TABLE -->
+        <div class="log-table-wrap" id="logsTableWrap">
+            <div class="log-table-header">
+                <div class="log-table-title">
+                    <i class="fas fa-list-alt"></i>
+                    <span id="logsTableTitle">All Events</span>
+                    <span class="log-count-pill" id="logsCountPill">—</span>
+                </div>
+                <button class="btn btn-secondary" style="padding:7px 14px;font-size:.78rem;"
+                    onclick="refreshCurrentLogsTab()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <div class="log-table-scroll">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th style="width:155px;">Timestamp</th>
+                            <th style="width:80px;">Severity</th>
+                            <th style="width:90px;">Category</th>
+                            <th>Action</th>
+                            <th>Actor</th>
+                            <th>IP / Device</th>
+                            <th>Target</th>
+                            <th style="width:70px;">Status</th>
+                            <th style="width:40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--gray);">
+                            <div class="spinner" style="margin:0 auto 12px;"></div>Loading logs…
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" id="logsPagination"></div>
+        </div>
+ 
+        <!-- SUSPICIOUS IPs PANEL -->
+        <div class="table-container" id="suspiciousIpsPanel" style="margin-top:20px;">
+            <div class="table-header">
+                <h3 class="table-title" style="color:var(--error);">
+                    <i class="fas fa-exclamation-triangle"></i> Suspicious IPs (last 24h)
+                </h3>
+                <span style="font-size:.78rem;color:var(--gray);">IPs with 3+ failed requests</span>
+            </div>
+            <div id="suspiciousIpsList">
+                <div style="text-align:center;padding:20px;color:var(--gray);">
+                    <div class="spinner" style="margin:0 auto 8px;"></div>Loading…
+                </div>
+            </div>
+        </div>
+    `;
+ 
+    // Load everything in parallel
+    await Promise.all([
+        fetchLogsStats(),
+        fetchServerHealth(),
+        fetchLogsTable(),
+        fetchSuspiciousIPs(),
+    ]);
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// FETCH STATS
+// ═════════════════════════════════════════════════════════════════════════
+ 
+async function fetchLogsStats() {
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs/stats?period=24h`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) return;
+ 
+        const s = d;
+        const bySev = {};
+        (d.bySeverity || []).forEach(x => bySev[x._id] = x.count);
+        const byCat = {};
+        (d.byCategory || []).forEach(x => byCat[x._id] = x.count);
+ 
+        document.getElementById('logsStatsRow').innerHTML = `
+            <div class="log-stat">
+                <div class="log-stat-num">${(d.totalLogs||0).toLocaleString()}</div>
+                <div class="log-stat-label">Total Events (24h)</div>
+            </div>
+            <div class="log-stat crit">
+                <div class="log-stat-num">${(bySev.critical||0) + (bySev.error||0)}</div>
+                <div class="log-stat-label">Errors &amp; Critical</div>
+            </div>
+            <div class="log-stat warn">
+                <div class="log-stat-num">${bySev.warning||0}</div>
+                <div class="log-stat-label">Warnings</div>
+            </div>
+            <div class="log-stat crit">
+                <div class="log-stat-num">${d.failedRequests||0}</div>
+                <div class="log-stat-label">Failed Requests</div>
+            </div>
+            <div class="log-stat ok">
+                <div class="log-stat-num">${byCat.auth||0}</div>
+                <div class="log-stat-label">Auth Events</div>
+            </div>
+            <div class="log-stat info">
+                <div class="log-stat-num">${byCat.admin||0}</div>
+                <div class="log-stat-label">Admin Actions</div>
+            </div>
+        `;
+ 
+        // Update the critical badge in sidebar
+        const critCount = (bySev.critical||0) + (bySev.error||0);
+        const badge = document.getElementById('criticalLogsBadge');
+        if (badge) {
+            if (critCount > 0) { badge.textContent = critCount; badge.style.display = ''; }
+            else badge.style.display = 'none';
+        }
+ 
+        // Update tab counts
+        const tabs = document.querySelectorAll('.log-tab');
+        tabs.forEach(tab => {
+            const t = tab.getAttribute('data-tab');
+            const cnt = t === 'admin'    ? byCat.admin
+                      : t === 'auth'     ? byCat.auth
+                      : t === 'security' ? (byCat.security||0) + (d.failedRequests||0)
+                      : t === 'server'   ? (byCat.server||0) + (byCat.error||0)
+                      : null;
+            if (cnt != null) {
+                const existing = tab.querySelector('.tab-count');
+                if (existing) existing.remove();
+                if (cnt > 0) tab.innerHTML += `<span class="tab-count">${cnt}</span>`;
+            }
+        });
+ 
+        // Mini bar chart from hourlyVolume
+        if (d.hourlyVolume?.length) {
+            renderVolumeBar(d.hourlyVolume);
+        }
+ 
+    } catch(e) { console.error('Log stats error', e); }
+}
+ 
+function renderVolumeBar(hourlyVolume) {
+    const statsRow = document.getElementById('logsStatsRow');
+    if (!statsRow) return;
+    const max = Math.max(...hourlyVolume.map(h => h.count), 1);
+    const barHtml = hourlyVolume.map(h => {
+        const pct = Math.round((h.count / max) * 100);
+        const hasErr = (h.errors || 0) > 0;
+        return `<div class="mini-bar ${hasErr ? 'has-error' : ''}"
+            style="height:${Math.max(pct, 4)}%"
+            data-tip="${h._id}: ${h.count} events${hasErr ? ', '+h.errors+' errors' : ''}"></div>`;
+    }).join('');
+    statsRow.insertAdjacentHTML('afterend', `
+        <div style="background:var(--dark-light);border:1px solid var(--border);border-radius:12px;
+             padding:12px 16px;margin-bottom:24px;">
+            <div style="font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.09em;
+                 margin-bottom:8px;font-weight:700;">Request Volume — Last 24h</div>
+            <div class="mini-bar-wrap">${barHtml}</div>
+        </div>
+    `);
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// FETCH SERVER HEALTH
+// ═════════════════════════════════════════════════════════════════════════
+ 
+async function fetchServerHealth() {
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs/server?limit=5`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) return;
+ 
+        const h = d.serverHealth || {};
+        const dbOk  = h.dbState === 'connected';
+        const memMB = h.memoryMB || 0;
+        const memStatus = memMB > 400 ? 'danger' : memMB > 250 ? 'warn' : 'good';
+        const uptime = formatUptime(h.uptime || 0);
+ 
+        document.getElementById('logsHealthPanel').innerHTML = `
+            <div class="health-card ${dbOk ? 'good' : 'danger'}">
+                <div class="health-label">Database</div>
+                <div class="health-value">${dbOk ? '● Online' : '○ Offline'}</div>
+                <div class="health-sub">MongoDB</div>
+            </div>
+            <div class="health-card ${memStatus}">
+                <div class="health-label">Memory</div>
+                <div class="health-value">${memMB} MB</div>
+                <div class="health-sub">Heap used</div>
+            </div>
+            <div class="health-card good">
+                <div class="health-label">WebSocket</div>
+                <div class="health-value">${h.wsClients || 0}</div>
+                <div class="health-sub">Active connections</div>
+            </div>
+            <div class="health-card good">
+                <div class="health-label">Uptime</div>
+                <div class="health-value">${uptime}</div>
+                <div class="health-sub">Server running</div>
+            </div>
+            <div class="health-card ${d.criticalCount > 0 ? 'danger' : 'good'}">
+                <div class="health-label">Critical Events</div>
+                <div class="health-value">${d.criticalCount || 0}</div>
+                <div class="health-sub">All time</div>
+            </div>
+            <div class="health-card ${d.dbEventCount > 0 ? 'warn' : 'good'}">
+                <div class="health-label">DB Disruptions</div>
+                <div class="health-value">${d.dbEventCount || 0}</div>
+                <div class="health-sub">Disconnect/reconnect</div>
+            </div>
+        `;
+    } catch(e) { console.error('Server health error', e); }
+}
+ 
+function formatUptime(seconds) {
+    if (!seconds) return '—';
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (d > 0) return `${d}d ${h}h`;
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// FETCH LOG TABLE
+// ═════════════════════════════════════════════════════════════════════════
+ 
+async function fetchLogsTable(pg = 1) {
+    logsState.page = pg;
+    const tbody = document.getElementById('logsTableBody');
+    if (!tbody) return;
+ 
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray);">
+        <div class="spinner" style="margin:0 auto 10px;"></div>Loading…</td></tr>`;
+ 
+    // Build query from tab + filters
+    const params = new URLSearchParams();
+    params.set('page', logsState.page);
+    params.set('limit', logsState.limit);
+ 
+    // Tab overrides
+    if (logsState.tab === 'admin') {
+        params.set('category', 'admin');
+    } else if (logsState.tab === 'auth') {
+        params.set('category', 'auth');
+    } else if (logsState.tab === 'security') {
+        // Security tab: hit the dedicated security endpoint instead
+        return fetchSecurityView();
+    } else if (logsState.tab === 'server') {
+        // Server tab: hit the dedicated server endpoint
+        return fetchServerView();
+    }
+ 
+    // Extra filters (only when not overridden by tab)
+    if (logsState.category && logsState.tab === 'all') params.set('category', logsState.category);
+    if (logsState.severity)   params.set('severity', logsState.severity);
+    if (logsState.role)       params.set('role', logsState.role);
+    if (logsState.success)    params.set('success', logsState.success);
+    if (logsState.search)     params.set('search', logsState.search);
+    if (logsState.from)       params.set('from', logsState.from);
+    if (logsState.to)         params.set('to', logsState.to);
+ 
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs?${params}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) { renderLogsEmpty('Failed to fetch logs'); return; }
+ 
+        logsState.total = d.total;
+        const countPill = document.getElementById('logsCountPill');
+        if (countPill) countPill.textContent = d.total.toLocaleString();
+ 
+        renderLogsRows(d.logs);
+        updatePagination('logsPagination',
+            { page: d.page, pages: d.pages, total: d.total },
+            p => fetchLogsTable(p));
+ 
+    } catch(e) {
+        renderLogsEmpty('Network error — ' + e.message);
+    }
+}
+ 
+async function fetchSecurityView() {
+    const tbody = document.getElementById('logsTableBody');
+    const countPill = document.getElementById('logsCountPill');
+    if (document.getElementById('logsTableTitle'))
+        document.getElementById('logsTableTitle').textContent = 'Security Events (24h)';
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs/security?hours=24`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) { renderLogsEmpty('Failed'); return; }
+        if (countPill) countPill.textContent = (d.totalEvents||0).toLocaleString();
+        renderLogsRows(d.events || []);
+        // Also update suspicious IPs with security-view data
+        if (d.failedByIP?.length) renderSuspiciousIPs(d.failedByIP);
+    } catch(e) { renderLogsEmpty(e.message); }
+}
+ 
+async function fetchServerView() {
+    const tbody = document.getElementById('logsTableBody');
+    const countPill = document.getElementById('logsCountPill');
+    if (document.getElementById('logsTableTitle'))
+        document.getElementById('logsTableTitle').textContent = 'Server & DB Events';
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs/server?limit=100`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) { renderLogsEmpty('Failed'); return; }
+        if (countPill) countPill.textContent = (d.logs?.length||0).toLocaleString();
+        renderLogsRows(d.logs || []);
+    } catch(e) { renderLogsEmpty(e.message); }
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// RENDER ROWS
+// ═════════════════════════════════════════════════════════════════════════
+ 
+function renderLogsRows(logs) {
+    const tbody = document.getElementById('logsTableBody');
+    if (!tbody) return;
+ 
+    if (!logs || logs.length === 0) {
+        renderLogsEmpty('No log entries found');
+        return;
+    }
+ 
+    tbody.innerHTML = logs.map(log => {
+        const sev   = log.severity || 'info';
+        const cat   = log.category || 'server';
+        const actor = log.actor || {};
+        const http  = log.http  || {};
+        const tgt   = log.target || {};
+        const ts    = new Date(log.timestamp);
+        const tsStr = ts.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
+                    + ' ' + ts.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+ 
+        const rowClass = sev === 'critical' ? 'log-row-critical'
+                       : sev === 'error'    ? 'log-row-error'
+                       : sev === 'warning'  ? 'log-row-warning'
+                       : 'log-row-info';
+ 
+        const outcome = log.success
+            ? `<span style="color:var(--success);font-size:.75rem;font-weight:700;">✓ OK</span>`
+            : `<span style="color:var(--error);font-size:.75rem;font-weight:700;">✗ Fail</span>`;
+ 
+        const actorLabel = actor.id
+            ? `<div style="font-size:.78rem;color:#e5e7eb;">${esc(actor.email)}</div>
+               <div style="font-size:.65rem;color:var(--gray);">${esc(actor.name)} · <span class="ud-role-pill ${actor.role}" style="font-size:.6rem;padding:1px 6px;">${esc(actor.role)}</span></div>`
+            : `<div style="font-size:.75rem;color:var(--gray);">Anonymous / System</div>`;
+ 
+        const ipLabel = actor.ip
+            ? `<div style="font-family:'DM Mono',monospace;font-size:.72rem;color:#60a5fa;">${esc(actor.ip)}</div>
+               <div style="font-size:.65rem;color:var(--gray);">${esc(actor.device||'')}</div>`
+            : `<div style="color:var(--gray);font-size:.72rem;">—</div>`;
+ 
+        const targetLabel = tgt.label
+            ? `<div style="font-size:.75rem;color:#e5e7eb;">${esc(tgt.label)}</div>
+               <div style="font-size:.65rem;color:var(--gray);">${esc(tgt.type||'')}</div>`
+            : (http.path ? `<div style="font-size:.72rem;font-family:'DM Mono',monospace;color:#9ca3af;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(http.method||'')} ${esc(http.path||'')}</div>` : '<span style="color:var(--gray);">—</span>');
+ 
+        const actionStr = esc(log.action || '').replace(/_/g, ' ');
+ 
+        return `<tr class="log-table-row ${rowClass}" onclick="openLogDetail('${esc(log._id||'')}', this)" style="cursor:pointer;">
+            <td style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--gray);white-space:nowrap;">${tsStr}</td>
+            <td><span class="sev-badge sev-${sev}">${sev}</span></td>
+            <td><span class="cat-chip cat-${cat}">${cat}</span></td>
+            <td style="max-width:200px;">
+                <div style="font-size:.78rem;color:#e5e7eb;font-weight:600;">${actionStr}</div>
+                ${http.duration != null ? `<div style="font-size:.65rem;color:var(--gray);">${http.duration}ms${http.statusCode ? ' · '+http.statusCode : ''}</div>` : ''}
+            </td>
+            <td>${actorLabel}</td>
+            <td>${ipLabel}</td>
+            <td>${targetLabel}</td>
+            <td>${outcome}</td>
+            <td>
+                <button class="action-btn" title="View detail" onclick="event.stopPropagation();openLogDetail('${esc(log._id||'')}', this.closest('tr'))">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+ 
+    // Store raw data on rows for detail drawer
+    const rows = tbody.querySelectorAll('.log-table-row');
+    rows.forEach((row, i) => { row._logData = logs[i]; });
+}
+ 
+function renderLogsEmpty(msg) {
+    const tbody = document.getElementById('logsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="9">
+        <div class="log-empty"><i class="fas fa-scroll"></i><p>${esc(msg)}</p></div>
+    </td></tr>`;
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// LOG DETAIL DRAWER
+// ═════════════════════════════════════════════════════════════════════════
+ 
+function openLogDetail(id, rowEl) {
+    const log = rowEl?._logData;
+    if (!log) return;
+ 
+    const actor = log.actor || {};
+    const http  = log.http  || {};
+    const tgt   = log.target || {};
+    const ts    = new Date(log.timestamp).toLocaleString('en-GB');
+ 
+    const existing = document.getElementById('logDetailDrawer');
+    if (existing) existing.remove();
+ 
+    const detail = log.detail ? JSON.stringify(log.detail, null, 2) : null;
+ 
+    const sevColor = log.severity === 'critical' ? 'var(--error)'
+                   : log.severity === 'error'    ? '#ff7777'
+                   : log.severity === 'warning'  ? 'var(--warning)'
+                   : 'var(--success)';
+ 
+    document.body.insertAdjacentHTML('beforeend', `
+        <div class="ld-overlay" id="logDetailDrawer" onclick="closeLogDetail(event)">
+            <div class="ld-drawer" onclick="event.stopPropagation()">
+                <div class="ld-head">
+                    <div class="ld-head-title">
+                        <span class="sev-badge sev-${log.severity||'info'}" style="flex-shrink:0;">${log.severity||'info'}</span>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc((log.action||'').replace(/_/g,' '))}</span>
+                    </div>
+                    <button class="ld-close" onclick="closeLogDetail()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="ld-body">
+ 
+                    <!-- BASIC INFO -->
+                    <div class="ld-section">
+                        <div class="ld-section-label"><i class="fas fa-info-circle"></i> Event</div>
+                        <div class="ld-kv-grid">
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Timestamp</div>
+                                <div class="ld-kv-val">${ts}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Category</div>
+                                <div class="ld-kv-val"><span class="cat-chip cat-${log.category||''}">${log.category||'—'}</span></div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Action</div>
+                                <div class="ld-kv-val">${esc(log.action||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Outcome</div>
+                                <div class="ld-kv-val" style="color:${log.success?'var(--success)':'var(--error)'};">
+                                    ${log.success ? '✓ Success' : '✗ Failed'}
+                                </div>
+                            </div>
+                            ${log.errorMessage ? `
+                            <div class="ld-kv full">
+                                <div class="ld-kv-key">Error Message</div>
+                                <div class="ld-kv-val" style="color:var(--error);">${esc(log.errorMessage)}</div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+ 
+                    <!-- ACTOR -->
+                    <div class="ld-section">
+                        <div class="ld-section-label"><i class="fas fa-user"></i> Actor</div>
+                        <div class="ld-kv-grid">
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Email</div>
+                                <div class="ld-kv-val" style="color:var(--primary);">${esc(actor.email||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Name</div>
+                                <div class="ld-kv-val">${esc(actor.name||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Role</div>
+                                <div class="ld-kv-val"><span class="ud-role-pill ${actor.role||'user'}">${actor.role||'—'}</span></div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">User ID</div>
+                                <div class="ld-kv-val">${esc(actor.id||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">IP Address</div>
+                                <div class="ld-kv-val" style="color:#60a5fa;">${esc(actor.ip||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Device</div>
+                                <div class="ld-kv-val">${esc(actor.device||'—')}</div>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <!-- TARGET -->
+                    ${(tgt.id || tgt.label) ? `
+                    <div class="ld-section">
+                        <div class="ld-section-label"><i class="fas fa-crosshairs"></i> Target</div>
+                        <div class="ld-kv-grid">
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Type</div>
+                                <div class="ld-kv-val">${esc(tgt.type||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Label</div>
+                                <div class="ld-kv-val" style="color:var(--primary);">${esc(tgt.label||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">ID</div>
+                                <div class="ld-kv-val">${esc(tgt.id||'—')}</div>
+                            </div>
+                        </div>
+                    </div>` : ''}
+ 
+                    <!-- HTTP -->
+                    ${http.path ? `
+                    <div class="ld-section">
+                        <div class="ld-section-label"><i class="fas fa-network-wired"></i> HTTP Request</div>
+                        <div class="ld-kv-grid">
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Method</div>
+                                <div class="ld-kv-val">${esc(http.method||'—')}</div>
+                            </div>
+                            <div class="ld-kv full">
+                                <div class="ld-kv-key">Path</div>
+                                <div class="ld-kv-val">${esc(http.path||'—')}</div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Status Code</div>
+                                <div class="ld-kv-val" style="color:${(http.statusCode||200)<400?'var(--success)':'var(--error)'};">
+                                    ${http.statusCode||'—'}
+                                </div>
+                            </div>
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Duration</div>
+                                <div class="ld-kv-val">${http.duration != null ? http.duration+'ms' : '—'}</div>
+                            </div>
+                            ${http.bodySize != null ? `
+                            <div class="ld-kv">
+                                <div class="ld-kv-key">Body Size</div>
+                                <div class="ld-kv-val">${http.bodySize} bytes</div>
+                            </div>` : ''}
+                        </div>
+                    </div>` : ''}
+ 
+                    <!-- DETAIL PAYLOAD -->
+                    ${detail ? `
+                    <div class="ld-section">
+                        <div class="ld-section-label"><i class="fas fa-code"></i> Detail Payload</div>
+                        <div class="ld-json">${esc(detail)}</div>
+                    </div>` : ''}
+ 
+                    <!-- QUICK ACTIONS -->
+                    ${actor.id && actor.role !== 'system' ? `
+                    <div class="ld-section">
+                        <div class="ld-section-label"><i class="fas fa-bolt"></i> Quick Actions</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-secondary" style="font-size:.78rem;padding:7px 14px;"
+                                onclick="closeLogDetail();navigateTo('users')">
+                                <i class="fas fa-user"></i> View User
+                            </button>
+                            <button class="btn btn-secondary" style="font-size:.78rem;padding:7px 14px;"
+                                onclick="filterLogsByActor('${esc(actor.id)}')">
+                                <i class="fas fa-filter"></i> Filter this Actor
+                            </button>
+                            ${actor.ip ? `
+                            <button class="btn btn-secondary" style="font-size:.78rem;padding:7px 14px;"
+                                onclick="filterLogsByIP('${esc(actor.ip)}')">
+                                <i class="fas fa-globe"></i> Filter this IP
+                            </button>` : ''}
+                        </div>
+                    </div>` : ''}
+ 
+                </div>
+            </div>
+        </div>
+    `);
+}
+ 
+function closeLogDetail(e) {
+    if (e && e.target !== document.getElementById('logDetailDrawer')) return;
+    const d = document.getElementById('logDetailDrawer');
+    if (d) d.remove();
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// SUSPICIOUS IPs
+// ═════════════════════════════════════════════════════════════════════════
+ 
+async function fetchSuspiciousIPs() {
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs/security?hours=24`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) return;
+        renderSuspiciousIPs(d.failedByIP || []);
+    } catch(e) { console.error('Suspicious IPs error', e); }
+}
+ 
+function renderSuspiciousIPs(ips) {
+    const el = document.getElementById('suspiciousIpsList');
+    if (!el) return;
+ 
+    // Filter to only suspicious ones (3+ failures)
+    const suspicious = ips.filter(x => x.count >= 3);
+    if (!suspicious.length) {
+        el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--gray);">
+            <i class="fas fa-shield-alt" style="color:var(--success);margin-right:6px;"></i>
+            No suspicious activity detected in the last 24 hours.
+        </div>`;
+        return;
+    }
+    el.innerHTML = suspicious.map(ip => `
+        <div class="ip-row" onclick="filterLogsByIP('${esc(ip._id)}')">
+            <div>
+                <span class="ip-addr">${esc(ip._id)}</span>
+                <span style="margin-left:10px;font-size:.7rem;color:var(--gray);">${(ip.roles||[]).join(', ')}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:.72rem;color:var(--gray);">
+                    Last: ${ip.lastSeen ? new Date(ip.lastSeen).toLocaleTimeString('en-GB') : '—'}
+                </span>
+                <span class="ip-count">${ip.count} failures</span>
+                <button class="action-btn danger" style="font-size:.7rem;width:28px;height:28px;"
+                    onclick="event.stopPropagation();filterLogsByIP('${esc(ip._id)}')" title="View all logs for this IP">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// LIVE FEED
+// ═════════════════════════════════════════════════════════════════════════
+ 
+function startLiveFeed() {
+    logsState.liveActive = true;
+    logsState.liveSince  = new Date().toISOString();
+    const dot = document.getElementById('liveDot');
+    if (dot) dot.classList.remove('paused');
+ 
+    const filterBar = document.getElementById('logsFilterBar');
+    if (filterBar) filterBar.style.display = 'none';
+ 
+    const tbody = document.getElementById('logsTableBody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--gray);">
+        <span class="live-dot" style="margin-right:8px;"></span> Listening for new events…</td></tr>`;
+ 
+    pollLiveFeed();
+}
+ 
+async function pollLiveFeed() {
+    if (!logsState.liveActive) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/logs/live?since=${encodeURIComponent(logsState.liveSince)}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success && d.logs?.length) {
+            logsState.liveSince = d.serverTime;
+            prependLiveLogs(d.logs);
+        }
+    } catch(e) { /* silently retry */ }
+    if (logsState.liveActive) logsState.liveTimer = setTimeout(pollLiveFeed, 5000);
+}
+ 
+function prependLiveLogs(newLogs) {
+    const tbody = document.getElementById('logsTableBody');
+    if (!tbody) return;
+ 
+    // Remove the "listening" placeholder if present
+    const placeholder = tbody.querySelector('td[colspan="9"]');
+    if (placeholder) placeholder.closest('tr').remove();
+ 
+    const countPill = document.getElementById('logsCountPill');
+ 
+    const html = newLogs.map(log => {
+        const sev = log.severity || 'info';
+        const cat = log.category || 'server';
+        const actor = log.actor || {};
+        const http = log.http || {};
+        const ts = new Date(log.timestamp).toLocaleTimeString('en-GB');
+ 
+        return `<tr class="log-table-row log-row-${sev}" style="animation:fadeInRow .3s ease;cursor:pointer;"
+            onclick="openLogDetail('${esc(log._id||'')}', this)">
+            <td style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--primary);white-space:nowrap;">${ts} <span style="font-size:.6rem;color:var(--gray);">LIVE</span></td>
+            <td><span class="sev-badge sev-${sev}">${sev}</span></td>
+            <td><span class="cat-chip cat-${cat}">${cat}</span></td>
+            <td><div style="font-size:.78rem;color:#e5e7eb;font-weight:600;">${esc((log.action||'').replace(/_/g,' '))}</div></td>
+            <td><div style="font-size:.78rem;">${esc(actor.email||'—')}</div></td>
+            <td><div style="font-family:'DM Mono',monospace;font-size:.72rem;color:#60a5fa;">${esc(actor.ip||'—')}</div></td>
+            <td><div style="font-size:.75rem;">${esc((log.target||{}).label||http.path||'—')}</div></td>
+            <td>${log.success
+                ? '<span style="color:var(--success);font-size:.75rem;font-weight:700;">✓</span>'
+                : '<span style="color:var(--error);font-size:.75rem;font-weight:700;">✗</span>'}</td>
+            <td></td>
+        </tr>`;
+    }).join('');
+ 
+    tbody.insertAdjacentHTML('afterbegin', html);
+ 
+    // Tag new rows with their data
+    const rows = tbody.querySelectorAll('.log-table-row');
+    newLogs.forEach((log, i) => { if (rows[i]) rows[i]._logData = log; });
+ 
+    // Cap at 100 rows to avoid DOM bloat
+    const allRows = tbody.querySelectorAll('tr');
+    if (allRows.length > 100) {
+        for (let i = 100; i < allRows.length; i++) allRows[i].remove();
+    }
+ 
+    if (countPill) countPill.textContent = `${tbody.querySelectorAll('tr').length} live`;
+}
+ 
+function stopLiveFeed() {
+    logsState.liveActive = false;
+    if (logsState.liveTimer) clearTimeout(logsState.liveTimer);
+    logsState.liveTimer = null;
+    const dot = document.getElementById('liveDot');
+    if (dot) dot.classList.add('paused');
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// TAB SWITCHER
+// ═════════════════════════════════════════════════════════════════════════
+ 
+function switchLogsTab(tab) {
+    stopLiveFeed();
+ 
+    logsState.tab  = tab;
+    logsState.page = 1;
+ 
+    document.querySelectorAll('.log-tab').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
+ 
+    const titles = {
+        all: 'All Events', admin: 'Admin Actions', auth: 'Auth Events',
+        security: 'Security Events', server: 'Server & DB Events', live: 'Live Feed'
+    };
+    const titleEl = document.getElementById('logsTableTitle');
+    if (titleEl) titleEl.textContent = titles[tab] || 'Events';
+ 
+    const filterBar = document.getElementById('logsFilterBar');
+    if (filterBar) filterBar.style.display = tab === 'live' ? 'none' : '';
+ 
+    const pagination = document.getElementById('logsPagination');
+    if (pagination) pagination.innerHTML = '';
+ 
+    if (tab === 'live') {
+        startLiveFeed();
+    } else {
+        fetchLogsTable(1);
+    }
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// FILTERS
+// ═════════════════════════════════════════════════════════════════════════
+ 
+let _logSearchDebounce = null;
+function debounceLogSearch(val) {
+    clearTimeout(_logSearchDebounce);
+    _logSearchDebounce = setTimeout(() => {
+        logsState.search = val.trim();
+        logsState.page = 1;
+        fetchLogsTable(1);
+    }, 420);
+}
+ 
+function applyLogFilters() {
+    logsState.category = document.getElementById('logCatFilter')?.value || '';
+    logsState.severity = document.getElementById('logSevFilter')?.value || '';
+    logsState.role     = document.getElementById('logRoleFilter')?.value || '';
+    logsState.success  = document.getElementById('logSuccessFilter')?.value || '';
+    logsState.from     = document.getElementById('logFromDate')?.value || '';
+    logsState.to       = document.getElementById('logToDate')?.value || '';
+    logsState.page = 1;
+    fetchLogsTable(1);
+}
+ 
+function clearLogFilters() {
+    logsState.category = logsState.severity = logsState.role = '';
+    logsState.success = logsState.search = logsState.from = logsState.to = '';
+    logsState.page = 1;
+    ['logCatFilter','logSevFilter','logRoleFilter','logSuccessFilter','logFromDate','logToDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const s = document.getElementById('logSearch');
+    if (s) s.value = '';
+    fetchLogsTable(1);
+}
+ 
+function filterLogsByActor(userId) {
+    closeLogDetail();
+    switchLogsTab('all');
+    logsState.page = 1;
+    // Trigger via URL-like approach by setting state and refetching
+    setTimeout(async () => {
+        const params = new URLSearchParams({ page: 1, limit: logsState.limit });
+        params.set('userId', userId);
+        try {
+            const r = await fetch(`${API_URL}/api/admin/logs/user/${userId}?page=1&limit=50`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const d = await r.json();
+            if (d.success) {
+                const countPill = document.getElementById('logsCountPill');
+                if (countPill) countPill.textContent = d.total;
+                const titleEl = document.getElementById('logsTableTitle');
+                if (titleEl) titleEl.textContent = `Activity for User: ${userId.slice(-8)}`;
+                renderLogsRows(d.logs);
+                updatePagination('logsPagination',
+                    { page: d.page, pages: d.pages, total: d.total },
+                    p => filterLogsByActor(userId));
+            }
+        } catch(e) { showToast('Failed to load user logs', 'error'); }
+    }, 50);
+}
+ 
+function filterLogsByIP(ip) {
+    closeLogDetail();
+    switchLogsTab('all');
+    if (document.getElementById('logSearch')) document.getElementById('logSearch').value = '';
+    logsState.search = '';
+    logsState.page   = 1;
+    // Re-fetch with IP filter via the actor.ip query param in the main endpoint
+    setTimeout(async () => {
+        try {
+            const r = await fetch(`${API_URL}/api/admin/logs?ip=${encodeURIComponent(ip)}&page=1&limit=50`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const d = await r.json();
+            if (d.success) {
+                const titleEl = document.getElementById('logsTableTitle');
+                if (titleEl) titleEl.textContent = `Logs for IP: ${ip}`;
+                const countPill = document.getElementById('logsCountPill');
+                if (countPill) countPill.textContent = d.total;
+                renderLogsRows(d.logs);
+                updatePagination('logsPagination',
+                    { page: d.page, pages: d.pages, total: d.total },
+                    p => filterLogsByIP(ip));
+            }
+        } catch(e) { showToast('Failed to filter by IP', 'error'); }
+    }, 50);
+}
+ 
+function refreshCurrentLogsTab() {
+    if (logsState.tab === 'live') return;
+    fetchLogsTable(logsState.page);
+    fetchLogsStats();
+    fetchServerHealth();
+    fetchSuspiciousIPs();
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// CSV EXPORT
+// ═════════════════════════════════════════════════════════════════════════
+ 
+async function exportLogsCsv() {
+    showToast('Preparing export…', 'info');
+    try {
+        const params = new URLSearchParams({
+            page: 1, limit: 500,
+            ...(logsState.category && { category: logsState.category }),
+            ...(logsState.severity && { severity: logsState.severity }),
+            ...(logsState.role     && { role: logsState.role }),
+            ...(logsState.success  && { success: logsState.success }),
+            ...(logsState.search   && { search: logsState.search }),
+            ...(logsState.from     && { from: logsState.from }),
+            ...(logsState.to       && { to: logsState.to }),
+        });
+        const r = await fetch(`${API_URL}/api/admin/logs?${params}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success || !d.logs?.length) { showToast('No logs to export', 'error'); return; }
+ 
+        const headers = ['Timestamp','Severity','Category','Action','Actor Email','Actor Name','Actor Role','Actor IP','Device','Target Type','Target Label','Target ID','HTTP Method','HTTP Path','Status Code','Duration (ms)','Success','Error Message'];
+        const rows = d.logs.map(l => {
+            const a = l.actor||{}; const h = l.http||{}; const t = l.target||{};
+            return [
+                new Date(l.timestamp).toISOString(),
+                l.severity, l.category, l.action,
+                a.email, a.name, a.role, a.ip, a.device,
+                t.type, t.label, t.id,
+                h.method, h.path, h.statusCode, h.duration,
+                l.success, l.errorMessage
+            ].map(v => `"${String(v||'').replace(/"/g,'""')}"`);
+        });
+ 
+        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `uyehtech-logs-${new Date().toISOString().slice(0,10)}.csv`;
+        a.click(); URL.revokeObjectURL(url);
+        showToast(`Exported ${d.logs.length} log entries`, 'success');
+    } catch(e) { showToast('Export failed: ' + e.message, 'error'); }
+}
+ 
+// ═════════════════════════════════════════════════════════════════════════
+// FADEIN ANIMATION
+// ═════════════════════════════════════════════════════════════════════════
+ 
+// Inject keyframe once
+if (!document.getElementById('logsFadeKeyframe')) {
+    const s = document.createElement('style');
+    s.id = 'logsFadeKeyframe';
+    s.textContent = `@keyframes fadeInRow { from { opacity:0; background:rgba(0,255,136,.07); } to { opacity:1; background:transparent; } }`;
+    document.head.appendChild(s);
+}
+ 
+
+</script>
    
 </body>
 </html>
