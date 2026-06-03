@@ -3813,18 +3813,55 @@ async function verifyAdminToken() {
             }
         });
 
+        if (response.status === 403 || response.status === 401) {
+            // Token expired or invalid — clear and redirect
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+            window.location.href = 'admin-login.html';
+            return;
+        }
+
         const data = await response.json();
 
         if (!data.success || !data.isAdmin) {
             localStorage.removeItem('admin_token');
             localStorage.removeItem('admin_user');
             window.location.href = 'admin-login.html';
+            return;
         }
+
+        // Auto-refresh if token expires within 24 hours
+        if (data.tokenExpiresAt) {
+            const expiresAt = new Date(data.tokenExpiresAt).getTime();
+            const now       = Date.now();
+            const hoursLeft = (expiresAt - now) / (1000 * 60 * 60);
+            if (hoursLeft < 24) {
+                await refreshAdminToken();
+            }
+        }
+
     } catch (error) {
         console.error('Token verification failed:', error);
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_user');
-        window.location.href = 'admin-login.html';
+        // Network error — don't log out, just warn
+        // Admin may be on slow connection
+        console.warn('⚠️  Could not verify token — continuing with cached session');
+    }
+}
+
+async function refreshAdminToken() {
+    try {
+        const r = await fetch(`${API_URL}/api/auth/admin/refresh`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success && d.token) {
+            adminToken = d.token;
+            localStorage.setItem('admin_token', d.token);
+            console.log('🔄 Admin token refreshed silently');
+        }
+    } catch (_) {
+        // Non-fatal — token still valid for now
     }
 }
 
@@ -12291,6 +12328,7 @@ function closeSidebar() {
 
 console.log('✅ Admin Ticket System loaded');
     
+
 // ═════════════════════════════════════════════════════════════════════════
 // ADMIN LOGS — STATE
 // ═════════════════════════════════════════════════════════════════════════
@@ -13282,6 +13320,7 @@ function refreshCurrentLogsTab() {
     fetchSuspiciousIPs();
 }
  
+
 // ═════════════════════════════════════════════════════════════════════════
 // CSV EXPORT
 // ═════════════════════════════════════════════════════════════════════════
