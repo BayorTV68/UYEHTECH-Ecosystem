@@ -2885,9 +2885,10 @@ tr:hover {
                     </div>
                     <div class="nav-item" data-page="affiliates">
                         <i class="fas fa-link"></i>
-                        <span>Affiliates</span>
+                        <span>Affiliate Accounts</span>
                         <span class="nav-badge" id="totalAffiliatesBadge" style="display:none;background:rgba(0,255,136,.25);color:#00ff88;">0</span>
                     </div>
+
                     <div class="nav-item" data-page="creator-accounts">
                         <i class="fas fa-store"></i>
                         <span>Creators</span>
@@ -2925,6 +2926,15 @@ tr:hover {
                         <i class="fas fa-money-bill-wave"></i>
                         <span>Payouts</span>
                         <span class="nav-badge" id="pendingPayoutsBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="nav-item" data-page="affiliate-earnings">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Affiliate Earnings</span>
+                    </div>
+                    <div class="nav-item" data-page="affiliate-payouts">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Affiliate Payouts</span>
+                        <span class="nav-badge" id="pendingAffiliatePayoutsBadge" style="display:none;background:rgba(167,139,250,.25);color:#b794f4;">0</span>
                     </div>
                     <div class="nav-item" data-page="reviews">
                         <i class="fas fa-star-half-alt"></i>
@@ -3087,7 +3097,9 @@ tr:hover {
             <div id="creator-accountsPage" class="page-content hidden"></div>
             <div id="creator-productsPage" class="page-content hidden"></div>
             <div id="creator-payoutsPage" class="page-content hidden"></div>
-            <div id="affiliatesPage" class="page-content hidden"></div>
+           <div id="affiliatesPage"         class="page-content hidden"></div>
+            <div id="affiliate-earningsPage" class="page-content hidden"></div>
+            <div id="affiliate-payoutsPage"  class="page-content hidden"></div>
             <div id="ticketsPage"    class="page-content hidden"></div>
             <div id="settingsPage" class="page-content hidden"></div>
            <div id="logsPage" class="page-content hidden"></div>
@@ -4123,7 +4135,9 @@ function navigateTo(page) {
         case 'creator-products':      loadCreatorProducts();        break;
         case 'creator-payouts':       loadCreatorPayouts();         break;  // legacy — keep working
         case 'payouts':               loadPayoutsPage();            break;  // new merged payouts
-        case 'affiliates':            loadAffiliatesData();         break;
+       case 'affiliates':            loadAffiliatesData();         break;
+        case 'affiliate-earnings':    loadAffiliateEarnings();      break;
+        case 'affiliate-payouts':     loadAffiliatePayoutsPage();   break;
         case 'tickets':               loadTicketsData();            break;
         case 'settings':              loadSettingsData();           break;
         case 'logs':                  loadLogsSection();            break;
@@ -5113,12 +5127,17 @@ async function viewUserDetail(userId) {
     // ── Footer actions ───────────────────────────────────────────────────────
     const footerHtml = `
         <div style="flex:1;font-size:.72rem;color:#4b5563;">ID: ${e2(u._id)}</div>
-        ${!u.isAdmin ? `
+         ${!u.isAdmin ? `
         <button class="btn btn-${u.isBanned?'success':'danger'} btn-sm"
             onclick="udToggleBan('${u._id}',${!u.isBanned})">
             <i class="fas fa-${u.isBanned?'check':'ban'}"></i>
             ${u.isBanned ? 'Unban User' : 'Ban User'}
         </button>
+        ${u.twoFactorEnabled ? `
+        <button class="btn btn-secondary btn-sm"
+            onclick="udReset2FA('${u._id}','${e2(u.fullName)}')">
+            <i class="fas fa-shield-alt"></i> Reset 2FA
+        </button>` : ''}
         ${!u.isAgent ? `
         <button class="btn btn-secondary btn-sm"
             onclick="closeUdDrawer();openPromoteAgentModal('${u._id}','${e2(u.fullName)}')">
@@ -5197,6 +5216,21 @@ async function udToggleBan(userId, shouldBan) {
         closeUdDrawer();
         loadUsersData();
     } catch (e) { showToast(e.message || 'Failed', 'error'); }
+}
+
+async function udReset2FA(userId, name) {
+    if (!confirm(`Reset two-factor authentication for ${name}?\nThey will need to re-enroll next login.`)) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/users/${userId}/reset-2fa`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`✅ 2FA reset for ${name}`, 'success');
+        closeUdDrawer();
+        loadUsersData();
+    } catch(e) { showToast(e.message || 'Failed to reset 2FA', 'error'); }
 }
 
 async function udDemoteAgent(userId, name) {
@@ -5653,7 +5687,7 @@ async function handleAssignChat(event) {
     
     try {
         showLoading();
-        const response = await fetch(`${API_URL}/api/agent/chats/${formData.get('chatId')}/assign`, {
+        const response = await fetch(`${API_URL}/api/admin/chats/${formData.get('chatId')}/assign`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ agentId: formData.get('agentId') })
@@ -5781,10 +5815,13 @@ async function loadOrdersData(page = 1, search = '', status = 'all') {
                     <td>$${order.total.toFixed(2)}</td>
                     <td><span class="status-badge status-${order.status}">${order.status}</span></td>
                     <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                    <td>
+                   <td>
                         <div class="action-btns">
                             <button class="action-btn" onclick="viewOrder('${order._id}')" title="View">
                                 <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn" onclick="updateOrderStatus('${order._id}', '${order.status}')" title="Change Status">
+                                <i class="fas fa-edit"></i>
                             </button>
                             <button class="action-btn danger" onclick="deleteOrder('${order._id}')" title="Delete">
                                 <i class="fas fa-trash"></i>
@@ -5840,6 +5877,27 @@ async function deleteOrder(orderId) {
     } catch (error) {
         showNotification('Failed to delete order', 'error');
     }
+}
+
+async function updateOrderStatus(orderId, currentStatus) {
+    const statuses = ['pending', 'processing', 'completed', 'refunded', 'cancelled'];
+    const next = prompt(
+        `Current status: ${currentStatus}\nEnter new status:\n${statuses.join(' / ')}`,
+        currentStatus
+    );
+    if (!next || next === currentStatus) return;
+    if (!statuses.includes(next)) return showToast(`Invalid status. Use: ${statuses.join(', ')}`, 'error');
+    try {
+        const r = await fetch(`${API_URL}/api/admin/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: next })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`✅ Order status updated to ${next}`, 'success');
+        loadOrdersData();
+    } catch(e) { showToast(e.message || 'Failed to update status', 'error'); }
 }
 
 // ========== PRODUCTS MANAGEMENT ==========
@@ -7965,8 +8023,10 @@ async function loadAdminNotifications() {
         if (!data.success) return;
 
         adminNotifications = data.notifications;
-        updateNotificationBadge(data.counts?.total || data.notifications.length);
-        renderNotificationDropdown(data.notifications, data.counts || {});
+        // Server returns data.unreadCount for unread count, not data.counts.total
+        updateNotificationBadge(data.unreadCount ?? data.notifications.length);
+        // Build a counts-like object from the unreadCount for the dropdown summary
+        renderNotificationDropdown(data.notifications, { total: data.unreadCount });
     } catch (err) {
         console.error('Failed to load notifications:', err);
     }
@@ -11204,31 +11264,130 @@ async function loadAffiliatesData() {
         <div id="affiliatesList" class="cr-grid">
             <div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading affiliates…</div>
         </div>
+  <div style="margin-top:24px;padding:16px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div>
+                <div style="font-weight:600;color:#b794f4;">Affiliate Payout Requests</div>
+                <div style="font-size:.8rem;color:#9ca3af;margin-top:2px;">Manage pending, completed and rejected payouts</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="navigateTo('affiliate-payouts')">
+                <i class="fas fa-arrow-right"></i> Go to Affiliate Payouts
+            </button>
+        </div>
+        <div id="affiliatePayoutsList" style="display:none;"></div>
+    `;
  
-        <!-- Affiliate Payouts section -->
-        <div class="page-header" style="margin-top:36px;">
-            <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--primary);">Affiliate Payout Requests</h2>
+    document.getElementById('affFilterSelect').value = affiliateState.filter;
+    await fetchAffiliates();
+}
+ 
+// ── Affiliate Earnings Page ───────────────────────────────────────────
+async function loadAffiliateEarnings() {
+    const el = document.getElementById('affiliate-earningsPage');
+    if (!el) return;
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Affiliate Earnings</h1>
+            <p class="page-subtitle">Platform-wide affiliate performance overview</p>
+        </div>
+        <div id="affEarningsContent" class="metrics-grid" style="margin-bottom:28px;">
+            <div class="metric-item"><div class="metric-value"><i class="fas fa-spinner fa-spin"></i></div><div class="metric-label">Loading…</div></div>
+        </div>`;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/affiliates/stats`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const s = d.stats;
+        document.getElementById('affEarningsContent').innerHTML = `
+            <div class="metric-item"><div class="metric-value">${s.total}</div><div class="metric-label">Total Affiliates</div></div>
+            <div class="metric-item"><div class="metric-value">${s.active}</div><div class="metric-label">Active</div></div>
+            <div class="metric-item"><div class="metric-value">${s.suspended}</div><div class="metric-label">Suspended</div></div>
+            <div class="metric-item"><div class="metric-value">$${(s.totalEarnings||0).toFixed(2)}</div><div class="metric-label">Total Earned</div></div>
+            <div class="metric-item"><div class="metric-value">$${(s.totalPaid||0).toFixed(2)}</div><div class="metric-label">Total Paid Out</div></div>
+            <div class="metric-item"><div class="metric-value" style="color:#fbbf24;">${s.pendingPayouts}</div><div class="metric-label">Pending Payouts</div></div>
+
+            ${d.topAffiliates?.length ? `
+            <div style="grid-column:1/-1;" class="table-container">
+                <div class="table-header"><h3 class="table-title">Top 5 Affiliates by Earnings</h3></div>
+                <table><thead><tr><th>Name</th><th>Email</th><th>Total Earned</th></tr></thead>
+                <tbody>${d.topAffiliates.map(a => `
+                    <tr>
+                        <td>${esc(a.userId?.fullName || '—')}</td>
+                        <td style="color:var(--gray);font-size:.8rem;">${esc(a.userId?.email || '—')}</td>
+                        <td style="color:var(--primary);font-weight:600;">$${(a.totalEarnings||0).toFixed(2)}</td>
+                    </tr>`).join('')}
+                </tbody></table>
+            </div>` : ''}
+
+            ${d.recentSignups?.length ? `
+            <div style="grid-column:1/-1;" class="table-container">
+                <div class="table-header"><h3 class="table-title">Recent Signups</h3></div>
+                <table><thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead>
+                <tbody>${d.recentSignups.map(a => `
+                    <tr>
+                        <td>${esc(a.userId?.fullName || '—')}</td>
+                        <td style="color:var(--gray);font-size:.8rem;">${esc(a.userId?.email || '—')}</td>
+                        <td style="color:var(--gray);">${new Date(a.createdAt).toLocaleDateString()}</td>
+                    </tr>`).join('')}
+                </tbody></table>
+            </div>` : ''}
+        `;
+    } catch(e) {
+        document.getElementById('affEarningsContent').innerHTML =
+            `<p style="color:var(--error);padding:20px;">Failed to load: ${e.message}</p>`;
+    }
+}
+
+// ── Affiliate Payouts Page (dedicated, clean) ─────────────────────────
+async function loadAffiliatePayoutsPage() {
+    const el = document.getElementById('affiliate-payoutsPage');
+    if (!el) return;
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Affiliate Payout Requests</h1>
             <p class="page-subtitle">Process pending payout requests from affiliates</p>
         </div>
         <div class="cr-filter-bar">
-            <select id="affPayoutFilterSelect" onchange="fetchAffiliatePayouts(this.value)">
+            <select id="affPayoutsPageFilter" onchange="fetchAffiliatePayoutsPage(this.value)">
                 <option value="pending">⏳ Pending</option>
                 <option value="completed">✅ Completed</option>
                 <option value="rejected">❌ Rejected</option>
             </select>
-            <button class="btn btn-secondary btn-sm" onclick="fetchAffiliatePayouts(document.getElementById('affPayoutFilterSelect').value)">
+            <button class="btn btn-secondary btn-sm" onclick="fetchAffiliatePayoutsPage(document.getElementById('affPayoutsPageFilter').value)">
                 <i class="fas fa-sync-alt"></i> Refresh
             </button>
         </div>
-        <div id="affiliatePayoutsList" class="cr-grid">
-            <div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading payouts…</div>
-        </div>
-    `;
- 
-    document.getElementById('affFilterSelect').value = affiliateState.filter;
-    await Promise.all([fetchAffiliates(), fetchAffiliatePayouts('pending')]);
+        <div id="affPayoutsPageList" class="cr-grid">
+            <div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+        </div>`;
+    fetchAffiliatePayoutsPage('pending');
 }
- 
+
+async function fetchAffiliatePayoutsPage(status = 'pending') {
+    const list = document.getElementById('affPayoutsPageList');
+    if (!list) return;
+    list.innerHTML = '<div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
+    try {
+        const r = await fetch(`${API_URL}/api/admin/payouts?status=${status}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const affPayouts = (d.payouts || []).filter(p => p.requesterType === 'affiliate');
+        if (!affPayouts.length) {
+            list.innerHTML = `<div class="cr-empty"><i class="fas fa-paper-plane"></i><p>No affiliate payout requests found.</p></div>`;
+            return;
+        }
+        renderAffiliatePayouts(affPayouts);   // reuse the rich render function already in the file
+        // Re-target the rendered list to the right container
+        const rendered = document.getElementById('affiliatePayoutsList');
+        if (rendered) { list.innerHTML = rendered.innerHTML; }
+    } catch(e) {
+        list.innerHTML = `<div class="cr-empty"><i class="fas fa-exclamation-circle"></i><p>${e.message}</p></div>`;
+    }
+}
+
 // ── Fetch and render affiliates ───────────────────────────────────────
 async function fetchAffiliates() {
     const list = document.getElementById('affiliatesList');
@@ -12647,12 +12806,16 @@ async function switchPayoutTab(type, btn) {
     const content = document.getElementById('payoutsContent');
     content.innerHTML = `<p style="color:var(--gray);padding:20px;">Loading…</p>`;
     try {
-        const url = type === 'creator'
-            ? `${API_URL}/api/admin/payouts?status=pending`
-            : `${API_URL}/api/admin/affiliate-payouts?status=pending`;
-        const r = await fetch(url, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+         // Both creator and affiliate payouts live on the same endpoint.
+        // Filter client-side by requesterType.
+        const r = await fetch(`${API_URL}/api/admin/payouts?status=pending`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
         const d = await r.json();
-        const items = d.payouts || d.data || [];
+        const allPayouts = d.payouts || d.data || [];
+        const items = type === 'affiliate'
+            ? allPayouts.filter(p => p.requesterType === 'affiliate')
+            : allPayouts.filter(p => p.requesterType === 'creator');
         if (!items.length) {
             content.innerHTML = `<div class="table-container" style="padding:40px;text-align:center;color:var(--gray);">No pending ${type} payouts</div>`;
             return;
@@ -12660,7 +12823,8 @@ async function switchPayoutTab(type, btn) {
         const rows = items.map(p => `
             <tr>
                 <td>${p._id?.slice(-6) || '—'}</td>
-                <td>${p.creatorId?.storeName || p.userId?.name || p.affiliateId?.name || '—'}</td>
+                <td>${p.requesterId?.fullName || '—'}<br>
+                    <small style="color:var(--gray);">${p.requesterId?.email || ''}</small></td>
                 <td style="color:var(--primary);font-weight:600;">₦${(p.amount||0).toLocaleString()}</td>
                 <td>${p.status}</td>
                 <td>${new Date(p.createdAt).toLocaleDateString()}</td>
@@ -12681,14 +12845,18 @@ async function switchPayoutTab(type, btn) {
 
 async function handlePayout(id, action, type) {
     if (!confirm(`${action === 'approve' ? 'Approve' : 'Reject'} this payout?`)) return;
-    const url = type === 'creator'
-        ? `${API_URL}/api/admin/payouts/${id}/${action}`
-        : `${API_URL}/api/admin/affiliate-payouts/${id}/${action}`;
+    // Server uses action:'complete' for approve, and action:'reject' for reject.
+    // Both creator and affiliate payouts share the same PUT /api/admin/payouts/:id endpoint.
+    const serverAction = action === 'approve' ? 'complete' : 'reject';
+    const adminNotes   = action === 'reject'
+        ? (prompt('Reason for rejection (shown to recipient):') || '') : '';
     try {
-        const r = await fetch(url, {
+        const r = await fetch(`${API_URL}/api/admin/payouts/${id}`, {
             method: 'PUT',
-            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' }
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: serverAction, adminNotes })
         });
+
         const d = await r.json();
         showToast(d.success ? `✅ Payout ${action}d` : d.message, d.success ? 'success' : 'error');
         if (d.success) loadPayoutsPage();
@@ -12719,7 +12887,7 @@ async function loadEmailTemplates() {
             <p style="color:var(--gray);">Loading templates…</p>
         </div>`;
     try {
-        const r = await fetch(`${API_URL}/api/admin/email-preview`, {
+         const r = await fetch(`${API_URL}/api/admin/email-preview/list`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
         const d = await r.json();
@@ -13005,9 +13173,36 @@ async function loadMediaManager() {
     el.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Media Manager</h1>
-            <p class="page-subtitle">Cloudinary storage — scan and remove orphaned assets</p>
+            <p class="page-subtitle">Browse, inspect and clean up Cloudinary assets</p>
         </div>
-        <div class="table-container" style="padding:28px;max-width:620px;">
+
+        <!-- Browse panel -->
+        <div class="table-container" style="padding:20px;margin-bottom:24px;">
+            <div class="table-header" style="margin-bottom:14px;">
+                <h3 class="table-title">Asset Browser</h3>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <input type="text" class="form-input" id="mediaFolderInput"
+                           placeholder="Folder prefix e.g. uyehtech/products"
+                           style="width:260px;">
+                    <button class="btn btn-secondary btn-sm" onclick="browseCloudinaryAssets()">
+                        <i class="fas fa-search"></i> Browse
+                    </button>
+                </div>
+            </div>
+            <div id="mediaAssetGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
+                <p style="color:var(--gray);font-size:.85rem;grid-column:1/-1;">
+                    Enter a folder prefix above and click Browse, or leave blank to list all recent assets.
+                </p>
+            </div>
+            <div id="mediaLoadMoreWrap" style="text-align:center;margin-top:14px;display:none;">
+                <button class="btn btn-secondary btn-sm" onclick="browseCloudinaryAssets(true)">
+                    Load More
+                </button>
+            </div>
+        </div>
+
+        <!-- Cleanup panel -->
+        <div class="table-container" style="padding:20px;max-width:620px;margin-bottom:24px;">
             <h3 class="table-title" style="margin-bottom:6px;">Orphan Cleanup</h3>
             <p style="color:var(--gray);font-size:.85rem;margin-bottom:20px;">
                 Run a <strong>Dry Run</strong> first to see what would be deleted before committing.
@@ -13022,7 +13217,10 @@ async function loadMediaManager() {
                 </button>
             </div>
             <div id="cleanupResult"></div>
-            <hr style="border-color:var(--border);margin:24px 0;">
+        </div>
+
+        <!-- Single delete panel -->
+        <div class="table-container" style="padding:20px;max-width:620px;">
             <h3 class="table-title" style="margin-bottom:10px;">Delete Single Asset</h3>
             <div style="display:flex;gap:10px;">
                 <input type="text" class="form-input" id="singlePublicId"
@@ -13030,6 +13228,81 @@ async function loadMediaManager() {
                 <button class="btn btn-secondary" onclick="deleteSingleAsset()">Delete</button>
             </div>
         </div>`;
+}
+
+let _mediaNextCursor = null;
+
+async function browseCloudinaryAssets(loadMore = false) {
+    const grid    = document.getElementById('mediaAssetGrid');
+    const moreWrap= document.getElementById('mediaLoadMoreWrap');
+    const folder  = document.getElementById('mediaFolderInput').value.trim();
+
+    if (!loadMore) {
+        _mediaNextCursor = null;
+        grid.innerHTML = `<p style="color:var(--gray);font-size:.85rem;grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i> Loading assets…</p>`;
+    }
+
+    const params = new URLSearchParams({ max_results: 50 });
+    if (folder)            params.set('folder', folder);
+    if (_mediaNextCursor)  params.set('next_cursor', _mediaNextCursor);
+
+    try {
+        const r = await fetch(`${API_URL}/api/admin/cloudinary/list?${params}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+
+        if (!loadMore) grid.innerHTML = '';
+
+        if (!d.resources.length && !loadMore) {
+            grid.innerHTML = `<p style="color:var(--gray);font-size:.85rem;grid-column:1/-1;">No assets found${folder ? ` in "${folder}"` : ''}.</p>`;
+            moreWrap.style.display = 'none';
+            return;
+        }
+
+        d.resources.forEach(asset => {
+            const kb   = (asset.bytes / 1024).toFixed(1);
+            const card = document.createElement('div');
+            card.style.cssText = `background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s;`;
+            card.onmouseenter = () => card.style.borderColor = 'rgba(0,255,136,.35)';
+            card.onmouseleave = () => card.style.borderColor = 'var(--border)';
+            card.innerHTML = `
+                <img src="${asset.url}" alt="${asset.publicId}"
+                     style="width:100%;height:90px;object-fit:cover;display:block;"
+                     onerror="this.style.display='none'">
+                <div style="padding:7px 8px;">
+                    <div style="font-size:.65rem;color:#9ca3af;word-break:break-all;line-height:1.4;
+                                max-height:2.8em;overflow:hidden;"
+                         title="${asset.publicId}">${asset.publicId}</div>
+                    <div style="font-size:.62rem;color:#6b7280;margin-top:3px;">
+                        ${asset.format.toUpperCase()} · ${kb} KB
+                    </div>
+                    <div style="font-size:.62rem;color:#6b7280;">
+                        ${new Date(asset.createdAt).toLocaleDateString()}
+                    </div>
+                    <button class="btn btn-secondary btn-sm"
+                        style="width:100%;margin-top:6px;font-size:.65rem;padding:3px 0;
+                               border-color:rgba(255,77,77,.3);color:var(--error);"
+                        onclick="event.stopPropagation();confirmDeleteMediaAsset('${asset.publicId}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>`;
+            grid.appendChild(card);
+        });
+
+        _mediaNextCursor = d.nextCursor || null;
+        moreWrap.style.display = _mediaNextCursor ? 'block' : 'none';
+
+    } catch(e) {
+        if (!loadMore) grid.innerHTML = `<p style="color:var(--error);grid-column:1/-1;">Failed: ${e.message}</p>`;
+        else showToast('Failed to load more assets', 'error');
+    }
+}
+
+async function confirmDeleteMediaAsset(publicId) {
+    document.getElementById('singlePublicId').value = publicId;
+    if (confirm(`Delete asset?\n${publicId}`)) deleteSingleAsset();
 }
 
 async function runCloudinaryCleanup(dryRun) {
