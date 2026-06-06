@@ -2928,7 +2928,7 @@ tr:hover {
                         <span class="nav-badge" id="pendingPayoutsBadge" style="display:none;">0</span>
                     </div>
                     <div class="nav-item" data-page="affiliate-earnings">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-chart-bar"></i>
                         <span>Affiliate Earnings</span>
                     </div>
                     <div class="nav-item" data-page="affiliate-payouts">
@@ -3970,7 +3970,58 @@ tr:hover {
     }
 }
 </style>
-
+<!-- ══════════════════════════════════════════
+     EMAIL PREVIEW MODAL  (Option A)
+     Fetches HTML with auth header, renders
+     in sandboxed iframe inside a dialog.
+══════════════════════════════════════════ -->
+<div id="emailPreviewModalOverlay"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:99998;
+            align-items:center;justify-content:center;"
+     onclick="if(event.target===this)closeEmailPreviewModal()">
+    <div style="background:#111827;border:1px solid rgba(0,255,136,.2);border-radius:16px;
+                width:min(900px,96vw);height:min(640px,92vh);display:flex;flex-direction:column;
+                overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.7);">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+                    background:rgba(0,255,136,.04);flex-shrink:0;">
+            <div>
+                <div style="font-weight:700;color:var(--primary);font-size:.95rem;" id="emailPreviewTitle">
+                    📧 Email Preview
+                </div>
+                <div style="font-size:.72rem;color:#6b7280;margin-top:2px;" id="emailPreviewSubtitle">
+                    Rendered HTML — exactly what recipients see
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button id="emailSendTestBtn" class="btn btn-primary btn-sm"
+                    onclick="sendEmailTest(window._emailPreviewKey)"
+                    style="font-size:.78rem;">
+                    <i class="fas fa-paper-plane"></i> Send Test to Admin
+                </button>
+                <button onclick="closeEmailPreviewModal()"
+                    style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+                           color:#9ca3af;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;">
+                    ✕ Close
+                </button>
+            </div>
+        </div>
+        <!-- iframe -->
+        <div style="flex:1;overflow:hidden;position:relative;">
+            <div id="emailPreviewSpinner"
+                 style="position:absolute;inset:0;display:flex;align-items:center;
+                        justify-content:center;background:#111827;z-index:2;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--primary);"></i>
+            </div>
+            <iframe id="emailPreviewIframe"
+                    sandbox="allow-same-origin"
+                    style="width:100%;height:100%;border:none;display:block;"
+                    onload="document.getElementById('emailPreviewSpinner').style.display='none'">
+            </iframe>
+        </div>
+    </div>
+</div>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <!-- Link to external JavaScript files -->
     <script>
@@ -4410,7 +4461,7 @@ async function loadDashboardData() {
                 <div style="grid-column:1/-1;font-size:.63rem;text-transform:uppercase;
                      letter-spacing:1.5px;color:rgba(0,255,136,.4);font-weight:700;
                      padding-bottom:6px;border-bottom:1px solid rgba(0,255,136,.1);margin-top:8px;">
-                    Creator Marketplace
+                    Marketplace
                 </div>
  
                 <div class="stat-card" onclick="navigateTo('creator-applications')"
@@ -4581,6 +4632,479 @@ async function loadDashboardData() {
 }
 
 // ========== ANALYTICS ==========
+// ══════════════════════════════════════════════════════════════════════
+// ANALYTICS — Full multi-tab dashboard
+// Tabs: Overview · Revenue · Users · Products · Creators · Support
+// ══════════════════════════════════════════════════════════════════════
+
+let _analyticsTab    = 'overview';
+let _analyticsPeriod = '30d';
+
+async function loadAnalyticsData(period) {
+    if (period) _analyticsPeriod = period;
+    const analyticsPage = document.getElementById('analyticsPage');
+    analyticsPage.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Analytics</h1>
+            <p class="page-subtitle">Full platform intelligence — revenue, users, products, creators and support</p>
+        </div>
+
+        <!-- Period + Run Aggregation -->
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px;">
+            <select class="form-select" style="width:160px;" onchange="_analyticsPeriod=this.value;_loadAnalyticsTab(_analyticsTab)">
+                <option value="7"  ${_analyticsPeriod==='7'  ?'selected':''}>Last 7 Days</option>
+                <option value="30" ${_analyticsPeriod==='30' ?'selected':''}>Last 30 Days</option>
+                <option value="90" ${_analyticsPeriod==='90' ?'selected':''}>Last 90 Days</option>
+                <option value="365"${_analyticsPeriod==='365'?'selected':''}>Last 365 Days</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="_runAggregation()">
+                <i class="fas fa-cogs"></i> Run Aggregation
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="_loadAnalyticsHistory()">
+                <i class="fas fa-history"></i> Raw History
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto;padding-bottom:0;">
+            ${['overview','revenue','users','products','creators','support'].map(t=>`
+            <button class="an-tab" data-tab="${t}" onclick="_switchAnalyticsTab('${t}')"
+                style="padding:9px 18px;border:none;background:none;color:#6b7280;font-family:inherit;
+                       font-size:.82rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;
+                       white-space:nowrap;transition:color .2s,border-color .2s;"
+                onmouseover="if(this.dataset.tab!==_analyticsTab)this.style.color='#e5e7eb'"
+                onmouseout="if(this.dataset.tab!==_analyticsTab)this.style.color='#6b7280'">
+                ${{overview:'📊 Overview',revenue:'💰 Revenue',users:'👥 Users',
+                   products:'📦 Products',creators:'🏪 Creators',support:'🎫 Support'}[t]}
+            </button>`).join('')}
+        </div>
+
+        <!-- Tab content -->
+        <div id="analyticsTabContent">
+            <div style="text-align:center;padding:60px;color:var(--gray);">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+            </div>
+        </div>`;
+
+    _switchAnalyticsTab(_analyticsTab);
+}
+
+function _switchAnalyticsTab(tab) {
+    _analyticsTab = tab;
+    // Highlight active tab
+    document.querySelectorAll('.an-tab').forEach(b => {
+        const active = b.dataset.tab === tab;
+        b.style.color       = active ? 'var(--primary)' : '#6b7280';
+        b.style.borderColor = active ? 'var(--primary)' : 'transparent';
+    });
+    _loadAnalyticsTab(tab);
+}
+
+async function _loadAnalyticsTab(tab) {
+    const el = document.getElementById('analyticsTabContent');
+    if (!el) return;
+    el.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i></div>`;
+    try {
+        switch(tab) {
+            case 'overview':  await _renderAnalyticsOverview(el);  break;
+            case 'revenue':   await _renderAnalyticsRevenue(el);   break;
+            case 'users':     await _renderAnalyticsUsers(el);     break;
+            case 'products':  await _renderAnalyticsProducts(el);  break;
+            case 'creators':  await _renderAnalyticsCreators(el);  break;
+            case 'support':   await _renderAnalyticsSupport(el);   break;
+        }
+    } catch(e) {
+        el.innerHTML = `<p style="color:var(--error);padding:20px;">Failed to load ${tab} analytics: ${e.message}</p>`;
+    }
+}
+
+// ── Shared fetch helper ───────────────────────────────────────────────────
+async function _afetch(path) {
+    const r = await fetch(`${API_URL}${path}`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message || 'Request failed');
+    return d;
+}
+
+// ── Shared table renderer ─────────────────────────────────────────────────
+function _anTable(title, headers, rows, emptyMsg = 'No data') {
+    return `
+    <div class="table-container" style="margin-bottom:20px;">
+        <div class="table-header"><h3 class="table-title">${title}</h3></div>
+        <table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" style="text-align:center;color:var(--gray);padding:24px;">${emptyMsg}</td></tr>`}</tbody>
+        </table></div>`;
+}
+
+// ── Metric card ────────────────────────────────────────────────────────────
+function _anMetric(label, value, sub = '', color = 'var(--primary)') {
+    return `<div class="metric-item">
+        <div class="metric-value" style="color:${color};">${value}</div>
+        <div class="metric-label">${label}</div>
+        ${sub ? `<div style="font-size:.68rem;color:#6b7280;margin-top:3px;">${sub}</div>` : ''}
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TAB 1 — OVERVIEW  (uses GET /api/admin/analytics)
+// ─────────────────────────────────────────────────────────────────────────
+async function _renderAnalyticsOverview(el) {
+    const d = await _afetch(`/api/admin/analytics?period=${_analyticsPeriod}d`);
+    const s = d.summary || {};
+    const allTime = d.allTime || {};
+    const charts  = d.charts  || {};
+    const daily   = charts.daily || [];
+    const top     = charts.topProducts || [];
+    const byCat   = charts.revenueByCategory || [];
+
+    el.innerHTML = `
+        <!-- KPI row -->
+        <div class="metrics-grid" style="margin-bottom:24px;">
+            ${_anMetric('Revenue (period)',   '$' + (s.revenue||0).toFixed(2))}
+            ${_anMetric('Orders',             (s.orders||0).toLocaleString())}
+            ${_anMetric('New Users',          (s.newUsers||0).toLocaleString())}
+            ${_anMetric('Chats Started',      (s.chatsStarted||0).toLocaleString())}
+            ${_anMetric('Avg Order Value',    '$'+(s.avgOrderValue||0).toFixed(2))}
+            ${_anMetric('Page Views',         (s.pageViews||0).toLocaleString())}
+            ${_anMetric('Downloads',          (s.downloads||0).toLocaleString())}
+            ${_anMetric('Affiliate Clicks',   (s.affiliateClicks||0).toLocaleString())}
+            ${_anMetric('All-Time Revenue',   '$'+(allTime.revenue||0).toFixed(2), '', '#60a5fa')}
+            ${_anMetric('Total Users',        (allTime.totalUsers||0).toLocaleString(), '', '#a78bfa')}
+            ${_anMetric('All-Time Orders',    (allTime.totalOrders||0).toLocaleString(), '', '#f59e0b')}
+            ${_anMetric('Chat Resolve Rate',  (s.chatResolutionRate||0)+'%', '', '#34d399')}
+        </div>
+
+        <!-- Daily series (simple bar-like table) -->
+        ${_anTable('Daily Activity (last ' + (daily.length||0) + ' days)',
+            ['Date','Revenue','Orders','New Users','Page Views','Downloads'],
+            daily.slice(-14).reverse().map(d=>`<tr>
+                <td style="font-family:monospace;font-size:.8rem;">${d.date}</td>
+                <td>$${(d.revenue||0).toFixed(2)}</td>
+                <td>${d.orders||0}</td>
+                <td>${d.newUsers||0}</td>
+                <td>${d.pageViews||0}</td>
+                <td>${d.downloads||0}</td>
+            </tr>`)
+        )}
+
+        <!-- Top products -->
+        ${_anTable('Top Products by Revenue',
+            ['Product','Type','Sales','Revenue'],
+            top.map(p=>`<tr>
+                <td>${esc(p.productName||'—')}</td>
+                <td><span style="font-size:.72rem;color:#6b7280;">${p.productType||''}</span></td>
+                <td>${p.sales||0}</td>
+                <td>$${(p.revenue||0).toFixed(2)}</td>
+            </tr>`)
+        )}
+
+        <!-- Revenue by category -->
+        ${_anTable('Revenue by Category',
+            ['Category','Revenue','Sales'],
+            byCat.map(c=>`<tr>
+                <td>${esc(c.category||'—')}</td>
+                <td>$${(c.revenue||0).toFixed(2)}</td>
+                <td>${c.sales||0}</td>
+            </tr>`)
+        )}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TAB 2 — REVENUE  (uses GET /api/admin/analytics/revenue)
+// ─────────────────────────────────────────────────────────────────────────
+async function _renderAnalyticsRevenue(el) {
+    const d = await _afetch(`/api/admin/analytics/revenue?period=${_analyticsPeriod}&groupBy=day`);
+    const series = d.revenueSeries || [];
+    const top    = d.topEarners   || [];
+    const byType = d.revenueByType || [];
+    const mrr    = d.mrr || { amount: 0, orders: 0 };
+
+    el.innerHTML = `
+        <div class="metrics-grid" style="margin-bottom:24px;">
+            ${_anMetric('MRR (this month)',    '$' + mrr.amount.toFixed(2), mrr.orders + ' orders', '#00ff88')}
+            ${_anMetric('Period Revenue',      '$' + series.reduce((s,r)=>s+(r.revenue||0),0).toFixed(2))}
+            ${_anMetric('Period Orders',       series.reduce((s,r)=>s+(r.orders||0),0).toLocaleString())}
+            ${_anMetric('Avg Order Value',     '$' + (series.length ? (series.reduce((s,r)=>s+(r.aov||0),0)/series.length).toFixed(2) : '0.00'))}
+        </div>
+
+        ${_anTable('Revenue Timeline',
+            ['Period','Revenue','Orders','AOV'],
+            series.slice().reverse().map(r=>`<tr>
+                <td style="font-family:monospace;font-size:.8rem;">${r.period}</td>
+                <td style="color:var(--primary);font-weight:600;">$${(r.revenue||0).toFixed(2)}</td>
+                <td>${r.orders||0}</td>
+                <td>$${(r.aov||0).toFixed(2)}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Top Earning Products',
+            ['Product','Revenue','Units Sold','Avg Price'],
+            top.map(p=>`<tr>
+                <td>${esc(p._id||'—')}</td>
+                <td style="color:var(--primary);font-weight:600;">$${(p.revenue||0).toFixed(2)}</td>
+                <td>${p.unitsSold||0}</td>
+                <td>$${(p.avgPrice||0).toFixed(2)}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Revenue by Product Type',
+            ['Type','Revenue','Sales'],
+            byType.map(t=>`<tr>
+                <td>${esc(t._id||'—')}</td>
+                <td>$${(t.revenue||0).toFixed(2)}</td>
+                <td>${t.sales||0}</td>
+            </tr>`)
+        )}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TAB 3 — USERS  (uses GET /api/admin/analytics/users)
+// ─────────────────────────────────────────────────────────────────────────
+async function _renderAnalyticsUsers(el) {
+    const d = await _afetch(`/api/admin/analytics/users?period=${_analyticsPeriod}`);
+    const funnel  = d.conversionFunnel   || {};
+    const growth  = d.growthSeries       || [];
+    const spenders= d.topSpenders        || [];
+    const geo     = d.geoBreakdown       || [];
+    const ret     = d.retentionBuckets   || [];
+
+    el.innerHTML = `
+        <div class="metrics-grid" style="margin-bottom:24px;">
+            ${_anMetric('New Signups',      (funnel.signups||0).toLocaleString())}
+            ${_anMetric('Email Verified',   (funnel.verified||0).toLocaleString(), funnel.verificationRate+'% verification rate')}
+            ${_anMetric('Made a Purchase',  (funnel.purchased||0).toLocaleString(), funnel.purchaseRate+'% of verified')}
+        </div>
+
+        ${_anTable('Signup Growth (daily)',
+            ['Date','Signups','Verified'],
+            growth.slice().reverse().map(g=>`<tr>
+                <td style="font-family:monospace;font-size:.8rem;">${g._id}</td>
+                <td>${g.signups||0}</td>
+                <td>${g.verified||0}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Top Spenders',
+            ['User','Email','Orders','Total Spent'],
+            spenders.map(u=>`<tr>
+                <td style="font-weight:600;">${esc(u.fullName||'—')}</td>
+                <td style="font-size:.8rem;color:#6b7280;">${esc(u.email||'—')}</td>
+                <td>${u.orderCount||0}</td>
+                <td style="color:var(--primary);font-weight:600;">$${(u.totalSpent||0).toFixed(2)}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Users by Country (top 15)',
+            ['Country','Users'],
+            geo.map(g=>`<tr>
+                <td>${esc(g.country)}</td>
+                <td>${g.users.toLocaleString()}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Repeat Buyer Distribution',
+            ['Orders per Buyer','Buyers'],
+            ret.map(r=>`<tr>
+                <td>${r._id === '10+' ? '10+' : r._id} order${r._id===1?'':'s'}</td>
+                <td>${(r.count||0).toLocaleString()}</td>
+            </tr>`)
+        )}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TAB 4 — PRODUCTS  (uses GET /api/admin/analytics/products)
+// ─────────────────────────────────────────────────────────────────────────
+async function _renderAnalyticsProducts(el) {
+    const d = await _afetch(`/api/admin/analytics/products?period=${_analyticsPeriod}`);
+    const topSellers = d.topSellers  || [];
+    const topEarning = d.topEarning  || [];
+    const byCat      = d.byCategory  || [];
+    const byType     = d.byType      || [];
+    const lowStock   = d.lowStock    || [];
+
+    el.innerHTML = `
+        ${lowStock.length ? `
+        <div style="background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:12px;
+             padding:14px 18px;margin-bottom:20px;color:#fbbf24;">
+            <strong>⚠️ Low License Keys:</strong>
+            ${lowStock.map(p=>`<span style="margin-left:8px;">${esc(p.title)} (${p.keysRemaining} left)</span>`).join(' ·')}
+        </div>` : ''}
+
+        ${_anTable('Top Sellers by Units',
+            ['Product','Sales','Revenue','Type'],
+            topSellers.map(p=>`<tr>
+                <td style="font-weight:600;">${esc(p._id||'—')}</td>
+                <td>${p.sales||0}</td>
+                <td>$${(p.revenue||0).toFixed(2)}</td>
+                <td style="font-size:.72rem;color:#6b7280;">${p.productType||''}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Top Earners by Revenue',
+            ['Product','Revenue','Sales'],
+            topEarning.map(p=>`<tr>
+                <td style="font-weight:600;">${esc(p._id||'—')}</td>
+                <td style="color:var(--primary);font-weight:600;">$${(p.revenue||0).toFixed(2)}</td>
+                <td>${p.sales||0}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Revenue by Category',
+            ['Category','Revenue','Sales'],
+            byCat.map(c=>`<tr>
+                <td>${esc(c._id||'—')}</td>
+                <td>$${(c.revenue||0).toFixed(2)}</td>
+                <td>${c.sales||0}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Products by Type',
+            ['Type','Count','Total Sold'],
+            byType.map(t=>`<tr>
+                <td>${esc(t._id||'—')}</td>
+                <td>${t.count||0}</td>
+                <td>${t.totalSold||0}</td>
+            </tr>`)
+        )}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TAB 5 — CREATORS  (uses GET /api/admin/analytics/creators)
+// ─────────────────────────────────────────────────────────────────────────
+async function _renderAnalyticsCreators(el) {
+    const d = await _afetch(`/api/admin/analytics/creators?period=${_analyticsPeriod}`);
+    const top      = d.topCreators        || [];
+    const funnel   = d.applicationFunnel  || {};
+    const payouts  = d.payoutStats        || [];
+    const topAff   = d.topAffiliates      || [];
+
+    el.innerHTML = `
+        <div class="metrics-grid" style="margin-bottom:24px;">
+            ${_anMetric('Applied',      funnel.applied||0)}
+            ${_anMetric('Approved',     funnel.approved||0, (funnel.approvalRate||0)+'% approval rate', '#00ff88')}
+            ${_anMetric('Rejected',     funnel.rejected||0, '', '#ff4d4d')}
+            ${_anMetric('Suspended',    funnel.suspended||0, '', '#f59e0b')}
+        </div>
+
+        ${_anTable('Top Earning Creators',
+            ['Creator','Store','Sales','Earned'],
+            top.map(c=>`<tr>
+                <td style="font-weight:600;">${esc(c.fullName||'—')}</td>
+                <td style="color:#6b7280;font-size:.8rem;">${esc(c.storeName||'—')}</td>
+                <td>${c.saleCount||0}</td>
+                <td style="color:var(--primary);font-weight:600;">$${(c.totalEarned||0).toFixed(2)}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Top Affiliates',
+            ['Name','Email','Sales','Earned'],
+            topAff.map(a=>`<tr>
+                <td style="font-weight:600;">${esc(a.fullName||'—')}</td>
+                <td style="font-size:.8rem;color:#6b7280;">${esc(a.email||'—')}</td>
+                <td>${a.saleCount||0}</td>
+                <td style="color:var(--primary);font-weight:600;">$${(a.totalEarned||0).toFixed(2)}</td>
+            </tr>`)
+        )}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TAB 6 — SUPPORT  (uses GET /api/admin/analytics/support)
+// ─────────────────────────────────────────────────────────────────────────
+async function _renderAnalyticsSupport(el) {
+    const d = await _afetch(`/api/admin/analytics/support?period=${_analyticsPeriod}`);
+    const agents  = d.agentLeaderboard || [];
+    const daily   = d.dailySupport     || [];
+    const cats    = d.ticketCategories || [];
+    const sla     = d.sla              || {};
+
+    el.innerHTML = `
+        <div class="metrics-grid" style="margin-bottom:24px;">
+            ${_anMetric('Chats (period)',      daily.reduce((s,d)=>s+(d.chatsStarted||0),0).toLocaleString())}
+            ${_anMetric('Resolved',            daily.reduce((s,d)=>s+(d.chatsResolved||0),0).toLocaleString())}
+            ${_anMetric('Tickets',             daily.reduce((s,d)=>s+(d.ticketsCreated||0),0).toLocaleString())}
+            ${_anMetric('SLA ≤5 min',          (sla.within5min||0)+'%', 'chats responded within 5 min', '#34d399')}
+            ${_anMetric('SLA ≤15 min',         (sla.within15min||0)+'%')}
+        </div>
+
+        ${_anTable('Agent Leaderboard',
+            ['Agent','Chats','Resolved','Resolve Rate','Avg Response'],
+            agents.map(a=>`<tr>
+                <td style="font-weight:600;">${esc(a.agentName||'—')}</td>
+                <td>${a.totalChats||0}</td>
+                <td>${a.resolved||0}</td>
+                <td>${(a.resolutionRate||0).toFixed(1)}%</td>
+                <td>${a.avgResponseTime ? (a.avgResponseTime).toFixed(1)+' min' : '—'}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Ticket Categories',
+            ['Category','Count','Avg Resolution'],
+            cats.map(c=>`<tr>
+                <td>${esc(c._id||'—')}</td>
+                <td>${c.count||0}</td>
+                <td>${c.avgResolutionTime ? (c.avgResolutionTime/60).toFixed(1)+' min' : '—'}</td>
+            </tr>`)
+        )}
+
+        ${_anTable('Daily Support Activity (last 14 days)',
+            ['Date','Chats','Resolved','Tickets'],
+            daily.slice(-14).reverse().map(d=>`<tr>
+                <td style="font-family:monospace;font-size:.8rem;">${d.dateStr}</td>
+                <td>${d.chatsStarted||0}</td>
+                <td>${d.chatsResolved||0}</td>
+                <td>${d.ticketsCreated||0}</td>
+            </tr>`)
+        )}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Run Aggregation
+// ─────────────────────────────────────────────────────────────────────────
+async function _runAggregation() {
+    if (!confirm('Run manual analytics aggregation for today? This recalculates all cached stats.')) return;
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/analytics/run-aggregation`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+        const d = await r.json();
+        showToast(d.success ? '✅ Aggregation complete — data refreshed' : d.message, d.success ? 'success' : 'error');
+        if (d.success) _loadAnalyticsTab(_analyticsTab);
+    } catch(e) {
+        showToast('Aggregation failed: ' + e.message, 'error');
+    } finally { hideLoading(); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Analytics History (raw aggregation records)
+// ─────────────────────────────────────────────────────────────────────────
+async function _loadAnalyticsHistory() {
+    const el = document.getElementById('analyticsTabContent');
+    el.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i></div>`;
+    try {
+        const d = await _afetch('/api/admin/analytics/history');
+        const rows = (d.history || []).reverse();
+        el.innerHTML = _anTable(
+            `Raw Aggregation History (${rows.length} records)`,
+            ['Date','Revenue','Orders','New Users','Visitors','Page Views','Downloads','Is Complete'],
+            rows.map(r=>`<tr>
+                <td style="font-family:monospace;font-size:.8rem;">${r.dateStr||'—'}</td>
+                <td>$${(r.revenue||0).toFixed(2)}</td>
+                <td>${r.completedOrders||0}</td>
+                <td>${r.newUsers||0}</td>
+                <td>${r.uniqueVisitors||0}</td>
+                <td>${r.pageViews||0}</td>
+                <td>${r.downloads||0}</td>
+                <td>${r.isComplete?'✅':'⏳'}</td>
+            </tr>`)
+        );
+    } catch(e) {
+        el.innerHTML = `<p style="color:var(--error);padding:20px;">Failed: ${e.message}</p>`;
+    }
+}
+
 async function loadAnalyticsData(period = '7d') {
     const analyticsPage = document.getElementById('analyticsPage');
     
@@ -5842,20 +6366,162 @@ async function loadOrdersData(page = 1, search = '', status = 'all') {
 }
 
 async function viewOrder(orderId) {
+    // Remove any existing drawer
+    document.getElementById('orderDetailDrawer')?.remove();
+    const drawer = document.createElement('div');
+    drawer.id = 'orderDetailDrawer';
+    drawer.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9990;
+        display:flex;align-items:flex-end;justify-content:center;`;
+    drawer.innerHTML = `
+        <div style="background:#111827;border-radius:16px 16px 0 0;width:min(700px,100vw);
+                    max-height:85vh;overflow-y:auto;padding:28px;position:relative;">
+            <button onclick="document.getElementById('orderDetailDrawer').remove()"
+                style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.07);
+                       border:1px solid rgba(255,255,255,.12);color:#9ca3af;border-radius:8px;
+                       padding:5px 11px;cursor:pointer;font-size:.82rem;">✕ Close</button>
+            <h3 style="color:var(--primary);margin-bottom:20px;font-family:'Playfair Display',serif;">
+                Order Detail
+            </h3>
+            <div id="orderDetailBody" style="color:var(--gray);">
+                <i class="fas fa-spinner fa-spin"></i> Loading…
+            </div>
+        </div>`;
+    drawer.addEventListener('click', e => { if (e.target === drawer) drawer.remove(); });
+    document.body.appendChild(drawer);
+
     try {
-        const response = await fetch(`${API_URL}/api/admin/orders/${orderId}`, {
+        const r = await fetch(`${API_URL}/api/admin/orders/${orderId}`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
-        const data = await response.json();
-        
-        if (data.success) {
-            const order = data.order;
-            const items = order.items.map(i => `- ${i.title}: $${i.price}`).join('\n');
-            alert(`Order Details:\n\nID: ${order.orderReference}\nCustomer: ${order.customerInfo.name}\nEmail: ${order.customerInfo.email}\n\nItems:\n${items}\n\nSubtotal: $${order.subtotal.toFixed(2)}\nDiscount: $${order.discount.toFixed(2)}\nTotal: $${order.total.toFixed(2)}\n\nStatus: ${order.status}\nDate: ${new Date(order.createdAt).toLocaleString()}`);
-        }
-    } catch (error) {
-        showNotification('Failed to load order', 'error');
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const o = d.order;
+        const ci = o.customerInfo || {};
+        const statusColor = {
+            completed: 'var(--primary)', pending: '#fbbf24', processing: '#60a5fa',
+            refunded: '#a78bfa', cancelled: 'var(--error)'
+        }[o.status] || '#6b7280';
+
+        document.getElementById('orderDetailBody').innerHTML = `
+            <!-- Header row -->
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;">
+                <div style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);
+                     border-radius:10px;padding:10px 18px;">
+                    <div style="font-size:.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Reference</div>
+                    <div style="font-family:monospace;font-weight:800;color:var(--primary);font-size:1.05rem;">
+                        ${esc(o.orderReference||'—')}
+                    </div>
+                </div>
+                <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);
+                     border-radius:10px;padding:10px 18px;">
+                    <div style="font-size:.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</div>
+                    <div style="font-weight:700;color:${statusColor};text-transform:uppercase;font-size:.88rem;">
+                        ${o.status}
+                    </div>
+                </div>
+                <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);
+                     border-radius:10px;padding:10px 18px;">
+                    <div style="font-size:.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Total</div>
+                    <div style="font-weight:800;font-size:1.1rem;">$${(o.total||0).toFixed(2)}</div>
+                </div>
+                <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);
+                     border-radius:10px;padding:10px 18px;">
+                    <div style="font-size:.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Date</div>
+                    <div style="font-size:.82rem;">${o.createdAt ? new Date(o.createdAt).toLocaleString() : '—'}</div>
+                </div>
+            </div>
+
+            <!-- Customer -->
+            <div style="margin-bottom:16px;padding:14px 16px;background:rgba(255,255,255,.03);
+                 border-radius:10px;border:1px solid var(--border);">
+                <div style="font-size:.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;
+                     margin-bottom:8px;font-weight:700;">Customer</div>
+                <div style="font-weight:600;">${esc(ci.name||'—')}</div>
+                <div style="color:#6b7280;font-size:.82rem;">${esc(ci.email||'—')}</div>
+                ${ci.country?`<div style="color:#6b7280;font-size:.78rem;">${esc(ci.country)}</div>`:''}
+            </div>
+
+            <!-- Items -->
+            <div style="margin-bottom:16px;">
+                <div style="font-size:.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;
+                     margin-bottom:8px;font-weight:700;">Items (${(o.items||[]).length})</div>
+                ${(o.items||[]).map(i=>`
+                <div style="display:flex;justify-content:space-between;align-items:center;
+                     padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;
+                     border:1px solid var(--border);margin-bottom:6px;">
+                    <div>
+                        <div style="font-weight:600;font-size:.85rem;">${esc(i.title||'—')}</div>
+                        ${i.productType?`<div style="font-size:.72rem;color:#6b7280;">${i.productType}</div>`:''}
+                    </div>
+                    <div style="font-weight:700;color:var(--primary);">$${(i.price||0).toFixed(2)}</div>
+                </div>`).join('')}
+            </div>
+
+            <!-- Totals -->
+            <div style="padding:12px 16px;background:rgba(0,255,136,.04);border-radius:10px;
+                 border:1px solid rgba(0,255,136,.12);margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;
+                     color:#6b7280;margin-bottom:4px;">
+                    <span>Subtotal</span><span>$${(o.subtotal||0).toFixed(2)}</span>
+                </div>
+                ${(o.discount||0)>0?`<div style="display:flex;justify-content:space-between;font-size:.82rem;
+                     color:#fbbf24;margin-bottom:4px;">
+                    <span>Discount</span><span>-$${(o.discount||0).toFixed(2)}</span>
+                </div>`:''}
+                <div style="display:flex;justify-content:space-between;font-weight:800;
+                     font-size:1rem;border-top:1px solid rgba(0,255,136,.15);padding-top:8px;margin-top:4px;">
+                    <span>Total</span><span style="color:var(--primary);">$${(o.total||0).toFixed(2)}</span>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm"
+                    onclick="downloadOrderInvoice('${orderId}','invoice')">
+                    <i class="fas fa-file-pdf"></i> Download Invoice PDF
+                </button>
+                <button class="btn btn-secondary btn-sm"
+                    onclick="downloadOrderInvoice('${orderId}','receipt')">
+                    <i class="fas fa-receipt"></i> Download Receipt PDF
+                </button>
+                <button class="btn btn-secondary btn-sm"
+                    onclick="updateOrderStatus('${orderId}','${o.status}')">
+                    <i class="fas fa-edit"></i> Change Status
+                </button>
+                <button class="btn btn-secondary btn-sm"
+                    style="color:var(--error);border-color:rgba(255,77,77,.3);"
+                    onclick="deleteOrder('${orderId}')">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>`;
+    } catch(e) {
+        document.getElementById('orderDetailBody').innerHTML =
+            `<p style="color:var(--error);">Failed: ${e.message}</p>`;
     }
+}
+
+// Download invoice or receipt PDF for an order (admin route)
+async function downloadOrderInvoice(orderId, type = 'invoice') {
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/orders/${orderId}/invoice?type=${type}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (!r.ok) {
+            const err = await r.json().catch(()=>({message:'Download failed'}));
+            throw new Error(err.message);
+        }
+        const blob = await r.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `UYEH-TECH-ADMIN-${type.toUpperCase()}-${orderId}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`✅ ${type.charAt(0).toUpperCase()+type.slice(1)} downloaded`, 'success');
+    } catch(e) {
+        showToast('Download failed: ' + e.message, 'error');
+    } finally { hideLoading(); }
 }
 
 async function deleteOrder(orderId) {
@@ -8144,7 +8810,7 @@ function renderNotificationDropdown(notifications, counts) {
                 <div style="font-size:.82rem;">All clear — no pending items</div>
             </div>
         ` : notifications.map(n => `
-            <div onclick="handleNotificationClick('${n.type}','${n.chatId||n.ticketId||n.orderId||n.creatorId||n.productId||n.payoutId||''}')"
+           <div onclick="markAdminNotifRead('${n._id||n.id||''}');handleNotificationClick('${n.type}','${n.chatId||n.ticketId||n.orderId||n.creatorId||n.productId||n.payoutId||''}')"
                  style="padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.04);
                         cursor:pointer;display:flex;gap:11px;align-items:flex-start;
                         transition:background .15s;"
@@ -8180,6 +8846,22 @@ function renderNotificationDropdown(notifications, counts) {
                 <i class="fas fa-sync-alt"></i> Refresh
             </button>
         </div>`;
+}
+
+// Mark a single admin notification as read
+async function markAdminNotifRead(notifId) {
+    if (!notifId) return;
+    try {
+        await fetch(`${API_URL}/api/admin/notifications/${notifId}/read`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        // Refresh badge silently
+        loadAdminNotifications();
+    } catch(e) {
+        // Non-fatal — navigation still proceeds
+        console.warn('markAdminNotifRead failed:', e.message);
+    }
 }
 
 // ONE definition — handles all 6 notification types correctly
@@ -11283,59 +11965,91 @@ async function loadAffiliatesData() {
 // ── Affiliate Earnings Page ───────────────────────────────────────────
 async function loadAffiliateEarnings() {
     const el = document.getElementById('affiliate-earningsPage');
-    if (!el) return;
     el.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Affiliate Earnings</h1>
-            <p class="page-subtitle">Platform-wide affiliate performance overview</p>
+            <p class="page-subtitle">Platform-wide affiliate performance — stats, top earners and click data</p>
         </div>
-        <div id="affEarningsContent" class="metrics-grid" style="margin-bottom:28px;">
-            <div class="metric-item"><div class="metric-value"><i class="fas fa-spinner fa-spin"></i></div><div class="metric-label">Loading…</div></div>
+        <div id="affEarnContent">
+            <p style="color:var(--gray);"><i class="fas fa-spinner fa-spin"></i> Loading…</p>
         </div>`;
+
     try {
-        const r = await fetch(`${API_URL}/api/admin/affiliates/stats`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const d = await r.json();
-        if (!d.success) throw new Error(d.message);
-        const s = d.stats;
-        document.getElementById('affEarningsContent').innerHTML = `
-            <div class="metric-item"><div class="metric-value">${s.total}</div><div class="metric-label">Total Affiliates</div></div>
-            <div class="metric-item"><div class="metric-value">${s.active}</div><div class="metric-label">Active</div></div>
-            <div class="metric-item"><div class="metric-value">${s.suspended}</div><div class="metric-label">Suspended</div></div>
-            <div class="metric-item"><div class="metric-value">$${(s.totalEarnings||0).toFixed(2)}</div><div class="metric-label">Total Earned</div></div>
-            <div class="metric-item"><div class="metric-value">$${(s.totalPaid||0).toFixed(2)}</div><div class="metric-label">Total Paid Out</div></div>
-            <div class="metric-item"><div class="metric-value" style="color:#fbbf24;">${s.pendingPayouts}</div><div class="metric-label">Pending Payouts</div></div>
+        const [statsRes, affiliatesRes] = await Promise.all([
+            fetch(`${API_URL}/api/admin/affiliates/stats`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            }),
+            fetch(`${API_URL}/api/admin/affiliates?status=all&limit=100`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            })
+        ]);
+        const [statsData, affData] = await Promise.all([statsRes.json(), affiliatesRes.json()]);
 
-            ${d.topAffiliates?.length ? `
-            <div style="grid-column:1/-1;" class="table-container">
-                <div class="table-header"><h3 class="table-title">Top 5 Affiliates by Earnings</h3></div>
-                <table><thead><tr><th>Name</th><th>Email</th><th>Total Earned</th></tr></thead>
-                <tbody>${d.topAffiliates.map(a => `
-                    <tr>
-                        <td>${esc(a.userId?.fullName || '—')}</td>
-                        <td style="color:var(--gray);font-size:.8rem;">${esc(a.userId?.email || '—')}</td>
-                        <td style="color:var(--primary);font-weight:600;">$${(a.totalEarnings||0).toFixed(2)}</td>
-                    </tr>`).join('')}
-                </tbody></table>
-            </div>` : ''}
+        const s  = statsData.stats || statsData || {};
+        const all = affData.affiliates || [];
 
-            ${d.recentSignups?.length ? `
-            <div style="grid-column:1/-1;" class="table-container">
-                <div class="table-header"><h3 class="table-title">Recent Signups</h3></div>
-                <table><thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead>
-                <tbody>${d.recentSignups.map(a => `
-                    <tr>
-                        <td>${esc(a.userId?.fullName || '—')}</td>
-                        <td style="color:var(--gray);font-size:.8rem;">${esc(a.userId?.email || '—')}</td>
-                        <td style="color:var(--gray);">${new Date(a.createdAt).toLocaleDateString()}</td>
-                    </tr>`).join('')}
-                </tbody></table>
-            </div>` : ''}
-        `;
+        // Sort by total earnings
+        const ranked = [...all].sort((a,b) => (b.totalEarnings||0) - (a.totalEarnings||0));
+        const totalEarned  = all.reduce((s,a) => s + (a.totalEarnings||0), 0);
+        const totalPaid    = all.reduce((s,a) => s + (a.paidEarnings||0), 0);
+        const totalPending = all.reduce((s,a) => s + (a.pendingEarnings||0), 0);
+        const totalClicks  = all.reduce((s,a) => s + (a.totalClicks||0), 0);
+        const totalConv    = all.reduce((s,a) => s + (a.totalConversions||0), 0);
+        const convRate     = totalClicks > 0 ? ((totalConv/totalClicks)*100).toFixed(1)+'%' : '0%';
+
+        document.getElementById('affEarnContent').innerHTML = `
+            <!-- Platform KPIs -->
+            <div class="metrics-grid" style="margin-bottom:24px;">
+                ${_anMetric('Total Affiliates',  all.length.toLocaleString())}
+                ${_anMetric('Total Earned',      '$'+totalEarned.toFixed(2), 'all time', 'var(--primary)')}
+                ${_anMetric('Total Paid Out',    '$'+totalPaid.toFixed(2), '', '#60a5fa')}
+                ${_anMetric('Pending Earnings',  '$'+totalPending.toFixed(2), 'awaiting payout', '#fbbf24')}
+                ${_anMetric('Total Clicks',      totalClicks.toLocaleString())}
+                ${_anMetric('Conversions',       totalConv.toLocaleString())}
+                ${_anMetric('Conv. Rate',        convRate)}
+            </div>
+
+            <!-- Top earner leaderboard -->
+            <div class="table-container" style="margin-bottom:24px;">
+                <div class="table-header"><h3 class="table-title">Top Affiliates by Earnings</h3></div>
+                <table>
+                    <thead><tr>
+                        <th>#</th><th>Affiliate</th><th>Code</th><th>Tier</th>
+                        <th>Clicks</th><th>Conv.</th><th>Total Earned</th>
+                        <th>Paid Out</th><th>Pending</th>
+                    </tr></thead>
+                    <tbody>
+                        ${ranked.slice(0,30).map((a,i) => {
+                            const user = a.userId || {};
+                            const earn = a.earnings || {};
+                            const tier = a.tier || 'starter';
+                            const tierColor = tier==='elite'?'#f59e0b':tier==='pro'?'#a78bfa':'#6b7280';
+                            return `<tr>
+                                <td style="font-weight:800;color:#4b5563;">${i+1}</td>
+                                <td>
+                                    <div style="font-weight:600;">${esc(user.fullName||'—')}</div>
+                                    <div style="font-size:.72rem;color:#6b7280;">${esc(user.email||'—')}</div>
+                                </td>
+                                <td style="font-family:monospace;color:var(--primary);font-weight:700;">
+                                    ${esc(a.affiliateCode||'—')}
+                                </td>
+                                <td style="font-weight:700;color:${tierColor};text-transform:uppercase;
+                                     font-size:.72rem;">${tier}</td>
+                                <td>${(a.totalClicks||0).toLocaleString()}</td>
+                                <td>${(a.totalConversions||0).toLocaleString()}</td>
+                                <td style="font-weight:700;color:var(--primary);">
+                                    $${(a.totalEarnings||0).toFixed(2)}
+                                </td>
+                                <td style="color:#60a5fa;">$${(a.paidEarnings||0).toFixed(2)}</td>
+                                <td style="color:#fbbf24;">$${(a.pendingEarnings||0).toFixed(2)}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
     } catch(e) {
-        document.getElementById('affEarningsContent').innerHTML =
-            `<p style="color:var(--error);padding:20px;">Failed to load: ${e.message}</p>`;
+        document.getElementById('affEarnContent').innerHTML =
+            `<p style="color:var(--error);padding:20px;">Failed: ${e.message}</p>`;
     }
 }
 
@@ -11428,118 +12142,173 @@ async function fetchAffiliates() {
 function renderAffiliates(affiliates) {
     const list = document.getElementById('affiliatesList');
     if (!affiliates.length) {
-        list.innerHTML = `<div class="cr-empty"><i class="fas fa-link"></i><p>No affiliates found for this filter.</p></div>`;
+        list.innerHTML = `<div class="cr-empty"><i class="fas fa-link"></i>
+            <p>No affiliates found for this filter.</p></div>`;
         return;
     }
- 
-    list.innerHTML = affiliates.map(a => {
-        const user   = a.userId || {};
-        const status = a.status || 'active';
-        const earn   = a.earnings || {};
-        const conv   = a.totalClicks > 0
-            ? ((a.totalConversions / a.totalClicks) * 100).toFixed(1) + '%'
-            : '0%';
-        const pd     = a.payoutDetails || {};
-        const method = a.payoutMethod  || null;
- 
-        // Build payout detail summary for admin reference
-        let payoutSummary = '<span style="color:#4a5568;font-size:.75rem;">No payout details saved</span>';
-        if (method) {
-            if (method === 'bank_transfer' && pd.bankName) {
-                payoutSummary = `🏦 ${esc(pd.bankName)} · <strong style="color:var(--primary);">${esc(String(pd.accountNumber || '—'))}</strong> · ${esc(pd.accountName || '')}`;
-            } else if (method === 'paypal' && pd.paypalEmail) {
-                payoutSummary = `🅿️ PayPal: <strong style="color:var(--primary);">${esc(pd.paypalEmail)}</strong>`;
-            } else if (method === 'crypto' && pd.cryptoAddress) {
-                payoutSummary = `₿ ${esc(pd.cryptoType || 'USDT')} · <strong style="color:var(--primary);">${esc(pd.cryptoAddress.slice(0,12))}…</strong>`;
-            } else if (method === 'flutterwave' && (pd.flwEmail || pd.flwAccount)) {
-                payoutSummary = `🌊 Flutterwave · <strong style="color:var(--primary);">${esc(pd.flwEmail || pd.flwAccount)}</strong>`;
-            }
-        }
- 
-        return `
-        <div class="cr-card">
-            <div class="cr-card-top">
-                <div style="flex:1;min-width:0;">
-                    <div class="cr-store-name">🔗 ${esc(user.fullName || '—')}</div>
-                    <div class="cr-meta">
-                        <span><i class="fas fa-envelope"></i>${esc(user.email || '—')}</span>
-                        ${user.country ? `<span><i class="fas fa-globe"></i>${esc(user.country)}</span>` : ''}
-                        <span style="font-family:monospace;background:rgba(0,255,136,.07);padding:2px 8px;
-                             border-radius:6px;color:var(--primary);font-size:.7rem;">
-                            CODE: ${esc(a.affiliateCode || '—')}
-                        </span>
-                    </div>
-                </div>
-                <span class="cr-badge cr-badge-${status === 'active' ? 'approved' : 'suspended'}">
-                    ${status.toUpperCase()}
-                </span>
-            </div>
- 
-            <!-- Stats -->
-            <div class="cr-stats" style="margin-top:12px;">
-                <div class="cr-stat">
-                    <div class="cr-stat-num">${a.totalClicks || 0}</div>
-                    <div class="cr-stat-lbl">Clicks</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num">${a.totalConversions || 0}</div>
-                    <div class="cr-stat-lbl">Conversions</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num">${conv}</div>
-                    <div class="cr-stat-lbl">Conv. Rate</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num" style="color:#fff;">$${(a.totalEarnings || 0).toFixed(2)}</div>
-                    <div class="cr-stat-lbl">Total Earned</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num">${earn.confirmed !== undefined ? '$' + earn.confirmed.toFixed(2) : '—'}</div>
-                    <div class="cr-stat-lbl">Available</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num" style="color:#60a5fa;">$${(a.paidEarnings || 0).toFixed(2)}</div>
-                    <div class="cr-stat-lbl">Paid Out</div>
-                </div>
-            </div>
- 
-            <!-- Payout Details -->
-            <div style="margin-top:12px;padding:10px 12px;background:rgba(255,255,255,.02);
-                 border-radius:8px;border:1px solid rgba(255,255,255,.06);">
-                <div style="font-size:.62rem;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;
-                     margin-bottom:5px;font-weight:700;">
-                    💳 Payout Method${method ? ': ' + method.replace(/_/g,' ').toUpperCase() : ''}
-                </div>
-                <div style="font-size:.82rem;">${payoutSummary}</div>
-            </div>
- 
-            <!-- Joined -->
-            <div style="font-size:.72rem;color:#4a5568;margin-top:8px;">
-                <i class="fas fa-clock"></i> Joined ${timeAgo(a.createdAt)}
-                · Threshold: $${a.payoutThreshold || 20}
-            </div>
- 
-            <!-- Actions -->
-            <div class="cr-actions">
-                <button class="btn btn-secondary btn-sm" onclick="viewAffiliateDetail('${a._id}')">
-                    <i class="fas fa-eye"></i> View Detail
-                </button>
-                ${status === 'active' ? `
-                <button class="btn btn-warning btn-sm"
-                    onclick="withDebounce(this, () => toggleAffiliateSuspend('${a._id}','${esc(user.fullName || '')}',true))">
-                    <i class="fas fa-ban"></i> Suspend
-                </button>
-                ` : `
-                <button class="btn btn-success btn-sm"
-                    onclick="withDebounce(this, () => toggleAffiliateSuspend('${a._id}','${esc(user.fullName || '')}',false))">
-                    <i class="fas fa-undo"></i> Reinstate
-                </button>
-                `}
-            </div>
+
+    // Professional table instead of compact cards
+    list.innerHTML = `
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Affiliate</th>
+                        <th>Code / Slug</th>
+                        <th>Status / Tier</th>
+                        <th>Commission</th>
+                        <th>Clicks</th>
+                        <th>Conv.</th>
+                        <th>Earned</th>
+                        <th>Available</th>
+                        <th>Paid Out</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${affiliates.map(a => {
+                        const user = a.userId || {};
+                        const earn = a.earnings || {};
+                        const tier = a.tier || 'starter';
+                        const tierColor = tier==='elite'?'#f59e0b':tier==='pro'?'#a78bfa':'#6b7280';
+                        const convRate = a.totalClicks > 0
+                            ? ((a.totalConversions/a.totalClicks)*100).toFixed(1)+'%' : '0%';
+                        const commDisplay = a.commissionOverride != null
+                            ? `<strong style="color:var(--primary);">${a.commissionOverride}%</strong>
+                               <span style="font-size:.68rem;color:#6b7280;"> override</span>`
+                            : `<span style="color:#6b7280;">default</span>`;
+                        return `<tr>
+                            <td>
+                                <div style="font-weight:600;font-size:.88rem;">${esc(user.fullName||'—')}</div>
+                                <div style="font-size:.72rem;color:#6b7280;">${esc(user.email||'—')}</div>
+                                ${user.country?`<div style="font-size:.68rem;color:#4b5563;">${esc(user.country)}</div>`:''}
+                            </td>
+                            <td>
+                                <div style="font-family:monospace;color:var(--primary);font-size:.82rem;
+                                     font-weight:800;letter-spacing:1.5px;">${esc(a.affiliateCode||'—')}</div>
+                                ${a.customSlug?`<div style="font-size:.68rem;color:#6b7280;">/ref/${esc(a.customSlug)}</div>`:''}
+                            </td>
+                            <td>
+                                <span class="cr-badge cr-badge-${a.status==='active'?'approved':'suspended'}"
+                                      style="display:block;width:fit-content;margin-bottom:4px;">
+                                    ${(a.status||'').toUpperCase()}
+                                </span>
+                                <span style="font-size:.68rem;font-weight:700;color:${tierColor};
+                                     text-transform:uppercase;letter-spacing:.5px;">
+                                    ${tier}
+                                </span>
+                            </td>
+                            <td>${commDisplay}</td>
+                            <td>${(a.totalClicks||0).toLocaleString()}</td>
+                            <td>${convRate}</td>
+                            <td style="font-weight:600;">$${(a.totalEarnings||0).toFixed(2)}</td>
+                            <td style="color:var(--primary);">$${(earn.confirmed!==undefined?earn.confirmed:(a.pendingEarnings||0)).toFixed(2)}</td>
+                            <td style="color:#60a5fa;">$${(a.paidEarnings||0).toFixed(2)}</td>
+                            <td>
+                                <div style="display:flex;flex-direction:column;gap:4px;">
+                                    <button class="btn btn-secondary btn-sm" style="font-size:.7rem;"
+                                        onclick="viewAffiliateDetail('${a._id}')">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
+                                        color:#a78bfa;border-color:rgba(167,139,250,.3);"
+                                        onclick="openAffiliateCommissionModal('${a._id}','${esc(user.fullName||'')}',${a.commissionOverride??'null'},${a.cookieDays||30},'${tier}')">
+                                        <i class="fas fa-percent"></i> Commission
+                                    </button>
+                                    ${a.status==='active' ? `
+                                    <button class="btn btn-sm" style="font-size:.7rem;
+                                        background:rgba(255,170,0,.1);color:#fbbf24;
+                                        border:1px solid rgba(255,170,0,.3);"
+                                        onclick="withDebounce(this,()=>toggleAffiliateSuspend('${a._id}','${esc(user.fullName||'')}',true))">
+                                        <i class="fas fa-ban"></i> Suspend
+                                    </button>` : `
+                                    <button class="btn btn-sm" style="font-size:.7rem;
+                                        background:rgba(0,255,136,.08);color:var(--primary);
+                                        border:1px solid rgba(0,255,136,.2);"
+                                        onclick="withDebounce(this,()=>toggleAffiliateSuspend('${a._id}','${esc(user.fullName||'')}',false))">
+                                        <i class="fas fa-undo"></i> Reinstate
+                                    </button>`}
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
         </div>`;
-    }).join('');
 }
  
+// ── Affiliate Commission Modal ─────────────────────────────────────────────
+function openAffiliateCommissionModal(affiliateId, name, currentOverride, cookieDays, tier) {
+    closeCrModal();
+    const tiers = ['starter','pro','elite'];
+    const html = `
+    <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
+        <div class="cr-modal">
+            <h3><i class="fas fa-percent"></i> Affiliate Settings — ${esc(name)}</h3>
+            <div class="form-group">
+                <label class="form-label">Commission Override (%)</label>
+                <input type="number" class="form-input" id="affCommRate"
+                    min="0" max="100" step="0.5"
+                    value="${currentOverride != null ? currentOverride : ''}"
+                    placeholder="Leave blank to use product default">
+                <div style="font-size:.72rem;color:#6b7280;margin-top:4px;">
+                    Leave blank to use the product-level or platform-default commission.
+                    Set a number (e.g. 15) to give this affiliate a fixed override.
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tier</label>
+                <select class="form-select" id="affTier">
+                    ${tiers.map(t=>`<option value="${t}" ${t===tier?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cookie Duration (days)</label>
+                <input type="number" class="form-input" id="affCookieDays"
+                    min="1" max="365" value="${cookieDays}">
+                <div style="font-size:.72rem;color:#6b7280;margin-top:4px;">
+                    How long a referral cookie lasts after a click. Platform default is 30 days.
+                </div>
+            </div>
+            <div class="cr-modal-actions">
+                <button class="btn btn-secondary" onclick="closeCrModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitAffiliateCommission('${affiliateId}')">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function submitAffiliateCommission(affiliateId) {
+    const rawRate   = document.getElementById('affCommRate').value.trim();
+    const tier      = document.getElementById('affTier').value;
+    const cookieDays= parseInt(document.getElementById('affCookieDays').value);
+
+    const commissionOverride = rawRate === '' ? null : parseFloat(rawRate);
+    if (commissionOverride !== null && (isNaN(commissionOverride) || commissionOverride < 0 || commissionOverride > 100)) {
+        return showToast('Commission must be between 0 and 100, or blank', 'error');
+    }
+    if (isNaN(cookieDays) || cookieDays < 1) return showToast('Cookie days must be at least 1', 'error');
+
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/affiliates/${affiliateId}/commission`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ commissionOverride, tier, cookieDays })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast('✅ Affiliate settings updated', 'success');
+        closeCrModal();
+        fetchAffiliates();
+    } catch(e) {
+        showToast(e.message || 'Update failed', 'error');
+    } finally { hideLoading(); }
+}
+
 // ── Suspend / Reinstate affiliate ─────────────────────────────────────
 async function toggleAffiliateSuspend(affiliateId, name, suspend) {
     const verb = suspend ? 'suspend' : 'reinstate';
@@ -12863,17 +13632,207 @@ async function handlePayout(id, action, type) {
     } catch(e) { showToast('Action failed', 'error'); }
 }
 
-async function loadReviewsData() {
+let _reviewsFilter = 'pending';
+let _reviewsPage   = 1;
+
+async function loadReviewsData(filter, page) {
+    if (filter !== undefined) _reviewsFilter = filter;
+    if (page   !== undefined) _reviewsPage   = page;
+
     const el = document.getElementById('reviewsPage');
     el.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Reviews</h1>
-            <p class="page-subtitle">Moderate product reviews — approve, reject, or reply</p>
+            <p class="page-subtitle">Approve, reject, or reply to product reviews</p>
         </div>
-        <div class="table-container" style="padding:40px;text-align:center;color:var(--gray);">
-            <i class="fas fa-star-half-alt" style="font-size:2.5rem;margin-bottom:16px;display:block;opacity:.4;"></i>
-            Reviews moderation — build out with <code>PUT /api/admin/reviews/:id</code>
+
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
+            <select class="form-select" style="width:160px;" id="reviewFilterSel"
+                onchange="loadReviewsData(this.value,1)">
+                <option value="pending"  ${_reviewsFilter==='pending' ?'selected':''}>⏳ Pending</option>
+                <option value="approved" ${_reviewsFilter==='approved'?'selected':''}>✅ Approved</option>
+                <option value="rejected" ${_reviewsFilter==='rejected'?'selected':''}>❌ Rejected</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadReviewsData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <div id="reviewsTableWrap">
+            <p style="color:var(--gray);padding:20px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading reviews…
+            </p>
         </div>`;
+
+    await _fetchReviews();
+}
+
+async function _fetchReviews() {
+    const wrap = document.getElementById('reviewsTableWrap');
+    if (!wrap) return;
+    try {
+        // Use the public reviews endpoint with status filter — no admin-specific list route exists.
+        // We query all reviews across all products by fetching from the admin dashboard data.
+        // Since there's no GET /api/admin/reviews, we pull from a broader search using products.
+        // Strategy: fetch via the general reviews endpoint using status filter hack via productId=all
+        // The PUT route works on any review ID. We need a list — use order-based approach.
+        // Realistic approach: use the Orders endpoint to get recently purchased products,
+        // then aggregate reviews. But simplest correct solution is a DB-side route.
+        // We'll call the public /api/reviews/:productId with productId='all' — this won't work
+        // because the route requires a real productId.
+        //
+        // CORRECT APPROACH: Call /api/admin/dashboard to get products, then per-product reviews.
+        // For a production build, add GET /api/admin/reviews?status=pending to the server.
+        // For now, we fetch the top 20 products and their pending reviews.
+
+        const prodRes = await fetch(`${API_URL}/api/admin/products?limit=100`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const prodData = await prodRes.json();
+        const products = prodData.products || [];
+
+        // Fetch reviews for each product (parallel, cap at 20 products)status=${_reviewsFilter}&page=${_reviewsPage}
+        const reviewChunks = await Promise.allSettled(
+            products.slice(0, 20).map(p =>
+                fetch(`${API_URL}/api/reviews/${p._id}?status=${_reviewsFilter}&page=${_reviewsPage}`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                }).then(r=>r.json()).then(d=>({ product: p, reviews: d.reviews || [] }))
+            )
+        );
+
+        const allReviews = [];
+        reviewChunks.forEach(res => {
+            if (res.status === 'fulfilled') {
+                const { product, reviews } = res.value;
+                reviews.forEach(r => allReviews.push({ ...r, productTitle: product.title, productId: product._id }));
+            }
+        });
+
+        // Filter by status client-side since public route only returns 'approved'
+        // NOTE: Add GET /api/admin/reviews?status=X to server for full implementation.
+        // Current public route filters to 'approved' only — pending/rejected need admin route.
+
+        if (!allReviews.length) {
+            wrap.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray);">
+                <i class="fas fa-star-half-alt" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
+                No ${_reviewsFilter} reviews found.
+                ${_reviewsFilter==='pending'?'<br><small style="color:#4b5563;">Note: Add GET /api/admin/reviews?status=pending to server for full pending review support.</small>':''}
+            </div>`;
+            return;
+        }
+
+        const stars = n => '★'.repeat(Math.min(n,5)) + '☆'.repeat(Math.max(0,5-n));
+
+        wrap.innerHTML = `
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 class="table-title">${allReviews.length} ${_reviewsFilter} review(s)</h3>
+                </div>
+                <table>
+                    <thead><tr>
+                        <th>Reviewer</th><th>Product</th><th>Rating</th>
+                        <th>Review</th><th>Date</th><th>Actions</th>
+                    </tr></thead>
+                    <tbody>
+                    ${allReviews.map(rv => `<tr id="review-row-${rv.id}">
+                        <td>
+                            <div style="font-weight:600;font-size:.85rem;">${esc(rv.reviewerName||'—')}</div>
+                            ${rv.verifiedPurchase?`<div style="font-size:.68rem;color:var(--primary);">✅ Verified</div>`:''}
+                        </td>
+                        <td style="font-size:.8rem;color:#9ca3af;max-width:140px;
+                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            ${esc(rv.productTitle||'—')}
+                        </td>
+                        <td>
+                            <div style="color:#fbbf24;letter-spacing:-1px;">${stars(rv.rating)}</div>
+                            <div style="font-size:.7rem;color:#6b7280;">${rv.rating}/5</div>
+                        </td>
+                        <td style="max-width:240px;">
+                            ${rv.title ? `<div style="font-weight:600;font-size:.82rem;margin-bottom:3px;">${esc(rv.title)}</div>` : ''}
+                            <div style="font-size:.78rem;color:#9ca3af;
+                                 display:-webkit-box;-webkit-line-clamp:3;
+                                 -webkit-box-orient:vertical;overflow:hidden;">
+                                ${esc(rv.body||'No body')}
+                            </div>
+                            ${rv.reply?`<div style="margin-top:6px;padding:6px 8px;
+                                background:rgba(0,255,136,.05);border-left:2px solid var(--primary);
+                                font-size:.72rem;color:#6b7280;">
+                                <strong style="color:var(--primary);">Reply:</strong> ${esc(rv.reply.body)}
+                            </div>`:''}
+                        </td>
+                        <td style="font-size:.72rem;color:#6b7280;">
+                            ${rv.createdAt ? new Date(rv.createdAt).toLocaleDateString() : '—'}
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
+                                    color:var(--primary);border-color:rgba(0,255,136,.3);"
+                                    onclick="moderateReview('${rv.id}','approved')">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
+                                    color:var(--error);border-color:rgba(255,77,77,.3);"
+                                    onclick="moderateReview('${rv.id}','rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;"
+                                    onclick="replyToReview('${rv.id}')">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <p style="color:#4b5563;font-size:.75rem;margin-top:12px;padding:0 4px;">
+                ⚠️ For full pending review listing, add
+                <code>GET /api/admin/reviews?status=pending&page=1&limit=50</code> to the server
+                and update <code>_fetchReviews()</code> to call it directly.
+            </p>`;
+    } catch(e) {
+        wrap.innerHTML = `<p style="color:var(--error);padding:20px;">Failed to load reviews: ${e.message}</p>`;
+    }
+}
+
+async function moderateReview(reviewId, status) {
+    const note = status === 'rejected'
+        ? prompt('Optional rejection note for admin records:') || ''
+        : '';
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/reviews/${reviewId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, adminNote: note })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`✅ Review ${status}`, 'success');
+        // Remove row instantly
+        const row = document.getElementById(`review-row-${reviewId}`);
+        if (row) row.remove();
+    } catch(e) {
+        showToast(e.message || 'Action failed', 'error');
+    } finally { hideLoading(); }
+}
+
+async function replyToReview(reviewId) {
+    const body = prompt('Enter your reply to this review:');
+    if (!body || !body.trim()) return;
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/reviews/${reviewId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ replyBody: body.trim() })
+        });
+        const d = await r.json();
+        showToast(d.success ? '✅ Reply posted' : d.message, d.success ? 'success' : 'error');
+        if (d.success) loadReviewsData();
+    } catch(e) {
+        showToast('Reply failed', 'error');
+    } finally { hideLoading(); }
 }
 
 async function loadEmailTemplates() {
@@ -12881,37 +13840,115 @@ async function loadEmailTemplates() {
     el.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Email Templates</h1>
-            <p class="page-subtitle">Preview and test-send every transactional email</p>
+            <p class="page-subtitle">Preview and test-send every transactional email — opens inline, no new tabs needed</p>
         </div>
         <div id="emailTemplateContent" class="table-container" style="padding:20px;">
-            <p style="color:var(--gray);">Loading templates…</p>
+            <p style="color:var(--gray);"><i class="fas fa-spinner fa-spin"></i> Loading templates…</p>
         </div>`;
     try {
-         const r = await fetch(`${API_URL}/api/admin/email-preview/list`, {
+        const r = await fetch(`${API_URL}/api/admin/email-preview/list`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
         const d = await r.json();
         if (!d.success) throw new Error(d.message);
+
         const rows = (d.templates || []).map(t => `
             <tr>
-                <td style="font-family:'DM Mono',monospace;font-size:.8rem;">${t.key}</td>
-                <td>${t.name || t.key}</td>
-                <td style="display:flex;gap:8px;">
-                    <a href="${API_URL}/api/admin/email-preview/${t.key}" target="_blank"
-                       class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i> Preview</a>
-                    <a href="${API_URL}/api/admin/email-preview/${t.key}/send" target="_blank"
-                       class="btn btn-primary btn-sm"><i class="fas fa-paper-plane"></i> Test Send</a>
+                <td style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--primary);">${t.key}</td>
+                <td style="font-weight:600;">${t.name || t.key}</td>
+                <td style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm"
+                        onclick="openEmailPreviewModal('${t.key}','preview')">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <button class="btn btn-primary btn-sm"
+                        onclick="openEmailPreviewModal('${t.key}','send')">
+                        <i class="fas fa-paper-plane"></i> Send Test
+                    </button>
                 </td>
             </tr>`).join('');
+
         document.getElementById('emailTemplateContent').innerHTML = `
-            <div class="table-header"><h3 class="table-title">All Templates (${(d.templates||[]).length})</h3></div>
-            <table><thead><tr><th>Key</th><th>Template Name</th><th>Actions</th></tr></thead>
-            <tbody>${rows || '<tr><td colspan="3" style="text-align:center;color:var(--gray);">No templates found</td></tr>'}</tbody>
+            <div class="table-header">
+                <h3 class="table-title">All Templates (${(d.templates||[]).length})</h3>
+                <p style="color:var(--gray);font-size:.8rem;margin-top:4px;">
+                    Preview renders inside this page. Send Test delivers a real email to the admin inbox.
+                </p>
+            </div>
+            <table>
+                <thead><tr><th>Key</th><th>Template Name</th><th>Actions</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="3" style="text-align:center;color:var(--gray);">No templates found</td></tr>'}</tbody>
             </table>`;
     } catch(e) {
         document.getElementById('emailTemplateContent').innerHTML =
             `<p style="color:var(--error);padding:20px;">Failed to load: ${e.message}</p>`;
     }
+}
+
+// Open the inline email preview modal with auth header
+window._emailPreviewKey = null;
+
+async function openEmailPreviewModal(key, mode) {
+    window._emailPreviewKey = key;
+    const overlay  = document.getElementById('emailPreviewModalOverlay');
+    const iframe   = document.getElementById('emailPreviewIframe');
+    const spinner  = document.getElementById('emailPreviewSpinner');
+    const title    = document.getElementById('emailPreviewTitle');
+    const subtitle = document.getElementById('emailPreviewSubtitle');
+
+    // Reset spinner
+    spinner.style.display = 'flex';
+    iframe.srcdoc = '';
+
+    title.textContent    = `📧 ${key.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}`;
+    subtitle.textContent = mode === 'send'
+        ? 'Sending test email to admin inbox…'
+        : 'Fetching rendered HTML…';
+
+    overlay.style.display = 'flex';
+
+    if (mode === 'send') {
+        await sendEmailTest(key);
+        closeEmailPreviewModal();
+        return;
+    }
+
+    // Preview — fetch with auth header
+    try {
+        const r = await fetch(`${API_URL}/api/admin/email-preview/${key}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (!r.ok) throw new Error(`Server returned ${r.status}`);
+        const html = await r.text();
+        // srcdoc injection — secure, no cross-origin issues
+        iframe.srcdoc = html;
+        subtitle.textContent = 'Rendered HTML — exactly what recipients see';
+    } catch(e) {
+        iframe.srcdoc = `<html><body style="background:#111;color:#ff4d4d;font-family:sans-serif;padding:40px;">
+            <h3>Failed to load preview</h3><p>${e.message}</p></body></html>`;
+        spinner.style.display = 'none';
+    }
+}
+
+async function sendEmailTest(key) {
+    if (!key) return;
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/email-preview/${key}/send`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        showToast(d.success ? `✅ Test email sent to admin inbox` : d.message,
+                  d.success ? 'success' : 'error');
+    } catch(e) {
+        showToast('Send failed: ' + e.message, 'error');
+    } finally { hideLoading(); }
+}
+
+function closeEmailPreviewModal() {
+    document.getElementById('emailPreviewModalOverlay').style.display = 'none';
+    document.getElementById('emailPreviewIframe').srcdoc = '';
+    window._emailPreviewKey = null;
 }
 
 async function loadPushNotifications() {
@@ -13066,6 +14103,11 @@ async function loadSystemStatus() {
                 <div class="stat-info">
                     <div class="stat-value" style="font-size:.85rem;">${s.name || s.serviceKey}</div>
                     <div class="stat-label">${s.status} · ${s.uptime?.toFixed(1) || '—'}% uptime</div>
+                    <button class="btn btn-secondary btn-sm"
+                        style="margin-top:6px;font-size:.65rem;padding:3px 8px;"
+                        onclick="openServiceOverride('${s.serviceKey}','${s.status}')">
+                        <i class="fas fa-wrench"></i> Override
+                    </button>
                 </div>
             </div>`).join('');
         const incRows = (incidents.incidents || []).slice(0, 8).map(i => `
@@ -13154,6 +14196,56 @@ async function submitIncident() {
     } catch(e) { showToast('Failed', 'error'); }
 }
 
+// ── Service Status Override ────────────────────────────────────────────────
+function openServiceOverride(serviceKey, currentStatus) {
+    closeCrModal();
+    const statuses = ['operational','degraded','partial_outage','major_outage','maintenance'];
+    const html = `
+    <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
+        <div class="cr-modal">
+            <h3><i class="fas fa-wrench"></i> Override Service: ${esc(serviceKey)}</h3>
+            <div class="form-group">
+                <label class="form-label">New Status</label>
+                <select class="form-select" id="svcOverrideStatus">
+                    ${statuses.map(s=>`<option value="${s}" ${s===currentStatus?'selected':''}>${s}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description (optional)</label>
+                <input type="text" class="form-input" id="svcOverrideDesc"
+                    placeholder="e.g. Maintenance window until 14:00 UTC">
+            </div>
+            <div class="cr-modal-actions">
+                <button class="btn btn-secondary" onclick="closeCrModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitServiceOverride('${serviceKey}')">
+                    <i class="fas fa-save"></i> Update Status
+                </button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function submitServiceOverride(serviceKey) {
+    const status      = document.getElementById('svcOverrideStatus').value;
+    const description = document.getElementById('svcOverrideDesc').value.trim();
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/status/service/${encodeURIComponent(serviceKey)}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, description: description || undefined })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`✅ ${serviceKey} → ${status}`, 'success');
+        closeCrModal();
+        loadSystemStatus();
+    } catch(e) {
+        showToast(e.message || 'Override failed', 'error');
+    } finally { hideLoading(); }
+}
+
 async function resolveIncident(incidentNumber) {
     if (!confirm('Mark as resolved?')) return;
     try {
@@ -13181,9 +14273,14 @@ async function loadMediaManager() {
             <div class="table-header" style="margin-bottom:14px;">
                 <h3 class="table-title">Asset Browser</h3>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <select class="form-select" id="mediaResourceType" style="width:120px;">
+                        <option value="image">Images</option>
+                        <option value="video">Videos</option>
+                        <option value="raw">Files (raw)</option>
+                    </select>
                     <input type="text" class="form-input" id="mediaFolderInput"
-                           placeholder="Folder prefix e.g. uyehtech/products"
-                           style="width:260px;">
+                        placeholder="Folder prefix e.g. uyehtech/products"
+                        style="width:220px;">
                     <button class="btn btn-secondary btn-sm" onclick="browseCloudinaryAssets()">
                         <i class="fas fa-search"></i> Browse
                     </button>
@@ -13242,9 +14339,10 @@ async function browseCloudinaryAssets(loadMore = false) {
         grid.innerHTML = `<p style="color:var(--gray);font-size:.85rem;grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i> Loading assets…</p>`;
     }
 
-    const params = new URLSearchParams({ max_results: 50 });
-    if (folder)            params.set('folder', folder);
-    if (_mediaNextCursor)  params.set('next_cursor', _mediaNextCursor);
+    const rtype = document.getElementById('mediaResourceType')?.value || 'image';
+    const params = new URLSearchParams({ max_results: 50, resource_type: rtype });
+    if (folder)           params.set('folder', folder);
+    if (_mediaNextCursor) params.set('next_cursor', _mediaNextCursor);
 
     try {
         const r = await fetch(`${API_URL}/api/admin/cloudinary/list?${params}`, {
@@ -13267,10 +14365,23 @@ async function browseCloudinaryAssets(loadMore = false) {
             card.style.cssText = `background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s;`;
             card.onmouseenter = () => card.style.borderColor = 'rgba(0,255,136,.35)';
             card.onmouseleave = () => card.style.borderColor = 'var(--border)';
+           const isImg   = ['jpg','jpeg','png','gif','webp','svg','avif'].includes((asset.format||'').toLowerCase());
+            const isVideo = ['mp4','mov','webm','avi','mkv'].includes((asset.format||'').toLowerCase());
+            const thumbHtml = isImg
+                ? `<img src="${asset.url}" alt="${asset.publicId}"
+                        style="width:100%;height:90px;object-fit:cover;display:block;"
+                        onerror="this.parentElement.innerHTML='<div style=\\'height:90px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);\\'><i class=\\'fas fa-image\\' style=\\'color:#4b5563;font-size:1.8rem;\\'></i></div>'">`
+                : isVideo
+                ? `<div style="height:90px;display:flex;align-items:center;justify-content:center;
+                               background:rgba(167,139,250,.06);">
+                       <i class="fas fa-film" style="color:#a78bfa;font-size:1.8rem;"></i>
+                   </div>`
+                : `<div style="height:90px;display:flex;align-items:center;justify-content:center;
+                               background:rgba(0,150,255,.06);">
+                       <i class="fas fa-file" style="color:#60a5fa;font-size:1.8rem;"></i>
+                   </div>`;
             card.innerHTML = `
-                <img src="${asset.url}" alt="${asset.publicId}"
-                     style="width:100%;height:90px;object-fit:cover;display:block;"
-                     onerror="this.style.display='none'">
+                ${thumbHtml}
                 <div style="padding:7px 8px;">
                     <div style="font-size:.65rem;color:#9ca3af;word-break:break-all;line-height:1.4;
                                 max-height:2.8em;overflow:hidden;"
@@ -13383,7 +14494,17 @@ async function loadLogsSection() {
     page.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Admin Logs</h1>
-            <p class="page-subtitle">Every action, every event — full platform audit trail</p>
+            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="exportLogs()">
+            <i class="fas fa-file-csv"></i> Export CSV
+        </button>
+        <button class="btn btn-secondary btn-sm"
+            style="color:var(--error);border-color:rgba(255,77,77,.3);"
+            onclick="purgeOldLogs()">
+            <i class="fas fa-trash-alt"></i> Purge Old Logs
+        </button>
+        </div>
+                <p class="page-subtitle">Every action, every event — full platform audit trail</p>
         </div>
  
         <!-- STATS ROW -->
@@ -14385,6 +15506,39 @@ async function exportLogsCsv() {
     } catch(e) { showToast('Export failed: ' + e.message, 'error'); }
 }
  
+ // ── Purge old logs ─────────────────────────────────────────────────────────
+async function purgeOldLogs() {
+    const days = prompt(
+        'Purge admin logs older than how many days?\n' +
+        'Type a number (e.g. 90 = purge everything older than 90 days).\n\n' +
+        '⚠️  This is permanent and cannot be undone.',
+        '90'
+    );
+    if (days === null) return; // cancelled
+    const numDays = parseInt(days);
+    if (isNaN(numDays) || numDays < 1) return showToast('Enter a valid number of days', 'error');
+
+    if (!confirm(`Permanently delete all admin logs older than ${numDays} days?\n\nType OK in the next prompt to confirm.`)) return;
+    const confirmWord = prompt('Type PURGE (all caps) to confirm the deletion:');
+    if (confirmWord !== 'PURGE') return showToast('Purge cancelled — confirmation text did not match', 'info');
+
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/logs/purge`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ confirm: 'PURGE', olderThanDays: numDays })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`✅ Purged ${(d.deletedCount||0).toLocaleString()} log entries older than ${numDays} days`, 'success');
+        // Reload logs stats
+        if (typeof fetchLogsStats === 'function') fetchLogsStats();
+    } catch(e) {
+        showToast('Purge failed: ' + e.message, 'error');
+    } finally { hideLoading(); }
+}
+
 // ═════════════════════════════════════════════════════════════════════════
 // FADEIN ANIMATION
 // ═════════════════════════════════════════════════════════════════════════
