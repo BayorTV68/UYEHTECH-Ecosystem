@@ -5105,108 +5105,6 @@ async function _loadAnalyticsHistory() {
     }
 }
 
-async function loadAnalyticsData(period = '7d') {
-    const analyticsPage = document.getElementById('analyticsPage');
-    
-    analyticsPage.innerHTML = `
-        <div class="page-header">
-            <h1 class="page-title">Analytics</h1>
-            <p class="page-subtitle">Track your business performance</p>
-        </div>
-        <div class="filter-section">
-            <div class="filter-grid">
-                <div class="filter-item">
-                    <label class="filter-label">Period</label>
-                    <select class="form-select" onchange="loadAnalyticsData(this.value)">
-                        <option value="7d" ${period === '7d' ? 'selected' : ''}>Last 7 Days</option>
-                        <option value="30d" ${period === '30d' ? 'selected' : ''}>Last 30 Days</option>
-                        <option value="90d" ${period === '90d' ? 'selected' : ''}>Last 90 Days</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="metrics-grid">
-            <div class="metric-item">
-                <div class="metric-value" id="analyticsRevenue">$0</div>
-                <div class="metric-label">Total Revenue</div>
-            </div>
-            <div class="metric-item">
-                <div class="metric-value" id="analyticsOrders">0</div>
-                <div class="metric-label">Total Orders</div>
-            </div>
-            <div class="metric-item">
-                <div class="metric-value" id="analyticsNewUsers">0</div>
-                <div class="metric-label">New Users</div>
-            </div>
-            <div class="metric-item">
-                <div class="metric-value" id="analyticsChats">0</div>
-                <div class="metric-label">New Chats</div>
-            </div>
-            <div class="metric-item">
-                <div class="metric-value" id="analyticsConversion">0%</div>
-                <div class="metric-label">Conversion Rate</div>
-            </div>
-        </div>
-        <div class="table-container">
-            <div class="table-header">
-                <h3 class="table-title">Top Products</h3>
-            </div>
-            <table>
-                <thead>
-                    <tr><th>Product</th><th>Sales</th><th>Revenue</th></tr>
-                </thead>
-                <tbody id="topProductsTable">
-                    <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    `;
-    
-    try {
-        const response = await fetch(`${API_URL}/api/admin/analytics?period=${period}`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            const { dailyStats, userGrowth, productPerformance, chatTrends } = data.analytics;
-            
-            const totalRevenue = dailyStats.reduce((sum, day) => sum + day.revenue, 0);
-            const totalOrders = dailyStats.reduce((sum, day) => sum + day.orders, 0);
-            const completedOrders = dailyStats.reduce((sum, day) => sum + day.completed, 0);
-            const newUsers = userGrowth.reduce((sum, day) => sum + day.count, 0);
-            const newChats = chatTrends ? chatTrends.reduce((sum, day) => sum + day.count, 0) : 0;
-            const conversionRate = totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : 0;
-            
-            document.getElementById('analyticsRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
-            document.getElementById('analyticsOrders').textContent = totalOrders;
-            document.getElementById('analyticsNewUsers').textContent = newUsers;
-            document.getElementById('analyticsChats').textContent = newChats;
-            document.getElementById('analyticsConversion').textContent = `${conversionRate}%`;
-            
-            const topProductsTable = document.getElementById('topProductsTable');
-            if (productPerformance.length > 0) {
-                topProductsTable.innerHTML = productPerformance.map(product => `
-                    <tr>
-                        <td>${product._id}</td>
-                        <td>${product.sales}</td>
-                        <td>$${product.revenue.toFixed(2)}</td>
-                    </tr>
-                `).join('');
-            } else {
-                topProductsTable.innerHTML = '<tr><td colspan="3" style="text-align: center;">No data</td></tr>';
-            }
-        }
-    } catch (error) {
-        console.error('Analytics error:', error);
-        showNotification('Failed to load analytics', 'error');
-    }
-}
-
-console.log('✅ Part 2/5 loaded: Dashboard & Analytics');
-// ========== ADMIN DASHBOARD v7.0 - JAVASCRIPT PART 3 OF 5 ==========
-// Users & Agent Management
 
 // ========== USERS MANAGEMENT ==========
 async function loadUsersData(page = 1, search = '', status = 'all', role = 'all') {
@@ -6599,7 +6497,7 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Product</th><th>Category</th><th>Price</th><th>Download</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+                    <tr><th>Product</th><th>Type</th><th>Category</th><th>Price</th><th>File</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="productsTable">
                     <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
@@ -6632,23 +6530,38 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
                 return;
             }
             
-            tbody.innerHTML = data.products.map(product => `
+            const typeIcon = { download:'📥', music:'🎵', software:'💻', video:'🎬', course:'🎓', ebook:'📖' };
+            tbody.innerHTML = data.products.map(product => {
+                // ✅ FIX: check hostedFile OR legacy downloadLink
+                const hasFile = !!(product.hostedFile?.secureUrl || product.downloadLink);
+                const pType   = product.productType || 'download';
+                return `
                 <tr>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.5rem;">${product.icon || '📦'}</span>
-                            <div>${product.title}</div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:1.3rem;">${product.icon || typeIcon[pType] || '📦'}</span>
+                            <div>
+                                <div style="font-weight:600;">${product.title}</div>
+                                ${product.comparePrice > product.price
+                                    ? `<div style="font-size:.72rem;color:#6b7280;text-decoration:line-through;">$${product.comparePrice.toFixed(2)}</div>`
+                                    : ''}
+                            </div>
                         </div>
                     </td>
-                    <td>${product.category}</td>
-                    <td>$${product.price.toFixed(2)}</td>
                     <td>
-                        ${product.downloadLink ? 
-                            `<span class="download-indicator"><i class="fas fa-check-circle"></i> Active</span>` : 
-                            `<span class="download-indicator no-download"><i class="fas fa-times-circle"></i> Missing</span>`
+                        <span style="font-size:.75rem;background:rgba(255,255,255,.06);
+                               padding:2px 8px;border-radius:4px;text-transform:capitalize;">
+                            ${typeIcon[pType] || ''} ${pType}
+                        </span>
+                    </td>
+                    <td style="font-size:.82rem;color:#9ca3af;">${product.category}</td>
+                    <td style="font-weight:700;color:var(--primary);">$${product.price.toFixed(2)}</td>
+                    <td>
+                        ${hasFile
+                            ? `<span class="download-indicator"><i class="fas fa-check-circle"></i> Ready</span>`
+                            : `<span class="download-indicator no-download"><i class="fas fa-times-circle"></i> Missing</span>`
                         }
                     </td>
-                    <td>${product.stock}</td>
                     <td><span class="status-badge ${product.isActive ? 'status-active' : 'status-inactive'}">${product.isActive ? 'Active' : 'Inactive'}</span></td>
                     <td>
                         <div class="action-btns">
@@ -6660,8 +6573,8 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
                             </button>
                         </div>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
             
             if (data.pagination) {
                 updatePagination('productsPagination', data.pagination, (p) => loadProductsData(p, search, status));
@@ -6747,20 +6660,26 @@ async function handleCreateProduct(event) {
 async function editProduct(productId) {
     try {
         showLoading();
-        const response = await fetch(`${API_URL}/api/products/${productId}`);
+        // ✅ FIX: Use admin route (returns full product including hostedFile, productType etc.)
+        const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
         const data = await response.json();
         
         if (data.success) {
             const product = data.product;
-            document.getElementById('editProductId').value = product._id;
-            document.getElementById('editProductTitle').value = product.title;
-            document.getElementById('editProductDescription').value = product.description;
-            document.getElementById('editProductCategory').value = product.category;
-            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductId').value         = product._id;
+            document.getElementById('editProductTitle').value      = product.title        || '';
+            document.getElementById('editProductDescription').value= product.description  || '';
+            document.getElementById('editProductCategory').value   = product.category     || '';
+            document.getElementById('editProductPrice').value      = product.price        || 0;
             document.getElementById('editProductDownloadLink').value = product.downloadLink || '';
-            document.getElementById('editProductFileSize').value = product.fileSize || '';
-            document.getElementById('editProductIsActive').checked = product.isActive;
-            document.getElementById('editProductIsFeatured').checked = product.isFeatured;
+            document.getElementById('editProductFileSize').value   = product.fileSize     || '';
+            document.getElementById('editProductIsActive').checked = !!product.isActive;
+            document.getElementById('editProductIsFeatured').checked = !!product.isFeatured;
+            // ✅ Store full product on the form for reference during save
+            document.getElementById('editProductForm').dataset.productType = product.productType || 'download';
+            document.getElementById('editProductForm').dataset.comparePrice = product.comparePrice || 0;
             openModal('editProductModal');
         }
         hideLoading();
@@ -6775,17 +6694,20 @@ async function handleUpdateProduct(event) {
     const formData = new FormData(event.target);
     const productId = formData.get('productId');
     
+    const form = event.target;
     const productData = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        category: formData.get('category'),
-        price: parseFloat(formData.get('price')),
+        title:        formData.get('title'),
+        description:  formData.get('description'),
+        category:     formData.get('category'),
+        price:        parseFloat(formData.get('price')),
         downloadLink: formData.get('downloadLink') || '',
-        fileSize: formData.get('fileSize') || '',
-        isActive: formData.get('isActive') === 'on',
-        isFeatured: formData.get('isFeatured') === 'on'
+        fileSize:     formData.get('fileSize')     || '',
+        isActive:     formData.get('isActive')     === 'on',
+        isFeatured:   formData.get('isFeatured')   === 'on',
+        // ✅ FIX: Preserve type-specific fields that were set on creation
+        productType:  form.dataset.productType  || 'download',
+        comparePrice: parseFloat(form.dataset.comparePrice) || 0,
     };
-    
     try {
         showLoading();
         const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
@@ -7851,18 +7773,30 @@ function renderSettingsTab(tab, s) {
         </div>
     `;
 
-    const toggleRow = (label, name, value, desc, danger) => `
+    const toggleRow = (label, name, value, desc, danger) => {
+        // ✅ FIX: Feature flags get an onchange that calls the atomic PATCH route instantly.
+        // Non-feature checkboxes (name not in FEATURE_FLAGS) fall through to the normal save.
+        const FEATURE_FLAGS = [
+            'storeEnabled','blogEnabled','chatEnabled','creatorEnabled','affiliatesEnabled',
+            'allowRegistration','requireEmailVerification','allowGuestCheckout',
+            'bannerEnabled','maintenanceMode'
+        ];
+        const isFlag    = FEATURE_FLAGS.includes(name);
+        const onchange  = isFlag
+            ? `onchange="_patchFeatureFlag('${name}',this.checked)"`
+            : '';
+        return `
         <div class="st-toggle-row ${danger ? 'danger' : ''}">
             <div>
                 <div class="st-toggle-label">${label}</div>
                 ${desc ? `<div class="st-toggle-desc">${desc}</div>` : ''}
             </div>
             <label class="uyeh-toggle">
-                <input type="checkbox" name="${name}" ${value ? 'checked' : ''}>
+                <input type="checkbox" name="${name}" ${value ? 'checked' : ''} ${onchange}>
                 <span class="uyeh-toggle-track"></span>
             </label>
-        </div>
-    `;
+        </div>`;
+    };
 
     const divider = (label) => `
         <div style="display:flex;align-items:center;gap:12px;margin:24px 0 18px;">
@@ -8101,6 +8035,16 @@ function renderSettingsTab(tab, s) {
                 <div class="st-grid-2">
                     ${field('Link URL', 'bannerLink', 'url', s.bannerLink, 'https://uyehtech.netlify.app/marketplace')}
                     ${field('Link Label', 'bannerLinkText', 'text', s.bannerLinkText, 'Shop Now')}
+                </div>
+                <div style="margin-top:16px;">
+                    <button class="btn btn-primary btn-sm" onclick="_saveBannerNow()"
+                        style="gap:6px;">
+                        <i class="fas fa-broadcast-tower"></i> Save Banner &amp; Broadcast Now
+                    </button>
+                    <p style="font-size:.72rem;color:var(--gray);margin-top:6px;">
+                        Instantly pushes banner changes to all live visitors. 
+                        Regular "Save All Settings" also works but may not broadcast.
+                    </p>
                 </div>
                 <small style="color:var(--gray);display:block;margin-top:-12px;margin-bottom:18px;">
                     💡 Leave Link URL empty to hide the button entirely.
@@ -8502,6 +8446,51 @@ function updateMaintenanceQuickCard(s) {
         document.getElementById('maintenanceQuickCard').style.borderColor = 'rgba(255,165,0,.25)';
         document.getElementById('maintenanceQuickCard').style.background  = 'linear-gradient(135deg,rgba(255,165,0,.05),rgba(255,165,0,.10))';
     }
+}
+
+// ✅ FIX: Atomic feature-flag toggle — calls PATCH route, broadcasts live to all visitors
+async function _patchFeatureFlag(key, enabled) {
+    try {
+        const r = await fetch(`${API_URL}/api/admin/settings/feature/${key}`, {
+            method:  'PATCH',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ value: enabled }),
+        });
+        const d = await r.json();
+        if (d.success) {
+            showToast(`✅ ${key} ${d.value ? 'enabled' : 'disabled'} — broadcast to all visitors`, 'success');
+            if (window._adminSettings) window._adminSettings[key] = d.value;
+        } else {
+            showToast(d.message || 'Toggle failed', 'error');
+        }
+    } catch(e) {
+        showToast('Toggle failed: ' + e.message, 'error');
+    }
+}
+
+// ✅ FIX: Save banner via dedicated PATCH route for guaranteed WebSocket broadcast
+async function _saveBannerNow() {
+    try {
+        showLoading();
+        const payload = {
+            enabled:     document.querySelector('[name="bannerEnabled"]')?.checked       ?? false,
+            text:        document.querySelector('[name="bannerText"]')?.value            || '',
+            type:        document.getElementById('bannerTypeSelect')?.value              || 'info',
+            link:        document.querySelector('[name="bannerLink"]')?.value            || '',
+            linkText:    document.querySelector('[name="bannerLinkText"]')?.value        || '',
+            dismissible: document.querySelector('[name="bannerDismissible"]')?.checked  ?? true,
+        };
+        const r = await fetch(`${API_URL}/api/admin/settings/banner`, {
+            method:  'PATCH',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload),
+        });
+        const d = await r.json();
+        showToast(d.success ? `✅ Banner saved and broadcast to all visitors` : d.message,
+                  d.success ? 'success' : 'error');
+    } catch(e) {
+        showToast('Banner save failed: ' + e.message, 'error');
+    } finally { hideLoading(); }
 }
 
 // ── Save settings ─────────────────────────────────────────────────────────────
@@ -8943,7 +8932,8 @@ let creatorState = {
     accountFilter: 'all',
     productFilter: 'pending_review',
     payoutFilter:  'pending',
-    currentPage:   1
+    currentPage:   1,
+    _cache: {}           // ✅ FIX: keyed by "type:filter" e.g. "apps:pending"
 };
 
 
@@ -9147,16 +9137,27 @@ async function loadCreatorApplications() {
 async function fetchCreatorApps() {
     const list = document.getElementById('creatorAppsList');
     if (!list) return;
-    list.innerHTML = '<div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
+
+    // ✅ FIX: Render from cache instantly, then refresh in background
+    const cacheKey = `apps:${creatorState.appFilter}`;
+    if (creatorState._cache[cacheKey]) {
+        renderCreatorApps(creatorState._cache[cacheKey]);
+    } else {
+        list.innerHTML = '<div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
+    }
+
     try {
         const r = await fetch(`${API_URL}/api/admin/creators?status=${creatorState.appFilter}&limit=50`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
         const d = await r.json();
         if (!d.success) throw new Error(d.message);
+        creatorState._cache[cacheKey] = d.creators;   // store in cache
         renderCreatorApps(d.creators);
     } catch (e) {
-        list.innerHTML = `<div class="cr-empty"><i class="fas fa-exclamation-circle"></i><p>${e.message}</p></div>`;
+        if (!creatorState._cache[cacheKey]) {
+            list.innerHTML = `<div class="cr-empty"><i class="fas fa-exclamation-circle"></i><p>${e.message}</p></div>`;
+        }
     }
 }
 
@@ -13670,53 +13671,26 @@ async function loadReviewsData(filter, page) {
 async function _fetchReviews() {
     const wrap = document.getElementById('reviewsTableWrap');
     if (!wrap) return;
+
+    wrap.innerHTML = `<p style="color:var(--gray);padding:20px;">
+        <i class="fas fa-spinner fa-spin"></i> Loading reviews…</p>`;
+
     try {
-        // Use the public reviews endpoint with status filter — no admin-specific list route exists.
-        // We query all reviews across all products by fetching from the admin dashboard data.
-        // Since there's no GET /api/admin/reviews, we pull from a broader search using products.
-        // Strategy: fetch via the general reviews endpoint using status filter hack via productId=all
-        // The PUT route works on any review ID. We need a list — use order-based approach.
-        // Realistic approach: use the Orders endpoint to get recently purchased products,
-        // then aggregate reviews. But simplest correct solution is a DB-side route.
-        // We'll call the public /api/reviews/:productId with productId='all' — this won't work
-        // because the route requires a real productId.
-        //
-        // CORRECT APPROACH: Call /api/admin/dashboard to get products, then per-product reviews.
-        // For a production build, add GET /api/admin/reviews?status=pending to the server.
-        // For now, we fetch the top 20 products and their pending reviews.
-
-        const prodRes = await fetch(`${API_URL}/api/admin/products?limit=100`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const prodData = await prodRes.json();
-        const products = prodData.products || [];
-
-        // Fetch reviews for each product (parallel, cap at 20 products)status=${_reviewsFilter}&page=${_reviewsPage}
-        const reviewChunks = await Promise.allSettled(
-            products.slice(0, 20).map(p =>
-                fetch(`${API_URL}/api/reviews/${p._id}?status=${_reviewsFilter}&page=${_reviewsPage}`, {
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                }).then(r=>r.json()).then(d=>({ product: p, reviews: d.reviews || [] }))
-            )
+        // ✅ FIX: Use the admin reviews route — returns ALL statuses, full metadata,
+        // one request instead of N product requests
+        const r = await fetch(
+            `${API_URL}/api/admin/reviews?status=${_reviewsFilter}&page=${_reviewsPage}&limit=50`,
+            { headers: { 'Authorization': `Bearer ${adminToken}` } }
         );
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
 
-        const allReviews = [];
-        reviewChunks.forEach(res => {
-            if (res.status === 'fulfilled') {
-                const { product, reviews } = res.value;
-                reviews.forEach(r => allReviews.push({ ...r, productTitle: product.title, productId: product._id }));
-            }
-        });
-
-        // Filter by status client-side since public route only returns 'approved'
-        // NOTE: Add GET /api/admin/reviews?status=X to server for full implementation.
-        // Current public route filters to 'approved' only — pending/rejected need admin route.
+        const allReviews = d.reviews || [];
 
         if (!allReviews.length) {
             wrap.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray);">
                 <i class="fas fa-star-half-alt" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
                 No ${_reviewsFilter} reviews found.
-                ${_reviewsFilter==='pending'?'<br><small style="color:#4b5563;">Note: Add GET /api/admin/reviews?status=pending to server for full pending review support.</small>':''}
             </div>`;
             return;
         }
@@ -13726,7 +13700,7 @@ async function _fetchReviews() {
         wrap.innerHTML = `
             <div class="table-container">
                 <div class="table-header">
-                    <h3 class="table-title">${allReviews.length} ${_reviewsFilter} review(s)</h3>
+                    <h3 class="table-title">${allReviews.length} ${_reviewsFilter} review(s) — total: ${d.total || allReviews.length}</h3>
                 </div>
                 <table>
                     <thead><tr>
@@ -13737,6 +13711,7 @@ async function _fetchReviews() {
                     ${allReviews.map(rv => `<tr id="review-row-${rv.id}">
                         <td>
                             <div style="font-weight:600;font-size:.85rem;">${esc(rv.reviewerName||'—')}</div>
+                            <div style="font-size:.68rem;color:#6b7280;">${esc(rv.reviewerEmail||'')}</div>
                             ${rv.verifiedPurchase?`<div style="font-size:.68rem;color:var(--primary);">✅ Verified</div>`:''}
                         </td>
                         <td style="font-size:.8rem;color:#9ca3af;max-width:140px;
@@ -13759,6 +13734,8 @@ async function _fetchReviews() {
                                 font-size:.72rem;color:#6b7280;">
                                 <strong style="color:var(--primary);">Reply:</strong> ${esc(rv.reply.body)}
                             </div>`:''}
+                            ${rv.adminNote?`<div style="margin-top:4px;font-size:.68rem;color:#f59e0b;">
+                                📝 Note: ${esc(rv.adminNote)}</div>`:''}
                         </td>
                         <td style="font-size:.72rem;color:#6b7280;">
                             ${rv.createdAt ? new Date(rv.createdAt).toLocaleDateString() : '—'}
@@ -13784,12 +13761,7 @@ async function _fetchReviews() {
                     </tr>`).join('')}
                     </tbody>
                 </table>
-            </div>
-            <p style="color:#4b5563;font-size:.75rem;margin-top:12px;padding:0 4px;">
-                ⚠️ For full pending review listing, add
-                <code>GET /api/admin/reviews?status=pending&page=1&limit=50</code> to the server
-                and update <code>_fetchReviews()</code> to call it directly.
-            </p>`;
+            </div>`;
     } catch(e) {
         wrap.innerHTML = `<p style="color:var(--error);padding:20px;">Failed to load reviews: ${e.message}</p>`;
     }
@@ -14325,6 +14297,9 @@ async function loadMediaManager() {
                 <button class="btn btn-secondary" onclick="deleteSingleAsset()">Delete</button>
             </div>
         </div>`;
+
+    // ✅ FIX: Auto-browse recent assets on open, same as every other section
+    browseCloudinaryAssets();
 }
 
 let _mediaNextCursor = null;
@@ -14384,11 +14359,20 @@ async function browseCloudinaryAssets(loadMore = false) {
                 ${thumbHtml}
                 <div style="padding:7px 8px;">
                     <div style="font-size:.65rem;color:#9ca3af;word-break:break-all;line-height:1.4;
-                                max-height:2.8em;overflow:hidden;"
-                         title="${asset.publicId}">${asset.publicId}</div>
-                    <div style="font-size:.62rem;color:#6b7280;margin-top:3px;">
-                        ${asset.format.toUpperCase()} · ${kb} KB
-                    </div>
+                            max-height:2.8em;overflow:hidden;"
+                     title="${asset.publicId}">${asset.publicId}</div>
+                ${asset.linkedTo ? `
+                <div style="font-size:.6rem;color:var(--primary);margin-top:2px;
+                            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                     title="${asset.linkedTo}">
+                    🔗 ${asset.linkedTo}
+                </div>` : `
+                <div style="font-size:.6rem;color:#4b5563;margin-top:2px;">
+                    ⚠️ Unlinked
+                </div>`}
+                <div style="font-size:.62rem;color:#6b7280;margin-top:3px;">
+                    ${asset.format.toUpperCase()} · ${kb} KB
+                </div>
                     <div style="font-size:.62rem;color:#6b7280;">
                         ${new Date(asset.createdAt).toLocaleDateString()}
                     </div>
