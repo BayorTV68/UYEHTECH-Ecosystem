@@ -2504,6 +2504,14 @@ select.form-control option { background: var(--ink-3); }
       <span class="nav-icon"><i class="fas fa-wallet"></i></span>
       Payouts
     </a>
+    <a class="nav-item" onclick="switchPage('coupons')" href="#">
+      <span class="nav-icon"><i class="fas fa-tag"></i></span>
+      Coupons
+    </a>
+    <a class="nav-item" onclick="switchPage('buyers')" href="#">
+      <span class="nav-icon"><i class="fas fa-people-group"></i></span>
+      Buyers
+    </a>
 
     <div class="nav-section-label">Audience</div>
     <a class="nav-item" onclick="switchPage('analytics')" href="#">
@@ -2518,6 +2526,10 @@ select.form-control option { background: var(--ink-3); }
       <span class="nav-icon"><i class="fas fa-star"></i></span>
       Reviews
     </a>
+    <a class="nav-item" onclick="switchPage('students')" href="#" id="navStudents" style="display:none;">
+      <span class="nav-icon"><i class="fas fa-graduation-cap"></i></span>
+      Students
+    </a>
 
     <div class="nav-section-label">Account</div>
     <a class="nav-item" onclick="switchPage('store-profile')" href="#">
@@ -2527,7 +2539,7 @@ select.form-control option { background: var(--ink-3); }
     <a class="nav-item" onclick="switchPage('notifications')" href="#">
       <span class="nav-icon"><i class="fas fa-bell"></i></span>
       Notifications
-      <span class="nav-badge" id="notifCount">3</span>
+      <span class="nav-badge" id="notifCount">0</span>
     </a>
     <a class="nav-item" onclick="switchPage('settings')" href="#">
       <span class="nav-icon"><i class="fas fa-sliders"></i></span>
@@ -2596,7 +2608,7 @@ select.form-control option { background: var(--ink-3); }
           <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
         </div>
         <div class="stat-value" id="statRevenue">$0</div>
-        <div class="stat-change up" id="statRevenueChange"><i class="fas fa-arrow-up"></i> 0% this month</div>
+        <div class="stat-change flat" id="statRevenueChange">Loading…</div>
       </div>
       <div class="stat-card amber">
         <div class="stat-card-top">
@@ -2604,23 +2616,23 @@ select.form-control option { background: var(--ink-3); }
           <div class="stat-icon amber"><i class="fas fa-bag-shopping"></i></div>
         </div>
         <div class="stat-value" id="statSales">0</div>
-        <div class="stat-change up" id="statSalesChange"><i class="fas fa-arrow-up"></i> 0 this month</div>
+        <div class="stat-change flat" id="statSalesChange">Loading…</div>
       </div>
       <div class="stat-card blue">
         <div class="stat-card-top">
           <div class="stat-label">Followers</div>
           <div class="stat-icon blue"><i class="fas fa-users"></i></div>
         </div>
-        <div class="stat-value" id="statFollowers">0</div>
-        <div class="stat-change flat" id="statFollowersChange"><i class="fas fa-minus"></i> No change</div>
+       <div class="stat-value" id="statFollowers">0</div>
+        <div class="stat-change flat" id="statFollowersChange">—</div>
       </div>
       <div class="stat-card purple">
         <div class="stat-card-top">
           <div class="stat-label">Products</div>
           <div class="stat-icon purple"><i class="fas fa-box"></i></div>
         </div>
-        <div class="stat-value" id="statProducts">0</div>
-        <div class="stat-change flat" id="statProductsInfo">Live in store</div>
+       <div class="stat-value" id="statProducts">0</div>
+        <div class="stat-change flat" id="statProductsInfo">approved products</div>
       </div>
     </div>
 
@@ -2629,8 +2641,9 @@ select.form-control option { background: var(--ink-3); }
       <div class="card">
         <div class="card-header">
           <div class="section-title">Revenue Overview <span class="stag">Last 8 weeks</span></div>
-          <select class="form-control" style="width:auto;padding:5px 12px;font-size:0.8rem;">
-            <option>Weekly</option><option>Monthly</option>
+          <select class="form-control" id="revenuePeriodSelect" style="width:auto;padding:5px 12px;font-size:0.8rem;" onchange="changeRevenuePeriod(this.value)">
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
           </select>
         </div>
         <div class="card-body">
@@ -3819,13 +3832,20 @@ select.form-control option { background: var(--ink-3); }
 
   <!-- ══ ORDERS PAGE ══ -->
   <div class="page-content" id="page-orders">
-    <div class="section-header" style="margin-bottom:20px;">
+    <div class="section-header" style="margin-bottom:12px;">
       <div class="section-title">Orders <span class="stag" id="ordersTotal">0 total</span></div>
-      <select class="form-control" style="width:auto;padding:7px 12px;font-size:0.82rem;">
-        <option>All Orders</option>
-        <option>Completed</option>
-        <option>Processing</option>
-        <option>Refunded</option>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+      <input type="text" class="form-control" id="orderSearchInput"
+        placeholder="Search by order # or product…"
+        oninput="filterOrdersLocal()"
+        style="max-width:260px;flex:1;padding:7px 12px;font-size:0.82rem;">
+      <select class="form-control" id="orderDateFilter" onchange="filterOrdersLocal()"
+        style="width:auto;padding:7px 12px;font-size:0.82rem;">
+        <option value="0">All Time</option>
+        <option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option>
+        <option value="90">Last 90 days</option>
       </select>
     </div>
 
@@ -3940,11 +3960,12 @@ select.form-control option { background: var(--ink-3); }
       <div class="card-header">
         <div class="section-title">Earnings Ledger</div>
         <div style="display:flex;gap:8px;">
-          <select class="form-control" style="width:auto;padding:6px 10px;font-size:0.78rem;">
-            <option>All Status</option>
-            <option>Confirmed</option>
-            <option>Pending</option>
-            <option>Paid</option>
+          <select class="form-control" id="earningsStatusFilter" onchange="filterEarningsLocal()" style="width:auto;padding:6px 10px;font-size:0.78rem;">
+            <option value="all">All Status</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="reversed">Reversed</option>
           </select>
         </div>
       </div>
@@ -4058,7 +4079,7 @@ select.form-control option { background: var(--ink-3); }
             <div style="margin-top:16px;padding:12px;background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);">
               <div style="font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:6px;">Payout Info</div>
               <div style="font-size:0.82rem;color:var(--soft);line-height:1.6;">
-                Minimum payout: <strong style="color:var(--white);">$50.00</strong><br>
+                Minimum payout: <strong style="color:var(--white);" id="payoutInfoMinimum">$50.00</strong><br>
                 Processing time: <strong style="color:var(--white);">3–5 business days</strong><br>
                 No transfer fees from UYEH TECH.
               </div>
@@ -4097,8 +4118,14 @@ select.form-control option { background: var(--ink-3); }
     <div class="grid-60-40" style="margin-bottom:24px;">
       <!-- Sales trend -->
       <div class="card">
-        <div class="card-header">
-          <div class="section-title">Sales Trend <span class="stag">30 days</span></div>
+       <div class="card-header">
+          <div class="section-title">Sales Trend <span class="stag" id="analyticsPeriodLabel">30 days</span></div>
+          <select class="form-control" id="analyticsPeriodSelect" style="width:auto;padding:5px 12px;font-size:0.8rem;" onchange="changeAnalyticsPeriod(this.value)">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+          </select>
         </div>
         <div class="card-body">
           <div class="chart-container" style="height:180px;">
@@ -4114,33 +4141,14 @@ select.form-control option { background: var(--ink-3); }
           <div class="section-title">Sales by Category</div>
         </div>
         <div class="card-body">
-          <div class="donut-chart" style="background: conic-gradient(var(--green) 0% 60%, var(--blue) 60% 80%, var(--amber) 80% 93%, var(--purple) 93% 100%);">
+         <div class="donut-chart" id="categoryDonut" style="background: conic-gradient(var(--muted) 0% 100%);">
             <div class="donut-center">
               <span class="donut-center-val">0</span>
               <span class="donut-center-lbl">Sales</span>
             </div>
           </div>
-          <div class="cat-legend">
-            <div class="cat-legend-item">
-              <span class="cat-dot" style="background:var(--green);"></span>
-              Templates
-              <span class="cat-legend-pct">60%</span>
-            </div>
-            <div class="cat-legend-item">
-              <span class="cat-dot" style="background:var(--blue);"></span>
-              Components
-              <span class="cat-legend-pct">20%</span>
-            </div>
-            <div class="cat-legend-item">
-              <span class="cat-dot" style="background:var(--amber);"></span>
-              Courses
-              <span class="cat-legend-pct">13%</span>
-            </div>
-            <div class="cat-legend-item">
-              <span class="cat-dot" style="background:var(--purple);"></span>
-              Other
-              <span class="cat-legend-pct">7%</span>
-            </div>
+          <div class="cat-legend" id="categoryLegend">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-size:0.8rem;">Loading…</div>
           </div>
         </div>
       </div>
@@ -4176,28 +4184,7 @@ select.form-control option { background: var(--ink-3); }
           <div class="section-title">Traffic Sources</div>
         </div>
         <div class="card-body" id="trafficSources">
-          <div style="display:flex;flex-direction:column;gap:12px;">
-            <div>
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.83rem;">
-                <span style="color:var(--soft);">Direct / Store Browse</span>
-                <span style="font-family:'JetBrains Mono',monospace;color:var(--white);">0</span>
-              </div>
-              <div class="progress-track"><div class="progress-fill" style="width:0%;"></div></div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.83rem;">
-                <span style="color:var(--soft);">Affiliate Links</span>
-                <span style="font-family:'JetBrains Mono',monospace;color:var(--purple);">0</span>
-              </div>
-              <div class="progress-track"><div class="progress-fill" style="width:0%;background:linear-gradient(90deg,#553c9a,#b794f4);"></div></div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.83rem;">
-                <span style="color:var(--soft);">Search</span>
-                <span style="font-family:'JetBrains Mono',monospace;color:var(--blue);">0</span>
-              </div>
-              <div class="progress-track"><div class="progress-fill" style="width:0%;background:linear-gradient(90deg,#2c5282,#63b3ed);"></div></div>
-            </div>
+          <div style="padding:20px;text-align:center;color:var(--muted);font-size:0.8rem;">Loading…</div>
           </div>
         </div>
       </div>
@@ -4264,6 +4251,135 @@ select.form-control option { background: var(--ink-3); }
     </div>
   </div>
 
+  <!-- ══ COUPONS PAGE ══ -->
+  <div class="page-content" id="page-coupons">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div class="section-title">Coupons <span class="stag" id="couponsTotal">0 total</span></div>
+      <button class="btn btn-primary" onclick="openCouponModal()"><i class="fas fa-plus"></i> New Coupon</button>
+    </div>
+
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Discount</th>
+              <th>Type</th>
+              <th>Uses</th>
+              <th>Expires</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="couponsTableBody">
+            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No coupons yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BUYERS PAGE ══ -->
+  <div class="page-content" id="page-buyers">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div class="section-title">Buyers <span class="stag" id="buyersTotal">0 total</span></div>
+    </div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Purchases</th>
+              <th>Total Spent</th>
+              <th>Last Purchase</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="buyersTableBody">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">Loading buyers…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:16px;text-align:center;display:none;" id="buyersLoadMoreWrap">
+        <button class="btn btn-ghost btn-sm" onclick="loadMoreBuyers()">Load More</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STUDENTS PAGE ══ -->
+  <div class="page-content" id="page-students">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div class="section-title">Students</div>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <label class="form-label" style="margin:0;white-space:nowrap;">Select Course:</label>
+        <select class="form-control" id="studentsCourseSelect" onchange="loadStudents(this.value)" style="max-width:340px;flex:1;">
+          <option value="">— choose a course —</option>
+        </select>
+        <div id="studentsSummary" style="font-size:0.82rem;color:var(--muted);"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body" id="studentsListContainer">
+        <div class="empty-state" style="padding:40px 20px;">
+          <div class="empty-state-icon">🎓</div>
+          <div class="empty-state-title">Select a Course</div>
+          <div class="empty-state-text">Choose a course above to see enrolled students and their progress.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COUPON MODAL ══ -->
+  <div class="modal-overlay" id="couponModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Create Coupon</div>
+        <button class="modal-close-btn" onclick="closeCouponModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Coupon Code</label>
+          <input type="text" class="form-control" id="couponCode" placeholder="e.g. LAUNCH20" style="text-transform:uppercase;">
+          <div class="form-hint">Buyers type this at checkout. Letters and numbers only.</div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Discount</label>
+            <input type="number" class="form-control" id="couponDiscount" placeholder="e.g. 20" min="1" max="80">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-control" id="couponType">
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount ($)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Usage Limit</label>
+            <input type="number" class="form-control" id="couponUsageLimit" placeholder="Leave blank for unlimited" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expires</label>
+            <input type="date" class="form-control" id="couponExpiresAt">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description (optional)</label>
+          <input type="text" class="form-control" id="couponDescription" placeholder="e.g. Launch week discount">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCouponModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createCoupon()"><i class="fas fa-tag"></i> Create Coupon</button>
+      </div>
+    </div>
+  </div>
   <!-- ══ STORE PROFILE PAGE ══ -->
    
   <div class="page-content" id="page-store-profile">
@@ -4743,50 +4859,51 @@ select.form-control option { background: var(--ink-3); }
             <div class="section-title">Notification Preferences</div>
           </div>
           <div class="card-body">
-            <div style="display:flex;flex-direction:column;gap:14px;">
+         <div style="display:flex;flex-direction:column;gap:14px;">
               <div class="toggle-wrap">
                 <label class="toggle-switch">
-                  <input type="checkbox" checked>
+                  <input type="checkbox" id="notifNewSale" checked onchange="saveNotifPrefs()">
                   <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">New sale notifications</span>
               </div>
               <div class="toggle-wrap">
                 <label class="toggle-switch">
-                  <input type="checkbox" checked>
+                  <input type="checkbox" id="notifNewReview" checked onchange="saveNotifPrefs()">
                   <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">Product review alerts</span>
               </div>
               <div class="toggle-wrap">
                 <label class="toggle-switch">
-                  <input type="checkbox" checked>
+                  <input type="checkbox" id="notifNewFollower" checked onchange="saveNotifPrefs()">
                   <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">New follower alerts</span>
               </div>
               <div class="toggle-wrap">
                 <label class="toggle-switch">
-                  <input type="checkbox">
+                  <input type="checkbox" id="notifWeeklySummary" onchange="saveNotifPrefs()">
                   <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">Weekly earnings summary email</span>
               </div>
               <div class="toggle-wrap">
                 <label class="toggle-switch">
-                  <input type="checkbox">
+                  <input type="checkbox" id="notifPayoutUpdate" onchange="saveNotifPrefs()">
                   <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">Payout processed emails</span>
               </div>
               <div class="toggle-wrap">
                 <label class="toggle-switch">
-                  <input type="checkbox" checked>
+                  <input type="checkbox" id="notifProductUpdate" checked onchange="saveNotifPrefs()">
                   <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">Product status updates</span>
               </div>
             </div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:12px;font-family:'JetBrains Mono',monospace;" id="notifPrefsSavedAt"></div>
           </div>
         </div>
 
@@ -4827,7 +4944,7 @@ select.form-control option { background: var(--ink-3); }
       <div class="form-group">
         <label class="form-label">Payout Amount</label>
         <input type="number" class="form-control" id="modalPayoutAmount" placeholder="Enter amount" min="50">
-        <div class="form-hint">Minimum: $50.00</div>
+        <div class="form-hint" id="modalPayoutHint">Minimum: $50.00</div>
       </div>
       <div class="form-group">
         <label class="form-label">Payout Method</label>
@@ -4909,6 +5026,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTagsInput();
   await buildCharts(); 
   buildNotifications();
+  startNotifPolling();
 });
 
 // ── AUTH ─────────────────────────────────────────────────────────
@@ -5019,9 +5137,18 @@ function populateSidebar(c) {
 function populateStats(c) {
   animateCount('statRevenue',  c.totalRevenue  || 0, true);
   animateCount('statSales',    c.totalSales    || 0);
-  animateCount('statFollowers',0); // would come from follow API
-  animateCount('statProducts', c.totalProducts || 0);
+  animateCount('statProducts', c.products?.approved || 0);
   document.getElementById('productsCount').textContent = c.products?.approved || 0;
+
+  // Stat subtexts — use real counts from products breakdown
+  const revChange  = document.getElementById('statRevenueChange');
+  const salesChange = document.getElementById('statSalesChange');
+  const productsInfo = document.getElementById('statProductsInfo');
+
+  if (revChange)    revChange.textContent   = c.totalEarnings > 0 ? `$${(c.totalEarnings||0).toFixed(2)} earned` : 'No earnings yet';
+  if (salesChange)  salesChange.textContent = c.totalSales > 0 ? `${c.totalSales} total sales` : 'No sales yet';
+  if (productsInfo) productsInfo.textContent = `${c.products?.pending||0} pending · ${c.products?.rejected||0} rejected`;
+  // statFollowers is updated by loadFollowers() after it resolves
 }
 
 // ── ANIMATE COUNT ───────────────────────────────────────────────
@@ -5073,6 +5200,10 @@ async function loadProducts() {
       renderProducts(productsData);
       document.getElementById('productsTotal').textContent = productsData.length + ' total';
       renderTopProductsOverview();
+      // Show Students nav only when creator has approved courses
+      const hasCourses = productsData.some(p => p.productType === 'course' && p.status === 'approved');
+      const navStudents = document.getElementById('navStudents');
+      if (navStudents) navStudents.style.display = hasCourses ? 'flex' : 'none';
     }
   } catch(e) {
     console.error('Load products error:', e);
@@ -5092,6 +5223,7 @@ async function loadOrders() {
     if (!data.success) return;
 
     const orders = data.orders || [];
+    ordersRawData = orders;  // store for local filter
     const tbody  = document.getElementById('ordersTableBody');
     const badge  = document.getElementById('ordersCount');
     const total  = document.getElementById('ordersTotal');
@@ -5107,27 +5239,7 @@ async function loadOrders() {
       return;
     }
 
-    tbody.innerHTML = orders.map(order => {
-      const item        = order.items?.[0];
-      const productName = item?.title || '—';
-      const amount      = (order.total || 0).toFixed(2);
-      
-      const itemPrice   = item?.price || 0;
-      const commission  = (itemPrice * 0.8).toFixed(2); // estimated per-item earning
-      const customer    = order.customerInfo?.name || order.customerInfo?.email || '—';
-      const date        = new Date(order.createdAt).toLocaleDateString();
-      const stMap       = { completed:'badge-green', pending:'badge-amber', failed:'badge-red', refunded:'badge-blue' };
-      return `
-        <tr>
-          <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${order.orderReference}</td>
-          <td>${customer}</td>
-          <td class="td-primary">${productName}${order.items?.length > 1 ? ` +${order.items.length-1} more` : ''}</td>
-          <td style="font-family:'JetBrains Mono',monospace;">$${amount}</td>
-          <td style="color:var(--green);font-weight:600;">+$${commission}</td>
-          <td><span class="badge ${stMap[order.status]||'badge-muted'}">${order.status}</span></td>
-          <td style="color:var(--muted);font-size:0.78rem;">${date}</td>
-        </tr>`;
-    }).join('');
+    renderOrdersTable(orders);
 
     // ✅ FIX 10: Populate overview recent orders table
     const recentBody = document.getElementById('recentOrdersBody');
@@ -5150,6 +5262,55 @@ async function loadOrders() {
   } catch(e) {
     console.error('loadOrders error:', e); // ✅ FIX 4
   }
+}
+
+let ordersRawData = [];
+
+function filterOrdersLocal() {
+  const q      = (document.getElementById('orderSearchInput')?.value || '').toLowerCase().trim();
+  const days   = parseInt(document.getElementById('orderDateFilter')?.value) || 0;
+  const cutoff = days > 0 ? Date.now() - days * 86400000 : 0;
+
+  let filtered = [...ordersRawData];
+  if (cutoff)  filtered = filtered.filter(o => new Date(o.createdAt).getTime() >= cutoff);
+  if (q)       filtered = filtered.filter(o =>
+    (o.orderReference || '').toLowerCase().includes(q) ||
+    (o.items || []).some(i => (i.title || '').toLowerCase().includes(q))
+  );
+
+  renderOrdersTable(filtered);
+}
+
+function renderOrdersTable(orders) {
+  const tbody = document.getElementById('ordersTableBody');
+  const badge = document.getElementById('ordersCount');
+  const total = document.getElementById('ordersTotal');
+  if (badge) badge.textContent = orders.length;
+  if (total) total.textContent = orders.length + ' total';
+
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:50px;color:var(--muted);">
+      <div style="font-size:2.5rem;margin-bottom:10px;">🧾</div>No orders match your filter.
+    </td></tr>`;
+    return;
+  }
+  const rate = creatorData?.platformCommissionRate != null ? (1 - creatorData.platformCommissionRate / 100) : 0.8;
+  tbody.innerHTML = orders.map(order => {
+    const item     = order.items?.[0];
+    const itemPrice = item?.price || 0;
+    const commission = (itemPrice * rate).toFixed(2);
+    const stMap    = { completed:'badge-green', pending:'badge-amber', failed:'badge-red', refunded:'badge-blue' };
+    return `
+      <tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${order.orderReference}</td>
+        <td>${order.customerInfo?.name || order.customerInfo?.email || '—'}</td>
+        <td class="td-primary">${item?.title || '—'}${order.items?.length > 1 ? ` +${order.items.length-1} more` : ''}</td>
+        <td style="font-family:'JetBrains Mono',monospace;">$${(order.total || 0).toFixed(2)}</td>
+        <td style="color:var(--green);font-weight:600;">+$${commission}</td>
+        <td><span class="badge ${stMap[order.status]||'badge-muted'}">${order.status}</span></td>
+        <td style="color:var(--muted);font-size:0.78rem;">${new Date(order.createdAt).toLocaleDateString()}</td>
+      </tr>`;
+  }).join('');
 }
 
 // ── LOGO UPLOAD ──────────────────────────────────────────────────
@@ -5975,7 +6136,7 @@ function populateEarnings(data) {
     return `
       <tr>
         <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${new Date(item.createdAt).toLocaleDateString()}</td>
-        <td class="td-primary">${item.description?.split('"')[1] || 'Product'}</td>
+        <td class="td-primary">${item.productId?.title || item.description?.split('"')[1] || 'Product'}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);">${item.orderId?.orderReference || '—'}</td>
         <td>$${(item.saleAmount||0).toFixed(2)}</td>
         <td style="color:var(--red);">-$${(item.platformCut||0).toFixed(2)}</td>
@@ -5983,6 +6144,30 @@ function populateEarnings(data) {
         <td><span class="badge ${stMap[item.status]||'badge-muted'}">${item.status}</span></td>
       </tr>`;
   }).join('');
+}
+
+function filterEarningsLocal() {
+  const status = document.getElementById('earningsStatusFilter')?.value || 'all';
+  const ledger = earningsData?.recentEarnings || [];
+  const filtered = status === 'all' ? ledger : ledger.filter(e => e.status === status);
+  const tbody    = document.getElementById('earningsTableBody');
+  if (!tbody) return;
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">No ${status === 'all' ? '' : status + ' '}entries.</td></tr>`;
+    return;
+  }
+  const stMap = { confirmed:'badge-green', pending:'badge-amber', paid:'badge-blue', reversed:'badge-red' };
+  tbody.innerHTML = filtered.map(item => `
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${new Date(item.createdAt).toLocaleDateString()}</td>
+      <td class="td-primary">${item.productId?.title || item.description?.split('"')[1] || 'Product'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);">${item.orderId?.orderReference || '—'}</td>
+      <td>$${(item.saleAmount||0).toFixed(2)}</td>
+      <td style="color:var(--red);">-$${(item.platformCut||0).toFixed(2)}</td>
+      <td style="color:var(--green);font-weight:600;">+$${(item.earningAmount||0).toFixed(2)}</td>
+      <td><span class="badge ${stMap[item.status]||'badge-muted'}">${item.status}</span></td>
+    </tr>`).join('');
 }
 
 // ── POPULATE PROFILE FORM ────────────────────────────────────────
@@ -6005,7 +6190,7 @@ function populateProfile(c) {
   document.getElementById('storeDescPreview').textContent  = c.storeDescription || 'Your store description.';
   const slug = c.storeSlug || 'my-store';
 document.getElementById('storeLink').textContent = `uyehtech.com/marketplace/${slug}`;
-
+if (c.creatorNotifPrefs) loadNotifPrefs(c.creatorNotifPrefs);
 }
 
 // ── SAVE PROFILE ─────────────────────────────────────────────────
@@ -6304,11 +6489,21 @@ function openLogoPicker() {
 
 // ── PAYOUT ───────────────────────────────────────────────────────
 function openPayoutModal() {
-  const available = parseFloat(document.getElementById('walletBalance').textContent) || 0;
-  if (available < 50) {
-    showToast('⚠️ You need at least $50.00 available to request a payout', 'amber');
+  const available  = parseFloat(document.getElementById('walletBalance').textContent) || 0;
+  const threshold  = creatorData?.payoutThreshold || 50;
+  if (available < threshold) {
+    showToast(`⚠️ You need at least $${threshold.toFixed(2)} available to request a payout`, 'amber');
     return;
   }
+  // Sync input constraints to real threshold and balance
+  const amountInput = document.getElementById('modalPayoutAmount');
+  if (amountInput) {
+    amountInput.min         = threshold;
+    amountInput.max         = available;
+    amountInput.placeholder = `Min: $${threshold.toFixed(2)}`;
+  }
+  const hint = document.getElementById('modalPayoutHint');
+  if (hint) hint.textContent = `Min: $${threshold.toFixed(2)} · Max: $${available.toFixed(2)}`;
   document.getElementById('payoutModal').classList.add('open');
 }
 
@@ -6322,8 +6517,19 @@ async function submitPayout() {
   const method = document.getElementById('modalPayoutMethod').value;
   const notes  = document.getElementById('modalNotes')?.value || ''; // ✅ FIXED
 
-  if (!amount || amount < 50) {
-    showToast('⚠️ Minimum payout is $50.00', 'amber');
+  const threshold    = creatorData?.payoutThreshold || 50;
+  const maxAvailable = parseFloat(document.getElementById('walletBalance').textContent) || 0;
+
+  if (!amount || isNaN(amount) || amount <= 0) {
+    showToast('⚠️ Please enter a valid payout amount', 'amber');
+    return;
+  }
+  if (amount < threshold) {
+    showToast(`⚠️ Minimum payout is $${threshold.toFixed(2)}`, 'amber');
+    return;
+  }
+  if (amount > maxAvailable) {
+    showToast(`⚠️ Amount exceeds available balance ($${maxAvailable.toFixed(2)})`, 'amber');
     return;
   }
 
@@ -6436,6 +6642,60 @@ function loadPayoutDetails(c) {
     const badge = document.getElementById('payoutSavedBadge');
     if (badge) badge.style.display = 'inline-block';
   }
+
+  // Update the payout method display cards on the payouts page
+  updatePayoutCards(c);
+}
+
+function updatePayoutCards(c) {
+  const pd     = c.payoutDetails || {};
+  const method = c.payoutMethod  || 'bank_transfer';
+
+  // Bank transfer
+  const bankDetail = document.querySelector('.payout-method-card:nth-child(1) .pm-detail');
+  if (bankDetail) {
+    if (pd.bankName && pd.accountNumber) {
+      const last4 = pd.accountNumber.slice(-4).padStart(pd.accountNumber.length, '•');
+      bankDetail.textContent = pd.bankName + ' · ' + last4;
+    } else {
+      bankDetail.textContent = 'Not configured';
+    }
+  }
+
+  // PayPal
+  const paypalDetail = document.querySelector('.payout-method-card:nth-child(2) .pm-detail');
+  if (paypalDetail) paypalDetail.textContent = pd.paypalEmail || 'Not configured';
+
+  // Flutterwave
+  const flwDetail = document.querySelector('.payout-method-card:nth-child(3) .pm-detail');
+  if (flwDetail) {
+    if (pd.flwAccount || pd.flwEmail) {
+      flwDetail.textContent = pd.flwEmail || pd.flwAccount;
+    } else {
+      flwDetail.textContent = 'Not configured';
+    }
+  }
+
+  // Crypto
+  const cryptoDetail = document.querySelector('.payout-method-card:nth-child(4) .pm-detail');
+  if (cryptoDetail) {
+    if (pd.cryptoAddress) {
+      const addr = pd.cryptoAddress;
+      cryptoDetail.textContent = addr.slice(0, 6) + '…' + addr.slice(-4);
+    } else {
+      cryptoDetail.textContent = 'Not configured';
+    }
+  }
+
+  // Highlight the active method card
+  document.querySelectorAll('.payout-method-card').forEach((card, i) => {
+    const methods = ['bank_transfer', 'paypal', 'flutterwave', 'crypto'];
+    card.classList.toggle('selected', methods[i] === method);
+  });
+
+  // Update the payout info box threshold from real data
+  const minPayoutEl = document.getElementById('payoutInfoMinimum');
+  if (minPayoutEl) minPayoutEl.textContent = '$' + (c.payoutThreshold || 50).toFixed(2);
 }
 
 // ── SAVE PAYOUT DETAILS ──────────────────────────────────────────
@@ -6636,43 +6896,77 @@ async function loadFollowers() {
   if (!token || !creatorData) return;
 
   try {
-    const creatorId = creatorData._id;
-    const res  = await fetch(`${API_URL}/api/creators/${creatorId}/profile`);
+    // Try the new dedicated endpoint first
+    const res  = await fetch(`${API_URL}/api/creator/followers?limit=50`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     const data = await res.json();
 
-    if (!data.success) return;
+    const totalEl = document.getElementById('followersTotal');
+    const statEl  = document.getElementById('statFollowers');
+    const listEl  = document.getElementById('followersList');
 
-    const count     = data.creator?.followerCount || 0;
-    const totalEl   = document.getElementById('followersTotal');
-    const statEl    = document.getElementById('statFollowers');
+    if (!data.success) {
+      // Fallback to public profile for count only
+      const fallbackRes  = await fetch(`${API_URL}/api/creators/${creatorData._id}/profile`);
+      const fallbackData = await fallbackRes.json();
+      const count = fallbackData.creator?.followerCount || 0;
+      if (totalEl) totalEl.textContent = count + ' total';
+      if (statEl)  animateCount('statFollowers', count);
+      if (listEl)  listEl.innerHTML = `
+        <div style="padding:30px;text-align:center;">
+          <div style="font-size:3rem;font-weight:700;color:var(--green);">${count}</div>
+          <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">people are following your store</div>
+        </div>`;
+      buildBarChart('followersChart', 'followersLabels', 8,
+        ['W-7','W-6','W-5','W-4','W-3','W-2','W-1','Now'], [0,0,0,0,0,0,0,count]);
+      return;
+    }
 
-    if (totalEl) totalEl.textContent = count + ' total';
-    if (statEl)  animateCount('statFollowers', count);
+    const followers = data.followers || [];
+    const total     = data.total     || 0;
 
-    const listEl = document.getElementById('followersList');
+    if (totalEl) totalEl.textContent = total + ' total';
+    if (statEl)  animateCount('statFollowers', total);
+
+    buildBarChart('followersChart', 'followersLabels', 8,
+      ['W-7','W-6','W-5','W-4','W-3','W-2','W-1','Now'], [0,0,0,0,0,0,0,total]);
+
     if (!listEl) return;
 
-    // The Follow schema doesn't store follower names on the store endpoint,
-    // so we show a count card with a CTA
-    if (count === 0) {
+    if (!followers.length) {
       listEl.innerHTML = `
         <div class="empty-state" style="padding:40px 20px;">
           <div class="empty-state-icon">👥</div>
           <div class="empty-state-title">No Followers Yet</div>
           <div class="empty-state-text">Share your store link to grow your audience.</div>
         </div>`;
-    } else {
-      listEl.innerHTML = `
-        <div style="padding:30px;text-align:center;">
-          <div style="font-size:3rem;font-weight:700;color:var(--green);">${count}</div>
-          <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">people are following your store</div>
-        </div>`;
+      return;
     }
 
-    // Update follower growth chart with real count
-    buildBarChart('followersChart', 'followersLabels', 8,
-      ['W1','W2','W3','W4','W5','W6','W7','W8'],
-      [0, 0, 0, 0, 0, 0, 0, count]);
+    function timeAgoShort(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const days = Math.floor(diff / 86400000);
+      if (days === 0) return 'Today';
+      if (days === 1) return 'Yesterday';
+      if (days < 30)  return days + 'd ago';
+      return Math.floor(days / 30) + 'mo ago';
+    }
+
+    listEl.innerHTML = followers.map(f => {
+      const initials = (f.fullName || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      return `
+        <div style="display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--ink-3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;color:var(--green);flex-shrink:0;overflow:hidden;">
+            ${f.profileImage ? `<img src="${f.profileImage}" style="width:100%;height:100%;object-fit:cover;">` : initials}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.86rem;font-weight:600;color:var(--bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.fullName || 'Marketplace User'}</div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap;">${timeAgoShort(f.followedAt)}</div>
+        </div>`;
+    }).join('') + (total > followers.length ? `
+      <div style="padding:14px;text-align:center;font-size:0.8rem;color:var(--muted);">Showing ${followers.length} of ${total} followers</div>` : '');
 
   } catch(e) {
     console.error('loadFollowers error:', e);
@@ -6690,7 +6984,6 @@ function copyStoreLink() {
 
 // ── CHARTS ───────────────────────────────────────────────────────
 async function buildCharts() {
-  // Always render placeholder charts immediately so layout doesn't break
   buildBarChart('revenueChart',   'revenueLabels',   8,  ['W1','W2','W3','W4','W5','W6','W7','W8'], Array(8).fill(0));
   buildBarChart('analyticsChart', 'analyticsLabels', 12, ['','','','','','','','','','','','Today'], Array(12).fill(0));
   buildBarChart('followersChart', 'followersLabels',  8, ['W1','W2','W3','W4','W5','W6','W7','W8'], Array(8).fill(0));
@@ -6699,102 +6992,233 @@ async function buildCharts() {
   if (!token) return;
 
   try {
-    // Use earnings data already fetched — build 30-day chart from recentEarnings
-    const res  = await fetch(`${API_URL}/api/creator/earnings`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await res.json();
-    if (!data.success) return;
+    // Use the global earningsData already loaded by loadCreatorData — no need to re-fetch
+    if (earningsData?.recentEarnings) {
+      const ledger = earningsData.recentEarnings || [];
+      const now    = new Date();
 
-    const ledger   = data.recentEarnings || [];
-    const earnings = data.earnings       || {};
+      // 30-day daily buckets for analytics chart
+      const buckets = {};
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        buckets[d.toISOString().slice(0, 10)] = 0;
+      }
+      ledger.forEach(e => {
+        const key = new Date(e.createdAt).toISOString().slice(0, 10);
+        if (buckets[key] !== undefined) buckets[key] += e.earningAmount || 0;
+      });
+      const dateKeys = Object.keys(buckets);
+      const values   = Object.values(buckets);
+      const labels   = dateKeys.map((d, i) => {
+        if (i === dateKeys.length - 1) return 'Today';
+        if (i % 5 === 0) return d.slice(5);
+        return '';
+      });
+      buildBarChart('analyticsChart', 'analyticsLabels', labels.length, labels, values);
 
-    // Build last 30 days daily totals
-    const days = 30;
-    const now  = new Date();
-    const buckets = {};
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      buckets[d.toISOString().slice(0, 10)] = 0;
+      // Weekly overview chart
+      const weekly = [0,0,0,0,0,0,0,0];
+      ledger.forEach(e => {
+        const daysAgo = Math.floor((now - new Date(e.createdAt)) / 86400000);
+        const week    = Math.min(Math.floor(daysAgo / 7), 7);
+        weekly[7 - week] += e.earningAmount || 0;
+      });
+      buildBarChart('revenueChart', 'revenueLabels', 8,
+        ['W-7','W-6','W-5','W-4','W-3','W-2','W-1','This Wk'], weekly);
+
+      // Donut center
+      const donutVal = document.querySelector('.donut-center-val');
+      if (donutVal) donutVal.textContent = ledger.length;
     }
 
-    ledger.forEach(entry => {
-      const key = new Date(entry.createdAt).toISOString().slice(0, 10);
-      if (buckets[key] !== undefined) buckets[key] += entry.earningAmount || 0;
+    // Analytics page — call the real analytics endpoint
+    const analyticsRes  = await fetch(`${API_URL}/api/creator/analytics?period=30`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
+    const analyticsData = await analyticsRes.json();
 
-    const dateKeys = Object.keys(buckets);
-    const values   = Object.values(buckets);
+    if (!analyticsData.success) return;
 
-    // Show only every 5th label to avoid crowding
-    const labels = dateKeys.map((d, i) => {
-      if (i === dateKeys.length - 1) return 'Today';
-      if (i % 5 === 0) return d.slice(5); // MM-DD
-      return '';
-    });
+    const products  = analyticsData.productPerformance || [];
+    renderCategoryDonut(products);
+    const split     = analyticsData.salesSplit         || {};
+    const overview  = analyticsData.overview           || {};
+    const countries = analyticsData.topBuyerCountries  || [];
 
-    buildBarChart('analyticsChart', 'analyticsLabels', labels.length, labels, values);
+    // KPI — only avg order (real); hide fabricated views/clicks/conversion
+    const kpiAvgOrder   = document.getElementById('kpiAvgOrder');
+    const kpiViews      = document.getElementById('kpiViews');
+    const kpiClicks     = document.getElementById('kpiClicks');
+    const kpiConversion = document.getElementById('kpiConversion');
 
-    // Also rebuild revenue chart on overview using weekly buckets
-    const weekly = [0,0,0,0,0,0,0,0];
-    ledger.forEach(entry => {
-      const daysAgo = Math.floor((now - new Date(entry.createdAt)) / 86400000);
-      const week    = Math.min(Math.floor(daysAgo / 7), 7);
-      weekly[7 - week] += entry.earningAmount || 0;
-    });
-    buildBarChart('revenueChart', 'revenueLabels', 8,
-      ['W-7','W-6','W-5','W-4','W-3','W-2','W-1','This Wk'], weekly);
-
-    // Update KPI boxes on analytics page
-   // Update KPI boxes on analytics page
-    const totalSales = ledger.length;
-    const totalRev   = values.reduce((a,b) => a+b, 0);
+    const totalSales = overview.totalSales || 0;
+    const totalRev   = overview.totalRevenue || 0;
     const avgOrder   = totalSales > 0 ? (totalRev / totalSales) : 0;
 
-    // ✅ FIX 21: Update donut chart center value
-    const donutVal = document.querySelector('.donut-center-val');
-    if (donutVal) donutVal.textContent = totalSales;
+    if (kpiAvgOrder) kpiAvgOrder.textContent = '$' + avgOrder.toFixed(2);
+    // Hide the three fabricated KPIs — they show invented numbers
+   const kpiRepeat = document.getElementById('kpiRepeat');
+    if (kpiViews?.closest('.kpi-box'))      kpiViews.closest('.kpi-box').style.display      = 'none';
+    if (kpiClicks?.closest('.kpi-box'))     kpiClicks.closest('.kpi-box').style.display     = 'none';
+    if (kpiConversion?.closest('.kpi-box')) kpiConversion.closest('.kpi-box').style.display = 'none';
+    if (kpiRepeat?.closest('.kpi-box'))     kpiRepeat.closest('.kpi-box').style.display      = 'none';
 
-    const kpiViews = document.getElementById('kpiViews');
-    const kpiClicks = document.getElementById('kpiClicks');
-    const kpiConversion = document.getElementById('kpiConversion');
-    const kpiAvgOrder = document.getElementById('kpiAvgOrder');
-
-    if (kpiViews)      kpiViews.textContent      = totalSales * 12; // estimated
-    if (kpiClicks)     kpiClicks.textContent      = totalSales * 4;
-    if (kpiConversion) kpiConversion.textContent  = totalSales > 0 ? '25%' : '0%';
-    if (kpiAvgOrder)   kpiAvgOrder.textContent    = '$' + avgOrder.toFixed(2);
-
-    // Top performing products table
-    const productMap = {};
-    ledger.forEach(e => {
-      const name = e.description?.split('"')[1] || 'Product';
-      if (!productMap[name]) productMap[name] = { sales: 0, revenue: 0 };
-      productMap[name].sales++;
-      productMap[name].revenue += e.earningAmount || 0;
-    });
-
+    // Top products table — real data, real names
     const topTbody = document.getElementById('topProductsAnalytics');
     if (topTbody) {
-      const sorted = Object.entries(productMap).sort((a,b) => b[1].revenue - a[1].revenue);
-      if (!sorted.length) {
-        topTbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No data yet.</td></tr>`;
+      if (!products.length) {
+        topTbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No product data yet.</td></tr>`;
       } else {
-        topTbody.innerHTML = sorted.slice(0, 10).map(([name, stat], i) => `
+        topTbody.innerHTML = products.slice(0, 10).map((p, i) => `
           <tr>
-            <td style="color:var(--muted);">${i+1}</td>
-            <td class="td-primary">${name}</td>
-            <td>${stat.sales}</td>
-            <td style="color:var(--green);font-weight:600;">$${stat.revenue.toFixed(2)}</td>
+            <td style="color:var(--muted);">${i + 1}</td>
+            <td class="td-primary">${p.title || '—'}</td>
+            <td>${p.sales}</td>
+            <td style="color:var(--green);font-weight:600;">$${(p.revenue || 0).toFixed(2)}</td>
             <td style="color:var(--muted);">—</td>
           </tr>`).join('');
       }
     }
 
+    // Traffic sources — always render with real values (or zeros if no data)
+    const trafficEl = document.getElementById('trafficSources');
+    if (trafficEl) {
+      const direct    = split.direct          || 0;
+      const affiliate = split.affiliateDriven || 0;
+      const maxVal    = Math.max(direct, affiliate, 1);
+      trafficEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.83rem;">
+              <span style="color:var(--soft);">Direct / Browse</span>
+              <span style="font-family:'JetBrains Mono',monospace;color:var(--white);">${direct}</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:${Math.round((direct/maxVal)*100)}%;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.83rem;">
+              <span style="color:var(--soft);">Affiliate Links</span>
+              <span style="font-family:'JetBrains Mono',monospace;color:var(--purple);">${affiliate}</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:${Math.round((affiliate/maxVal)*100)}%;background:linear-gradient(90deg,#553c9a,#b794f4);"></div></div>
+          </div>
+        </div>`;
+    }
+
   } catch(e) {
     console.error('buildCharts error:', e);
   }
+}
+
+function renderCategoryDonut(productPerformance) {
+  const donut  = document.getElementById('categoryDonut');
+  const legend = document.getElementById('categoryLegend');
+  if (!donut || !legend) return;
+
+  const colorMap = {
+    course:    'var(--purple)',
+    template:  'var(--green)',
+    download:  '#3b82f6',
+    music:     'var(--amber)',
+    software:  'var(--red)',
+    ebook:     '#06b6d4',
+    video:     '#ec4899',
+    script:    '#8b5cf6',
+    component: '#10b981',
+    other:     'var(--muted)',
+  };
+
+  const catMap = {};
+  (productPerformance || []).forEach(p => {
+    const t = p.productType || 'other';
+    catMap[t] = (catMap[t] || 0) + (p.sales || 0);
+  });
+
+  const total = Object.values(catMap).reduce((a, b) => a + b, 0);
+  const donutVal = donut.querySelector('.donut-center-val');
+  if (donutVal) donutVal.textContent = total;
+
+  if (!total) {
+    donut.style.background = 'conic-gradient(var(--muted) 0% 100%)';
+    legend.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.8rem;">No sales data yet.</div>';
+    return;
+  }
+
+  const sorted = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+  let offset = 0;
+  const segments = sorted.map(([type, count]) => {
+    const pct   = (count / total) * 100;
+    const color = colorMap[type] || 'var(--muted)';
+    const seg   = `${color} ${offset.toFixed(1)}% ${(offset + pct).toFixed(1)}%`;
+    offset += pct;
+    return { seg, type, count, pct: pct.toFixed(0), color };
+  });
+
+  donut.style.background = `conic-gradient(${segments.map(s => s.seg).join(', ')})`;
+
+  legend.innerHTML = segments.map(s => `
+    <div class="cat-legend-item">
+      <span class="cat-dot" style="background:${s.color};"></span>
+      ${s.type.charAt(0).toUpperCase() + s.type.slice(1)}
+      <span class="cat-legend-pct">${s.pct}%</span>
+    </div>`).join('');
+}
+
+function changeRevenuePeriod(period) {
+  if (!earningsData?.recentEarnings) return;
+  const ledger = earningsData.recentEarnings;
+  const now    = new Date();
+  if (period === 'monthly') {
+    const months = {};
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months[d.toLocaleString('default', { month: 'short' })] = 0;
+    }
+    ledger.forEach(e => {
+      const key = new Date(e.createdAt).toLocaleString('default', { month: 'short' });
+      if (months[key] !== undefined) months[key] += e.earningAmount || 0;
+    });
+    buildBarChart('revenueChart', 'revenueLabels', 6, Object.keys(months), Object.values(months));
+  } else {
+    const weekly = [0,0,0,0,0,0,0,0];
+    ledger.forEach(e => {
+      const daysAgo = Math.floor((now - new Date(e.createdAt)) / 86400000);
+      const week    = Math.min(Math.floor(daysAgo / 7), 7);
+      weekly[7 - week] += e.earningAmount || 0;
+    });
+    buildBarChart('revenueChart', 'revenueLabels', 8,
+      ['W-7','W-6','W-5','W-4','W-3','W-2','W-1','This Wk'], weekly);
+  }
+}
+
+async function changeAnalyticsPeriod(days) {
+  const label = document.getElementById('analyticsPeriodLabel');
+  if (label) label.textContent = days + ' days';
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/analytics?period=${days}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success) return;
+
+    const products = data.productPerformance || [];
+    const topTbody = document.getElementById('topProductsAnalytics');
+    if (topTbody) {
+      topTbody.innerHTML = !products.length
+        ? `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No data for this period.</td></tr>`
+        : products.slice(0, 10).map((p, i) => `
+            <tr>
+              <td style="color:var(--muted);">${i + 1}</td>
+              <td class="td-primary">${p.title || '—'}</td>
+              <td>${p.sales}</td>
+              <td style="color:var(--green);font-weight:600;">$${(p.revenue || 0).toFixed(2)}</td>
+              <td style="color:var(--muted);">—</td>
+            </tr>`).join('');
+    }
+  } catch(e) { console.error('changeAnalyticsPeriod error:', e); }
 }
 
 function buildBarChart(chartId, labelsId, count, labels, values) {
@@ -6838,7 +7262,7 @@ async function buildNotifications() {
   }
 
   try {
-    const res  = await fetch(`${API_URL}/api/creator/notifications`, {
+    const res  = await fetch(`${API_URL}/api/notifications`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await res.json();
@@ -6874,10 +7298,78 @@ async function buildNotifications() {
   }
 }
 
-function clearNotifications() {
+// ── NOTIFICATION POLLING — refreshes badge every 60s while dashboard is open ──
+let _notifPollInterval = null;
+function startNotifPolling() {
+  if (_notifPollInterval) return;
+  _notifPollInterval = setInterval(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const res  = await fetch(`${API_URL}/api/notifications?limit=1`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const badge = document.getElementById('notifCount');
+      if (badge && data.unreadCount !== undefined) {
+        badge.textContent  = data.unreadCount > 99 ? '99+' : data.unreadCount;
+        badge.style.display = data.unreadCount > 0 ? 'flex' : 'none';
+      }
+    } catch(_) {}
+  }, 60000);
+}
+window.addEventListener('beforeunload', () => { if (_notifPollInterval) clearInterval(_notifPollInterval); });
+
+async function clearNotifications() {
+  const token = localStorage.getItem('token');
   document.querySelectorAll('.notif-unread').forEach(el => el.classList.remove('notif-unread'));
-  document.getElementById('notifCount').textContent = '0';
-  showToast('✅ All notifications marked as read', 'green');
+  const badge = document.getElementById('notifCount');
+  if (badge) badge.textContent = '0';
+  try {
+    await fetch(`${API_URL}/api/notifications/read-all`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    showToast('✅ All notifications marked as read', 'green');
+  } catch (e) { /* silent — UI already updated */ }
+}
+
+function loadNotifPrefs(prefs) {
+  if (!prefs) return;
+  const map = {
+    notifNewSale:      prefs.newSale,
+    notifNewReview:    prefs.newReview,
+    notifNewFollower:  prefs.newFollower,
+    notifWeeklySummary: prefs.weeklySummary,
+    notifPayoutUpdate: prefs.payoutUpdate,
+    notifProductUpdate: prefs.productUpdate,
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = val !== false;
+  });
+}
+
+async function saveNotifPrefs() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  const body = {
+    newSale:       document.getElementById('notifNewSale')?.checked,
+    newReview:     document.getElementById('notifNewReview')?.checked,
+    newFollower:   document.getElementById('notifNewFollower')?.checked,
+    weeklySummary: document.getElementById('notifWeeklySummary')?.checked,
+    payoutUpdate:  document.getElementById('notifPayoutUpdate')?.checked,
+    productUpdate: document.getElementById('notifProductUpdate')?.checked,
+  };
+  try {
+    await fetch(`${API_URL}/api/creator/notifications/preferences`, {
+      method:  'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body)
+    });
+    const hint = document.getElementById('notifPrefsSavedAt');
+    if (hint) hint.textContent = 'Saved at ' + new Date().toLocaleTimeString();
+  } catch(e) { console.error('saveNotifPrefs error:', e); }
 }
 
 // ── PAYOUT METHOD SELECT ─────────────────────────────────────────
@@ -6887,17 +7379,49 @@ function selectPayoutMethod(el) {
 }
 
 // ── DANGER ZONE ──────────────────────────────────────────────────
-function confirmDeactivate() {
-  if (confirm('Deactivate your store? All products will be hidden from the store. You can reactivate by contacting support.')) {
-    showToast('⚠️ Deactivation request sent to admin.', 'amber');
+async function confirmDeactivate() {
+  if (!confirm('Deactivate your store? All products will be hidden from the marketplace. You can reactivate by contacting support.\n\nThis takes effect immediately.')) return;
+  const token = localStorage.getItem('token');
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/store/deactivate`, {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('⏸️ Store deactivated. Redirecting…', 'amber');
+      setTimeout(() => { localStorage.removeItem('token'); window.location.href = '/'; }, 2500);
+    } else {
+      showToast('❌ ' + (data.message || 'Deactivation failed'), 'red');
+    }
+  } catch (e) {
+    showToast('❌ Network error. Contact support.', 'red');
   }
 }
 
-function confirmDelete() {
-  const confirm1 = confirm('⚠️ WARNING: This will permanently delete your creator account and ALL products. This cannot be undone. Continue?');
-  if (confirm1) {
-    const confirm2 = confirm('Are you absolutely sure? Type OK to proceed.');
-    if (confirm2) showToast('❌ Delete request sent. Admin will process within 48h.', 'red');
+async function confirmDelete() {
+  if (!confirm('⚠️ PERMANENT DELETE\n\nThis will permanently delete your creator account and all uploaded products.\n\nThis cannot be undone. Continue?')) return;
+  const typed = prompt('Type DELETE to confirm:');
+  if (typed?.trim().toUpperCase() !== 'DELETE') {
+    showToast('⚠️ Deletion cancelled', 'amber');
+    return;
+  }
+  const token = localStorage.getItem('token');
+  try {
+    const res  = await fetch(`${API_URL}/api/auth/delete-account`, {
+      method:  'DELETE',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ reason: 'Creator self-deletion from dashboard' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Account deleted.', 'red');
+      setTimeout(() => { localStorage.removeItem('token'); window.location.href = '/'; }, 2000);
+    } else {
+      showToast('❌ ' + (data.message || 'Deletion failed'), 'red');
+    }
+  } catch (e) {
+    showToast('❌ Network error. Contact support to delete your account.', 'red');
   }
 }
 
@@ -6915,6 +7439,9 @@ const PAGE_META = {
   'store-profile':{ title: 'Store Profile', breadcrumb: 'Profile' },
   notifications: { title: 'Notifications',  breadcrumb: 'Alerts' },
   settings:      { title: 'Settings',       breadcrumb: 'Account' },
+  coupons:       { title: 'Coupons',        breadcrumb: 'Promotions' },
+  buyers:        { title: 'Buyers',         breadcrumb: 'Customers' },
+  students:      { title: 'Students',       breadcrumb: 'Enrollments' },
 };
 
 // ── SWITCH PAGE ───────────────────────────────────────────────
@@ -6947,8 +7474,14 @@ function switchPage(pageId) {
   closeSidebar();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
- 
-if (pageId === 'settings') loadAccountInfo();
+  if (pageId === 'settings')       loadAccountInfo();
+  if (pageId === 'reviews')        loadReviews();
+  if (pageId === 'followers')      loadFollowers();
+  if (pageId === 'notifications')  buildNotifications();
+  if (pageId === 'analytics')      buildCharts();
+  if (pageId === 'coupons')        loadCoupons();
+  if (pageId === 'buyers')         loadBuyers();
+  if (pageId === 'students')       populateCourseSelector();
 }
 // ── SIDEBAR MOBILE ───────────────────────────────────────────────
 function toggleSidebar() {
@@ -7973,16 +8506,14 @@ async function saveCourseStructure() {
 
 
 //Resubmit button
-// REPLACE WITH:
 async function resubmitProduct(id) {
   if (!id) return;
   const token = localStorage.getItem('token');
   if (!confirm('Resubmit this product for admin review?')) return;
   try {
-    const res  = await fetch(`${API_URL}/api/creator/products/${id}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'pending_review' })
+    const res  = await fetch(`${API_URL}/api/creator/products/${id}/resubmit`, {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     });
     const data = await res.json();
     if (data.success) {
@@ -7993,6 +8524,371 @@ async function resubmitProduct(id) {
     }
   } catch(e) {
     showToast('❌ Network error', 'red');
+  }
+}
+
+// ── COUPONS ──────────────────────────────────────────────────────
+function openCouponModal() { document.getElementById('couponModal').classList.add('open'); }
+function closeCouponModal() {
+  document.getElementById('couponModal').classList.remove('open');
+  ['couponCode','couponDiscount','couponUsageLimit','couponExpiresAt','couponDescription']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+async function loadCoupons() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  const tbody = document.getElementById('couponsTableBody');
+  const total = document.getElementById('couponsTotal');
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--red);">${data.message||'Failed to load'}</td></tr>`; return; }
+    const coupons = data.coupons || [];
+    if (total) total.textContent = coupons.length + ' total';
+    if (!coupons.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No coupons yet. Create your first one.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = coupons.map(c => `
+      <tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--green);">${c.code}</td>
+        <td style="font-weight:600;">${c.discount}${c.type === 'percentage' ? '%' : '$'}</td>
+        <td style="font-size:0.8rem;color:var(--muted);">${c.type}</td>
+        <td style="font-size:0.8rem;color:var(--muted);">${c.usageCount||0}${c.usageLimit ? ' / '+c.usageLimit : ''}</td>
+        <td style="font-size:0.78rem;color:var(--muted);">${c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : '—'}</td>
+        <td><span class="badge ${c.isActive ? 'badge-green' : 'badge-muted'}">${c.isActive ? 'Active' : 'Inactive'}</span></td>
+        <td>
+          ${c.isActive ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:0.75rem;" onclick="deactivateCoupon('${c._id}')">Deactivate</button>` : '—'}
+        </td>
+      </tr>`).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--red);">Network error.</td></tr>`;
+  }
+}
+
+async function createCoupon() {
+  const token = localStorage.getItem('token');
+  const code  = document.getElementById('couponCode')?.value.trim().toUpperCase();
+  const discount = parseFloat(document.getElementById('couponDiscount')?.value);
+  const type  = document.getElementById('couponType')?.value;
+  const usageLimit = parseInt(document.getElementById('couponUsageLimit')?.value) || null;
+  const expiresAt  = document.getElementById('couponExpiresAt')?.value || null;
+  const description = document.getElementById('couponDescription')?.value.trim();
+
+  if (!code)               { showToast('⚠️ Coupon code is required', 'amber'); return; }
+  if (!discount || discount <= 0) { showToast('⚠️ Enter a valid discount amount', 'amber'); return; }
+  if (type === 'percentage' && discount > 80) { showToast('⚠️ Max percentage discount is 80%', 'amber'); return; }
+
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, discount, type, usageLimit, expiresAt, description })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Coupon created!', 'green');
+      closeCouponModal();
+      loadCoupons();
+    } else {
+      showToast('❌ ' + (data.message || 'Failed to create coupon'), 'red');
+    }
+  } catch(e) { showToast('❌ Network error', 'red'); }
+}
+
+async function deactivateCoupon(couponId) {
+  if (!confirm('Deactivate this coupon? Buyers can no longer use it.')) return;
+  const token = localStorage.getItem('token');
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons/${couponId}`, {
+      method:  'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) { showToast('✅ Coupon deactivated', 'green'); loadCoupons(); }
+    else showToast('❌ ' + (data.message || 'Failed'), 'red');
+  } catch(e) { showToast('❌ Network error', 'red'); }
+}
+
+// ── BUYERS ───────────────────────────────────────────────────────
+let buyersPage = 1;
+let buyersHasMore = false;
+
+async function loadBuyers(reset = true) {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  if (reset) { buyersPage = 1; buyersHasMore = false; }
+
+  const tbody = document.getElementById('buyersTableBody');
+  const total = document.getElementById('buyersTotal');
+  const moreWrap = document.getElementById('buyersLoadMoreWrap');
+  if (reset && tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">Loading…</td></tr>`;
+
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/buyers?page=${buyersPage}&limit=20`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--red);">${data.message||'Failed'}</td></tr>`; return; }
+
+    const buyers = data.buyers || [];
+    if (total) total.textContent = (data.total || 0) + ' total';
+    buyersHasMore = data.pagination?.hasMore || false;
+    if (moreWrap) moreWrap.style.display = buyersHasMore ? 'block' : 'none';
+
+    if (!buyers.length && reset) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">No buyers yet.</td></tr>`;
+      return;
+    }
+
+    const rows = buyers.map(b => {
+      const initials = (b.fullName||'B').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:30px;height:30px;border-radius:50%;background:var(--ink-3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:var(--green);flex-shrink:0;overflow:hidden;">
+                ${b.profileImage ? `<img src="${b.profileImage}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : initials}
+              </div>
+              <span class="td-primary">${b.fullName || 'Customer'}</span>
+            </div>
+          </td>
+          <td style="font-family:'JetBrains Mono',monospace;">${b.purchaseCount}</td>
+          <td style="color:var(--green);font-weight:600;">$${b.totalSpent.toFixed(2)}</td>
+          <td style="color:var(--muted);font-size:0.78rem;">${new Date(b.lastPurchase).toLocaleDateString()}</td>
+          <td><span class="badge ${b.isRepeat ? 'badge-green' : 'badge-muted'}">${b.isRepeat ? 'Repeat' : 'One-time'}</span></td>
+        </tr>`;
+    }).join('');
+
+    if (reset) { tbody.innerHTML = rows; }
+    else { tbody.innerHTML += rows; }
+  } catch(e) {
+    if (reset) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--red);">Network error.</td></tr>`;
+  }
+}
+
+async function loadMoreBuyers() {
+  buyersPage++;
+  await loadBuyers(false);
+}
+
+// ── STUDENTS ─────────────────────────────────────────────────────
+function populateCourseSelector() {
+  const select = document.getElementById('studentsCourseSelect');
+  if (!select) return;
+  const courses = (productsData || []).filter(p => p.productType === 'course' && p.status === 'approved');
+  const navStudents = document.getElementById('navStudents');
+  if (navStudents) navStudents.style.display = courses.length ? 'flex' : 'none';
+  if (!courses.length) {
+    select.innerHTML = '<option value="">No approved courses yet</option>';
+    return;
+  }
+  select.innerHTML = '<option value="">— choose a course —</option>' +
+    courses.map(p => `<option value="${p._id}">${p.title}</option>`).join('');
+}
+
+async function loadStudents(courseId) {
+  if (!courseId) return;
+  const token     = localStorage.getItem('token');
+  const container = document.getElementById('studentsListContainer');
+  const summary   = document.getElementById('studentsSummary');
+  if (!container) return;
+  container.innerHTML = `<div style="padding:30px;text-align:center;color:var(--muted);">Loading students…</div>`;
+
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/products/${courseId}/students?limit=50`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      container.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red);">${data.message}</div>`;
+      return;
+    }
+    if (summary) summary.textContent = `${data.totalEnrolled} enrolled · ${data.completedCount} completed · ${data.completionRate}% completion rate`;
+    if (!data.students?.length) {
+      container.innerHTML = `
+        <div class="empty-state" style="padding:40px 20px;">
+          <div class="empty-state-icon">🎓</div>
+          <div class="empty-state-title">No Students Yet</div>
+          <div class="empty-state-text">Students appear here once someone purchases this course.</div>
+        </div>`;
+      return;
+    }
+    container.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead><tr><th>Student</th><th>Progress</th><th>Chapters</th><th>Time Spent</th><th>Last Active</th><th>Certificate</th></tr></thead>
+          <tbody>
+            ${data.students.map(s => {
+              const initials = (s.fullName||'S').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+              const mins = Math.round((s.timeSpent||0)/60);
+              return `
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--ink-3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--green);flex-shrink:0;overflow:hidden;">
+                        ${s.profileImage ? `<img src="${s.profileImage}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : initials}
+                      </div>
+                      <span class="td-primary">${s.fullName}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div class="progress-track" style="width:80px;flex-shrink:0;">
+                        <div class="progress-fill" style="width:${s.completionPct}%;${s.completionPct===100?'background:var(--green);':''}"></div>
+                      </div>
+                      <span style="font-size:0.78rem;font-family:'JetBrains Mono',monospace;color:${s.completionPct===100?'var(--green)':'var(--soft)'};">${s.completionPct}%</span>
+                    </div>
+                  </td>
+                  <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;">${s.completedChapters} / ${data.totalChapters}</td>
+                  <td style="font-size:0.8rem;color:var(--muted);">${mins>=60?Math.floor(mins/60)+'h '+(mins%60)+'m':mins+'m'}</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">${new Date(s.lastAccessedAt).toLocaleDateString()}</td>
+                  <td style="font-size:1rem;">${s.certificateIssued?'🏆':'—'}</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red);">Failed to load students.</div>`;
+  }
+}
+
+// ── REVIEWS ──────────────────────────────────────────────────────
+async function loadReviews() {
+  const token = localStorage.getItem('token');
+  if (!token || !creatorData) return;
+
+  const listEl   = document.getElementById('reviewsList');
+  const ratingEl = document.getElementById('avgRating');
+  if (!listEl) return;
+
+  listEl.innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted);">Loading reviews…</div>`;
+
+  try {
+    const productsRes  = await fetch(`${API_URL}/api/creator/products`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const productsData = await productsRes.json();
+    const approved     = (productsData.products || []).filter(p => p.status === 'approved');
+
+    if (!approved.length) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">⭐</div>
+          <div class="empty-state-title">No Approved Products</div>
+          <div class="empty-state-text">Reviews appear once your products are approved.</div>
+        </div>`;
+      return;
+    }
+
+    const allReviews = [];
+    let totalRating  = 0;
+
+    await Promise.all(approved.map(async p => {
+      try {
+        const productId = p.productId?._id || p.productId || p._id;
+        const r    = await fetch(`${API_URL}/api/reviews/${productId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const d    = await r.json();
+        if (d.success && d.reviews?.length) {
+          d.reviews.forEach(rv => {
+            allReviews.push({ ...rv, productTitle: p.title, creatorProductId: p._id });
+            totalRating += rv.rating || 0;
+          });
+        }
+      } catch(_) {}
+    }));
+
+    allReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!allReviews.length) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">⭐</div>
+          <div class="empty-state-title">No Reviews Yet</div>
+          <div class="empty-state-text">Reviews appear here after customers rate your products.</div>
+        </div>`;
+      return;
+    }
+
+    if (ratingEl) ratingEl.textContent = (totalRating / allReviews.length).toFixed(1);
+
+    const stars = n => Array.from({ length: 5 }, (_, i) =>
+      `<span style="color:${i < n ? 'var(--amber)' : 'var(--line)'};">★</span>`).join('');
+
+    listEl.innerHTML = allReviews.map(rv => {
+      const hasReply = rv.reply?.body;
+      return `
+        <div style="padding:18px 0;border-bottom:1px solid var(--line);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;color:var(--bright);">${rv.reviewerName || 'Verified Buyer'}</div>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">on <em>${rv.productTitle || '—'}</em></div>
+            </div>
+            <div style="text-align:right;">
+              <div>${stars(rv.rating)}</div>
+              <div style="font-size:0.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">${new Date(rv.createdAt).toLocaleDateString()}</div>
+            </div>
+          </div>
+          ${rv.title ? `<div style="font-weight:600;font-size:0.85rem;color:var(--white);margin-bottom:4px;">${rv.title}</div>` : ''}
+          <div style="font-size:0.84rem;color:var(--soft);line-height:1.55;">${rv.body || ''}</div>
+          ${hasReply ? `
+            <div style="margin-top:12px;padding:12px;background:var(--ink-3);border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+              <div style="font-size:0.72rem;color:var(--green);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:4px;">Your Reply · ${new Date(rv.reply.repliedAt).toLocaleDateString()}</div>
+              <div style="font-size:0.83rem;color:var(--soft);">${rv.reply.body}</div>
+            </div>` : `
+            <div style="margin-top:10px;">
+              <div id="replyForm_${rv._id}" style="display:none;margin-top:8px;">
+                <textarea id="replyText_${rv._id}" class="form-control" rows="2"
+                  placeholder="Write a reply…"
+                  style="resize:vertical;margin-bottom:8px;font-size:0.83rem;"></textarea>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-primary btn-sm" onclick="submitReviewReply('${rv._id}','${rv.creatorProductId}')">
+                    <i class="fas fa-reply"></i> Post Reply
+                  </button>
+                  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('replyForm_${rv._id}').style.display='none'">Cancel</button>
+                </div>
+              </div>
+              <button class="btn btn-ghost btn-sm" style="margin-top:6px;font-size:0.78rem;"
+                onclick="document.getElementById('replyForm_${rv._id}').style.display='block';this.style.display='none'">
+                <i class="fas fa-reply"></i> Reply
+              </button>
+            </div>`}
+        </div>`;
+    }).join('');
+  } catch(e) {
+    console.error('loadReviews error:', e);
+    listEl.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red);">Failed to load reviews.</div>`;
+  }
+}
+
+async function submitReviewReply(reviewId, productId) {
+  const token   = localStorage.getItem('token');
+  const textarea = document.getElementById(`replyText_${reviewId}`);
+  const reply   = textarea?.value?.trim();
+  if (!reply) { showToast('⚠️ Reply text is required', 'amber'); return; }
+  if (reply.length > 1000) { showToast('⚠️ Reply must be under 1000 characters', 'amber'); return; }
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/products/${productId}/reviews/${reviewId}/reply`, {
+      method:  'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ reply })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Reply posted!', 'green');
+      loadReviews();
+    } else {
+      showToast('❌ ' + (data.message || 'Failed to post reply'), 'red');
+    }
+  } catch(e) {
+    showToast('❌ Network error posting reply', 'red');
   }
 }
 

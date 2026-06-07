@@ -486,12 +486,12 @@ function render(d) {
 
   // Stats
   if (s) {
-    animCount('sOrders', s.totalOrders || 0);
-    animCount('sProducts', s.completedOrders || 0);
-    animCount('sCourses', s.activeCourses || 0);
+    animCount('sOrders',   s.totalOrders || 0);
+    animCount('sProducts', s.productsOwned || s.completedOrders || 0);   // ✅ FIX — was showing order count
+    animCount('sCourses',  s.activeCourses || 0);
     setEl('sSpent', '$' + (s.totalSpent || 0).toFixed(2));
-    setEl('sOrdersMeta', `${s.pendingOrders || 0} pending`);
-    setEl('sCoursesMeta', `${s.completedCourses || 0} completed`);
+    setEl('sOrdersMeta',  `${s.pendingOrders || 0} pending`);
+    setEl('sCoursesMeta', `${s.completedCourses || 0} completed · ${s.enrolledCourses || 0} enrolled`);   // ✅ FIX
   }
 
   // Activity
@@ -502,8 +502,11 @@ function render(d) {
     actEl.innerHTML = d.recentActivity.slice(0, 8).map(a => {
       const cls  = a.type === 'order' ? 'o' : a.type === 'download' ? 'd' : 'c';
       const icon = a.type === 'order' ? 'fa-bag-shopping' : a.type === 'download' ? 'fa-download' : 'fa-graduation-cap';
-      const badge = a.amount ? `<span class="act-badge badge-ok">$${a.amount.toFixed(2)}</span>` :
-                    a.meta?.completionPct ? `<span class="act-badge badge-ok">${Math.round(a.meta.completionPct)}%</span>` : '';
+     const badge = a.amount
+        ? `<span class="act-badge badge-ok">$${a.amount.toFixed(2)}</span>`
+        : (a.completionPct ?? a.meta?.completionPct)
+          ? `<span class="act-badge badge-ok">${Math.round(a.completionPct ?? a.meta.completionPct)}%</span>`
+          : '';                          // ✅ FIX — reads top-level completionPct, also keeps meta fallback
       return `<div class="act-item">
         <div class="act-dot ${cls}"><i class="fas ${icon}"></i></div>
         <div class="act-body">
@@ -538,12 +541,23 @@ function render(d) {
       <div style="margin-top:10px"><a href="/marketplace/affiliate" class="btn btn-primary" style="width:100%;justify-content:center"><i class="fas fa-link"></i>Join Affiliate</a></div>`;
   } else {
     setEl('affLabel', aff.affiliateCode || '');
+    const payoutReady = aff.canRequestPayout;
+    const thresholdNote = aff.payoutThreshold
+      ? `$${(aff.pendingEarnings||0).toFixed(2)} / $${aff.payoutThreshold} threshold` : '';
     aEl.innerHTML = `
       <div class="aff-code-box"><span class="aff-code" id="affLink">${esc(aff.affiliateLink||'')}</span><button class="copy-btn" onclick="copyAff()"><i class="fas fa-copy"></i></button></div>
       <div class="aff-row"><span class="aff-key">Total Clicks</span><span class="aff-val">${aff.totalClicks||0}</span></div>
       <div class="aff-row"><span class="aff-key">Conversions</span><span class="aff-val">${aff.totalConversions||0} (${aff.conversionRate||'0.0'}%)</span></div>
       <div class="aff-row"><span class="aff-key">Total Earned</span><span class="aff-val">$${(aff.totalEarnings||0).toFixed(2)}</span></div>
-      <div class="aff-row"><span class="aff-key">Pending</span><span class="aff-val" style="color:var(--amber)">$${(aff.pendingEarnings||0).toFixed(2)}</span></div>`;
+      <div class="aff-row"><span class="aff-key">Pending Payout</span><span class="aff-val" style="color:var(--amber)">$${(aff.pendingEarnings||0).toFixed(2)}</span></div>
+      <div class="aff-row"><span class="aff-key">Already Paid</span><span class="aff-val" style="color:var(--g)">$${(aff.paidEarnings||0).toFixed(2)}</span></div>
+      ${thresholdNote ? `<div style="font-size:.65rem;color:var(--t3);text-align:center;padding:6px 0;font-family:'JetBrains Mono',monospace;">${thresholdNote}</div>` : ''}
+      ${payoutReady ? `
+      <div style="margin-top:10px">
+        <a href="/marketplace/affiliate" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">
+          <i class="fas fa-money-bill-wave"></i>Request Payout
+        </a>
+      </div>` : ''}`;     // ✅ FIX — shows paidEarnings, threshold, payout CTA when eligible
   }
 
   // Spend chart
@@ -560,26 +574,60 @@ function render(d) {
   // Recommendations
   if (d.recommendations?.length) {
     document.getElementById('recsSection').style.display = 'block';
-    document.getElementById('recGrid').innerHTML = d.recommendations.slice(0,6).map(p => `
+    document.getElementById('recGrid').innerHTML = d.recommendations.slice(0,6).map(p => {
+      const stars     = p.rating ? `${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5 - Math.round(p.rating))}` : '';
+      const socialPrf = p.soldCount > 0
+        ? `<div style="font-size:.6rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:1px;">${stars} ${p.soldCount} sold</div>`
+        : '';
+      const comparePrice = p.comparePrice && p.comparePrice > p.price
+        ? `<span style="text-decoration:line-through;color:var(--t3);font-size:.65rem;margin-left:4px;">$${p.comparePrice.toFixed(2)}</span>` : '';
+      return `
       <a href="/marketplace/product/${esc(p.slug||p.id)}" class="rec-card">
         <div class="rec-thumb">${p.image ? `<img src="${esc(p.image)}" alt="">` : (p.icon || '📦')}</div>
-        <div style="flex:1;min-width:0"><div class="rec-t">${esc(p.title)}</div><div class="rec-p">$${(p.price||0).toFixed(2)}</div></div>
-      </a>`).join('');
+        <div style="flex:1;min-width:0">
+          <div class="rec-t">${esc(p.title)}</div>
+          <div class="rec-p">$${(p.price||0).toFixed(2)}${comparePrice}</div>
+          ${socialPrf}
+        </div>
+      </a>`;                             // ✅ FIX — now shows rating stars, sold count, compare price
+    }).join('');
   }
 
   // Creator banner
   const banner = document.getElementById('cbBanner');
   if (d.creator) {
     banner.style.display = 'flex';
-    if (d.creator.applicationStatus === 'approved') {
-      setEl('cbTitle', `Creator Studio — ${d.creator.storeName}`);
-      setEl('cbSub', `${d.creator.totalSales} sales · $${(d.creator.totalEarnings||0).toFixed(2)} earned · ${d.creator.totalProducts} products`);
+
+    if (d.creator.isSuspended) {                                                    // ✅ ADD — check suspension first
+      banner.style.borderColor  = 'rgba(255,77,77,.3)';
+      banner.style.background   = 'linear-gradient(135deg,rgba(255,77,77,.07),rgba(0,0,0,0))';
+      document.querySelector('#cbBanner .cb-icon').textContent = '⚠️';
+      setEl('cbTitle', 'Creator Account Suspended');
+      setEl('cbSub',   'Your account has been suspended. Please contact support for assistance.');
+      banner.style.cursor = 'default';
+      banner.onclick = null;
+
+    } else if (d.creator.applicationStatus === 'approved') {
+      const pendingNote = d.creator.pendingProducts                                 // ✅ ADD — show pending products count
+        ? ` · ${d.creator.pendingProducts} pending review` : '';
+      const verifiedMark = d.creator.isVerified ? ' ✓' : '';                       // ✅ ADD — verified badge
+      setEl('cbTitle', `Creator Studio — ${d.creator.storeName}${verifiedMark}`);
+      setEl('cbSub',   `${d.creator.totalSales} sales · $${(d.creator.totalEarnings||0).toFixed(2)} earned · ${d.creator.totalProducts} products${pendingNote}`);
       banner.onclick = () => location.href = '/marketplace/creator-dashboard';
+
     } else if (d.creator.applicationStatus === 'pending') {
       setEl('cbTitle', 'Creator Application Pending Review');
-      setEl('cbSub', 'Your application is under review — we\'ll notify you within 24–48 hours.');
+      setEl('cbSub',   "Your application is under review — we'll notify you within 24–48 hours.");
       banner.style.cursor = 'default'; banner.onclick = null;
+
+    } else if (d.creator.applicationStatus === 'rejected') {                       // ✅ ADD — handle rejected state
+      banner.style.borderColor = 'rgba(245,166,35,.3)';
+      document.querySelector('#cbBanner .cb-icon').textContent = '📋';
+      setEl('cbTitle', 'Creator Application — Not Approved');
+      setEl('cbSub',   'Your previous application was not approved. You may apply again.');
+      banner.onclick = () => openCreatorModal();
     }
+
   } else if (!u.isCreator) { banner.style.display = 'flex'; }
 }
 
