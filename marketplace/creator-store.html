@@ -819,6 +819,213 @@
     }
     .cart-nudge-btn:hover { background: #00e07a; transform: scale(1.05); }
 
+    
+/* ── Dropdown trigger button reset ── */
+.nav-link--dropdown {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 20px;
+    color: #d1d5db;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+ 
+.nav-link--dropdown:hover,
+.nav-item--dropdown.open .nav-link--dropdown {
+    color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+}
+ 
+/* ── Chevron rotation ── */
+.nav-chevron {
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+    color: currentColor;
+    opacity: 0.7;
+}
+ 
+.nav-item--dropdown.open .nav-chevron {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+ 
+/* ── Dropdown wrapper positioning ── */
+.nav-item--dropdown {
+    position: relative;
+}
+ 
+/* ── Dropdown panel ── */
+.nav-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    min-width: 260px;
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 255, 136, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 1100;
+}
+ 
+/* Green top accent line */
+.nav-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff88, transparent);
+    border-radius: 2px;
+}
+ 
+.nav-item--dropdown.open .nav-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+}
+ 
+/* ── Dropdown items ── */
+.nav-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+ 
+.nav-dropdown__item:hover {
+    background: rgba(0, 255, 136, 0.08);
+}
+ 
+.nav-dropdown__icon {
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 255, 136, 0.07);
+    border: 1px solid rgba(0, 255, 136, 0.15);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+ 
+.nav-dropdown__label {
+    display: block;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    font-family: 'Montserrat', sans-serif;
+}
+ 
+.nav-dropdown__desc {
+    display: block;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+}
+ 
+/* ── Divider between sections (optional — add class nav-dropdown__divider to a <hr>) ── */
+.nav-dropdown__divider {
+    border: none;
+    border-top: 1px solid rgba(0, 255, 136, 0.1);
+    margin: 6px 12px;
+}
+ 
+/* ══════════════════════════════════════
+   MOBILE — dropdown becomes stacked list
+   ══════════════════════════════════════ */
+@media (max-width: 968px) {
+ 
+    .nav-link--dropdown {
+        width: 100%;
+        padding: 18px 0;
+        font-size: 1.1em;
+        justify-content: space-between;
+        border-radius: 0;
+    }
+ 
+    .nav-item--dropdown {
+        position: static;
+        width: 100%;
+    }
+ 
+    /* On mobile the dropdown is inline, not absolutely positioned */
+    .nav-dropdown {
+        position: static;
+        transform: none !important;
+        min-width: 100%;
+        background: rgba(0, 255, 136, 0.04);
+        border: none;
+        border-left: 2px solid rgba(0, 255, 136, 0.3);
+        border-radius: 0;
+        box-shadow: none;
+        padding: 4px 0 4px 16px;
+        margin-bottom: 4px;
+        backdrop-filter: none;
+        /* collapsed by default on mobile */
+        max-height: 0;
+        overflow: hidden;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: none;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+ 
+    .nav-dropdown::before {
+        display: none;
+    }
+ 
+    .nav-item--dropdown.open .nav-dropdown {
+        max-height: 400px;
+        pointer-events: all;
+        padding: 8px 0 8px 16px;
+    }
+ 
+    .nav-dropdown__item {
+        padding: 10px 8px;
+        border-radius: 6px;
+    }
+ 
+    .nav-dropdown__icon {
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+    }
+ 
+    .nav-dropdown__label {
+        font-size: 0.92rem;
+    }
+ 
+    .nav-dropdown__desc {
+        font-size: 0.78rem;
+    }
+}
+
+
   </style>
 </head>
 <body>
@@ -838,14 +1045,101 @@
       <span class="logo-text">UYEH TECH</span>
     </a>
 
-    <ul class="nav-links" id="navLinks">
-      <li><a href="/about.html"     class="nav-link">About</a></li>
-      <li><a href="/services.html"  class="nav-link">Service</a></li>
-      <li><a href="/projects.html"  class="nav-link">Projects</a></li>
-      <li><a href="/marketplace/" class="nav-link">Store</a></li>
-      <li><a href="/blog/index.html"  class="nav-link">Blogs</a></li>
-      <li><a href="/contact.html"   class="nav-link">Contact</a></li>
-    </ul>
+ <ul class="nav-links" id="navLinks">
+ 
+  <!-- Home -->
+  <li>
+    <a href="/index.html" class="nav-link">Home</a>
+  </li>
+ 
+  <!-- Marketplace (dropdown) -->
+  <li class="nav-item--dropdown" id="dropMarketplace">
+    <button class="nav-link active nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+      Marketplace
+      <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="nav-dropdown" role="menu">
+      <div class="nav-dropdown__section">
+        <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">🛍️</span>
+          <div>
+            <span class="nav-dropdown__label">Shop</span>
+            <span class="nav-dropdown__desc">Browse digital products</span>
+          </div>
+        </a>
+        <a href="/marketplace/login" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">🔐</span>
+          <div>
+            <span class="nav-dropdown__label">Login</span>
+            <span class="nav-dropdown__desc">Access your account</span>
+          </div>
+        </a>
+        <a href="/marketplace/signup" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">🔗</span>
+          <div>
+            <span class="nav-dropdown__label">Sign Up</span>
+            <span class="nav-dropdown__desc">Create account today</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </li>
+ 
+  <!-- Creators' Hub (dropdown) -->
+  <li class="nav-item--dropdown" id="dropCreators">
+    <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+      Creators' Hub
+      <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="nav-dropdown" role="menu">
+      <div class="nav-dropdown__section">
+        <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">👤</span>
+          <div>
+            <span class="nav-dropdown__label">About Me</span>
+            <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
+          </div>
+        </a>
+        <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">⚙️</span>
+          <div>
+            <span class="nav-dropdown__label">Services</span>
+            <span class="nav-dropdown__desc">What I build for clients</span>
+          </div>
+        </a>
+        <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">🗂️</span>
+          <div>
+            <span class="nav-dropdown__label">Portfolio</span>
+            <span class="nav-dropdown__desc">Projects I have delivered</span>
+          </div>
+        </a>
+        <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
+          <span class="nav-dropdown__icon">💬</span>
+          <div>
+            <span class="nav-dropdown__label">Meet Me</span>
+            <span class="nav-dropdown__desc">Personal contact page</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </li>
+ 
+  <!-- Blog -->
+  <li>
+    <a href="/blog/" class="nav-link">Blog</a>
+  </li>
+ 
+  <!-- Contact -->
+  <li>
+    <a href="/contact" class="nav-link">Contact</a>
+  </li>
+ 
+        </ul>
 
     <div class="nav-actions">
       <!-- Cart button — always visible -->
@@ -1439,6 +1733,15 @@
         icon: p.icon || '📦'
       });
       localStorage.setItem('uyehtech_cart', JSON.stringify(cart));
+      // Fire add_to_cart funnel event if visitor arrived via affiliate link
+      const _csRef = getStoredRef();
+      if (_csRef) {
+        fetch(API_URL + '/api/affiliate/track-event', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ affiliateCode: _csRef, eventType: 'add_to_cart', productId: p._id || null })
+        }).catch(() => {});
+      }
       updateCartBadge(cart.length);
       showCartNudge(cart.length, false);
     }
@@ -1598,11 +1901,122 @@
 
     function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
-    /* ══ Mobile Menu ══ */
-    function toggleMobileMenu() {
-      document.getElementById('navLinks').classList.toggle('active');
-      document.getElementById('menuToggle').classList.toggle('active');
+   
+/* ══════════════════════════════════════════════════
+   NAV HAMBURGER
+   ══════════════════════════════════════════════════ */
+         (function () {
+    'use strict';
+ 
+    /* ── Element references ── */
+    var menuToggle  = document.getElementById('menuToggle');
+    var navLinks    = document.getElementById('navLinks');
+    var dropItems   = document.querySelectorAll('.nav-item--dropdown');
+ 
+    /* ── Helper: close all dropdowns ── */
+    function closeAllDropdowns() {
+        dropItems.forEach(function (item) {
+            item.classList.remove('open');
+            var btn = item.querySelector('.nav-link--dropdown');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
     }
+ 
+    /* ── Toggle a single dropdown ── */
+    function toggleDropdown(item) {
+        var isOpen  = item.classList.contains('open');
+        var btn     = item.querySelector('.nav-link--dropdown');
+ 
+        closeAllDropdowns();            /* always close others first */
+ 
+        if (!isOpen) {
+            item.classList.add('open');
+            if (btn) btn.setAttribute('aria-expanded', 'true');
+        }
+    }
+ 
+    /* ── Attach click listeners to each dropdown trigger ── */
+    dropItems.forEach(function (item) {
+        var btn = item.querySelector('.nav-link--dropdown');
+        if (!btn) return;
+ 
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleDropdown(item);
+        });
+    });
+ 
+    /* ── Close on outside click ── */
+    document.addEventListener('click', function (e) {
+        var insideNav = navLinks && navLinks.contains(e.target);
+        if (!insideNav) {
+            closeAllDropdowns();
+        }
+ 
+        /* Also close mobile menu if click is outside nav */
+        if (navLinks && menuToggle) {
+            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        }
+    });
+ 
+    /* ── Close on Escape key ── */
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeAllDropdowns();
+            if (menuToggle) menuToggle.classList.remove('active');
+            if (navLinks)   navLinks.classList.remove('active');
+        }
+    });
+ 
+    /* ── Close dropdowns when a dropdown link is clicked (navigation) ── */
+    document.querySelectorAll('.nav-dropdown__item').forEach(function (link) {
+        link.addEventListener('click', function () {
+            closeAllDropdowns();
+            if (menuToggle) menuToggle.classList.remove('active');
+            if (navLinks)   navLinks.classList.remove('active');
+        });
+    });
+ 
+    /* ── Hamburger toggle (mobile) ── */
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            /* Close any open dropdown when closing mobile menu */
+            if (!navLinks.classList.contains('active')) {
+                closeAllDropdowns();
+            }
+        });
+    }
+ 
+    /* ── Close mobile menu when a plain nav-link is clicked ── */
+    document.querySelectorAll('.nav-links .nav-link:not(.nav-link--dropdown)').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (menuToggle) menuToggle.classList.remove('active');
+            if (navLinks)   navLinks.classList.remove('active');
+            closeAllDropdowns();
+        });
+    });
+ 
+}());
+
+    
+        // Smooth scroll for all links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
 
     /* ══ Close modal on Escape ══ */
     document.addEventListener('keydown', e => {
@@ -1618,20 +2032,23 @@
        ══════════════════════════════════════════════════ */
 
     /* ── Get this user's registered affiliateCode from localStorage ── */
+    // Reads 'uyeh_aff' — the canonical key written by affiliate.html on dashboard load.
     function getMyAffiliateCode() {
       try {
-        const aff = JSON.parse(localStorage.getItem('uyeh_affiliate') || 'null');
+        const aff = JSON.parse(localStorage.getItem('uyeh_aff') || 'null');
         if (aff?.affiliateCode) return aff.affiliateCode;
       } catch (_) {}
       return null;
     }
 
     /* ── Build the affiliate link for a product ── */
+    // Canonical format: /marketplace/{storeSlug}/{productId}?ref={CODE}
+    // Matches the URL format used by the affiliate.html dashboard.
     function buildAffLink(productId) {
       const code = getMyAffiliateCode();
-      const base = window.location.origin + '/marketplace/' + currentSlug;
-      if (!code) return null; // not registered
-      return base + '?product=' + productId + '&ref=' + code;
+      if (!code) return null; // not a registered affiliate
+      const base = window.location.origin + '/marketplace/' + currentSlug + '/' + productId;
+      return base + '?ref=' + encodeURIComponent(code);
     }
 
     /* ── Populate affiliate section when a product modal opens ── */
@@ -1738,47 +2155,52 @@
        ══════════════════════════════════════════════════ */
     (function readAffiliateRef() {
       const params    = new URLSearchParams(window.location.search);
-      const ref       = params.get('ref');
+      const rawRef    = params.get('ref');
       const productId = params.get('product');
 
-      if (ref) {
-        // Save with 30-day expiry
-        localStorage.setItem('uyeh_ref',        ref);
-        localStorage.setItem('uyeh_ref_expiry',  Date.now() + 30 * 24 * 60 * 60 * 1000);
+      if (rawRef) {
+        // ALWAYS uppercase before storing — DB codes are uppercase, attribution depends on this
+        const code        = rawRef.trim().toUpperCase();
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+        // Write canonical keys that checkout.html reads
+        localStorage.setItem('uyeh_ref',        code);
+        localStorage.setItem('uyeh_ref_expiry',  String(Date.now() + THIRTY_DAYS));
         localStorage.setItem('uyeh_ref_product', productId || '');
 
-        // Track the click silently
+        // Track click silently (server also normalises to uppercase as safety net)
         fetch(API_URL + '/api/affiliate/track-click', {
-          method: 'POST',
+          method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ affiliateCode: ref, productId: productId || null })
+          body:    JSON.stringify({ affiliateCode: code, productId: productId || null })
         }).catch(() => {});
 
-        // Clean the URL without reloading
+        // Clean URL — keep ?product= if present, drop ?ref=
         const clean = window.location.pathname +
           (productId ? '?product=' + productId : '');
         history.replaceState(null, '', clean);
       }
 
-      // Auto-open the product if ?product= is present (even without ref)
+      // Auto-open the product modal if ?product= is present (with or without ref)
       if (productId) {
-        // Wait for products to load, then open modal
         window._autoOpenProduct = productId;
       }
     })();
 
-    /* ── Helper used by checkout pages — get stored affiliate ref ── */
+    /* ── Get stored affiliate ref — canonical version matching all other pages ── */
     function getStoredRef() {
+      const code = localStorage.getItem('uyeh_ref');
+      if (!code) return null;
       const expiry = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
-      if (Date.now() > expiry) {
+      // Only expire when expiry was explicitly set AND has passed
+      if (expiry && Date.now() > expiry) {
         localStorage.removeItem('uyeh_ref');
         localStorage.removeItem('uyeh_ref_expiry');
         localStorage.removeItem('uyeh_ref_product');
         return null;
       }
-      return localStorage.getItem('uyeh_ref') || null;
+      return code;
     }
-
   </script>
 </body>
 </html>

@@ -9,15 +9,19 @@
 
   <!-- Open Graph / Social Sharing -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://uyehtech.netlify.app/marketplace/">
+  <meta property="og:url" content="https://uyehtech.com/marketplace/">
   <meta property="og:title" content="UYEH TECH Marketplace — Premium Digital Products">
   <meta property="og:description" content="Browse premium digital products from verified creators. Templates, courses, components, and more.">
-  <meta property="og:image" content="/images/uyehtech-logo.jpg">
+  <meta property="og:image" content="uyehtech.com/images/uyehtech-logo.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="UYEH TECH Marketplace">
   <meta name="twitter:description" content="Premium digital products from verified creators.">
   <meta name="twitter:image" content="/images/uyehtech-logo.jpg">
-
+  <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+  <link rel="canonical" href="https://uyehtech.com/marketplace/">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="UYEH TECH">
+  <meta name="theme-color" content="#00ff88">
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1378,15 +1382,17 @@ let wishlist         = JSON.parse(localStorage.getItem('uyeh_wishlist') || '[]')
 // ── FIX 6: getMyAffCode reads the CANONICAL key ─────────────────────────────
 function getMyAffCode() {
   try {
+    const code = localStorage.getItem('uyeh_ref');
+    if (!code) return null;
     const expiry = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
+    // Only expire when an expiry was explicitly written AND it has passed
     if (expiry && Date.now() > expiry) {
-      // Expired — clean up
       localStorage.removeItem('uyeh_ref');
       localStorage.removeItem('uyeh_ref_expiry');
       localStorage.removeItem('uyeh_ref_product');
       return null;
     }
-    return localStorage.getItem('uyeh_ref') || null;
+    return code;
   } catch(_) { return null; }
 }
 
@@ -2019,6 +2025,15 @@ function addToCart(productId) {
   });
 
   saveCart();
+  // Fire add_to_cart funnel event if visitor arrived via affiliate link
+  const _idxRef = getMyAffCode();
+  if (_idxRef) {
+    fetch(`${API_URL}/api/affiliate/track-event`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ affiliateCode: _idxRef, eventType: 'add_to_cart', productId: productId || null })
+    }).catch(() => {});
+  }
   updateCartUI();
   showNotification(`✅ "${product.title}" added to cart!`);
 }
@@ -2057,18 +2072,21 @@ async function applyCoupon() {
   } catch(e) { showNotification('❌ Failed to apply coupon'); }
 }
 
-
-// ── FIX 4: goToCheckout saves affiliate code to a dedicated key ──────────────
+// ── goToCheckout — canonical keys, clean affiliate handoff ───────────────────
 function goToCheckout() {
   if (!cart.length) { showNotification('⚠️ Your cart is empty'); return; }
   if (!currentUser) {
     showNotification('⚠️ Please login to checkout');
-    setTimeout(() => window.location.href = 'login.html', 1500);
+    setTimeout(() => window.location.href = '/marketplace/login', 1500);
     return;
   }
 
-  // Save cart for checkout page
-  localStorage.setItem('checkout_cart', JSON.stringify(cart));
+  // Write cart under the ONE canonical key all pages use: 'uyehtech_cart'
+  localStorage.setItem('uyehtech_cart', JSON.stringify(cart));
+  // Remove legacy/stale keys that were written but never read by checkout.html
+  localStorage.removeItem('checkout_cart');
+  localStorage.removeItem('cart');
+  localStorage.removeItem('checkout_affiliate_code');
 
   // Save coupon if applied
   if (appliedCoupon) {
@@ -2077,18 +2095,19 @@ function goToCheckout() {
     localStorage.removeItem('checkout_coupon');
   }
 
-  // FIX: Save affiliate code explicitly so checkout.html cannot miss it
-  const affCode = getMyAffCode();
-  if (affCode) {
-    localStorage.setItem('checkout_affiliate_code', affCode);
-  } else {
-    localStorage.removeItem('checkout_affiliate_code');
+  // Fire checkout_start funnel event if visitor arrived via affiliate link
+  const _affCode = getMyAffCode();
+  if (_affCode) {
+    fetch(`${API_URL}/api/affiliate/track-event`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ affiliateCode: _affCode, eventType: 'checkout_start' })
+    }).catch(() => {});
   }
 
   showNotification('🚀 Redirecting to checkout...');
-  setTimeout(() => window.location.href = 'checkout.html', 1000);
+  setTimeout(() => window.location.href = '/marketplace/checkout', 1000);
 }
-
 
 // ── BACK TO TOP ────────────────────────────────────────────────────────────────
 function setupBackToTop() {
@@ -2290,7 +2309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h4 class="footer-column-title">Marketplace</h4>
                         <ul class="footer-links">
                             <li><a href="/marketplace/" class="footer-link">Browse Products</a></li>
-                            <li><a href="/marketplace/creator-apply" class="footer-link">join Cretors</a></li>
+                            <li><a href="/marketplace/creator-apply" class="footer-link">Join Creators</a></li>
                             <li><a href="/marketplace/dashboard" class="footer-link">My Dashboard</a></li>
                             <li><a href="/marketplace/creators" class="footer-link">Browse Creators</a></li>
                             <li><a href="/marketplace/login" class="footer-link">Login to Account</a></li>

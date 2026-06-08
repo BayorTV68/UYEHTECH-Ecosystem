@@ -753,9 +753,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   try { const u = JSON.parse(localStorage.getItem('user')||'null'); if (u) seedSidebar(u); } catch {}
   document.getElementById('menuBtn').onclick = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sbOverlay').classList.toggle('open'); };
   document.getElementById('sbOverlay').onclick = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sbOverlay').classList.remove('open'); };
-  document.getElementById('logoutBtn').onclick = () => { ['token','user','user_orders','uyeh_aff'].forEach(k=>localStorage.removeItem(k)); location.href='/marketplace/login'; };
+  // Full cleanup on logout — clears all affiliate keys so stale refs never persist
+  document.getElementById('logoutBtn').onclick = () => {
+    ['token','user','user_orders','uyeh_aff',
+     'uyeh_ref','uyeh_ref_expiry','uyeh_ref_product','checkout_affiliate_code'
+    ].forEach(k => localStorage.removeItem(k));
+    location.href = '/marketplace/login';
+  };
   document.getElementById('refreshBtn').onclick = () => loadAll(true);
   document.getElementById('joinBtn').onclick = joinAffiliate;
+  // Auto-fill referral code when page is opened via a sub-affiliate join link:
+  // e.g. /marketplace/affiliate?join=1&ref=BASSEY1234
+  const _urlP = new URLSearchParams(window.location.search);
+  const _refV = _urlP.get('ref');
+  if (_refV) {
+    const _joinInput = document.getElementById('joinRefCode');
+    if (_joinInput) _joinInput.value = _refV.trim().toUpperCase();
+  }
   const cached = getCache();
   if (cached) { seedFromCache(cached); showDash(); }
   await loadAll();

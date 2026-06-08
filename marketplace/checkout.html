@@ -927,17 +927,37 @@ let appliedCoupon = null;
 let isFreeOrder = false;
 
 // ========== AFFILIATE REF HELPER ==========
-// Reads the ref code stored by creator-store.html when a buyer clicks an affiliate link.
-// Returns null if no ref is stored or if it has expired (30-day TTL).
+// Reads canonical keys written by index.html / creator-store.html on any ?ref= click.
+// Keys: uyeh_ref (UPPERCASE code) | uyeh_ref_expiry (epoch ms) | uyeh_ref_product (optional)
+// Returns null only when no code is stored OR expiry was set and has passed.
 function getAffiliateRef() {
+    const code = localStorage.getItem('uyeh_ref');
+    if (!code) return null;
     const expiry = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
-    if (Date.now() > expiry) {
+    // Only expire when expiry was explicitly written AND it has passed
+    if (expiry && Date.now() > expiry) {
         localStorage.removeItem('uyeh_ref');
         localStorage.removeItem('uyeh_ref_expiry');
+        localStorage.removeItem('uyeh_ref_product');
         return null;
     }
-    return localStorage.getItem('uyeh_ref') || null;
+    return code;
 }
+
+// ── Fire affiliate funnel event when buyer lands on checkout ─────────────────
+(function fireCheckoutStartEvent() {
+  try {
+    const _c = localStorage.getItem('uyeh_ref');
+    if (!_c) return;
+    const _exp = parseInt(localStorage.getItem('uyeh_ref_expiry') || '0');
+    if (_exp && Date.now() > _exp) return;
+    fetch(API_URL + '/api/affiliate/track-event', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ affiliateCode: _c, eventType: 'checkout_start' })
+    }).catch(() => {});
+  } catch (_) {}
+})();
 
 // ========== INITIALIZE PAGE ==========
 document.addEventListener('DOMContentLoaded', async function() {
@@ -1048,8 +1068,8 @@ function loadCart() {
     console.log('📦 Loading cart...');
     
     try {
-        // ✅ FIX: Read from 'cart' (creator-store.html) OR 'uyehtech_cart' (legacy)
-        const stored = localStorage.getItem('cart') || localStorage.getItem('uyehtech_cart');
+       // Canonical cart key used by all pages: 'uyehtech_cart'
+        const stored = localStorage.getItem('uyehtech_cart');
         cart = stored ? JSON.parse(stored) : [];
         console.log('✅ Cart loaded:', cart.length, 'items');
         
@@ -1311,9 +1331,11 @@ async function handleCheckout(e) {
             // Clear cart — both key variants
             localStorage.removeItem('uyehtech_cart');
             localStorage.removeItem('cart'); 
+            // Clear ALL affiliate attribution keys after order is placed
             localStorage.removeItem('uyeh_ref');
             localStorage.removeItem('uyeh_ref_expiry');
             localStorage.removeItem('uyeh_ref_product');
+            localStorage.removeItem('checkout_affiliate_code');
             localStorage.setItem('last_order', JSON.stringify(result.order));
             
             // Save order for success page
@@ -1418,8 +1440,12 @@ async function verifyPayment(transactionId, orderId) {
         if (result.success) {
             console.log('✅ Payment verified');
             
-            localStorage.removeItem('uyehtech_cart');
-            localStorage.removeItem('cart'); // ✅ FIX: also clear creator-store key
+           localStorage.removeItem('uyehtech_cart');
+            // Clear all affiliate attribution keys on free-order completion
+            localStorage.removeItem('uyeh_ref');
+            localStorage.removeItem('uyeh_ref_expiry');
+            localStorage.removeItem('uyeh_ref_product');
+            localStorage.removeItem('checkout_affiliate_code');
             localStorage.setItem('last_order', JSON.stringify(result.order));
             
             showNotification('✅ Payment successful! Redirecting...', 'success');
