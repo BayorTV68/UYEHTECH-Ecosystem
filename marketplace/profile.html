@@ -443,9 +443,26 @@ a{text-decoration:none;color:inherit}
           <div class="panel">
             <div class="panel-hdr"><div><div class="panel-title"><span class="dot"></span>Security Options</div><div class="panel-sub">Additional account protection</div></div></div>
             <div class="panel-body">
-              <div class="toggle-wrap">
-                <div class="toggle-info"><h4>Two-Factor Authentication</h4><p>Require a verification code in addition to your password</p></div>
-                <label class="toggle"><input type="checkbox" id="toggle2FA" onchange="update2FA(this.checked)"><span class="toggle-slider"></span></label>
+              <div class="toggle-wrap" style="flex-direction:column;align-items:flex-start;gap:14px;">
+                <div class="toggle-info">
+                  <h4>Two-Factor Authentication</h4>
+                  <p>Require a TOTP code from your authenticator app on each login</p>
+                  <div id="twoFAStatusBadge" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:.68rem;font-weight:700;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:20px;border:1px solid;"></div>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="twoFAManageBtn" onclick="open2FAModal()">
+                  <i class="fas fa-shield-halved"></i> <span id="twoFAManageLabel">Manage 2FA</span>
+                </button>
+              </div>
+              <!-- 2FA MODAL -->
+              <div class="modal-overlay" id="twoFAModal" style="z-index:1100;">
+                <div class="modal" style="max-width:420px;">
+                  <div class="modal-hdr">
+                    <div class="modal-title" id="twoFAModalTitle">Two-Factor Authentication</div>
+                    <button class="modal-close" onclick="close2FAModal()"><i class="fas fa-times"></i></button>
+                  </div>
+                  <div class="modal-body" id="twoFAModalBody"></div>
+                  <div class="modal-footer" id="twoFAModalFooter"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -571,7 +588,7 @@ a{text-decoration:none;color:inherit}
         <input class="otp-input" id="otp3" maxlength="1" oninput="otpNext(this,'otp4')" onkeydown="otpBack(event,'otp2')">
         <input class="otp-input" id="otp4" maxlength="1" oninput="otpNext(this,'otp5')" onkeydown="otpBack(event,'otp3')">
         <input class="otp-input" id="otp5" maxlength="1" oninput="otpNext(this,'otp6')" onkeydown="otpBack(event,'otp4')">
-        <input class="otp-input" id="otp6" maxlength="1" onkeydown="otpBack(event,'otp5')">
+        <input class="otp-input" id="otp6" maxlength="1" oninput="if(this.value.length===1)document.getElementById('confirmOtpBtn').click()" onkeydown="otpBack(event,'otp5')">
       </div>
       <div id="otpErr" style="display:none;font-size:.78rem;color:var(--red);text-align:center;margin-bottom:8px"></div>
     </div>
@@ -670,12 +687,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('loadingOverlay').classList.add('fade');
 });
 
-/* ── API helper ── */
-function api(path, opts = {}) {
-  return fetch(API + path, {
+/* ── API helper with auto token-refresh ── */
+async function api(path, opts = {}) {
+  let res = await fetch(API + path, {
     ...opts,
     headers: { 'Authorization': `Bearer ${_token}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
   });
+  if (res.status === 401) {
+    const rt = localStorage.getItem('refreshToken');
+    if (rt) {
+      try {
+        const rr = await fetch(API + '/api/auth/refresh', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken: rt })
+        });
+        const rd = await rr.json();
+        if (rd.success) {
+          _token = rd.accessToken;
+          localStorage.setItem('token', rd.accessToken);
+          localStorage.setItem('refreshToken', rd.refreshToken);
+          res = await fetch(API + path, {
+            ...opts,
+            headers: { 'Authorization': `Bearer ${_token}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
+          });
+        } else { _forceLogout(); return null; }
+      } catch { _forceLogout(); return null; }
+    } else { _forceLogout(); return null; }
+  }
+  return res;
+}
+function _forceLogout() {
+  ['token','refreshToken','user','user_orders'].forEach(k => localStorage.removeItem(k));
+  toast('Session expired — please log in again', 'err');
+  setTimeout(() => { location.href = '/marketplace/login'; }, 1600);
 }
 
 /* ── TAB SWITCHING ── */
@@ -731,11 +775,13 @@ function renderProfile(p) {
   // Stats
   if (p.stats) {
     setEl('stOrders',    p.stats.totalOrders ?? '—');
-    setEl('stOrdersSub', `${p.stats.pendingOrders || 0} pending`);
-    setEl('stSpent',     '$' + (p.stats.totalSpent || 0).toFixed(2));
+    const _pending = Math.max(0, (p.stats.totalOrders||0) - (p.stats.completedOrders||0));
+    setEl('stOrdersSub', `${_pending} pending`);
+    setEl('stSpent',     '$' + Number(p.stats.totalSpent || 0).toFixed(2));
     setEl('stDownloads', p.stats.totalDownloads ?? '—');
-    setEl('stCourses',   (p.stats.activeCourses || 0) + (p.stats.completedCourses ? `+${p.stats.completedCourses}` : ''));
-    setEl('stCoursesSub', `${p.stats.completedCourses || 0} completed`);
+    const _totalC = (p.stats.activeCourses||0) + (p.stats.completedCourses||0);
+    setEl('stCourses',   _totalC || '—');
+    setEl('stCoursesSub', `${p.stats.activeCourses||0} active · ${p.stats.completedCourses||0} done`);
   }
 
   // Personal form
@@ -759,7 +805,7 @@ function renderProfile(p) {
   setEl('acId',   p.id || p._id || '—');
 
   // 2FA toggle
-  document.getElementById('toggle2FA').checked = !!p.twoFactorEnabled;
+  _update2FAStatusBadge(!!p.twoFactorEnabled);
 
   // Social links
   const sl = p.socialLinks || {};
@@ -835,7 +881,7 @@ function renderAffiliate(aff) {
     <div class="pref-row"><span class="pref-key">Total Earned</span><span class="pref-val" style="color:var(--g)">$${(aff.totalEarnings||0).toFixed(2)}</span></div>
     <div class="pref-row"><span class="pref-key">Pending</span><span class="pref-val" style="color:var(--amber)">$${(aff.pendingEarnings||0).toFixed(2)}</span></div>
     <div class="pref-row"><span class="pref-key">Paid Out</span><span class="pref-val">$${(aff.paidEarnings||0).toFixed(2)}</span></div>
-    <div class="pref-row"><span class="pref-key">Conversion Rate</span><span class="pref-val">${aff.conversionRate||'0.0'}%</span></div>
+    <div class="pref-row"><span class="pref-key">Conversion Rate</span><span class="pref-val">${aff.conversionRate ?? (aff.totalClicks > 0 ? ((aff.totalConversions / aff.totalClicks) * 100).toFixed(1) : '0.0')}%</span></div>
     <div class="pref-row"><span class="pref-key">Payout Threshold</span><span class="pref-val">$${aff.payoutThreshold||50}</span></div>
     <div class="pref-row"><span class="pref-key">Member Since</span><span class="pref-val">${aff.joinedAt ? new Date(aff.joinedAt).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—'}</span></div>`;
 }
@@ -1049,18 +1095,180 @@ function otpBack(e, prevId) {
   if (e.key === 'Backspace' && e.target.value === '') document.getElementById(prevId)?.focus();
 }
 
-/* ── 2FA TOGGLE ── */
-async function update2FA(enabled) {
+/* ── 2FA MANAGEMENT ── */
+function _update2FAStatusBadge(enabled) {
+  const b = document.getElementById('twoFAStatusBadge');
+  if (b) {
+    b.textContent = enabled ? '✓ ACTIVE' : '✗ DISABLED';
+    b.style.cssText = enabled
+      ? 'display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:.68rem;font-weight:700;font-family:\'JetBrains Mono\',monospace;padding:3px 10px;border-radius:20px;border:1px solid;background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.3);color:var(--g);'
+      : 'display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:.68rem;font-weight:700;font-family:\'JetBrains Mono\',monospace;padding:3px 10px;border-radius:20px;border:1px solid;background:rgba(255,77,77,.07);border-color:rgba(255,77,77,.22);color:var(--red);';
+  }
+  setEl('ac2FA', enabled ? '✓ Enabled' : '✗ Disabled');
+  const ac = document.getElementById('ac2FA');
+  if (ac) ac.style.color = enabled ? 'var(--g)' : 'var(--t3)';
+  const lbl = document.getElementById('twoFAManageLabel');
+  if (lbl) lbl.textContent = enabled ? 'Disable 2FA' : 'Enable 2FA';
+}
+function open2FAModal() {
+  if (_profile?.twoFactorEnabled) _show2FADisableStep();
+  else _show2FASetupStep1();
+  document.getElementById('twoFAModal').classList.add('open');
+}
+function close2FAModal() {
+  document.getElementById('twoFAModal').classList.remove('open');
+}
+/* ── Setup step 1: explain + generate QR ── */
+function _show2FASetupStep1() {
+  setEl('twoFAModalTitle', 'Enable Two-Factor Auth');
+  document.getElementById('twoFAModalBody').innerHTML = `
+    <p style="font-size:.83rem;color:var(--t2);line-height:1.65;margin-bottom:16px">
+      After enabling, every login will require a 6-digit code from your authenticator app
+      (Google Authenticator, Authy, 1Password, etc.) in addition to your password.
+    </p>
+    <div style="text-align:center;">
+      <button class="btn btn-primary" id="getQRBtn" onclick="_fetch2FASetup()">
+        <i class="fas fa-qrcode"></i> Generate QR Code
+      </button>
+    </div>`;
+  document.getElementById('twoFAModalFooter').innerHTML =
+    '<button class="btn btn-dim" onclick="close2FAModal()">Cancel</button>';
+}
+async function _fetch2FASetup() {
+  const btn = document.getElementById('getQRBtn');
+  setBtnLoading(btn, true);
   try {
-    const r = await api('/api/auth/toggle-2fa', { method: 'POST', body: JSON.stringify({ enabled }) });
+    const r = await api('/api/auth/2fa/setup', { method: 'POST' });
+    if (!r) return;
     const d = await r.json();
     if (!d.success) throw new Error(d.message);
-    setEl('ac2FA', enabled ? '✓ Enabled' : '✗ Disabled');
-    document.getElementById('ac2FA').style.color = enabled ? 'var(--g)' : 'var(--t3)';
-    toast(`Two-factor authentication ${enabled ? 'enabled' : 'disabled'}`, 'ok');
-  } catch (e) {
-    document.getElementById('toggle2FA').checked = !enabled; // revert
-    toast(e.message, 'err');
+    _show2FASetupStep2(d);
+  } catch(e) { toast(e.message || '2FA setup failed', 'err'); setBtnLoading(btn, false); }
+}
+/* ── Setup step 2: show QR + collect confirm code ── */
+function _show2FASetupStep2(data) {
+  setEl('twoFAModalTitle', 'Scan & Verify');
+  document.getElementById('twoFAModalBody').innerHTML = `
+    <p style="font-size:.78rem;color:var(--t2);margin-bottom:10px">1️⃣ Scan this QR code with your authenticator app:</p>
+    <div style="text-align:center;margin-bottom:12px;background:#0a0a0a;border-radius:12px;padding:14px;border:1px solid var(--line2)">
+      <img src="${data.qrCodeUrl}" alt="2FA QR" style="width:190px;height:190px;border-radius:8px;">
+      <div style="font-size:.62rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:8px;">Can't scan? Use manual key:</div>
+      <div onclick="navigator.clipboard.writeText('${data.manualEntryKey}').then(()=>toast('Key copied','ok'))"
+           style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--g);background:var(--g3);border:1px solid var(--line2);border-radius:6px;padding:6px 10px;margin-top:4px;cursor:pointer;word-break:break-all;letter-spacing:.08em;">
+        ${data.manualEntryKey}
+      </div>
+    </div>
+    <p style="font-size:.78rem;color:var(--t2);margin-bottom:10px">2️⃣ Enter the first 6-digit code to activate:</p>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:8px;">
+      ${[0,1,2,3,4,5].map(i=>`<input class="otp-input" id="s2fa${i}" type="text" inputmode="numeric" maxlength="1" style="width:42px;height:48px;font-size:1.3rem;">`).join('')}
+    </div>
+    <div id="s2faErr" style="display:none;font-size:.75rem;color:var(--red);text-align:center;padding:4px 0;"></div>`;
+  document.getElementById('twoFAModalFooter').innerHTML =
+    '<button class="btn btn-dim" onclick="close2FAModal()">Cancel</button>' +
+    '<button class="btn btn-primary" id="confirmSetupBtn" onclick="_confirm2FASetup()"><i class="fas fa-check"></i> Activate 2FA</button>';
+  [0,1,2,3,4,5].forEach(i => {
+    const el = document.getElementById('s2fa'+i); if (!el) return;
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^0-9]/g,'').slice(-1);
+      if (el.value && i < 5) document.getElementById('s2fa'+(i+1)).focus();
+      if (i === 5 && el.value) _confirm2FASetup();
+    });
+    el.addEventListener('keydown', e => { if(e.key==='Backspace'&&!el.value&&i>0) document.getElementById('s2fa'+(i-1)).focus(); });
+  });
+  setTimeout(() => document.getElementById('s2fa0').focus(), 80);
+}
+async function _confirm2FASetup() {
+  const code = [0,1,2,3,4,5].map(i=>document.getElementById('s2fa'+i)?.value||'').join('');
+  const errEl = document.getElementById('s2faErr');
+  if (code.length < 6) { errEl.textContent='Enter all 6 digits'; errEl.style.display='block'; return; }
+  const btn = document.getElementById('confirmSetupBtn');
+  setBtnLoading(btn, true); errEl.style.display='none';
+  try {
+    const r = await api('/api/auth/2fa/confirm', { method:'POST', body: JSON.stringify({ code }) });
+    if (!r) return;
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+    _profile.twoFactorEnabled = true;
+    _update2FAStatusBadge(true);
+    close2FAModal();
+    toast('Two-factor authentication is now active!', 'ok');
+    if (d.backupCodes?.length) _showBackupCodesModal(d.backupCodes);
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display='block';
+    [0,1,2,3,4,5].forEach(i => { const el=document.getElementById('s2fa'+i); if(el) el.value=''; });
+    document.getElementById('s2fa0').focus();
+    setBtnLoading(btn, false);
+  }
+}
+function _showBackupCodesModal(codes) {
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay open'; ov.style.zIndex = '1200';
+  ov.innerHTML = `<div class="modal" style="max-width:460px;">
+    <div class="modal-hdr"><div class="modal-title" style="color:var(--amber)">⚠️ Save Your Backup Codes</div></div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--t2);margin-bottom:12px;line-height:1.6">
+        These <strong>8 codes</strong> are shown <strong style="color:var(--red)">only once</strong>.
+        Each works once if you ever lose your authenticator. Save them somewhere safe.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        ${codes.map(c=>`<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--g);background:var(--g3);border:1px solid var(--line2);border-radius:7px;padding:8px 12px;">${c}</div>`).join('')}
+      </div>
+      <button class="btn btn-dim btn-sm" style="width:100%;"
+        onclick="navigator.clipboard.writeText(${JSON.stringify(codes.join('\n'))}).then(()=>toast('Codes copied!','ok'))">
+        <i class="fas fa-copy"></i> Copy All Codes
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">
+        <i class="fas fa-check"></i> I've Saved These Codes
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+}
+/* ── Disable: requires password + live 2FA code ── */
+function _show2FADisableStep() {
+  setEl('twoFAModalTitle', 'Disable Two-Factor Auth');
+  document.getElementById('twoFAModalBody').innerHTML = `
+    <p style="font-size:.83rem;color:var(--t2);line-height:1.65;margin-bottom:16px">
+      Disabling 2FA reduces your account security. Confirm with your password and a live 2FA code.
+    </p>
+    <div class="f-group">
+      <label class="f-label">Current Password <span class="req">*</span></label>
+      <input class="f-input" type="password" id="dis2FAPwd" placeholder="Your account password" autocomplete="current-password">
+    </div>
+    <div class="f-group" style="margin-top:12px;">
+      <label class="f-label">2FA Code <span class="req">*</span></label>
+      <input class="f-input" type="text" id="dis2FACode" placeholder="6-digit code from your app"
+             inputmode="numeric" maxlength="6"
+             style="font-size:1.1rem;letter-spacing:.25em;text-align:center;font-family:'JetBrains Mono',monospace;">
+    </div>
+    <div id="dis2FAErr" style="display:none;font-size:.78rem;color:var(--red);margin-top:8px;"></div>`;
+  document.getElementById('twoFAModalFooter').innerHTML =
+    '<button class="btn btn-dim" onclick="close2FAModal()">Cancel</button>' +
+    '<button class="btn btn-danger" id="dis2FABtn" onclick="_confirm2FADisable()"><i class="fas fa-lock-open"></i> Disable 2FA</button>';
+}
+async function _confirm2FADisable() {
+  const pwd  = (document.getElementById('dis2FAPwd')?.value||'').trim();
+  const code = (document.getElementById('dis2FACode')?.value||'').trim();
+  const errEl = document.getElementById('dis2FAErr');
+  if (!pwd)  { errEl.textContent='Password is required'; errEl.style.display='block'; return; }
+  if (!code||code.length<6) { errEl.textContent='Enter your 6-digit 2FA code'; errEl.style.display='block'; return; }
+  const btn = document.getElementById('dis2FABtn');
+  setBtnLoading(btn, true); errEl.style.display='none';
+  try {
+    const r = await api('/api/auth/2fa/disable', { method:'POST', body: JSON.stringify({ password:pwd, code }) });
+    if (!r) return;
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+    _profile.twoFactorEnabled = false;
+    _update2FAStatusBadge(false);
+    close2FAModal();
+    toast('Two-factor authentication disabled', 'ok');
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display='block';
+    const ci = document.getElementById('dis2FACode'); if(ci) ci.value='';
+    setBtnLoading(btn, false);
   }
 }
 
@@ -1111,38 +1319,52 @@ function copyAff() {
 
 /* ── DANGER ZONE ── */
 async function deactivateAccount() {
-  const val = document.getElementById('deactivateConfirm').value;
+  const val = (document.getElementById('deactivateConfirm').value || '').trim();
   if (val !== 'DEACTIVATE') { toast('Type DEACTIVATE exactly to confirm', 'err'); return; }
+  const btn = document.querySelector('#deactivateModal .btn-danger');
+  setBtnLoading(btn, true);
   try {
     const r = await api('/api/auth/deactivate', { method: 'POST' });
+    if (!r) return;
     const d = await r.json();
     if (!d.success) throw new Error(d.message);
-    toast('Account deactivated. Redirecting…', 'ok');
+    closeModal('deactivateModal');
+    toast('Account deactivated. Redirecting...', 'ok');
     setTimeout(() => {
-      ['token','user','user_orders'].forEach(k => localStorage.removeItem(k));
+      ['token','refreshToken','user','user_orders'].forEach(k => localStorage.removeItem(k));
       location.href = '/marketplace/login';
     }, 2000);
-  } catch (e) { toast(e.message, 'err'); }
+  } catch (e) {
+    toast(e.message || 'Deactivation failed. Please try again.', 'err');
+    setBtnLoading(btn, false);
+  }
 }
 
 async function deleteAccount() {
-  const val = document.getElementById('deleteConfirm').value;
-  const pwd = document.getElementById('deletePwd').value;
+  const val = (document.getElementById('deleteConfirm').value || '').trim();
+  const pwd = (document.getElementById('deletePwd').value || '');
   if (val !== 'DELETE MY ACCOUNT') { toast('Type DELETE MY ACCOUNT exactly', 'err'); return; }
   if (!pwd) { toast('Password is required', 'err'); return; }
+  const btn = document.querySelector('#deleteModal .btn-danger');
+  setBtnLoading(btn, true);
   try {
     const r = await api('/api/auth/delete-account', {
       method: 'DELETE',
-      body: JSON.stringify({ password: pwd, confirmation: val })
+      body: JSON.stringify({ password: pwd })
     });
+    if (!r) return;
     const d = await r.json();
     if (!d.success) throw new Error(d.message);
-    toast('Account deleted. Goodbye.', 'ok');
+    closeModal('deleteModal');
+    toast('Account permanently deleted. Goodbye.', 'ok');
     setTimeout(() => {
-      ['token','user','user_orders'].forEach(k => localStorage.removeItem(k));
+      ['token','refreshToken','user','user_orders'].forEach(k => localStorage.removeItem(k));
       location.href = '/marketplace/login';
     }, 2000);
-  } catch (e) { toast(e.message, 'err'); }
+  } catch (e) {
+    toast(e.message || 'Deletion failed. Check your password.', 'err');
+    setBtnLoading(btn, false);
+  }
 }
 
 /* ── MODAL HELPERS ── */
