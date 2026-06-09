@@ -22,8 +22,8 @@
   <meta name="robots" content="index, follow">
   <meta name="author" content="UYEH TECH">
   <meta name="theme-color" content="#00ff88">
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Fonts — aligned to UYEH TECH brand (matches affiliate dashboard) -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -32,20 +32,46 @@
        ════════════════════════════════════════════════ */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* ── UYEH TECH brand design system — mirrors affiliate dashboard ── */
     :root {
+      /* Brand greens */
+      --g:            #00ff88;
+      --g2:           #00c96a;
+      --g3:           rgba(0,255,136,.08);
+      --g4:           rgba(0,255,136,.14);
+      --g5:           rgba(0,255,136,.22);
+      /* Backgrounds */
+      --ink:          #07090c;
+      --ink2:         #0c0f14;
+      --ink3:         #111620;
+      --ink4:         #18202e;
+      --card:         #0e1318;
+      /* Borders */
+      --line:         rgba(255,255,255,.06);
+      --line2:        rgba(0,255,136,.18);
+      /* Text */
+      --t1:           #edf2f7;
+      --t2:           #8a96a8;
+      --t3:           #4a5568;
+      /* Accents */
+      --red:          #ff4d4d;
+      --amber:        #f5a623;
+      --blue:         #5b9cf6;
+      --purple:       #a78bfa;
+      --teal:         #2dd4bf;
+      /* Legacy aliases — keep so existing classes don't break */
       --primary:      #00ff88;
-      --primary-dark: #00b359;
-      --dark:         #0a0a0a;
-      --dark-light:   #1a1a1a;
-      --dark-mid:     #141414;
-      --gray:         #9ca3af;
-      --gray-light:   #d1d5db;
-      --error:        #ff4444;
+      --primary-dark: #00c96a;
+      --dark:         #07090c;
+      --dark-light:   #0c0f14;
+      --dark-mid:     #111620;
+      --gray:         #8a96a8;
+      --gray-light:   #edf2f7;
+      --error:        #ff4d4d;
       --success:      #00ff88;
-      --warning:      #ffa500;
-      --purple:       #7b61ff;
-      --card-bg:      #111111;
-      --border:       rgba(0,255,136,0.15);
+      --warning:      #f5a623;
+      --card-bg:      #0e1318;
+      --border:       rgba(0,255,136,.18);
     }
 
     html { scroll-behavior: smooth; }
@@ -1886,7 +1912,114 @@ function viewProduct(productId) {
         <i class="fas fa-shopping-cart"></i> Add to Cart
       </button>
       ${affSection}
+      <!-- ── Reviews ── -->
+      <div id="modalReviews" style="margin-top:28px;border-top:1px solid var(--line);padding-top:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--t1);font-weight:700;">Reviews</span>
+          <span id="modalRatingSummary" style="font-size:.82rem;color:var(--t2);font-family:'JetBrains Mono',monospace;"></span>
+        </div>
+        <div id="modalReviewsList" style="display:flex;flex-direction:column;gap:12px;max-height:260px;overflow-y:auto;padding-right:4px;"></div>
+        <div id="modalWriteReview" style="margin-top:18px;display:none;">
+          <div style="font-size:.82rem;color:var(--g);font-weight:600;margin-bottom:10px;font-family:'JetBrains Mono',monospace;">Write a Review</div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;" id="starPicker">
+            ${[1,2,3,4,5].map(n=>`<span data-star="${n}" onclick="setModalStar(${n})" style="font-size:1.4rem;cursor:pointer;color:var(--t3);transition:color .15s;">★</span>`).join('')}
+          </div>
+          <input id="reviewTitle" placeholder="Review title (optional)" maxlength="120"
+            style="width:100%;padding:9px 12px;background:var(--g3);border:1px solid var(--line2);border-radius:8px;color:var(--t1);font-family:'Montserrat',sans-serif;font-size:.85rem;margin-bottom:8px;outline:none;">
+          <textarea id="reviewBody" placeholder="Share your experience…" maxlength="2000" rows="3"
+            style="width:100%;padding:9px 12px;background:var(--g3);border:1px solid var(--line2);border-radius:8px;color:var(--t1);font-family:'Montserrat',sans-serif;font-size:.85rem;resize:vertical;outline:none;"></textarea>
+          <button onclick="submitModalReview('${product._id}')"
+            style="margin-top:10px;padding:9px 20px;background:var(--g4);border:1px solid var(--line2);border-radius:8px;color:var(--g);font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:background .2s;"
+            onmouseover="this.style.background='var(--g5)'" onmouseout="this.style.background='var(--g4)'">
+            <i class="fas fa-paper-plane"></i> Submit Review
+          </button>
+        </div>
+      </div>
     </div>`;
+
+  modal.classList.add('active');
+
+  // Load reviews for this product
+  loadModalReviews(product._id);
+}
+
+let _modalStar = 0;
+function setModalStar(n) {
+  _modalStar = n;
+  document.querySelectorAll('#starPicker [data-star]').forEach(s => {
+    s.style.color = parseInt(s.dataset.star) <= n ? 'var(--amber)' : 'var(--t3)';
+  });
+}
+
+async function loadModalReviews(productId) {
+  const list    = document.getElementById('modalReviewsList');
+  const summary = document.getElementById('modalRatingSummary');
+  const writeEl = document.getElementById('modalWriteReview');
+  if (!list) return;
+  try {
+    const r = await fetch(`${API_URL}/api/reviews/${productId}?limit=5`);
+    const d = await r.json();
+    if (!d.success) return;
+    summary.textContent = d.totalCount > 0 ? `${d.avgRating}★ · ${d.totalCount} review${d.totalCount!==1?'s':''}` : 'No reviews yet';
+    list.innerHTML = d.reviews.length ? d.reviews.map(rv => `
+      <div style="background:var(--ink3);border:1px solid var(--line);border-radius:10px;padding:12px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:.8rem;font-weight:600;color:var(--t1);">${esc(rv.reviewerName)}</span>
+          <span style="color:var(--amber);font-size:.82rem;">${'★'.repeat(rv.rating)}${'☆'.repeat(5-rv.rating)}</span>
+        </div>
+        ${rv.title ? `<div style="font-size:.82rem;font-weight:600;color:var(--t2);margin-bottom:4px;">${esc(rv.title)}</div>` : ''}
+        <div style="font-size:.8rem;color:var(--t2);line-height:1.5;">${esc(rv.body)}</div>
+        ${rv.verifiedPurchase ? `<div style="font-size:.7rem;color:var(--g);margin-top:6px;font-family:'JetBrains Mono',monospace;">✅ Verified Purchase</div>` : ''}
+      </div>`).join('') : `<div style="color:var(--t3);font-size:.82rem;text-align:center;padding:16px 0;">No reviews yet. Be the first!</div>`;
+
+    // Show write-review form if logged in and has purchased this product
+    if (currentUser) {
+      const token = localStorage.getItem('token');
+      const own = await fetch(`${API_URL}/api/products/${productId}/ownership-check`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r=>r.json()).catch(()=>({owned:false}));
+      if (own.owned && writeEl) writeEl.style.display = 'block';
+    }
+  } catch(e) { console.error('Reviews load error:', e); }
+}
+
+async function submitModalReview(productId) {
+  if (!currentUser) { showNotification('⚠️ Please login to submit a review'); return; }
+  if (!_modalStar) { showNotification('⚠️ Please select a star rating'); return; }
+  const body = document.getElementById('reviewBody')?.value?.trim();
+  if (!body || body.length < 5) { showNotification('⚠️ Review must be at least 5 characters'); return; }
+  const token = localStorage.getItem('token');
+  // Find an orderId for this product — needed by the review API
+  const orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+  const matchingOrder = orders.find(o =>
+    (o.items||[]).some(i => String(i.id||i.productId||i._id) === String(productId) || (i.title && allProducts.find(p=>p._id===productId)?.title === i.title))
+  );
+  if (!matchingOrder?._id) { showNotification('⚠️ Purchase not found — only verified buyers can review'); return; }
+  try {
+    const r = await fetch(`${API_URL}/api/reviews`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId,
+        orderId: matchingOrder._id,
+        rating:  _modalStar,
+        title:   document.getElementById('reviewTitle')?.value?.trim() || '',
+        body
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      showNotification('✅ Review submitted — thank you!');
+      loadModalReviews(productId);
+      document.getElementById('modalWriteReview').style.display = 'none';
+    } else {
+      showNotification('❌ ' + (d.message || 'Failed to submit review'));
+    }
+  } catch(e) { showNotification('❌ Failed to submit review'); }
+}
+
+// Placeholder — real closeProductModal follows this injected code block
+function _closeModalPlaceholder() {
 
   modal.classList.add('active');
 }
@@ -2004,12 +2137,54 @@ function updateCartTotals() {
 
 // ── FIX 3: addToCart stores creator info so checkout can identify items ───────
 function addToCart(productId) {
+  // Must be logged in to purchase
+  if (!currentUser) {
+    showNotification('⚠️ Please login to add products to your cart');
+    setTimeout(() => window.location.href = '/marketplace/login', 1500);
+    return;
+  }
   const product = allProducts.find(p => p._id === productId);
   if (!product) { showNotification('⚠️ Product not found'); return; }
   if (cart.find(item => item.id === productId)) { showNotification('⚠️ Already in cart!'); return; }
 
-  const creator = product.isCreatorProduct && product.creatorId ? product.creatorId : null;
+  // Ownership check — don't let someone buy what they already own
+  const token = localStorage.getItem('token');
+  if (token) {
+    fetch(`${API_URL}/api/products/${productId}/ownership-check`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.owned) {
+        showNotification('✅ You already own this product — check My Products');
+        return;
+      }
+      _pushToCart(product);
+    })
+    .catch(() => _pushToCart(product)); // if check fails, allow add
+    return;
+  }
+  _pushToCart(product);
+}
 
+function _pushToCart(product) {
+  if (cart.find(item => item.id === product._id)) { showNotification('⚠️ Already in cart!'); return; }
+  const creator = product.isCreatorProduct && product.creatorId ? product.creatorId : null;
+  const resolvedId = product.productId || product._id; // prefer mirrored Product._id
+  cart.push({
+    id:               resolvedId,
+    productId:        resolvedId,
+    title:            product.title,
+    category:         product.category,
+    price:            product.price || 0,
+    icon:             product.icon || '📦',
+    image:            product.image || null,
+    isCreatorProduct: product.isCreatorProduct || false,
+    creatorId:        creator ? (creator._id || null) : null,
+    storeSlug:        creator ? (creator.storeSlug || null) : null,
+    storeName:        creator ? (creator.storeName || null) : null
+  });
+ 
   cart.push({
     id:               product._id,
     title:            product.title,

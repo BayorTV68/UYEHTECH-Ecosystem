@@ -5,9 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Creator Store — UYEH TECH</title>
   <meta name="description" content="Browse this creator's digital products on UYEH TECH Marketplace." />
+   <meta property="og:url" content="https://uyehtech.com/marketplace/">
+  <meta property="og:title" content="UYEH TECH Marketplace — Premium Digital Products">
+  <meta property="og:description" content="Browse premium digital products from verified creators. Templates, courses, components, and more.">
+  <meta property="og:image" content="uyehtech.com/images/uyehtech-logo.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="UYEH TECH Marketplace">
+  <meta name="twitter:description" content="Premium digital products from verified creators.">
+  <meta name="twitter:image" content="/images/uyehtech-logo.jpg">
+  <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+  <link rel="canonical" href="https://uyehtech.com/marketplace/">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="UYEH TECH">
+  <meta name="theme-color" content="#00ff88">
+  <script src="/site-controller.js" defer></script>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+ <!-- Fonts — aligned to UYEH TECH brand (matches affiliate dashboard) -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
@@ -16,20 +30,46 @@
        ══════════════════════════════════════════════════ */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* ── UYEH TECH brand design system — mirrors affiliate dashboard ── */
     :root {
+      /* Brand greens */
+      --g:            #00ff88;
+      --g2:           #00c96a;
+      --g3:           rgba(0,255,136,.08);
+      --g4:           rgba(0,255,136,.14);
+      --g5:           rgba(0,255,136,.22);
+      /* Backgrounds */
+      --ink:          #07090c;
+      --ink2:         #0c0f14;
+      --ink3:         #111620;
+      --ink4:         #18202e;
+      --card:         #0e1318;
+      /* Borders */
+      --line:         rgba(255,255,255,.06);
+      --line2:        rgba(0,255,136,.18);
+      /* Text */
+      --t1:           #edf2f7;
+      --t2:           #8a96a8;
+      --t3:           #4a5568;
+      /* Accents */
+      --red:          #ff4d4d;
+      --amber:        #f5a623;
+      --blue:         #5b9cf6;
+      --purple:       #a78bfa;
+      --teal:         #2dd4bf;
+      /* Legacy aliases — keep so existing classes don't break */
       --primary:      #00ff88;
-      --primary-dark: #00b359;
-      --dark:         #0a0a0a;
-      --dark-light:   #1a1a1a;
-      --dark-mid:     #141414;
-      --gray:         #9ca3af;
-      --gray-light:   #d1d5db;
-      --error:        #ff4444;
+      --primary-dark: #00c96a;
+      --dark:         #07090c;
+      --dark-light:   #0c0f14;
+      --dark-mid:     #111620;
+      --gray:         #8a96a8;
+      --gray-light:   #edf2f7;
+      --error:        #ff4d4d;
       --success:      #00ff88;
-      --warning:      #ffa500;
-      --purple:       #7b61ff;
-      --card-bg:      #111111;
-      --border:       rgba(0,255,136,0.15);
+      --warning:      #f5a623;
+      --card-bg:      #0e1318;
+      --border:       rgba(0,255,136,.18);
     }
 
     html { scroll-behavior: smooth; }
@@ -1214,6 +1254,9 @@
       </div>
     </div>
 
+    <!-- About the Creator — populated by renderStoreHeader if bio/skills/portfolio exist -->
+    <div id="aboutCreator" style="display:none;padding:0 24px;max-width:960px;margin:0 auto;"></div>
+
     <!-- Stats -->
     <div class="stats-bar">
       <div class="stats-inner">
@@ -1245,8 +1288,18 @@
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Search products…" oninput="filterProducts()" />
           </div>
-          <div class="filters-row" id="filtersRow">
-            <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <select id="sortSelect" onchange="applyFilters()"
+              style="padding:8px 14px;background:var(--g3);border:1px solid var(--line2);border-radius:9px;color:var(--t1);font-family:'Montserrat',sans-serif;font-size:.82rem;cursor:pointer;outline:none;appearance:none;padding-right:28px;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%2300ff88' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:calc(100% - 10px) center;">
+              <option value="newest">Newest</option>
+              <option value="popular">Most Popular</option>
+              <option value="price-asc">Price: Low → High</option>
+              <option value="price-desc">Price: High → Low</option>
+              <option value="free-first">Free First</option>
+            </select>
+            <div class="filters-row" id="filtersRow">
+              <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1339,8 +1392,18 @@
       <div class="cart-nudge-title">🛒 Item added to cart</div>
       <div class="cart-nudge-sub" id="nudgeCount">1 item · ready to checkout</div>
     </div>
-    <button class="cart-nudge-btn" onclick="window.location.href='/marketplace/checkout'">
-      Checkout →
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input id="csCartCouponInput" placeholder="Coupon code" maxlength="32"
+        style="flex:1;padding:8px 11px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.25);border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:.8rem;outline:none;"
+        oninput="this.value=this.value.toUpperCase()">
+      <button onclick="applyCartCoupon()"
+        style="padding:8px 13px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);border-radius:8px;color:var(--primary);font-weight:700;font-size:.78rem;cursor:pointer;font-family:'Montserrat',sans-serif;white-space:nowrap;">
+        Apply
+      </button>
+    </div>
+    <div id="csCartCouponMsg" style="font-size:.75rem;margin-bottom:8px;display:none;"></div>
+    <button class="cart-nudge-btn" onclick="goToCheckoutWithCoupon()">
+      <i class="fas fa-shopping-bag"></i> Checkout
     </button>
   </div>
 
@@ -1484,11 +1547,13 @@
       if (c.isVerified) document.getElementById('verifiedBadge').style.display = 'inline-flex';
       if (c.isFeatured) document.getElementById('featuredBadge').style.display = 'inline-flex';
 
-      // Meta row
+      // Meta row — full set of creator fields
       const metaItems = [];
-      if (c.country)       metaItems.push(`<div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${esc(c.country)}</div>`);
-      if (c.businessType)  metaItems.push(`<div class="meta-item"><i class="fas fa-briefcase"></i> ${capitalize(c.businessType)}</div>`);
-      if (c.approvedAt)    metaItems.push(`<div class="meta-item"><i class="fas fa-calendar"></i> Since ${new Date(c.approvedAt).getFullYear()}</div>`);
+      if (c.country)          metaItems.push(`<div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${esc(c.country)}</div>`);
+      if (c.businessType)     metaItems.push(`<div class="meta-item"><i class="fas fa-briefcase"></i> ${capitalize(c.businessType)}</div>`);
+      if (c.yearsExperience)  metaItems.push(`<div class="meta-item"><i class="fas fa-star"></i> ${c.yearsExperience} yrs experience</div>`);
+      if (c.languages?.length)metaItems.push(`<div class="meta-item"><i class="fas fa-language"></i> ${c.languages.slice(0,3).join(', ')}</div>`);
+      if (c.approvedAt)       metaItems.push(`<div class="meta-item"><i class="fas fa-calendar"></i> Since ${new Date(c.approvedAt).getFullYear()}</div>`);
       if (c.categories?.length) metaItems.push(`<div class="meta-item"><i class="fas fa-tag"></i> ${c.categories.slice(0,3).join(', ')}</div>`);
       document.getElementById('storeMeta').innerHTML = metaItems.join('');
 
@@ -1497,14 +1562,15 @@
         document.getElementById('storeDesc').textContent = c.storeDescription;
       }
 
-      // Social links
+     // Social links — full set including TikTok
       const socials = c.socialLinks || {};
       const socialMap = {
-        twitter:   { icon: 'fab fa-twitter',   url: u => `https://twitter.com/${u}`   },
-        instagram: { icon: 'fab fa-instagram',  url: u => `https://instagram.com/${u}` },
-        linkedin:  { icon: 'fab fa-linkedin-in',url: u => `https://linkedin.com/in/${u}`},
-        youtube:   { icon: 'fab fa-youtube',    url: u => `https://youtube.com/@${u}` },
-        website:   { icon: 'fas fa-globe',      url: u => u }
+        twitter:   { icon: 'fab fa-twitter',      url: u => `https://twitter.com/${u}`    },
+        instagram: { icon: 'fab fa-instagram',     url: u => `https://instagram.com/${u}`  },
+        linkedin:  { icon: 'fab fa-linkedin-in',   url: u => `https://linkedin.com/in/${u}`},
+        youtube:   { icon: 'fab fa-youtube',       url: u => `https://youtube.com/@${u}`  },
+        tiktok:    { icon: 'fab fa-tiktok',        url: u => `https://tiktok.com/@${u}`   },
+        website:   { icon: 'fas fa-globe',         url: u => u                             }
       };
       if (c.website) socials.website = c.website;
 
@@ -1513,6 +1579,45 @@
         .map(([k, v]) => `<a href="${v.url(socials[k])}" target="_blank" rel="noopener" class="social-link"><i class="${v.icon}"></i></a>`)
         .join('');
       document.getElementById('socialLinks').innerHTML = socialHTML;
+
+      // ── About the Creator section (bio, skills, portfolio, name/avatar) ──
+      const aboutEl = document.getElementById('aboutCreator');
+      if (aboutEl) {
+        const hasBio        = !!c.bio;
+        const hasSkills     = c.skills?.length > 0;
+        const hasPortfolio  = c.portfolioLinks?.length > 0;
+        const creatorName   = c.userId?.fullName || c.storeName;
+        const creatorAvatar = c.userId?.profileImage || c.storeLogo || null;
+
+        if (hasBio || hasSkills || hasPortfolio) {
+          const avatarHTML = creatorAvatar
+            ? `<img src="${esc(creatorAvatar)}" alt="${esc(creatorName)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--line2);">`
+            : `<div style="width:46px;height:46px;border-radius:50%;background:var(--g4);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:1.1rem;color:var(--g);border:2px solid var(--line2);">${creatorName.charAt(0).toUpperCase()}</div>`;
+
+          aboutEl.innerHTML = `
+            <div style="background:var(--ink3);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:22px;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:${hasBio?'14px':'0'};">
+                ${avatarHTML}
+                <div>
+                  <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;color:var(--t1);">${esc(creatorName)}</div>
+                  <div style="font-size:.72rem;color:var(--g);font-family:'JetBrains Mono',monospace;margin-top:2px;">Creator</div>
+                </div>
+              </div>
+              ${hasBio ? `<p style="font-size:.84rem;color:var(--t2);line-height:1.65;margin-bottom:${hasSkills||hasPortfolio?'14px':'0'};">${esc(c.bio)}</p>` : ''}
+              ${hasSkills ? `
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:${hasPortfolio?'14px':'0'};">
+                  ${c.skills.map(s=>`<span style="background:var(--g3);border:1px solid var(--line2);color:var(--g);font-size:.72rem;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;">${esc(s)}</span>`).join('')}
+                </div>` : ''}
+              ${hasPortfolio ? `
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                  ${c.portfolioLinks.map(pl=>`<a href="${esc(pl.url)}" target="_blank" rel="noopener"
+                    style="font-size:.76rem;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:5px;">
+                    <i class="fas fa-external-link-alt" style="font-size:.65rem;"></i>${esc(pl.label||pl.url)}</a>`).join('')}
+                </div>` : ''}
+            </div>`;
+          aboutEl.style.display = 'block';
+        }
+      }
     }
 
     /* ══════════════════════════════════════════════════
@@ -1520,9 +1625,15 @@
        ══════════════════════════════════════════════════ */
     function renderStats(c) {
       document.getElementById('statProducts').textContent  = (c.totalProducts || allProducts.length).toLocaleString();
-      document.getElementById('statSales').textContent     = (c.totalSales || 0).toLocaleString();
-      document.getElementById('statFollowers').textContent = (c.followerCount || 0).toLocaleString();
-      document.getElementById('statRating').textContent    = c.rating ? `${c.rating.toFixed(1)} ★` : 'New';
+      document.getElementById('statSales').textContent     = (c.totalSales    || 0).toLocaleString();
+      document.getElementById('statFollowers').textContent = (c.followerCount  || 0).toLocaleString();
+      const ratingEl = document.getElementById('statRating');
+      if (c.rating && c.totalRatings) {
+        ratingEl.innerHTML = `${c.rating.toFixed(1)} <span style="color:var(--amber)">★</span>
+          <span style="font-size:.65rem;color:var(--t3);display:block;">(${c.totalRatings})</span>`;
+      } else {
+        ratingEl.textContent = c.rating ? `${c.rating.toFixed(1)} ★` : 'New';
+      }
     }
 
     /* ══════════════════════════════════════════════════
@@ -1551,6 +1662,8 @@
 
     function applyFilters() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const sort  = document.getElementById('sortSelect')?.value || 'newest';
+
       filteredProds = allProducts.filter(p => {
         const matchCat = activeFilter === 'all' || p.category === activeFilter;
         const matchQ   = !query ||
@@ -1559,6 +1672,14 @@
           (p.tags || []).some(t => t.toLowerCase().includes(query));
         return matchCat && matchQ;
       });
+
+      // Sort
+      if (sort === 'popular')    filteredProds.sort((a,b) => (b.totalSales||0) - (a.totalSales||0));
+      if (sort === 'price-asc')  filteredProds.sort((a,b) => (a.approvedPrice??a.price??0) - (b.approvedPrice??b.price??0));
+      if (sort === 'price-desc') filteredProds.sort((a,b) => (b.approvedPrice??b.price??0) - (a.approvedPrice??a.price??0));
+      if (sort === 'free-first') filteredProds.sort((a,b) => (a.approvedPrice??a.price??0) - (b.approvedPrice??b.price??0));
+      if (sort === 'newest')     filteredProds.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+
       renderProducts(filteredProds);
     }
 
@@ -1591,20 +1712,31 @@
       }
     }
 
+   const PRODUCT_TYPE_MAP = {
+      course:    { label: 'Course',     icon: '🎓', color: '#7c3aed' },
+      software:  { label: 'Software',   icon: '💻', color: '#0ea5e9' },
+      music:     { label: 'Music',      icon: '🎵', color: '#ec4899' },
+      template:  { label: 'Template',   icon: '🎨', color: '#f59e0b' },
+      script:    { label: 'Script',     icon: '⚙️', color: '#10b981' },
+      component: { label: 'Component',  icon: '🧩', color: '#6366f1' },
+      ebook:     { label: 'eBook',      icon: '📖', color: '#14b8a6' },
+      video:     { label: 'Video',      icon: '🎬', color: '#f97316' },
+      download:  { label: 'Download',   icon: '📦', color: '#00ff88' },
+      other:     { label: 'Digital',    icon: '✨', color: '#00ff88' },
+    };
+
     function productCardHTML(p) {
-      const price = p.approvedPrice ?? p.price ?? 0;
+      const price     = p.approvedPrice ?? p.price ?? 0;
       const origPrice = p.price ?? 0;
-      const discount = origPrice && p.approvedPrice && p.approvedPrice < origPrice
-        ? Math.round(((origPrice - p.approvedPrice) / origPrice) * 100)
-        : 0;
+      const discount  = origPrice && p.approvedPrice && p.approvedPrice < origPrice
+        ? Math.round(((origPrice - p.approvedPrice) / origPrice) * 100) : 0;
 
       const priceHTML = price === 0
         ? `<span class="price-free">Free</span>`
         : `<span class="price-main">$${price.toFixed(2)}</span>${discount > 0 ? `<span class="price-old">$${origPrice.toFixed(2)}</span>` : ''}`;
 
       const daysAgo = p.approvedAt
-        ? Math.floor((Date.now() - new Date(p.approvedAt)) / 86400000)
-        : 999;
+        ? Math.floor((Date.now() - new Date(p.approvedAt)) / 86400000) : 999;
       const badgeHTML = p.isFeatured
         ? `<span class="product-badge badge-featured-prod">Featured</span>`
         : discount > 0 ? `<span class="product-badge badge-hot">-${discount}%</span>`
@@ -1614,13 +1746,24 @@
         ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy" />`
         : `<div class="product-image-placeholder">${p.icon || '📦'}</div>`;
 
+      const typeInfo = PRODUCT_TYPE_MAP[p.productType] || PRODUCT_TYPE_MAP.other;
+      const typeBadge = `<span style="display:inline-flex;align-items:center;gap:4px;background:${typeInfo.color}22;color:${typeInfo.color};border:1px solid ${typeInfo.color}44;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:600;font-family:'JetBrains Mono',monospace;">${typeInfo.icon} ${typeInfo.label}</span>`;
+
+      const tagPills = (p.tags||[]).slice(0,3).map(t =>
+        `<span style="background:var(--g3);color:var(--t3);font-size:.67rem;padding:1px 7px;border-radius:20px;">${esc(t)}</span>`
+      ).join('');
+
       return `
         <div class="product-card" onclick="openProduct('${p._id}')">
           <div class="product-image">${imgHTML}${badgeHTML}</div>
           <div class="product-body">
-            <div class="product-category">${esc(p.category || '')}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">
+              <span class="product-category">${esc(p.category || '')}</span>
+              ${typeBadge}
+            </div>
             <h3 class="product-title">${esc(p.title)}</h3>
             <p class="product-desc">${esc(p.description || '')}</p>
+            ${tagPills ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">${tagPills}</div>` : ''}
             <div class="product-footer">
               <div class="product-price">${priceHTML}</div>
               <button class="btn-add" onclick="event.stopPropagation(); addToCart('${p._id}')">
@@ -1679,6 +1822,128 @@
       const buyBtn = document.getElementById('modalBuyBtn');
       if (buyBtn) buyBtn.style.display = price === 0 ? 'none' : 'inline-flex';
 
+      // ── Inject reviews section into modal ──────────────────────────────
+      const modalBody = document.getElementById('productModal');
+      // Find or create the reviews container
+      let revContainer = document.getElementById('csModalReviews');
+      if (!revContainer) {
+        revContainer = document.createElement('div');
+        revContainer.id = 'csModalReviews';
+        revContainer.style.cssText = 'margin-top:24px;border-top:1px solid var(--line);padding-top:18px;';
+        // Append inside modal content area
+        const modalContent = modalBody?.querySelector('.modal-body, .modal-content, [class*="modal"]');
+        if (modalContent) modalContent.appendChild(revContainer);
+        else if (modalBody) modalBody.appendChild(revContainer);
+      }
+      revContainer.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <span style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--t1);font-weight:700;">Reviews</span>
+          <span id="csRatingSummary" style="font-size:.78rem;color:var(--t2);font-family:'JetBrains Mono',monospace;"></span>
+        </div>
+        <div id="csReviewsList" style="display:flex;flex-direction:column;gap:10px;max-height:220px;overflow-y:auto;"></div>
+        <div id="csWriteReview" style="margin-top:16px;display:none;">
+          <div style="font-size:.78rem;color:var(--g);font-weight:600;margin-bottom:8px;font-family:'JetBrains Mono',monospace;">Leave a Review</div>
+          <div id="csStarPicker" style="display:flex;gap:6px;margin-bottom:8px;">
+            ${[1,2,3,4,5].map(n=>`<span data-star="${n}" onclick="setCsStar(${n})" style="font-size:1.35rem;cursor:pointer;color:var(--t3);transition:color .15s;">★</span>`).join('')}
+          </div>
+          <input id="csReviewTitle" placeholder="Title (optional)" maxlength="120"
+            style="width:100%;padding:8px 11px;background:var(--g3);border:1px solid var(--line2);border-radius:8px;color:var(--t1);font-family:'Montserrat',sans-serif;font-size:.82rem;margin-bottom:7px;outline:none;">
+          <textarea id="csReviewBody" placeholder="Share your experience…" rows="3" maxlength="2000"
+            style="width:100%;padding:8px 11px;background:var(--g3);border:1px solid var(--line2);border-radius:8px;color:var(--t1);font-family:'Montserrat',sans-serif;font-size:.82rem;resize:vertical;outline:none;"></textarea>
+          <button onclick="submitCsReview('${id}')"
+            style="margin-top:9px;padding:8px 18px;background:var(--g4);border:1px solid var(--line2);border-radius:8px;color:var(--g);font-family:'Montserrat',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;"
+            onmouseover="this.style.background='var(--g5)'" onmouseout="this.style.background='var(--g4)'">
+            <i class="fas fa-paper-plane"></i> Submit
+          </button>
+        </div>`;
+
+      // Load reviews async
+      loadCsReviews(id, p.productId || p._id);
+
+      // ── Extended product data ───────────────────────────────────────────
+
+      // Product type badge
+      const typeInfo   = PRODUCT_TYPE_MAP[p.productType] || PRODUCT_TYPE_MAP.other;
+      const catEl      = document.getElementById('modalCategory');
+      catEl.innerHTML  = `${esc(p.category || '')}
+        <span style="margin-left:8px;background:${typeInfo.color}22;color:${typeInfo.color};border:1px solid ${typeInfo.color}44;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;font-family:'JetBrains Mono',monospace;">${typeInfo.icon} ${typeInfo.label}</span>`;
+
+      // Tags
+      let extraHTML = '';
+      if (p.tags?.length) {
+        extraHTML += `<div style="display:flex;flex-wrap:wrap;gap:5px;margin:10px 0;">
+          ${p.tags.map(t=>`<span style="background:var(--g3);border:1px solid var(--line2);color:var(--g);font-size:.72rem;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;">#${esc(t)}</span>`).join('')}
+        </div>`;
+      }
+
+      // Course meta (duration, chapters, level)
+      if (p.productType === 'course' && p.courseData) {
+        const cd = p.courseData;
+        const dur = cd.totalDuration ? Math.round(cd.totalDuration/3600)+'h' : '';
+        const chs = cd.totalChapters ? cd.totalChapters+' chapters' : '';
+        const lvl = cd.level ? cd.level.charAt(0).toUpperCase()+cd.level.slice(1) : '';
+        const cert = cd.certificate ? '🎓 Certificate' : '';
+        const courseMeta = [dur,chs,lvl,cert].filter(Boolean);
+        if (courseMeta.length) {
+          extraHTML += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;">
+            ${courseMeta.map(m=>`<span style="background:var(--ink4);border:1px solid var(--line);color:var(--t2);font-size:.74rem;padding:4px 10px;border-radius:8px;">📚 ${m}</span>`).join('')}
+          </div>`;
+        }
+      }
+
+      // Version / file size
+      const vfItems = [];
+      if (p.version)  vfItems.push(`<span style="color:var(--t2);font-size:.76rem;"><i class="fas fa-code-branch" style="color:var(--g);margin-right:4px;"></i>v${esc(p.version)}</span>`);
+      if (p.fileSize) vfItems.push(`<span style="color:var(--t2);font-size:.76rem;"><i class="fas fa-file-archive" style="color:var(--g);margin-right:4px;"></i>${esc(p.fileSize)}</span>`);
+      if (vfItems.length) {
+        extraHTML += `<div style="display:flex;gap:14px;flex-wrap:wrap;margin:8px 0;">${vfItems.join('')}</div>`;
+      }
+
+      // Preview (image / video / audio / iframe)
+      if (p.previewUrl && p.previewType && p.previewType !== 'none') {
+        if (p.previewType === 'image') {
+          extraHTML += `<div style="margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);">
+            <img src="${esc(p.previewUrl)}" alt="Preview" style="width:100%;max-height:200px;object-fit:cover;" /></div>`;
+        } else if (p.previewType === 'video') {
+          extraHTML += `<div style="margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);">
+            <video src="${esc(p.previewUrl)}" controls style="width:100%;max-height:200px;background:#000;" preload="metadata"></video></div>`;
+        } else if (p.previewType === 'audio') {
+          extraHTML += `<div style="margin:12px 0;">
+            <audio src="${esc(p.previewUrl)}" controls style="width:100%;"></audio></div>`;
+        } else if (p.previewType === 'iframe') {
+          extraHTML += `<div style="margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);position:relative;padding-bottom:56.25%;height:0;">
+            <iframe src="${esc(p.previewUrl)}" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allowfullscreen loading="lazy"></iframe></div>`;
+        }
+      }
+
+      // Requirements
+      if (p.requirements?.length) {
+        extraHTML += `<div style="margin:12px 0;background:var(--ink3);border:1px solid var(--line);border-radius:10px;padding:12px 14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--t1);margin-bottom:8px;font-family:'JetBrains Mono',monospace;">📋 Requirements</div>
+          ${p.requirements.map(r=>`<div style="display:flex;align-items:flex-start;gap:7px;font-size:.8rem;color:var(--t2);margin-bottom:5px;"><i class="fas fa-chevron-right" style="color:var(--g);margin-top:2px;font-size:.65rem;flex-shrink:0;"></i>${esc(r)}</div>`).join('')}
+        </div>`;
+      }
+
+      // Creator notes for buyers
+      if (p.notes) {
+        extraHTML += `<div style="margin:12px 0;background:var(--g3);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--g);margin-bottom:6px;font-family:'JetBrains Mono',monospace;">📝 Note from Creator</div>
+          <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0;">${esc(p.notes)}</p>
+        </div>`;
+      }
+
+      // Inject all extra content before the affiliate divider
+      const affDivider = document.querySelector('#productModal .aff-divider');
+      if (affDivider && extraHTML) {
+        let extContainer = document.getElementById('modalExtraData');
+        if (!extContainer) {
+          extContainer = document.createElement('div');
+          extContainer.id = 'modalExtraData';
+          affDivider.parentNode.insertBefore(extContainer, affDivider);
+        }
+        extContainer.innerHTML = extraHTML;
+      }
+
       // Populate affiliate link section
       populateAffSection(p);
 
@@ -1715,22 +1980,55 @@
       const p = allProducts.find(x => x._id === id);
       if (!p) return;
 
-      // ✅ Use 'uyehtech_cart' — matches Checkout.html key
+      // Must be logged in
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showToast('⚠️', 'Please login to add products to your cart');
+        setTimeout(() => window.location.href = '/marketplace/login', 1500);
+        return;
+      }
+
       let cart = JSON.parse(localStorage.getItem('uyehtech_cart') || '[]');
-      const exists = cart.find(i => i._id === id);
+      // Use resolved productId (Bug 1 fix) — prefer mirrored Product._id
+      const resolvedId = p.productId || p._id;
+      const exists = cart.find(i => (i.id || i._id) === resolvedId || (i.id || i._id) === id);
       if (exists) {
         showToast('⚠️', `${p.title} is already in your cart`);
         showCartNudge(cart.length, true);
         return;
       }
 
+      // Ownership check — don't let someone re-buy what they already own
+      fetch(`${API_URL}/api/products/${resolvedId}/ownership-check`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.owned) {
+          showToast('✅', `You already own "${p.title}" — check My Products`);
+          return;
+        }
+        _csPushToCart(p, resolvedId);
+      })
+      .catch(() => _csPushToCart(p, resolvedId));
+    }
+
+    function _csPushToCart(p, resolvedId) {
+      let cart = JSON.parse(localStorage.getItem('uyehtech_cart') || '[]');
+      const creatorObj = (p.creatorId && typeof p.creatorId === 'object') ? p.creatorId : null;
       cart.push({
-        _id: p._id,
-        title: p.title,
-        price: p.approvedPrice ?? p.price ?? 0,
-        category: p.category || 'Digital Product',
-        image: p.image || '',
-        icon: p.icon || '📦'
+        id:               resolvedId,         // ← canonical key (matches Order schema)
+        productId:        resolvedId,
+        _cpId:            p._id,             // ← keep CP._id for affiliate tracking
+        title:            p.title,
+        price:            p.approvedPrice ?? p.price ?? 0,
+        category:         p.category         || 'Digital Product',
+        image:            p.image            || '',
+        icon:             p.icon             || '📦',
+        isCreatorProduct: true,
+        creatorId:        creatorObj?._id    || p.creatorId || null,
+        storeSlug:        creatorObj?.storeSlug || null,
+        storeName:        creatorObj?.storeName || null,
       });
       localStorage.setItem('uyehtech_cart', JSON.stringify(cart));
       // Fire add_to_cart funnel event if visitor arrived via affiliate link
@@ -1744,6 +2042,47 @@
       }
       updateCartBadge(cart.length);
       showCartNudge(cart.length, false);
+    }
+
+   /* ── Coupon validation ── */
+    let _csCoupon = null;
+    async function applyCartCoupon() {
+      const code  = document.getElementById('csCartCouponInput')?.value?.trim().toUpperCase();
+      const msgEl = document.getElementById('csCartCouponMsg');
+      if (!code) return;
+      const token = localStorage.getItem('token');
+      if (!token) { showToast('⚠️', 'Please login to apply coupons'); return; }
+      try {
+        const cart = JSON.parse(localStorage.getItem('uyehtech_cart') || '[]');
+        const subtotal = cart.reduce((s, i) => s + (i.price || 0), 0);
+        const r = await fetch(`${API_URL}/api/coupons/validate`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, subtotal })
+        });
+        const d = await r.json();
+        if (d.success && d.coupon) {
+          _csCoupon = d.coupon;
+          localStorage.setItem('checkout_coupon', JSON.stringify(d.coupon));
+          if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.style.color   = 'var(--primary)';
+            msgEl.textContent   = `✅ Coupon applied — $${d.coupon.discountAmount?.toFixed(2) || d.coupon.discount} off`;
+          }
+          showToast('✅', `Coupon "${code}" applied!`);
+        } else {
+          if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.style.color   = 'var(--error)';
+            msgEl.textContent   = '❌ ' + (d.message || 'Invalid coupon');
+          }
+        }
+      } catch(e) { showToast('❌', 'Could not validate coupon'); }
+    }
+
+    function goToCheckoutWithCoupon() {
+      if (_csCoupon) localStorage.setItem('checkout_coupon', JSON.stringify(_csCoupon));
+      window.location.href = '/marketplace/checkout';
     }
 
     /* ── Update cart count badge in nav ── */
@@ -2049,6 +2388,87 @@
       if (!code) return null; // not a registered affiliate
       const base = window.location.origin + '/marketplace/' + currentSlug + '/' + productId;
       return base + '?ref=' + encodeURIComponent(code);
+    }
+
+    /* ── Reviews ── */
+    let _csStar = 0;
+    function setCsStar(n) {
+      _csStar = n;
+      document.querySelectorAll('#csStarPicker [data-star]').forEach(s => {
+        s.style.color = parseInt(s.dataset.star) <= n ? 'var(--amber)' : 'var(--t3)';
+      });
+    }
+
+    async function loadCsReviews(cpId, resolvedPid) {
+      const pid      = resolvedPid || cpId;
+      const list     = document.getElementById('csReviewsList');
+      const summary  = document.getElementById('csRatingSummary');
+      const writeEl  = document.getElementById('csWriteReview');
+      if (!list) return;
+      try {
+        const r = await fetch(`${API_URL}/api/reviews/${pid}?limit=5`);
+        const d = await r.json();
+        if (!d.success) return;
+        summary.textContent = d.totalCount > 0
+          ? `${d.avgRating}★ · ${d.totalCount} review${d.totalCount!==1?'s':''}`
+          : 'No reviews yet';
+        list.innerHTML = d.reviews.length
+          ? d.reviews.map(rv => `
+            <div style="background:var(--ink3);border:1px solid var(--line);border-radius:9px;padding:11px 13px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                <span style="font-size:.78rem;font-weight:600;color:var(--t1);">${rv.reviewerName}</span>
+                <span style="color:var(--amber);font-size:.8rem;">${'★'.repeat(rv.rating)}${'☆'.repeat(5-rv.rating)}</span>
+              </div>
+              ${rv.title ? `<div style="font-size:.78rem;font-weight:600;color:var(--t2);margin-bottom:3px;">${rv.title}</div>` : ''}
+              <div style="font-size:.78rem;color:var(--t2);line-height:1.5;">${rv.body}</div>
+              ${rv.verifiedPurchase ? `<div style="font-size:.68rem;color:var(--g);margin-top:5px;font-family:'JetBrains Mono',monospace;">✅ Verified Purchase</div>` : ''}
+            </div>`).join('')
+          : `<div style="color:var(--t3);font-size:.78rem;text-align:center;padding:14px 0;">No reviews yet.</div>`;
+
+        const token = localStorage.getItem('token');
+        if (token) {
+          const own = await fetch(`${API_URL}/api/products/${pid}/ownership-check`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).then(r=>r.json()).catch(()=>({owned:false}));
+          if (own.owned && writeEl) writeEl.style.display = 'block';
+        }
+      } catch(e) {}
+    }
+
+    async function submitCsReview(cpId) {
+      const token = localStorage.getItem('token');
+      if (!token) { showToast('⚠️', 'Please login to review'); return; }
+      if (!_csStar) { showToast('⚠️', 'Please select a star rating'); return; }
+      const body = document.getElementById('csReviewBody')?.value?.trim();
+      if (!body || body.length < 5) { showToast('⚠️', 'Review must be at least 5 characters'); return; }
+      const p = allProducts.find(x => x._id === cpId);
+      const resolvedPid = p?.productId || cpId;
+      const orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+      const matchOrder = orders.find(o =>
+        (o.items||[]).some(i => [String(i.id), String(i.productId), String(i._id)].includes(String(resolvedPid)) || i.title === p?.title)
+      );
+      if (!matchOrder?._id) { showToast('⚠️', 'Only verified buyers can review'); return; }
+      try {
+        const r = await fetch(`${API_URL}/api/reviews`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: resolvedPid,
+            orderId:   matchOrder._id,
+            rating:    _csStar,
+            title:     document.getElementById('csReviewTitle')?.value?.trim() || '',
+            body
+          })
+        });
+        const d = await r.json();
+        if (d.success) {
+          showToast('✅', 'Review submitted!');
+          loadCsReviews(cpId, resolvedPid);
+          document.getElementById('csWriteReview').style.display = 'none';
+        } else {
+          showToast('❌', d.message || 'Failed to submit');
+        }
+      } catch(e) { showToast('❌', 'Failed to submit review'); }
     }
 
     /* ── Populate affiliate section when a product modal opens ── */
