@@ -48,28 +48,28 @@
       "name": "Browse Store",
       "short_name": "Store",
       "description": "Shop digital products, templates and more",
-      "url": "/store.html?utm_source=pwa_shortcut",
+      "url": "/marketplace/index.html?utm_source=pwa_shortcut",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "My Dashboard",
       "short_name": "Dashboard",
       "description": "View orders, downloads and account settings",
-      "url": "/dashboard.html?utm_source=pwa_shortcut",
+      "url": "/marketplace/dashboard.html?utm_source=pwa_shortcut",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Blog",
       "short_name": "Blog",
       "description": "Read articles on web dev, tech and design",
-      "url": "/blog.html?utm_source=pwa_shortcut",
+      "url": "/blog/index.html?utm_source=pwa_shortcut",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Projects",
       "short_name": "Projects",
       "description": "See what UYEH TECH has built",
-      "url": "/projects.html?utm_source=pwa_shortcut",
+      "url": "/uyehtech/projects.html?utm_source=pwa_shortcut",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
@@ -77,7 +77,7 @@
   "prefer_related_applications": false,
   "protocol_handlers": [],
   "share_target": {
-    "action": "/store.html",
+    "action": "/marketplace/index.html",
     "method": "GET",
     "params": { "title": "title", "text": "text", "url": "url" }
   }

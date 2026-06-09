@@ -42,12 +42,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#00ff88">
-<meta name="msapplication-TileColor" content="#0a0a0a">
-<meta name="theme-color" content="#00ff88">
-
 <!-- ========== CANONICAL URL ========== -->
 <link rel="canonical" href="https://www.uyehtech.com/">
 
@@ -124,11 +118,19 @@
 
 <!-- Performance & Optimization -->
     <script src="search.js" defer></script>
-  <script src="/site-controller.js" defer></script>
 
     <!-- Optional: Canonical URL for SEO -->
     <link rel="canonical" href="https://uyehtech.com">
-  <style>
+
+         <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-180.png">
+<style>
 /* ========== RESET ========== */
 * {
     margin: 0;
@@ -2843,6 +2845,20 @@ input:disabled + .cookie-slider {
   <li>
     <a href="/contact" class="nav-link">Contact</a>
   </li>
+  <button id="pwaInstallBtn"
+  onclick="window.uyehPwa && window.uyehPwa.promptInstall()"
+  style="display:none;
+         padding:8px 16px;border-radius:9px;border:1px solid rgba(0,255,136,.4);
+         background:rgba(0,255,136,.08);color:#00ff88;
+         font-weight:600;font-size:.82rem;cursor:pointer;
+         font-family:'Space Grotesk',sans-serif;
+         transition:background .2s;"
+  onmouseover="this.style.background='rgba(0,255,136,.15)'"
+  onmouseout="this.style.background='rgba(0,255,136,.08)'">
+  📱 Install App
+</button>
+
+
  
 </ul>
  
@@ -6541,5 +6557,24 @@ console.log('🔐 Secret Access System Loaded');
   }, 3000);
 })();
 </script>
+<script>
+// Show the button only when install is available and app is not already installed
+window.addEventListener('beforeinstallprompt', function() {
+  var btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'inline-flex';
+});
+window.addEventListener('appinstalled', function() {
+  var btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'none';
+});
+// If already installed — hide it
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.style.display = 'none';
+  });
+}
+</script>
+<script src="/pwa-install.js"></script>
 </body>
 </html>
