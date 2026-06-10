@@ -2449,7 +2449,40 @@ select.form-control option { background: var(--ink-3); }
 }
 .filter-chip:hover { border-color: var(--line-2); color: var(--soft); }
 .filter-chip.active { border-color: rgba(0,255,136,0.4); background: var(--green-dim); color: var(--green); }
-
+/* ── 2FA MANAGEMENT PANEL ── */
+.tfa-status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 8px; font-size: 0.68rem; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 3px 10px; border-radius: 20px; border: 1px solid;
+}
+.tfa-status-badge.enabled {
+  background: rgba(0,232,122,0.1); border-color: rgba(0,232,122,0.3); color: var(--green);
+}
+.tfa-status-badge.disabled {
+  background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.22); color: var(--red);
+}
+.tfa-otp-row {
+  display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;
+}
+.tfa-otp-d {
+  width: 40px; height: 46px; text-align: center;
+  font-size: 1.3rem; font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--ink-3); border: 1.5px solid var(--line);
+  border-radius: 9px; color: var(--green);
+  outline: none; caret-color: transparent;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.tfa-otp-d:focus {
+  border-color: rgba(0,232,122,0.5);
+  box-shadow: 0 0 0 3px rgba(0,232,122,0.07);
+}
+.tfa-err {
+  display: none; font-size: 0.75rem; color: var(--red);
+  text-align: center; padding: 6px 0;
+}
+.tfa-err.show { display: block; }
 </style>
 </head>
 <body>
@@ -4749,6 +4782,40 @@ select.form-control option { background: var(--ink-3); }
           </div>
         </div>
 
+        <!-- ══ TWO-FACTOR AUTHENTICATION CARD ══ -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="section-title"><i class="fas fa-shield-halved" style="margin-right:8px;color:var(--green);"></i>Two-Factor Authentication</div>
+          </div>
+          <div class="card-body">
+            <p style="font-size:0.83rem;color:var(--dim);line-height:1.65;margin-bottom:14px;">
+              Protect your creator account with TOTP-based 2FA.
+              Every login will require a code from your authenticator app.
+            </p>
+            <div id="dash2FAStatusBadge" class="tfa-status-badge disabled">✗ DISABLED</div>
+            <div style="margin-top:14px;">
+              <button class="btn btn-secondary" id="dash2FAManageBtn" onclick="dash_open2FAModal()">
+                <i class="fas fa-shield-halved"></i>
+                <span id="dash2FAManageLabel">Enable 2FA</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ 2FA MODAL ══ -->
+        <div class="modal-overlay" id="dash2FAModal">
+          <div class="modal-box" style="max-width:420px;">
+            <div class="modal-header">
+              <div class="modal-title" id="dash2FAModalTitle">Two-Factor Authentication</div>
+              <button class="modal-close-btn" onclick="dash_close2FAModal()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="modal-body" id="dash2FAModalBody"></div>
+            <div class="modal-footer" id="dash2FAModalFooter"></div>
+          </div>
+        </div>
+        
        <!-- ══ PAYOUT DETAILS CARD — Full rewrite ══ -->
       <div class="card">
         <div class="card-header">
@@ -5186,6 +5253,7 @@ async function loadCreatorData() {
       populateSidebar(creatorData);
       populateStats(creatorData);
       populateProfile(creatorData);
+      dash_init2FA();
       loadAccountInfo();
       await loadFollowers();
     }
@@ -9421,6 +9489,240 @@ function initUploadPreview() {
   updatePreview();
 }
 
+// ════════════════════════════════════════════════════════════════
+// ✅ CREATOR DASHBOARD — 2FA MANAGEMENT
+// ════════════════════════════════════════════════════════════════
+
+// Called once creatorData is loaded — seed the badge + button label
+function dash_init2FA() {
+  const enabled = !!(creatorData?.twoFactorEnabled);
+  dash_update2FABadge(enabled);
+}
+
+function dash_update2FABadge(enabled) {
+  const badge = document.getElementById('dash2FAStatusBadge');
+  const label = document.getElementById('dash2FAManageLabel');
+  if (badge) {
+    badge.textContent = enabled ? '✓ ACTIVE' : '✗ DISABLED';
+    badge.className   = 'tfa-status-badge ' + (enabled ? 'enabled' : 'disabled');
+  }
+  if (label) label.textContent = enabled ? 'Disable 2FA' : 'Enable 2FA';
+}
+
+function dash_open2FAModal() {
+  if (creatorData?.twoFactorEnabled) dash_show2FADisable();
+  else dash_show2FASetupStep1();
+  document.getElementById('dash2FAModal').classList.add('open');
+}
+
+function dash_close2FAModal() {
+  document.getElementById('dash2FAModal').classList.remove('open');
+}
+
+// ── Setup Step 1: explain + generate QR button ──
+function dash_show2FASetupStep1() {
+  document.getElementById('dash2FAModalTitle').textContent = 'Enable Two-Factor Auth';
+  document.getElementById('dash2FAModalBody').innerHTML = `
+    <p style="font-size:.83rem;color:var(--dim);line-height:1.65;margin-bottom:16px;">
+      After enabling, every login will require a 6-digit code from your authenticator app
+      (Google Authenticator, Authy, 1Password, etc.)
+    </p>
+    <div style="text-align:center;">
+      <button class="btn btn-primary" id="dash2FAGetQRBtn" onclick="dash_fetch2FASetup()">
+        <i class="fas fa-qrcode"></i> Generate QR Code
+      </button>
+    </div>`;
+  document.getElementById('dash2FAModalFooter').innerHTML =
+    '<button class="btn btn-secondary" onclick="dash_close2FAModal()">Cancel</button>';
+}
+
+async function dash_fetch2FASetup() {
+  const btn = document.getElementById('dash2FAGetQRBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating…'; }
+  try {
+    const r = await apiFetch(`${API_URL}/api/auth/2fa/setup`, { method: 'POST' });
+    if (!r) return;
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+    dash_show2FASetupStep2(d);
+  } catch(e) {
+    showToast(e.message || '2FA setup failed', 'red');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-qrcode"></i> Generate QR Code'; }
+  }
+}
+
+// ── Setup Step 2: show QR + verify code ──
+function dash_show2FASetupStep2(data) {
+  document.getElementById('dash2FAModalTitle').textContent = 'Scan & Verify';
+  document.getElementById('dash2FAModalBody').innerHTML = `
+    <p style="font-size:.78rem;color:var(--dim);margin-bottom:10px;">
+      1️⃣ Scan this QR with your authenticator app:
+    </p>
+    <div style="text-align:center;margin-bottom:14px;background:var(--ink-3);border-radius:10px;
+                padding:14px;border:1px solid var(--line-2);">
+      <img src="${data.qrCodeUrl}" alt="2FA QR" style="width:180px;height:180px;border-radius:6px;">
+      <div style="font-size:.62rem;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-top:8px;">
+        Can't scan? Use manual key:
+      </div>
+      <div onclick="navigator.clipboard.writeText('${data.manualEntryKey}').then(()=>showToast('Key copied','green'))"
+           style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--green);
+                  background:var(--green-dim);border:1px solid rgba(0,232,122,.2);border-radius:6px;
+                  padding:6px 10px;margin-top:4px;cursor:pointer;word-break:break-all;letter-spacing:.06em;">
+        ${data.manualEntryKey}
+      </div>
+    </div>
+    <p style="font-size:.78rem;color:var(--dim);margin-bottom:10px;">
+      2️⃣ Enter the first 6-digit code to activate:
+    </p>
+    <div class="tfa-otp-row" id="dash2FAOtpRow">
+      ${[0,1,2,3,4,5].map(i =>
+        `<input class="tfa-otp-d" id="ds2fa${i}" type="text" inputmode="numeric" maxlength="1">`
+      ).join('')}
+    </div>
+    <div class="tfa-err" id="ds2faErr"></div>`;
+  document.getElementById('dash2FAModalFooter').innerHTML =
+    '<button class="btn btn-secondary" onclick="dash_close2FAModal()">Cancel</button>' +
+    '<button class="btn btn-primary" id="dashConfirmSetupBtn" onclick="dash_confirm2FASetup()">' +
+    '<i class="fas fa-check"></i> Activate 2FA</button>';
+
+  // Wire digit navigation
+  const ids = [0,1,2,3,4,5].map(i => ds => `ds2fa${i}`);
+  [0,1,2,3,4,5].forEach(i => {
+    const el = document.getElementById(`ds2fa${i}`);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^0-9]/g, '').slice(-1);
+      if (el.value && i < 5) document.getElementById(`ds2fa${i+1}`).focus();
+      if (i === 5 && el.value) dash_confirm2FASetup();
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !el.value && i > 0)
+        document.getElementById(`ds2fa${i-1}`).focus();
+    });
+  });
+  setTimeout(() => document.getElementById('ds2fa0').focus(), 80);
+}
+
+async function dash_confirm2FASetup() {
+  const code = [0,1,2,3,4,5].map(i => document.getElementById(`ds2fa${i}`)?.value || '').join('');
+  const errEl = document.getElementById('ds2faErr');
+  if (code.length < 6) { errEl.textContent = 'Enter all 6 digits'; errEl.classList.add('show'); return; }
+  const btn = document.getElementById('dashConfirmSetupBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Activating…'; }
+  errEl.classList.remove('show');
+
+  try {
+    const r = await apiFetch(`${API_URL}/api/auth/2fa/confirm`, {
+      method: 'POST', body: JSON.stringify({ code })
+    });
+    if (!r) return;
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+
+    if (creatorData) creatorData.twoFactorEnabled = true;
+    dash_update2FABadge(true);
+    dash_close2FAModal();
+    showToast('Two-factor authentication is now active! 🔐', 'green');
+    if (d.backupCodes?.length) dash_showBackupCodes(d.backupCodes);
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.classList.add('show');
+    [0,1,2,3,4,5].forEach(i => { const el = document.getElementById(`ds2fa${i}`); if (el) el.value = ''; });
+    document.getElementById('ds2fa0').focus();
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Activate 2FA'; }
+  }
+}
+
+function dash_showBackupCodes(codes) {
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay open';
+  ov.style.zIndex = '1200';
+  ov.innerHTML = `<div class="modal-box" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--amber);">⚠️ Save Your Backup Codes</div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--dim);margin-bottom:12px;line-height:1.6;">
+        These <strong>8 codes</strong> are shown <strong style="color:var(--red);">only once</strong>.
+        Each works once if you ever lose your authenticator. Store them somewhere safe now.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        ${codes.map(c =>
+          `<div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green);
+                       background:var(--green-dim);border:1px solid rgba(0,232,122,.2);
+                       border-radius:7px;padding:8px 12px;">${c}</div>`
+        ).join('')}
+      </div>
+      <button class="btn btn-secondary" style="width:100%;"
+        onclick="navigator.clipboard.writeText(${JSON.stringify(codes.join('\n'))}).then(()=>showToast('Codes copied!','green'))">
+        <i class="fas fa-copy"></i> Copy All Codes
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">
+        <i class="fas fa-check"></i> I've Saved These Codes
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+}
+
+// ── Disable 2FA: requires password + live code ──
+function dash_show2FADisable() {
+  document.getElementById('dash2FAModalTitle').textContent = 'Disable Two-Factor Auth';
+  document.getElementById('dash2FAModalBody').innerHTML = `
+    <p style="font-size:.83rem;color:var(--dim);line-height:1.65;margin-bottom:16px;">
+      Disabling 2FA reduces your account security.
+      Confirm with your current password and a live code from your app.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Current Password <span style="color:var(--red)">*</span></label>
+      <input class="form-control" type="password" id="dash2FADisPwd"
+             placeholder="Your account password" autocomplete="current-password">
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label class="form-label">2FA Code <span style="color:var(--red)">*</span></label>
+      <input class="form-control" type="text" id="dash2FADisCode"
+             placeholder="6-digit code from your app"
+             inputmode="numeric" maxlength="6"
+             style="font-size:1.1rem;letter-spacing:.25em;text-align:center;font-family:'JetBrains Mono',monospace;">
+    </div>
+    <div class="tfa-err" id="dash2FADisErr"></div>`;
+  document.getElementById('dash2FAModalFooter').innerHTML =
+    '<button class="btn btn-secondary" onclick="dash_close2FAModal()">Cancel</button>' +
+    '<button class="btn btn-danger" id="dash2FADisBtn" onclick="dash_confirm2FADisable()">' +
+    '<i class="fas fa-lock-open"></i> Disable 2FA</button>';
+}
+
+async function dash_confirm2FADisable() {
+  const pwd   = (document.getElementById('dash2FADisPwd')?.value  || '').trim();
+  const code  = (document.getElementById('dash2FADisCode')?.value || '').trim();
+  const errEl = document.getElementById('dash2FADisErr');
+  if (!pwd)             { errEl.textContent = 'Password is required';            errEl.classList.add('show'); return; }
+  if (!code || code.length < 6) { errEl.textContent = 'Enter your 6-digit 2FA code'; errEl.classList.add('show'); return; }
+  const btn = document.getElementById('dash2FADisBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Disabling…'; }
+  errEl.classList.remove('show');
+
+  try {
+    const r = await apiFetch(`${API_URL}/api/auth/2fa/disable`, {
+      method: 'POST', body: JSON.stringify({ password: pwd, code })
+    });
+    if (!r) return;
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+
+    if (creatorData) creatorData.twoFactorEnabled = false;
+    dash_update2FABadge(false);
+    dash_close2FAModal();
+    showToast('Two-factor authentication disabled', 'amber');
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.classList.add('show');
+    const ci = document.getElementById('dash2FADisCode'); if (ci) ci.value = '';
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock-open"></i> Disable 2FA'; }
+  }
+}
 </script>
 
 </body>

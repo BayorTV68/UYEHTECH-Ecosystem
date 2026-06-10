@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <script src="/site-controller.js" defer></script>
 <style>
 :root {
   --ink:        #060810;
@@ -425,6 +426,69 @@ body {
   .login-heading { font-size: 1.9rem; }
   .stats-strip { padding: 20px; }
 }
+
+/* ── 2FA STEP ── */
+.twofa-wrap { display:none; animation: fadeUp 0.4s ease both; }
+.twofa-heading {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.1rem; color: var(--white); margin-bottom: 4px;
+}
+.twofa-sub { font-size: 0.82rem; color: var(--dim); margin-bottom: 20px; line-height: 1.6; }
+.otp-digit-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 20px;
+}
+.otp-d {
+  width: 44px; height: 52px; text-align: center;
+  font-size: 1.45rem; font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--ink-3); border: 1.5px solid var(--line);
+  border-radius: 10px; color: var(--green);
+  outline: none; caret-color: transparent;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+}
+.otp-d:focus {
+  border-color: rgba(0,232,122,0.55);
+  box-shadow: 0 0 0 3px rgba(0,232,122,0.09);
+  transform: translateY(-2px);
+}
+.otp-d.filled { border-color: rgba(0,232,122,0.4); background: rgba(0,232,122,0.06); }
+.otp-d.shake  { animation: tfaShake 0.35s ease; }
+.otp-sep { color: var(--muted); font-size: 0.9rem; }
+@keyframes tfaShake {
+  0%,100% { transform: translateX(0); }
+  25%     { transform: translateX(-5px); }
+  75%     { transform: translateX(5px); }
+}
+.twofa-backup-toggle {
+  background: none; border: none; color: var(--dim);
+  font-size: 0.76rem; font-family: 'JetBrains Mono', monospace;
+  cursor: pointer; text-decoration: underline;
+  text-underline-offset: 3px; padding: 0;
+  display: block; margin: 0 auto 18px;
+}
+.twofa-backup-toggle:hover { color: var(--green); }
+.twofa-back-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.82rem; color: var(--dim); background: none; border: none;
+  cursor: pointer; padding: 0; margin-top: 14px;
+  font-family: 'DM Sans', sans-serif; transition: color 0.2s;
+}
+.twofa-back-btn:hover { color: var(--green); }
+.twofa-err {
+  display: none; padding: 10px 14px; border-radius: 9px;
+  font-size: 0.8rem; margin-bottom: 16px;
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,0.22);
+  color: #fca5a5;
+}
+.twofa-err.show { display: block; }
+.twofa-info {
+  display: none; padding: 10px 14px; border-radius: 9px;
+  font-size: 0.8rem; margin-bottom: 14px;
+  background: var(--blue-dim); border: 1px solid rgba(96,165,250,0.22);
+  color: #93c5fd;
+}
+.twofa-info.show { display: block; }
 </style>
 </head>
 <body>
@@ -662,6 +726,64 @@ body {
       </div>
     </div><!-- /login-card -->
 
+    <!-- ══ 2FA VERIFICATION PANEL ══ -->
+    <div class="twofa-wrap" id="twofaWrap">
+      <div class="login-card">
+        <div class="card-header">
+          <div class="card-header-icon">
+            <i class="fas fa-shield-halved" style="color:var(--green);font-size:1.15rem;"></i>
+          </div>
+          <div>
+            <div class="card-header-title">Two-Factor Auth</div>
+            <div class="card-header-sub" id="twofaSub">Enter the 6-digit code from your authenticator app</div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="twofa-err" id="twofaErr"></div>
+          <div class="twofa-info" id="twofaInfo"></div>
+
+          <!-- OTP digit inputs -->
+          <div class="otp-digit-row" id="twofaDigitRow">
+            <input class="otp-d" id="tfa0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+            <input class="otp-d" id="tfa1" type="text" inputmode="numeric" maxlength="1">
+            <input class="otp-d" id="tfa2" type="text" inputmode="numeric" maxlength="1">
+            <span class="otp-sep">—</span>
+            <input class="otp-d" id="tfa3" type="text" inputmode="numeric" maxlength="1">
+            <input class="otp-d" id="tfa4" type="text" inputmode="numeric" maxlength="1">
+            <input class="otp-d" id="tfa5" type="text" inputmode="numeric" maxlength="1">
+          </div>
+
+          <!-- Backup code toggle -->
+          <div style="text-align:center;">
+            <button class="twofa-backup-toggle" id="twofaBackupToggle" onclick="creator_toggleBackup()">
+              Use a backup code instead
+            </button>
+          </div>
+          <div id="twofaBackupWrap" style="display:none;margin-bottom:18px;">
+            <input class="finput" type="text" id="twofaBackupInput"
+              placeholder="xxxxxxxx backup code" autocomplete="off"
+              style="font-family:'JetBrains Mono',monospace;letter-spacing:.06em;">
+          </div>
+
+          <button class="btn-login" id="twofaVerifyBtn" onclick="creator_submitTwoFA()">
+            <span class="btn-text">
+              <i class="fas fa-shield-check" id="twofaVerifyIcon"></i>
+              <span id="twofaVerifyLabel">Verify & Sign In</span>
+            </span>
+            <div class="btn-spinner"></div>
+          </button>
+
+          <div style="text-align:center;">
+            <button class="twofa-back-btn" onclick="creator_cancelTwoFA()">
+              <i class="fas fa-arrow-left" style="font-size:0.68rem;"></i> Back to login
+            </button>
+          </div>
+
+        </div><!-- /card-body -->
+      </div><!-- /login-card -->
+    </div><!-- /twofa-wrap -->
+
     <div class="security-note">
       <i class="fas fa-shield-halved"></i>
       Secured with 256-bit encryption &nbsp;·&nbsp;
@@ -841,7 +963,7 @@ function checkStrength(pw) {
 function var_amber() { return '#f59e0b'; }
 
 // ════════════════════════════════════════════
-// ✅ MAIN LOGIN
+// ✅ MAIN LOGIN  (2FA-aware)
 // ════════════════════════════════════════════
 async function doLogin() {
   hideAlert();
@@ -875,14 +997,19 @@ async function doLogin() {
       return;
     }
 
-    const user = data.user;
+    // ── 2FA required ───────────────────────────────────────────────
+    if (data.twoFactorRequired) {
+      sessionStorage.setItem('creator_preAuthToken', data.preAuthToken || '');
+      creator_show2FAStep();
+      setLoading('btnLogin', false);
+      return;
+    }
 
-    // ── Always verify creator status via the dedicated endpoint ──
-    // We can't rely solely on user.isCreator because the flag may not be set
-    // immediately after approval. /api/creator/me is the source of truth.
+    // ── Normal login: verify creator status then store session ─────
+    const user = data.user;
     let creatorStatus = null;
+
     if (user.isCreator) {
-      // Fast path: trust the flag, skip extra fetch
       creatorStatus = 'approved';
     } else {
       try {
@@ -897,7 +1024,6 @@ async function doLogin() {
           setTimeout(() => { window.location.href = '/marketplace/creator-apply'; }, 2200);
           return;
         }
-
         creatorStatus = creatorData.creator?.applicationStatus;
       } catch(_) {
         showAlert('Could not verify creator status. Check your connection and try again.');
@@ -922,38 +1048,29 @@ async function doLogin() {
       return;
     }
 
-    // ── Store session ──
-    // Dashboard reads 'token' and 'user' from localStorage.
-    // We honour "remember me": if unchecked we still write to localStorage
-    // (session-only is not practical here since the dashboard is a separate page),
-    // but we mark the session as session-only via a flag so future auth checks
-    // can clear it on tab close if desired.
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user',  JSON.stringify(data.user));
-
-    // Clean up any stale creator-specific keys from older login versions
-    localStorage.removeItem('creatorToken');
-    localStorage.removeItem('creatorUser');
-    sessionStorage.removeItem('creatorToken');
-    sessionStorage.removeItem('creatorUser');
-
-    // Store a remember-me flag so the dashboard can optionally enforce it
-    if (!rememberChecked) {
-      sessionStorage.setItem('creator_session_only', '1');
-    } else {
-      sessionStorage.removeItem('creator_session_only');
-    }
-
+    creator_storeSession(data);
     showAlert('Welcome back! Redirecting to your dashboard…', 'success');
-
-    setTimeout(() => {
-      window.location.href = '/marketplace/creator-dashboard';
-    }, 900);
+    setTimeout(() => { window.location.href = '/marketplace/creator-dashboard'; }, 900);
 
   } catch (err) {
     console.error('Login error:', err);
     showAlert('Connection error. Check your internet and try again.');
     setLoading('btnLogin', false);
+  }
+}
+
+// ── Session helper (used by both normal login and 2FA verify) ──
+function creator_storeSession(data) {
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('user',  JSON.stringify(data.user));
+  localStorage.removeItem('creatorToken');
+  localStorage.removeItem('creatorUser');
+  sessionStorage.removeItem('creatorToken');
+  sessionStorage.removeItem('creatorUser');
+  if (!rememberChecked) {
+    sessionStorage.setItem('creator_session_only', '1');
+  } else {
+    sessionStorage.removeItem('creator_session_only');
   }
 }
 
@@ -1062,6 +1179,197 @@ async function doResetPassword() {
 document.getElementById('otpCode')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') verifyResetCode();
 });
+
+// ════════════════════════════════════════════
+// ✅ CREATOR 2FA HELPERS
+// ════════════════════════════════════════════
+let _creator2FABackup = false;
+
+function creator_show2FAStep() {
+  document.getElementById('mainPanel').classList.remove('show');
+  document.getElementById('mainPanel').classList.add('hidden');
+  document.getElementById('twofaWrap').style.display = 'block';
+  setTimeout(() => document.getElementById('tfa0').focus(), 80);
+}
+
+function creator_cancelTwoFA() {
+  sessionStorage.removeItem('creator_preAuthToken');
+  _creator2FABackup = false;
+  document.getElementById('twofaWrap').style.display = 'none';
+  document.getElementById('mainPanel').classList.remove('hidden');
+  document.getElementById('mainPanel').classList.add('show');
+  _creator2FAClearDigits();
+  document.getElementById('twofaErr').classList.remove('show');
+  document.getElementById('twofaInfo').classList.remove('show');
+  hideAlert();
+}
+
+function _creator2FAClearDigits() {
+  ['tfa0','tfa1','tfa2','tfa3','tfa4','tfa5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('filled','shake'); }
+  });
+  const bi = document.getElementById('twofaBackupInput');
+  if (bi) bi.value = '';
+}
+
+function creator_toggleBackup() {
+  _creator2FABackup = !_creator2FABackup;
+  document.getElementById('twofaDigitRow').style.display  = _creator2FABackup ? 'none' : 'flex';
+  document.getElementById('twofaBackupWrap').style.display = _creator2FABackup ? 'block' : 'none';
+  document.getElementById('twofaBackupToggle').textContent = _creator2FABackup
+    ? 'Use authenticator app instead' : 'Use a backup code instead';
+  document.getElementById('twofaSub').textContent = _creator2FABackup
+    ? 'Enter one of your saved backup codes' : 'Enter the 6-digit code from your authenticator app';
+  if (_creator2FABackup) document.getElementById('twofaBackupInput').focus();
+  else { _creator2FAClearDigits(); document.getElementById('tfa0').focus(); }
+}
+
+// Wire OTP digit navigation
+(function _wireTFAInputs() {
+  const ids = ['tfa0','tfa1','tfa2','tfa3','tfa4','tfa5'];
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(-1);
+      el.classList.toggle('filled', !!el.value);
+      if (el.value && i < 5) document.getElementById(ids[i + 1]).focus();
+      if (i === 5 && el.value) creator_submitTwoFA();
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !el.value && i > 0)
+        document.getElementById(ids[i - 1]).focus();
+      if (e.key === 'Enter') creator_submitTwoFA();
+    });
+    el.addEventListener('paste', e => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData)
+        .getData('text').replace(/\D/g, '').slice(0, 6);
+      pasted.split('').forEach((ch, j) => {
+        const t = document.getElementById(ids[j]);
+        if (t) { t.value = ch; t.classList.add('filled'); }
+      });
+      const last = document.getElementById(ids[Math.min(pasted.length - 1, 5)]);
+      if (last) last.focus();
+      if (pasted.length === 6) creator_submitTwoFA();
+    });
+  });
+})();
+
+async function creator_submitTwoFA() {
+  const preAuthToken = sessionStorage.getItem('creator_preAuthToken');
+  const errEl  = document.getElementById('twofaErr');
+  const infoEl = document.getElementById('twofaInfo');
+  const btn    = document.getElementById('twofaVerifyBtn');
+
+  errEl.classList.remove('show');
+  infoEl.classList.remove('show');
+
+  let code;
+  if (_creator2FABackup) {
+    code = (document.getElementById('twofaBackupInput').value || '').trim();
+    if (!code) { errEl.textContent = 'Enter your backup code'; errEl.classList.add('show'); return; }
+  } else {
+    const digits = ['tfa0','tfa1','tfa2','tfa3','tfa4','tfa5']
+      .map(id => document.getElementById(id)?.value || '').join('');
+    if (digits.length < 6) {
+      errEl.textContent = 'Enter all 6 digits';
+      errEl.classList.add('show');
+      ['tfa0','tfa1','tfa2','tfa3','tfa4','tfa5'].forEach(id => {
+        document.getElementById(id)?.classList.add('shake');
+      });
+      setTimeout(() => {
+        ['tfa0','tfa1','tfa2','tfa3','tfa4','tfa5'].forEach(id =>
+          document.getElementById(id)?.classList.remove('shake'));
+      }, 400);
+      return;
+    }
+    code = digits;
+  }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  try {
+    const r    = await fetch(`${API_URL}/api/auth/2fa/verify-login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ preAuthToken, code }),
+    });
+    const data = await r.json();
+
+    if (!data.success) {
+      errEl.textContent = data.message || '2FA verification failed';
+      errEl.classList.add('show');
+      if (!_creator2FABackup) {
+        _creator2FAClearDigits();
+        document.getElementById('tfa0').focus();
+      }
+      if (data.attemptsLeft !== undefined) {
+        infoEl.textContent = `${data.attemptsLeft} attempt${data.attemptsLeft !== 1 ? 's' : ''} remaining`;
+        infoEl.classList.add('show');
+      }
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      return;
+    }
+
+    // ── 2FA passed — verify creator status before final redirect ──
+    const user = data.user;
+    let creatorStatus = null;
+
+    if (user.isCreator) {
+      creatorStatus = 'approved';
+    } else {
+      try {
+        const cRes  = await fetch(`${API_URL}/api/creator/me`, {
+          headers: { 'Authorization': `Bearer ${data.token}` }
+        });
+        const cData = await cRes.json();
+        if (!cData.success || !cData.creator) {
+          errEl.textContent = 'No creator account linked to this profile.';
+          errEl.classList.add('show');
+          btn.disabled = false;
+          btn.classList.remove('loading');
+          return;
+        }
+        creatorStatus = cData.creator?.applicationStatus;
+      } catch(_) {
+        errEl.textContent = 'Could not verify creator status. Try again.';
+        errEl.classList.add('show');
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        return;
+      }
+    }
+
+    if (creatorStatus !== 'approved') {
+      const msgs = {
+        pending:   'Your creator application is still under review.',
+        rejected:  'Your creator application was not approved.',
+        suspended: 'Your creator account has been suspended.',
+      };
+      errEl.textContent = msgs[creatorStatus] || 'Creator account inactive.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      return;
+    }
+
+    sessionStorage.removeItem('creator_preAuthToken');
+    creator_storeSession(data);
+
+    document.getElementById('twofaVerifyLabel').textContent = 'Success! Redirecting…';
+    setTimeout(() => { window.location.href = '/marketplace/creator-dashboard'; }, 900);
+
+  } catch(err) {
+    errEl.textContent = 'Network error — please try again';
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+}
 </script>
 </body>
 </html>
