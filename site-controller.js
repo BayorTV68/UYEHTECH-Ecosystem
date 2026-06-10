@@ -1,33 +1,3 @@
-/**
- * ═══════════════════════════════════════════════════════════════
- *  UYEH TECH — SITE CONTROLLER v2.1
- *  site-controller.js
- *
- *  Add ONE line to every page on uyeh.netlify.app:
- *    <script src="/site-controller.js" defer></script>
- *
- *  This script:
- *   ✅ Checks maintenance mode and shows overlay when active
- *   ✅ Shows/hides announcement banner from admin
- *   ✅ Enforces feature switches (store off = hide store links)
- *   ✅ Listens to WebSocket for instant admin changes
- *   ✅ Injects custom CSS from admin panel
- *   ✅ Loads Google Analytics / Facebook Pixel if configured
- *   ✅ Admin bypass: visit ?bypass=TOKEN to skip maintenance
- *   ✅ Polls settings every 60 seconds as fallback
- *
- *  v2.1 fixes:
- *   🔧 BUG 1  — Banner padding line overwritten immediately (layout broken)
- *   🔧 BUG 2  — pageBlocks block was outside function scope (crashed entire script)
- *   🔧 BUG 3  — WebSocket reconnect had no backoff (timer/connection leak)
- *   🔧 BUG 4  — Maintenance contact email was hardcoded (ignored admin settings)
- *   🔧 BUG 5  — Maintenance logo path hardcoded with a space in filename
- *   🔧 BUG 6  — chatEnabled feature selectors were guesses (silently did nothing)
- *   🔧 BUG 7  — Banner dismiss key used raw text (new wording re-showed old banner)
- *   🔧 BUG 8  — Double-fetch race between WebSocket and polling
- *   🔧 BUG 9  — Custom CSS never cleared when admin deleted it
- * ═══════════════════════════════════════════════════════════════
- */
 
 (function () {
   'use strict';
@@ -107,6 +77,7 @@
     handleFeatureToggles(s);
     handleCustomCSS(s);
     handleAnalytics(s);
+    handlePaymentGateway(s);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -321,7 +292,12 @@
       affiliatesEnabled: [
         'a[href*="affiliate"]',
         '[data-feature="affiliate"]'
-      ]
+      ],
+      couponFeeEnabled: [
+        '[data-feature="coupon-fee"]',
+        '#createCouponBtn',
+        '.coupon-create-btn'
+      ],
     };
 
     Object.entries(featureMap).forEach(function([flag, selectors]) {
@@ -677,11 +653,64 @@
       .replace(/"/g, '&quot;');
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // 6. PAYMENT GATEWAY
+  // Sets window.FLW_PUBLIC_KEY so any page can open Flutterwave
+  // checkout without a separate authenticated API call.
+  // Pre-loads the Flutterwave inline script so the modal opens
+  // instantly instead of waiting for a dynamic script inject.
+  // ─────────────────────────────────────────────────────────────
+  function handlePaymentGateway(s) {
+    if (s.flutterwavePublicKey) {
+      window.FLW_PUBLIC_KEY         = s.flutterwavePublicKey;
+      window.FLUTTERWAVE_PUBLIC_KEY = s.flutterwavePublicKey;
+    }
+
+    if (
+      s.flutterwavePublicKey &&
+      !window.__uyeh_flw_loaded &&
+      !window.location.pathname.includes('admin') &&
+      !window.location.pathname.includes('agent')
+    ) {
+      const sc   = document.createElement('script');
+      sc.src     = 'https://checkout.flutterwave.com/v3.js';
+      sc.async   = true;
+      sc.onload  = function() {
+        window.__uyeh_flw_loaded = true;
+        document.dispatchEvent(new CustomEvent('uyeh:flw-ready', {
+          detail: { publicKey: s.flutterwavePublicKey }
+        }));
+      };
+      sc.onerror = function() {
+        console.warn('[SiteController] Flutterwave script failed to load');
+      };
+      document.head.appendChild(sc);
+      window.__uyeh_flw_loaded = true;
+    }
+  }
+
   // Expose a manual refresh for pages that want to force a re-check,
   // and a getter for the last-known settings object.
   window.uyehSiteController = {
     refresh:     fetchAndApply,
-    getSettings: function() { return currentSettings; }
+    getSettings: function() { return currentSettings; },
+
+    getFlwPublicKey: function() {
+      return window.FLW_PUBLIC_KEY
+          || (currentSettings && currentSettings.flutterwavePublicKey)
+          || null;
+    },
+
+    onFlwReady: function(callback) {
+      if (typeof FlutterwaveCheckout !== 'undefined') {
+        callback(window.FLW_PUBLIC_KEY);
+        return;
+      }
+      document.addEventListener('uyeh:flw-ready', function handler(e) {
+        document.removeEventListener('uyeh:flw-ready', handler);
+        callback(e.detail.publicKey);
+      });
+    },
   };
 
 })();

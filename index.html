@@ -129,7 +129,26 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="UYEH TECH">
-    <link rel="apple-touch-icon" href="/icons/icon-180.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+    <!-- PWA install prompt capture — MUST be in <head> to catch early event -->
+    <script>
+    // Store the prompt the moment the browser fires it
+    // This runs before ANY deferred or bottom scripts
+    window._pwaPromptEvent = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      window._pwaPromptEvent = e;
+      // Show the install button immediately
+      var btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'inline-flex';
+    });
+    window.addEventListener('appinstalled', function() {
+      window._pwaPromptEvent = null;
+      var btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'none';
+    });
+    </script>
 <style>
 /* ========== RESET ========== */
 * {
@@ -2747,7 +2766,7 @@ input:disabled + .cookie-slider {
      <nav data-aos="fade-down" data-aos-duration="800">
         <!-- Logo -->
         <a href="/index.html" data-aos="zoom-in" data-aos-delay="200">
-            <img src="uyehtech logo.png" width="50px" height="50px" alt="UYEH TECH">
+            <img src="/images/uyehtech logo.png" width="50px" height="50px" alt="UYEH TECH">
         </a>
         
            <!-- Navigation Links -->
@@ -2845,18 +2864,34 @@ input:disabled + .cookie-slider {
   <li>
     <a href="/contact" class="nav-link">Contact</a>
   </li>
-  <button id="pwaInstallBtn"
-  onclick="window.uyehPwa && window.uyehPwa.promptInstall()"
-  style="display:none;
-         padding:8px 16px;border-radius:9px;border:1px solid rgba(0,255,136,.4);
-         background:rgba(0,255,136,.08);color:#00ff88;
-         font-weight:600;font-size:.82rem;cursor:pointer;
-         font-family:'Space Grotesk',sans-serif;
-         transition:background .2s;"
-  onmouseover="this.style.background='rgba(0,255,136,.15)'"
-  onmouseout="this.style.background='rgba(0,255,136,.08)'">
-  📱 Install App
-</button>
+  <li style="list-style:none;">
+    <button id="pwaInstallBtn"
+      onclick="
+        var e = window._pwaPromptEvent;
+        if (e) {
+          e.prompt();
+          e.userChoice.then(function(c) {
+            if (c.outcome === 'accepted') {
+              window._pwaPromptEvent = null;
+              document.getElementById('pwaInstallBtn').style.display = 'none';
+            }
+          });
+        } else if (window.uyehPwa) {
+          window.uyehPwa.promptInstall();
+        }
+      "
+      style="display:none;
+             padding:8px 16px;border-radius:9px;
+             border:1px solid rgba(0,255,136,.4);
+             background:rgba(0,255,136,.08);color:#00ff88;
+             font-weight:600;font-size:.82rem;cursor:pointer;
+             font-family:'Space Grotesk',sans-serif;
+             transition:background .2s;"
+      onmouseover="this.style.background='rgba(0,255,136,.15)'"
+      onmouseout="this.style.background='rgba(0,255,136,.08)'">
+      📱 Install App
+    </button>
+  </li>
 
 
  
@@ -6558,21 +6593,10 @@ console.log('🔐 Secret Access System Loaded');
 })();
 </script>
 <script>
-// Show the button only when install is available and app is not already installed
-window.addEventListener('beforeinstallprompt', function() {
-  var btn = document.getElementById('pwaInstallBtn');
-  if (btn) btn.style.display = 'inline-flex';
-});
-window.addEventListener('appinstalled', function() {
+// If already installed as PWA — hide the button
+if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
   var btn = document.getElementById('pwaInstallBtn');
   if (btn) btn.style.display = 'none';
-});
-// If already installed — hide it
-if (window.matchMedia('(display-mode: standalone)').matches) {
-  document.addEventListener('DOMContentLoaded', function() {
-    var btn = document.getElementById('pwaInstallBtn');
-    if (btn) btn.style.display = 'none';
-  });
 }
 </script>
 <script src="/pwa-install.js"></script>
