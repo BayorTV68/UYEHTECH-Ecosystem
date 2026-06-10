@@ -397,7 +397,7 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
         <div class="join-feat"><div class="feat-icon">🔗</div><div><strong class="feat-t">Per-product tracked links</strong><span class="feat-s">Individual stats per product you promote</span></div></div>
         <div class="join-feat"><div class="feat-icon">💰</div><div><strong class="feat-t">Tier commission bonuses</strong><span class="feat-s">Pro +2%, Elite +5% on top of base rate</span></div></div>
         <div class="join-feat"><div class="feat-icon">📊</div><div><strong class="feat-t">Full funnel analytics</strong><span class="feat-s">Click → Cart → Purchase tracking</span></div></div>
-        <div class="join-feat"><div class="feat-icon">🌐</div><div><strong class="feat-t">Vanity link + sub-affiliates</strong><span class="feat-s">Custom /ref/yourname + 2-tier earnings</span></div></div>
+        <div class="join-feat"><div class="feat-icon">🌐</div><div><strong class="feat-t">Vanity link + referral upgrades</strong><span class="feat-s">Custom /ref/yourname — refer 10 people for Pro, 50 for Elite</span></div></div>
       </div>
       <div style="margin-bottom:22px;text-align:left">
         <label class="f-lbl" style="display:block;margin-bottom:6px">Referred by another affiliate? (optional)</label>
@@ -452,19 +452,39 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
       </div>
       <div class="panel">
         <div class="panel-hdr">
-          <div class="panel-title"><i class="fas fa-users"></i>Sub-Affiliates</div>
-          <span class="panel-badge" id="subAffCount">0 referred</span>
+          <div class="panel-title"><i class="fas fa-user-plus"></i>Referrals</div>
+          <span class="panel-badge" id="referralCount">0 referred</span>
         </div>
         <div class="panel-body" style="padding:14px 18px">
-          <div style="margin-bottom:12px">
-            <div style="font-size:.68rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:6px">Share this to recruit affiliates under you</div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:.68rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:6px">Share your referral link — every person who joins counts toward your tier</div>
             <div class="link-row">
-              <input class="link-url" id="subRefLink" readonly>
-              <button class="link-copy" id="subRefCopyBtn" onclick="copySubRef()"><i class="fas fa-copy"></i>Copy</button>
+              <input class="link-url" id="refJoinLink" readonly>
+              <button class="link-copy" id="refJoinCopyBtn" onclick="copyRefJoinLink()"><i class="fas fa-copy"></i>Copy</button>
             </div>
           </div>
-          <div style="font-size:.74rem;color:var(--t3);line-height:1.6">Earn <strong style="color:var(--g)">5%</strong> of every commission your referred affiliates earn — forever.</div>
-          <div style="margin-top:8px;font-size:.72rem;color:var(--t3)">Sub-earnings: <strong style="color:var(--t1)" id="subEarningsDisplay">$0.00</strong></div>
+          <!-- Tier progress by referrals -->
+          <div id="referralTierProgress" style="margin-top:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+              <span style="font-size:.72rem;color:var(--t2);" id="refTierLabel">Progress to Pro</span>
+              <span style="font-size:.7rem;color:var(--g);font-family:'JetBrains Mono',monospace;" id="refTierPct">0%</span>
+            </div>
+            <div class="prog-track"><div class="prog-fill" id="refTierFill" style="width:0%"></div></div>
+            <div style="font-size:.67rem;color:var(--t3);margin-top:5px;font-family:'JetBrains Mono',monospace;" id="refTierHint"></div>
+          </div>
+          <!-- Tier rewards explanation -->
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--g3);border:1px solid var(--line2);border-radius:8px;padding:8px 12px;">
+              <span style="font-size:.76rem;color:var(--t1);font-weight:600;">🥈 Pro</span>
+              <span style="font-size:.72rem;color:var(--t2);">10 referrals</span>
+              <span style="font-size:.74rem;color:var(--g);font-family:'JetBrains Mono',monospace;font-weight:700;">+2% bonus</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--g3);border:1px solid var(--line2);border-radius:8px;padding:8px 12px;">
+              <span style="font-size:.76rem;color:var(--t1);font-weight:600;">🏆 Elite</span>
+              <span style="font-size:.72rem;color:var(--t2);">50 referrals</span>
+              <span style="font-size:.74rem;color:var(--g);font-family:'JetBrains Mono',monospace;font-weight:700;">+5% bonus</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="panel">
@@ -856,15 +876,32 @@ function renderTier() {
   const icons={starter:'⭐',pro:'🥇',elite:'💎'};
   const badge=document.getElementById('tierBadge'); badge.className=`tier-badge tier-${tier}`; badge.textContent=`${icons[tier]||'⭐'} ${cap(tier)}`;
   setText('tierBonus',(bonus>0?'+':'')+bonus+'%');
-  const tp=a.tierProgress;
-  if(tp&&tp.nextTier) {
-    const done=D.affiliate.totalConversions||0, needed=Math.max(tp.conversionsNeeded,0), thresh=done+needed;
-    const pct=thresh>0?Math.min(100,(done/thresh)*100):0;
-    setText('tierProgressLabel','Progress to '+cap(tp.nextTier)); setText('tierProgressPct',pct.toFixed(0)+'%');
-    document.getElementById('tierProgressFill').style.width=pct+'%';
-    const hints=[]; if(tp.conversionsNeeded>0) hints.push(`${tp.conversionsNeeded} more sales`); if(tp.earningsNeeded>0) hints.push(`$${tp.earningsNeeded.toFixed(0)} more earned`);
-    setText('tierProgressHint',hints.length?'Need: '+hints.join(' or '):''); document.getElementById('tierProgressWrap').style.display='block';
-  } else { document.getElementById('tierProgressWrap').innerHTML='<div style="font-size:.74rem;color:var(--g);font-weight:700;margin-top:4px">🏆 Elite tier reached — maximum bonus active!</div>'; }
+ const tp = a.tierProgress;
+  if (tp && tp.nextTier) {
+    const current = a.totalReferrals || 0;
+    const thresh  = tp.thresholdReferrals || 1;
+    const pct     = Math.min(100, (current / thresh) * 100);
+    setText('tierProgressLabel', 'Progress to ' + cap(tp.nextTier));
+    setText('tierProgressPct', pct.toFixed(0) + '%');
+    document.getElementById('tierProgressFill').style.width = pct + '%';
+    const needed = tp.referralsNeeded || 0;
+    setText('tierProgressHint', needed > 0 ? `Refer ${needed} more person${needed !== 1 ? 's' : ''} to reach ${cap(tp.nextTier)}` : '');
+    document.getElementById('tierProgressWrap').style.display = 'block';
+
+    // Also update the referral panel progress bar
+    const refFill  = document.getElementById('refTierFill');
+    const refLabel = document.getElementById('refTierLabel');
+    const refPct   = document.getElementById('refTierPct');
+    const refHint  = document.getElementById('refTierHint');
+    if (refFill)  refFill.style.width  = pct + '%';
+    if (refLabel) refLabel.textContent = 'Progress to ' + cap(tp.nextTier);
+    if (refPct)   refPct.textContent   = pct.toFixed(0) + '%';
+    if (refHint)  refHint.textContent  = needed > 0 ? `${needed} more referral${needed !== 1 ? 's' : ''} needed` : '';
+  } else {
+    document.getElementById('tierProgressWrap').innerHTML = '<div style="font-size:.74rem;color:var(--g);font-weight:700;margin-top:4px">🏆 Elite tier reached — maximum bonus active!</div>';
+    const rtp = document.getElementById('referralTierProgress');
+    if (rtp) rtp.innerHTML = '<div style="font-size:.74rem;color:var(--g);font-weight:700;">🏆 Elite — maximum bonus active!</div>';
+  }
 }
 function renderCode() { const code=D.affiliate.affiliateCode; setText('myCode',code); setInput('generalLink',`${SITE}/marketplace?ref=${code}`); }
 function buildProductLink(p,code) {
@@ -875,11 +912,18 @@ function buildProductLink(p,code) {
 }
 function renderSubAffiliate() {
   const code=D.affiliate.affiliateCode;
-  setInput('subRefLink',`${SITE}/marketplace/affiliate?join=1&ref=${code}`);
-  setText('subAffCount',(D.affiliate.subAffiliatesCount||0)+' referred');
-  setText('subEarningsDisplay','$'+(+(D.affiliate.subEarnings||0)).toFixed(2));
+ // Referral panel — replaces sub-affiliate panel
+  const refCount = D.affiliate.totalReferrals || D.affiliate.referralCount || 0;
+  setInput('refJoinLink', `${SITE}/marketplace/affiliate?join=1&ref=${code}`);
+  setText('referralCount', refCount + (refCount === 1 ? ' referred' : ' referred'));
 }
-function copySubRef() { clipCopy(document.getElementById('subRefLink').value,'subRefCopyBtn'); }
+function copyRefJoinLink() {
+  const el = document.getElementById('refJoinLink');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => toast('Referral link copied!', 'ok'))
+    .catch(() => { el.select(); document.execCommand('copy'); toast('Copied', 'ok'); });
+}
 function renderVanitySlug() {
   const a=D.affiliate;
   if(a.customSlug) { setInput('slugInput',a.customSlug); setText('vanityStatus','set'); document.getElementById('vanityStatus').style.color='var(--g)'; }
@@ -1038,8 +1082,8 @@ function renderEarnings(list) {
     const prod=e.productId?.title||e.productTitle||'—', ref=e.orderId?.orderReference||e.orderRef||'—';
     const sale=e.saleAmount?'$'+Number(e.saleAmount).toFixed(2):'—', rate=e.commissionRate?e.commissionRate+'%':'—';
     const earn=e.earningAmount?'$'+Number(e.earningAmount).toFixed(2):'—';
-    const isSub=(e.description||'').toLowerCase().includes('sub-affiliate');
-    const type=isSub?'<span class="bdg bdg-purple">sub</span>':'<span class="bdg bdg-muted">direct</span>';
+    // sub-affiliate entries removed from new ledger — show all as direct commissions
+    const type = '<span class="bdg bdg-muted">direct</span>';
     const stCls={confirmed:'bdg-green',pending:'bdg-amber',paid:'bdg-blue',reversed:'bdg-red'}[e.status]||'bdg-muted';
     return `<tr><td style="color:var(--t3);font-size:.74rem;white-space:nowrap">${fmtDate(e.createdAt)}</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(prod)}</td><td style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--t3)">${esc(ref)}</td><td>${sale}</td><td style="color:var(--t3)">${rate}</td><td style="font-weight:700;color:var(--g)">${earn}</td><td>${type}</td><td><span class="bdg ${stCls}">${e.status}</span></td></tr>`;
   }).join('');

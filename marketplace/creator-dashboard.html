@@ -21,6 +21,7 @@
   <meta name="robots" content="index, follow">
   <meta name="author" content="UYEH TECH">
   <meta name="theme-color" content="#00ff88">
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
   <script src="/site-controller.js" defer></script>
 <style>
   
@@ -4251,11 +4252,24 @@ select.form-control option { background: var(--ink-3); }
     </div>
   </div>
 
-  <!-- ══ COUPONS PAGE ══ -->
+ <!-- ══ COUPONS PAGE ══ -->
   <div class="page-content" id="page-coupons">
-    <div class="section-header" style="margin-bottom:20px;">
+    <div class="section-header" style="margin-bottom:16px;">
       <div class="section-title">Coupons <span class="stag" id="couponsTotal">0 total</span></div>
       <button class="btn btn-primary" onclick="openCouponModal()"><i class="fas fa-plus"></i> New Coupon</button>
+    </div>
+
+    <!-- Info banner -->
+    <div class="card" style="margin-bottom:16px;background:rgba(246,173,85,0.07);border:1px solid rgba(246,173,85,0.25);">
+      <div style="padding:14px 18px;display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-size:1.3rem;flex-shrink:0;">💡</span>
+        <div style="font-size:0.83rem;color:var(--text);line-height:1.6;">
+          <strong style="color:var(--amber);">How coupon fees work:</strong>
+          Creating a coupon requires a <strong>20% platform fee on the total coupon worth</strong>
+          (discount per use × quantity). Pay via Flutterwave, then admin reviews and activates it.
+          Coupons only work on <strong>your own products</strong>.
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -4265,21 +4279,21 @@ select.form-control option { background: var(--ink-3); }
             <tr>
               <th>Code</th>
               <th>Discount</th>
-              <th>Type</th>
+              <th>Qty</th>
               <th>Uses</th>
-              <th>Expires</th>
+              <th>Fee</th>
+              <th>Approval</th>
               <th>Status</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="couponsTableBody">
-            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No coupons yet.</td></tr>
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">No coupons yet. Create your first one.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-
   <!-- ══ BUYERS PAGE ══ -->
   <div class="page-content" id="page-buyers">
     <div class="section-header" style="margin-bottom:20px;">
@@ -4334,52 +4348,152 @@ select.form-control option { background: var(--ink-3); }
   </div>
 
   <!-- ══ COUPON MODAL ══ -->
+  <!-- ══ COUPON CREATE MODAL ══ -->
   <div class="modal-overlay" id="couponModal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:520px;">
       <div class="modal-header">
-        <div class="modal-title">Create Coupon</div>
+        <div class="modal-title">🎟️ Create Coupon</div>
         <button class="modal-close-btn" onclick="closeCouponModal()"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body">
+
         <div class="form-group">
-          <label class="form-label">Coupon Code</label>
-          <input type="text" class="form-control" id="couponCode" placeholder="e.g. LAUNCH20" style="text-transform:uppercase;">
-          <div class="form-hint">Buyers type this at checkout. Letters and numbers only.</div>
+          <label class="form-label">Coupon Code <span style="color:var(--red);">*</span></label>
+          <input type="text" class="form-control" id="couponCode" placeholder="e.g. LAUNCH20"
+            style="text-transform:uppercase;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;">
+          <div class="form-hint">Letters and numbers only, no spaces. Buyers type this at checkout.</div>
         </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Discount</label>
-            <input type="number" class="form-control" id="couponDiscount" placeholder="e.g. 20" min="1" max="80">
+            <label class="form-label">Discount Value <span style="color:var(--red);">*</span></label>
+            <input type="number" class="form-control" id="couponDiscount"
+              placeholder="e.g. 20" min="1" max="80" oninput="updateCouponFeePreview()">
           </div>
           <div class="form-group">
-            <label class="form-label">Type</label>
-            <select class="form-control" id="couponType">
+            <label class="form-label">Type <span style="color:var(--red);">*</span></label>
+            <select class="form-control" id="couponType" onchange="updateCouponFeePreview()">
               <option value="percentage">Percentage (%)</option>
-              <option value="fixed">Fixed Amount ($)</option>
+              <option value="fixed">Fixed Amount (₦)</option>
             </select>
           </div>
         </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Usage Limit</label>
-            <input type="number" class="form-control" id="couponUsageLimit" placeholder="Leave blank for unlimited" min="1">
+            <label class="form-label">Avg Product Price (₦) <span style="color:var(--red);">*</span></label>
+            <input type="number" class="form-control" id="couponProductWorth"
+              placeholder="e.g. 5000" min="1" oninput="updateCouponFeePreview()">
+            <div class="form-hint">Used to compute the platform fee.</div>
           </div>
           <div class="form-group">
-            <label class="form-label">Expires</label>
-            <input type="date" class="form-control" id="couponExpiresAt">
+            <label class="form-label">Quantity (max uses) <span style="color:var(--red);">*</span></label>
+            <input type="number" class="form-control" id="couponQuantity"
+              placeholder="e.g. 200" min="1" max="100000" oninput="updateCouponFeePreview()">
+            <div class="form-hint">How many buyers can use this code.</div>
           </div>
         </div>
+
+        <!-- Live fee preview -->
+        <div id="couponFeePreview" style="display:none;margin-bottom:14px;padding:12px 16px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);border-radius:10px;">
+          <div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">Platform fee estimate (20%)</div>
+          <div id="couponFeePreviewText" style="font-size:1.05rem;font-weight:700;color:var(--green);">—</div>
+          <div id="couponFeeBreakdown" style="font-size:0.74rem;color:var(--muted);margin-top:3px;"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Expires (optional)</label>
+            <input type="date" class="form-control" id="couponExpiresAt">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Min Purchase ₦ (optional)</label>
+            <input type="number" class="form-control" id="couponMinPurchase" placeholder="0" min="0">
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Description (optional)</label>
           <input type="text" class="form-control" id="couponDescription" placeholder="e.g. Launch week discount">
         </div>
+
+        <!-- Product restriction picker -->
+        <div style="border-top:1px solid var(--border);margin-top:4px;padding-top:14px;">
+          <label class="form-label" style="margin-bottom:4px;">
+            Apply to specific products? <span style="font-weight:400;color:var(--muted);">(optional)</span>
+          </label>
+          <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">
+            Leave all checked to apply to all your approved products (default).
+            Uncheck products you want to exclude.
+          </div>
+          <div id="couponProductPicker" style="max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+            <div style="color:var(--muted);font-size:0.8rem;padding:8px;">Loading products…</div>
+          </div>
+        </div>
+
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeCouponModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="createCoupon()"><i class="fas fa-tag"></i> Create Coupon</button>
+        <button class="btn btn-primary" onclick="createCoupon()" id="createCouponBtn">
+          <i class="fas fa-tag"></i> Create &amp; See Fee
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- ══ COUPON PAYMENT MODAL ══ -->
+  <div class="modal-overlay" id="couponPayModal">
+    <div class="modal-box" style="max-width:420px;text-align:center;">
+      <div class="modal-header" style="justify-content:center;border-bottom:1px solid var(--border);">
+        <div class="modal-title">💳 Pay Platform Fee</div>
+      </div>
+      <div class="modal-body" style="padding:28px 28px 20px;">
+        <div style="font-size:2.4rem;font-weight:800;color:var(--green);margin-bottom:4px;" id="couponPayAmount">₦0.00</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;" id="couponPayBreakdown"></div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:22px;line-height:1.6;">
+          This is 20% of your coupon's total worth.<br>
+          Pay to submit for admin review — your coupon activates once approved.
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:22px;text-align:left;">
+          <div style="font-size:0.74rem;color:var(--muted);margin-bottom:4px;">Coupon code</div>
+          <div id="couponPayCode" style="font-family:'JetBrains Mono',monospace;font-size:1.05rem;color:var(--accent);font-weight:700;"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;font-size:1rem;padding:13px;" onclick="payCouponFee()" id="payCouponFeeBtn">
+          <i class="fas fa-credit-card"></i> Pay with Flutterwave
+        </button>
+        <div style="margin-top:14px;">
+          <button class="btn btn-ghost btn-sm" onclick="closeCouponPayModal()" style="color:var(--muted);font-size:0.78rem;">
+            Pay later — coupon stays inactive
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COUPON PRODUCT SCOPE MODAL ══ -->
+  <div class="modal-overlay" id="couponProductModal">
+    <div class="modal-box" style="max-width:460px;">
+      <div class="modal-header">
+        <div class="modal-title">🛒 Coupon — Product Scope</div>
+        <button class="modal-close-btn" onclick="closeCouponProductModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+          Check the products this coupon applies to.
+          <strong style="color:var(--text);">Uncheck all</strong> to make it work on every product in your store.
+        </div>
+        <div id="couponProductModalPicker"
+          style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;">
+          <div style="color:var(--muted);font-size:0.8rem;">Loading…</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCouponProductModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCouponProducts()"><i class="fas fa-save"></i> Save</button>
+      </div>
+    </div>
+  </div>
+  
   <!-- ══ STORE PROFILE PAGE ══ -->
    
   <div class="page-content" id="page-store-profile">
@@ -8527,89 +8641,438 @@ async function resubmitProduct(id) {
   }
 }
 
-// ── COUPONS ──────────────────────────────────────────────────────
-function openCouponModal() { document.getElementById('couponModal').classList.add('open'); }
-function closeCouponModal() {
-  document.getElementById('couponModal').classList.remove('open');
-  ['couponCode','couponDiscount','couponUsageLimit','couponExpiresAt','couponDescription']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+// ══════════════════════════════════════════════════════════════════
+// COUPONS — Monetised, creator-scoped, admin-gated
+// ══════════════════════════════════════════════════════════════════
+
+let _pendingCoupon   = null; // { _id, code, fee } — set when payment modal is open
+let _editingCouponId = null; // set when product-scope modal is open
+let _flwPublicKey    = null; // cached Flutterwave public key
+
+// ── Fetch Flutterwave public key once ─────────────────────────────
+async function getFlwPublicKey() {
+  if (_flwPublicKey) return _flwPublicKey;
+  // Try window globals first (set by site-controller.js)
+  if (window.FLW_PUBLIC_KEY)       return (_flwPublicKey = window.FLW_PUBLIC_KEY);
+  if (window.FLUTTERWAVE_PUBLIC_KEY) return (_flwPublicKey = window.FLUTTERWAVE_PUBLIC_KEY);
+  try {
+    const token = localStorage.getItem('token');
+    const res   = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data  = await res.json();
+    _flwPublicKey = data?.settings?.flutterwavePublicKey
+                 || data?.settings?.FLW_PUBLIC_KEY
+                 || null;
+  } catch (_) {}
+  return _flwPublicKey;
 }
 
+// ── Live fee preview ──────────────────────────────────────────────
+function updateCouponFeePreview() {
+  const discount = parseFloat(document.getElementById('couponDiscount')?.value)     || 0;
+  const type     = document.getElementById('couponType')?.value                     || 'percentage';
+  const worth    = parseFloat(document.getElementById('couponProductWorth')?.value) || 0;
+  const qty      = parseInt(document.getElementById('couponQuantity')?.value)       || 0;
+  const box      = document.getElementById('couponFeePreview');
+  const txt      = document.getElementById('couponFeePreviewText');
+  const bkd      = document.getElementById('couponFeeBreakdown');
+
+  if (!discount || !worth || !qty) { if (box) box.style.display = 'none'; return; }
+
+  const discountPerUnit = type === 'percentage' ? (worth * discount) / 100 : discount;
+  const totalWorth      = discountPerUnit * qty;
+  const fee             = totalWorth * 0.20;
+  const fmt             = n => n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  if (box) box.style.display = 'block';
+  if (txt) txt.textContent   = `₦${fmt(fee)}`;
+  if (bkd) bkd.textContent   =
+    `${type === 'percentage' ? discount + '% of ₦' + worth.toLocaleString() : '₦' + discount.toLocaleString()} × ${qty.toLocaleString()} uses = ₦${fmt(totalWorth)} total worth → 20% fee`;
+}
+
+// ── Open / close create modal ─────────────────────────────────────
+function openCouponModal() {
+  _populateCouponProductPicker('couponProductPicker', []);
+  document.getElementById('couponModal').classList.add('open');
+}
+function closeCouponModal() {
+  document.getElementById('couponModal').classList.remove('open');
+  ['couponCode','couponDiscount','couponProductWorth','couponQuantity',
+   'couponExpiresAt','couponMinPurchase','couponDescription']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const box = document.getElementById('couponFeePreview');
+  if (box) box.style.display = 'none';
+}
+
+// ── Open / close payment modal ────────────────────────────────────
+function openCouponPayModal(coupon, fee) {
+  _pendingCoupon = { _id: coupon._id, code: coupon.code, fee };
+  const fmt = n => n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('couponPayAmount').textContent = `₦${fmt(fee)}`;
+  document.getElementById('couponPayCode').textContent   = coupon.code;
+  const bkd = document.getElementById('couponPayBreakdown');
+  if (bkd) bkd.textContent = coupon._feeBreakdown || '';
+  document.getElementById('couponPayModal').classList.add('open');
+}
+function closeCouponPayModal() {
+  document.getElementById('couponPayModal').classList.remove('open');
+  _pendingCoupon = null;
+  loadCoupons();
+}
+
+// ── Open / close product scope modal ─────────────────────────────
+function closeCouponProductModal() {
+  document.getElementById('couponProductModal').classList.remove('open');
+  _editingCouponId = null;
+}
+
+// ── Populate a product checkbox picker ────────────────────────────
+function _populateCouponProductPicker(containerId, checkedIds) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const products  = (window.productsData || []).filter(p => p.status === 'approved');
+  if (!products.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:8px;">No approved products found.</div>';
+    return;
+  }
+  const checkedSet = new Set((checkedIds || []).map(id => id.toString()));
+  // All checked = no restriction (apply to all)
+  const allMode    = checkedSet.size === 0;
+  container.innerHTML = products.map(p => {
+    const pid = (p.productId || p._id || '').toString();
+    return `
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 10px;
+                    border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);">
+        <input type="checkbox" value="${pid}"
+          ${allMode || checkedSet.has(pid) ? 'checked' : ''}
+          style="accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+        <span style="font-size:0.82rem;line-height:1.3;">
+          <span style="color:var(--text);font-weight:500;">${p.title}</span>
+          <span style="color:var(--muted);font-size:0.74rem;margin-left:6px;">${p.productType}</span>
+        </span>
+      </label>`;
+  }).join('');
+}
+
+// ── Load & render coupons table ───────────────────────────────────
 async function loadCoupons() {
   const token = localStorage.getItem('token');
   if (!token) return;
   const tbody = document.getElementById('couponsTableBody');
   const total = document.getElementById('couponsTotal');
+  if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">Loading…</td></tr>`;
+
   try {
-    const res  = await fetch(`${API_URL}/api/creator/coupons`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const res  = await fetch(`${API_URL}/api/creator/coupons`, { headers: { 'Authorization': `Bearer ${token}` } });
     const data = await res.json();
-    if (!data.success) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--red);">${data.message||'Failed to load'}</td></tr>`; return; }
-    const coupons = data.coupons || [];
-    if (total) total.textContent = coupons.length + ' total';
-    if (!coupons.length) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No coupons yet. Create your first one.</td></tr>`;
+
+    if (!data.success) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--red);">${data.message || 'Failed to load'}</td></tr>`;
       return;
     }
-    tbody.innerHTML = coupons.map(c => `
-      <tr>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--green);">${c.code}</td>
-        <td style="font-weight:600;">${c.discount}${c.type === 'percentage' ? '%' : '$'}</td>
-        <td style="font-size:0.8rem;color:var(--muted);">${c.type}</td>
-        <td style="font-size:0.8rem;color:var(--muted);">${c.usageCount||0}${c.usageLimit ? ' / '+c.usageLimit : ''}</td>
-        <td style="font-size:0.78rem;color:var(--muted);">${c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : '—'}</td>
-        <td><span class="badge ${c.isActive ? 'badge-green' : 'badge-muted'}">${c.isActive ? 'Active' : 'Inactive'}</span></td>
-        <td>
-          ${c.isActive ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:0.75rem;" onclick="deactivateCoupon('${c._id}')">Deactivate</button>` : '—'}
-        </td>
-      </tr>`).join('');
+
+    const coupons = data.coupons || [];
+    if (total) total.textContent = coupons.length + ' total';
+
+    if (!coupons.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">No coupons yet. Click "New Coupon" to get started.</td></tr>`;
+      return;
+    }
+
+    const fmt = n => (n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    tbody.innerHTML = coupons.map(c => {
+
+      // Fee / payment status cell
+      const feeBadge = c.paymentStatus === 'paid'
+        ? `<span class="badge badge-green" style="font-size:0.7rem;">Paid</span>`
+        : c.paymentStatus === 'refunded'
+        ? `<span class="badge badge-muted" style="font-size:0.7rem;">Refunded</span>`
+        : `<button class="btn btn-ghost btn-sm"
+            style="color:var(--amber);font-size:0.71rem;padding:3px 7px;border:1px solid rgba(246,173,85,0.4);"
+            onclick="openCouponPayModal({_id:'${c._id}',code:'${c.code}'}, ${c.paymentFee || 0})">
+            💳 Pay ₦${fmt(c.paymentFee)}
+          </button>`;
+
+      // Approval cell
+      const approvalBadge = c.adminApprovalStatus === 'approved'
+        ? `<span class="badge badge-green" style="font-size:0.7rem;">Approved</span>`
+        : c.adminApprovalStatus === 'rejected'
+        ? `<span class="badge badge-red" style="font-size:0.7rem;" title="${c.adminNote || 'No reason given'}">Rejected</span>`
+        : c.paymentStatus === 'paid'
+        ? `<span class="badge badge-amber" style="font-size:0.7rem;">Pending</span>`
+        : `<span style="color:var(--border);font-size:0.75rem;">—</span>`;
+
+      // Active badge
+      const activeBadge = c.isActive
+        ? `<span class="badge badge-green">Active</span>`
+        : `<span class="badge badge-muted">Inactive</span>`;
+
+      // Action buttons
+      let actions = '';
+      if (c.isActive) {
+        actions =
+          `<button class="btn btn-ghost btn-sm" style="color:var(--accent);font-size:0.71rem;" onclick="manageCouponProducts('${c._id}')">Products</button> ` +
+          `<button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:0.71rem;" onclick="deactivateCoupon('${c._id}')">Deactivate</button>`;
+      } else if (c.paymentStatus === 'paid' && c.adminApprovalStatus === 'pending') {
+        actions = `<span style="font-size:0.72rem;color:var(--muted);">Awaiting admin</span>`;
+      } else if (c.paymentStatus === 'unpaid') {
+        actions = `<button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:0.71rem;" onclick="deleteCoupon('${c._id}')">Delete</button>`;
+      } else if (c.adminApprovalStatus === 'rejected') {
+        actions = `<span style="font-size:0.72rem;color:var(--muted);" title="${c.adminNote || ''}">Contact admin</span>`;
+      }
+
+      return `
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:0.81rem;color:var(--green);font-weight:600;">${c.code}</td>
+          <td style="font-weight:600;">${c.discount}${c.type === 'percentage' ? '%' : '₦'}</td>
+          <td style="font-size:0.8rem;color:var(--muted);">${c.usageLimit ? c.usageLimit.toLocaleString() : '—'}</td>
+          <td style="font-size:0.8rem;color:var(--muted);">${c.usageCount || 0}${c.usageLimit ? ' / ' + c.usageLimit.toLocaleString() : ''}</td>
+          <td>${feeBadge}</td>
+          <td>${approvalBadge}</td>
+          <td>${activeBadge}</td>
+          <td style="white-space:nowrap;">${actions}</td>
+        </tr>`;
+    }).join('');
+
   } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--red);">Network error.</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--red);">Network error.</td></tr>`;
   }
 }
 
+// ── Create coupon — Step 1 ────────────────────────────────────────
 async function createCoupon() {
-  const token = localStorage.getItem('token');
-  const code  = document.getElementById('couponCode')?.value.trim().toUpperCase();
-  const discount = parseFloat(document.getElementById('couponDiscount')?.value);
-  const type  = document.getElementById('couponType')?.value;
-  const usageLimit = parseInt(document.getElementById('couponUsageLimit')?.value) || null;
-  const expiresAt  = document.getElementById('couponExpiresAt')?.value || null;
-  const description = document.getElementById('couponDescription')?.value.trim();
+  const token        = localStorage.getItem('token');
+  const code         = document.getElementById('couponCode')?.value.trim().toUpperCase();
+  const discount     = parseFloat(document.getElementById('couponDiscount')?.value);
+  const type         = document.getElementById('couponType')?.value;
+  const productWorth = parseFloat(document.getElementById('couponProductWorth')?.value);
+  const quantity     = parseInt(document.getElementById('couponQuantity')?.value);
+  const expiresAt    = document.getElementById('couponExpiresAt')?.value || null;
+  const minPurchase  = parseFloat(document.getElementById('couponMinPurchase')?.value) || 0;
+  const description  = document.getElementById('couponDescription')?.value.trim();
 
-  if (!code)               { showToast('⚠️ Coupon code is required', 'amber'); return; }
-  if (!discount || discount <= 0) { showToast('⚠️ Enter a valid discount amount', 'amber'); return; }
+  // Collect product opt-in selection
+  const checkboxes       = document.querySelectorAll('#couponProductPicker input[type="checkbox"]');
+  const allChecked        = [...checkboxes].every(cb => cb.checked);
+  const allowedProductIds = allChecked ? [] : [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
+
+  // Validate
+  if (!code)                      { showToast('⚠️ Coupon code is required', 'amber'); return; }
+  if (!/^[A-Z0-9]+$/.test(code)) { showToast('⚠️ Code must be letters and numbers only — no spaces or symbols', 'amber'); return; }
+  if (!discount || discount <= 0)  { showToast('⚠️ Enter a valid discount value', 'amber'); return; }
   if (type === 'percentage' && discount > 80) { showToast('⚠️ Max percentage discount is 80%', 'amber'); return; }
+  if (!productWorth || productWorth <= 0) { showToast('⚠️ Enter your average product price to compute the fee', 'amber'); return; }
+  if (!quantity || quantity < 1)  { showToast('⚠️ Enter the number of uses (quantity)', 'amber'); return; }
+  if (quantity > 100000)          { showToast('⚠️ Quantity cannot exceed 100,000', 'amber'); return; }
+
+  const btn = document.getElementById('createCouponBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…'; }
 
   try {
     const res  = await fetch(`${API_URL}/api/creator/coupons`, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, discount, type, usageLimit, expiresAt, description })
+      body:    JSON.stringify({
+        code, discount, type, productWorth, quantity,
+        expiresAt, minPurchaseAmount: minPurchase, description,
+        allowedProductIds,
+      }),
     });
     const data = await res.json();
+
     if (data.success) {
-      showToast('✅ Coupon created!', 'green');
       closeCouponModal();
-      loadCoupons();
+      // Open payment modal immediately
+      const couponForPay = {
+        _id:          data.coupon._id,
+        code:         data.coupon.code,
+        _feeBreakdown: data.fee?.description || '',
+      };
+      openCouponPayModal(couponForPay, data.fee?.amount || 0);
     } else {
       showToast('❌ ' + (data.message || 'Failed to create coupon'), 'red');
     }
-  } catch(e) { showToast('❌ Network error', 'red'); }
+  } catch(e) {
+    showToast('❌ Network error', 'red');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-tag"></i> Create & See Fee'; }
+  }
 }
 
+// ── Pay coupon fee — Step 2 (Flutterwave inline) ──────────────────
+async function payCouponFee() {
+  if (!_pendingCoupon) return;
+  const token = localStorage.getItem('token');
+  const btn   = document.getElementById('payCouponFeeBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening payment…'; }
+
+  // Get public key
+  let pubKey = await getFlwPublicKey();
+  if (!pubKey) {
+    showToast('⚠️ Payment gateway not configured. Contact admin.', 'amber');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+    return;
+  }
+
+  // Get creator email for the checkout form
+  let userEmail = 'creator@uyehtech.com';
+  try {
+    const meRes  = await fetch(`${API_URL}/api/creator/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const meData = await meRes.json();
+    userEmail = meData?.creator?.email || meData?.user?.email || userEmail;
+  } catch (_) {}
+
+  const amountNGN      = _pendingCoupon.fee;
+  const couponSnapshot = { ..._pendingCoupon };
+  const txRef          = `CPNFEE-${couponSnapshot.code}-${Date.now()}`;
+
+  // Dynamically load Flutterwave script if not present
+  if (typeof FlutterwaveCheckout === 'undefined') {
+    await new Promise((resolve, reject) => {
+      const s  = document.createElement('script');
+      s.src    = 'https://checkout.flutterwave.com/v3.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    }).catch(() => null);
+  }
+
+  if (typeof FlutterwaveCheckout === 'undefined') {
+    showToast('❌ Flutterwave failed to load. Check your internet connection.', 'red');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+    return;
+  }
+
+  FlutterwaveCheckout({
+    public_key:      pubKey,
+    tx_ref:          txRef,
+    amount:          amountNGN,
+    currency:        'NGN',
+    payment_options: 'card,banktransfer,ussd',
+    customer: {
+      email: userEmail,
+      name:  'UYEH Creator',
+    },
+    meta: {
+      coupon_id:   couponSnapshot._id,
+      coupon_code: couponSnapshot.code,
+      fee_type:    'coupon_platform_fee',
+    },
+    customizations: {
+      title:       'UYEH TECH — Coupon Fee',
+      description: `Platform fee for coupon "${couponSnapshot.code}"`,
+      logo:        'https://uyehtech.netlify.app/logo.png',
+    },
+    callback: async function(resp) {
+      if (resp.status === 'successful') {
+        showToast('✅ Payment received! Verifying with server…', 'green');
+        await _verifyCouponPayment(couponSnapshot._id, resp.transaction_id, token);
+      } else {
+        showToast('❌ Payment was not completed. Try again.', 'red');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+      }
+    },
+    onclose: function() {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+    },
+  });
+}
+
+// ── Server-side verify after Flutterwave callback ─────────────────
+async function _verifyCouponPayment(couponId, transactionId, token) {
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons/${couponId}/pay`, {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ transactionId }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('🎉 Verified! Your coupon is now pending admin review.', 'green');
+      document.getElementById('couponPayModal').classList.remove('open');
+      _pendingCoupon = null;
+      loadCoupons();
+    } else {
+      showToast('⚠️ ' + (data.message || 'Verification failed. Contact support with your transaction ID.'), 'amber');
+    }
+  } catch(e) {
+    showToast('⚠️ Network error during verification. Contact support.', 'amber');
+  }
+}
+
+// ── Manage product scope for an active coupon ─────────────────────
+async function manageCouponProducts(couponId) {
+  _editingCouponId = couponId;
+  const token = localStorage.getItem('token');
+
+  // Get existing allowedProductIds for this coupon
+  let checkedIds = [];
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    const coupon = (data.coupons || []).find(c => c._id === couponId);
+    checkedIds = coupon?.allowedProductIds || [];
+  } catch (_) {}
+
+  _populateCouponProductPicker('couponProductModalPicker', checkedIds);
+  document.getElementById('couponProductModal').classList.add('open');
+}
+
+async function saveCouponProducts() {
+  if (!_editingCouponId) return;
+  const token      = localStorage.getItem('token');
+  const checkboxes = document.querySelectorAll('#couponProductModalPicker input[type="checkbox"]');
+  const allChecked  = [...checkboxes].every(cb => cb.checked);
+  const allowedProductIds = allChecked
+    ? []
+    : [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
+
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons/${_editingCouponId}/products`, {
+      method:  'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ allowedProductIds }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('✅ ' + data.message, 'green');
+      closeCouponProductModal();
+      loadCoupons();
+    } else {
+      showToast('❌ ' + (data.message || 'Failed to update product scope'), 'red');
+    }
+  } catch(e) {
+    showToast('❌ Network error', 'red');
+  }
+}
+
+// ── Deactivate active coupon ──────────────────────────────────────
 async function deactivateCoupon(couponId) {
   if (!confirm('Deactivate this coupon? Buyers can no longer use it.')) return;
   const token = localStorage.getItem('token');
   try {
     const res  = await fetch(`${API_URL}/api/creator/coupons/${couponId}`, {
-      method:  'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
+      method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await res.json();
     if (data.success) { showToast('✅ Coupon deactivated', 'green'); loadCoupons(); }
-    else showToast('❌ ' + (data.message || 'Failed'), 'red');
+    else showToast('❌ ' + (data.message || 'Failed to deactivate'), 'red');
+  } catch(e) { showToast('❌ Network error', 'red'); }
+}
+
+// ── Delete unpaid coupon ──────────────────────────────────────────
+async function deleteCoupon(couponId) {
+  if (!confirm('Permanently delete this coupon? This cannot be undone.')) return;
+  const token = localStorage.getItem('token');
+  try {
+    const res  = await fetch(`${API_URL}/api/creator/coupons/${couponId}`, {
+      method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) { showToast('✅ Coupon deleted', 'green'); loadCoupons(); }
+    else showToast('❌ ' + (data.message || 'Failed to delete'), 'red');
   } catch(e) { showToast('❌ Network error', 'red'); }
 }
 
