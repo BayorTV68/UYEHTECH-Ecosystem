@@ -6,6 +6,7 @@
   <title>Sign Up — UYEH TECH</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <script src="/site-controller.js" defer></script>
 <style>
 :root{
   --g:#00ff88;--g2:#00c96a;--g3:rgba(0,255,136,.08);--g4:rgba(0,255,136,.14);
@@ -146,6 +147,58 @@ body{
   .auth-card{padding:28px 18px;}
   .step-line{width:24px;}
 }
+
+/* ── Referral badge (shown when ?ref= is in URL) ── */
+.ref-badge{
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  background:rgba(0,255,136,.06);
+  border:1px solid rgba(0,255,136,.2);
+  border-radius:10px;
+  margin-bottom:20px;
+  font-size:.78rem;
+  color:var(--t2);
+  line-height:1.5;
+}
+.ref-badge.show{display:flex;}
+.ref-badge-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--g2),var(--g));
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:.85rem;color:#080a0c;
+}
+.ref-badge-text strong{color:var(--g);}
+.ref-badge-dismiss{
+  margin-left:auto;background:none;border:none;
+  color:var(--t3);cursor:pointer;font-size:.75rem;padding:2px 4px;
+  transition:color .2s;flex-shrink:0;
+}
+.ref-badge-dismiss:hover{color:var(--red);}
+
+/* ── Referral input row on step 3 ── */
+.ref-field-wrap{
+  display:none;
+  margin-bottom:16px;
+}
+.ref-field-wrap.show{display:block;}
+.ref-field-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 13px;
+  background:rgba(0,255,136,.04);
+  border:1px solid rgba(0,255,136,.13);
+  border-radius:10px;
+}
+.ref-field-row i{color:var(--g);font-size:.85rem;flex-shrink:0;}
+.ref-field-label{font-size:.72rem;color:var(--t3);flex:1;}
+.ref-field-code{font-size:.8rem;font-weight:700;color:var(--g);font-family:monospace;letter-spacing:.5px;}
+.ref-clear-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--t3);font-size:.7rem;padding:2px 5px;
+  transition:color .2s;flex-shrink:0;
+}
+.ref-clear-btn:hover{color:var(--red);}
 </style>
 </head>
 <body>
@@ -169,6 +222,16 @@ body{
     <div class="auth-card-head">
       <div class="auth-card-title">Create Your Account</div>
       <div class="auth-card-sub">Join thousands of creators and buyers</div>
+    </div>
+
+    <!-- Referral badge — shown when user arrives via an affiliate invite link -->
+    <div class="ref-badge" id="refBadge">
+      <div class="ref-badge-icon"><i class="fas fa-link"></i></div>
+      <div class="ref-badge-text">
+        You were invited by <strong id="refBadgeName"></strong>.<br>
+        <span style="font-size:.7rem;color:var(--t3);">Create your account to complete your registration.</span>
+      </div>
+      <button class="ref-badge-dismiss" onclick="clearRefCode()" title="Remove referral"><i class="fas fa-xmark"></i></button>
     </div>
 
     <!-- Progress steps -->
@@ -255,6 +318,18 @@ body{
         <div class="field-err" id="confirmErr"></div>
       </div>
 
+      <!-- Referral attribution row — only shown if ref code is present -->
+      <div class="ref-field-wrap" id="refFieldWrap">
+        <div class="ref-field-row">
+          <i class="fas fa-user-plus"></i>
+          <span class="ref-field-label">Referred by affiliate code</span>
+          <span class="ref-field-code" id="refFieldCode"></span>
+          <button type="button" class="ref-clear-btn" onclick="clearRefCode()" title="Remove referral">
+            <i class="fas fa-xmark"></i> remove
+          </button>
+        </div>
+      </div>
+
       <div class="form-group checkbox-row" style="margin-bottom:22px;">
         <input type="checkbox" id="agreeTerms">
         <label for="agreeTerms">I agree to the <a href="/marketplace/terms" target="_blank">Terms of Service</a> and <a href="/marketplace/privacy" target="_blank">Privacy Policy</a></label>
@@ -289,6 +364,64 @@ const API_URL = 'https://uyehtechbackend.onrender.com';
     window.location.replace('/marketplace/dashboard');
   }
 })();
+
+/* ══════════════════════════════════════════════════════════════
+   REFERRAL CODE CAPTURE
+   Priority order:
+     1. ?ref= in current URL
+     2. Already stored in localStorage('uyeh_ref')
+   Stored value survives page navigation so the ref persists
+   through the 3-step OTP flow until the account is created.
+══════════════════════════════════════════════════════════════ */
+const REF_KEY = 'uyeh_ref'; // must match backend localStorage key reference
+
+function _sanitizeRef(raw) {
+  // Strip everything except A-Z 0-9 hyphen underscore, max 20 chars
+  if (!raw || typeof raw !== 'string') return null;
+  const cleaned = raw.replace(/[^a-zA-Z0-9_-]/g, '').toUpperCase().slice(0, 20);
+  return cleaned || null;
+}
+
+(function captureRef() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlRef    = _sanitizeRef(urlParams.get('ref'));
+
+  if (urlRef) {
+    // URL ref always wins — store/overwrite
+    localStorage.setItem(REF_KEY, urlRef);
+  }
+
+  const storedRef = _sanitizeRef(localStorage.getItem(REF_KEY));
+  if (storedRef) {
+    _showRefBadge(storedRef);
+  }
+
+  // Clean the ?ref= from the visible URL without reloading
+  if (urlRef && window.history.replaceState) {
+    const clean = window.location.pathname + window.location.hash;
+    window.history.replaceState(null, '', clean);
+  }
+})();
+
+function _showRefBadge(code) {
+  if (!code) return;
+  const badge    = document.getElementById('refBadge');
+  const nameEl   = document.getElementById('refBadgeName');
+  const codeEl   = document.getElementById('refFieldCode');
+  const wrapEl   = document.getElementById('refFieldWrap');
+  if (badge)  { nameEl.textContent = code; badge.classList.add('show'); }
+  if (codeEl) { codeEl.textContent = code; }
+  if (wrapEl) { wrapEl.classList.add('show'); }
+}
+
+function clearRefCode() {
+  localStorage.removeItem(REF_KEY);
+  const badge  = document.getElementById('refBadge');
+  const wrapEl = document.getElementById('refFieldWrap');
+  if (badge)  badge.classList.remove('show');
+  if (wrapEl) wrapEl.classList.remove('show');
+  showToast('Referral removed', 'info');
+}
 
 /* ── Particles ── */
 (function(){
@@ -472,16 +605,16 @@ async function verifyOTP() {
 /* ══════════════════════
    STEP 3 — Create Account
    POST /api/auth/signup
-   Body: { fullName, email, password, emailVerified: true }
+   Body: { fullName, email, password, emailVerified: true, ref?: string }
 ══════════════════════ */
 async function createAccount() {
   hideAlerts();
   clearAllFieldErrors();
 
-  const fullName       = document.getElementById('fullName').value.trim();
-  const password       = document.getElementById('password').value;
-  const confirmPw      = document.getElementById('confirmPassword').value;
-  const agreeTerms     = document.getElementById('agreeTerms').checked;
+  const fullName   = document.getElementById('fullName').value.trim();
+  const password   = document.getElementById('password').value;
+  const confirmPw  = document.getElementById('confirmPassword').value;
+  const agreeTerms = document.getElementById('agreeTerms').checked;
 
   let valid = true;
   if (!fullName || fullName.length < 2) {
@@ -502,24 +635,48 @@ async function createAccount() {
   }
   if (!valid) return;
 
+  // ── Read referral code from localStorage ────────────────────────────────
+  // This was captured from ?ref= when the user first landed on the page.
+  // We send it to the backend which credits the referrer's totalReferrals.
+  const ref = _sanitizeRef(localStorage.getItem(REF_KEY)) || null;
+
   const btn = document.getElementById('signupBtn');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
 
   try {
+    const payload = {
+      fullName,
+      email:         currentEmail,
+      password,
+      emailVerified: true,
+    };
+    // Only include ref in payload if it exists — backend ignores null/undefined gracefully
+    if (ref) payload.ref = ref;
+
     const res  = await fetch(`${API_URL}/api/auth/signup`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ fullName, email: currentEmail, password, emailVerified: true })
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
     });
     const data = await res.json();
 
     if (data.success) {
+      // ── Store auth ──────────────────────────────────────────────────────
       localStorage.setItem('token', data.token);
       localStorage.setItem('user',  JSON.stringify(data.user));
+
+      // ── Clear referral code — one-time use, never reuse ─────────────────
+      localStorage.removeItem(REF_KEY);
+
+      // ── Success UI ──────────────────────────────────────────────────────
       showAlert('alertSuccess');
-      // Hide steps so only success shows
       [1,2,3].forEach(i => { const el = document.getElementById('step'+i); if(el) el.style.display='none'; });
       updateProgress(3);
+      if (ref) {
+        showToast('🎉 Account created! Welcome to UYEH TECH.', 'success');
+      }
       setTimeout(() => window.location.replace('/marketplace/dashboard'), 1500);
+
     } else {
       const msg = data.message || 'Signup failed. Please try again.';
       showAlert('alertError', msg);
@@ -530,7 +687,6 @@ async function createAccount() {
     btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
   }
 }
-
 /* ── Password visibility toggles ── */
 document.getElementById('pwToggle1').addEventListener('click', function() {
   const inp = document.getElementById('password');

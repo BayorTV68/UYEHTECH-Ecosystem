@@ -5236,7 +5236,25 @@ function handleLogout() {
   }
 }
 
-// ── LOAD CREATOR DATA ────────────────────────────────────────────
+// ── LOAD CREATOR DATA ──────────────────────────────────async function getFlwPublicKey() {
+  if (_flwPublicKey) return _flwPublicKey;
+  // 1. Try site-controller (already fetched from /api/settings/public, no auth needed)
+  if (window.uyehSiteController?.getFlwPublicKey) {
+    _flwPublicKey = window.uyehSiteController.getFlwPublicKey();
+    if (_flwPublicKey) return _flwPublicKey;
+  }
+  // 2. Try window globals (set by site-controller)
+  if (window.FLW_PUBLIC_KEY)         return (_flwPublicKey = window.FLW_PUBLIC_KEY);
+  if (window.FLUTTERWAVE_PUBLIC_KEY) return (_flwPublicKey = window.FLUTTERWAVE_PUBLIC_KEY);
+  // 3. Last resort: authenticated settings endpoint
+  try {
+    const token = localStorage.getItem('token');
+    const res   = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data  = await res.json();
+    _flwPublicKey = data?.settings?.flutterwavePublicKey || null;
+  } catch (_) {}
+  return _flwPublicKey;
+}──────────
 async function loadCreatorData() {
   const token = localStorage.getItem('token');
   if (!token) return;
