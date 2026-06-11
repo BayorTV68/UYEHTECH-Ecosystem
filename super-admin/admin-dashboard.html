@@ -2940,6 +2940,11 @@ tr:hover {
                         <i class="fas fa-star-half-alt"></i>
                         <span>Reviews</span>
                     </div>
+                    <div class="nav-item" data-page="creator-coupons">
+                        <i class="fas fa-tags"></i>
+                        <span>Creator Coupons</span>
+                        <span class="nav-badge" id="pendingCouponsBadge" style="display:none;background:rgba(251,191,36,.25);color:#fbbf24;">0</span>
+                    </div>
                 </div>
             </div>
 
@@ -3092,6 +3097,7 @@ tr:hover {
             <div id="productsPage" class="page-content hidden"></div>
             <div id="downloadsPage" class="page-content hidden"></div>
             <div id="couponsPage" class="page-content hidden"></div>
+            <div id="creator-couponsPage" class="page-content hidden"></div>
             <div id="blogPage" class="page-content hidden"></div>
              <div id="creator-applicationsPage" class="page-content hidden"></div>
             <div id="creator-accountsPage" class="page-content hidden"></div>
@@ -4180,6 +4186,7 @@ function navigateTo(page) {
         case 'products':              loadProductsData();           break;
         case 'downloads':             loadDownloadsData();          break;
         case 'coupons':               loadCouponsData();            break;
+        case 'creator-coupons':       loadCreatorCoupons();         break;
         case 'blog':                  loadBlogData();               break;
         case 'creator-applications':  loadCreatorApplications();    break;
         case 'creator-accounts':      loadCreatorAccounts();        break;
@@ -4242,6 +4249,22 @@ async function updateNotificationBadges() {
                 payoutBadge.textContent = overview.pendingPayouts || 0;
                 payoutBadge.style.display = (overview.pendingPayouts > 0) ? 'inline' : 'none';
             }
+
+            // Pending creator coupons badge
+            try {
+                const ccRes  = await fetch(`${API_URL}/api/admin/coupons/pending-approval`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const ccData = await ccRes.json();
+                if (ccData.success) {
+                    const ccBadge = document.getElementById('pendingCouponsBadge');
+                    if (ccBadge) {
+                        const count = (ccData.coupons || []).length;
+                        ccBadge.textContent    = count;
+                        ccBadge.style.display  = count > 0 ? 'inline' : 'none';
+                    }
+                }
+            } catch (_) {}
 
             // Open tickets badge — fetch from dedicated stats endpoint
             try {
@@ -5148,9 +5171,6 @@ async function loadUsersData(page = 1, search = '', status = 'all', role = 'all'
                     <tr>
                         <th>User</th>
                         <th>Roles</th>
-                        <th>Orders</th>
-                        <th>Spent</th>
-                        <th>Downloads</th>
                         <th>Joined</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -5212,9 +5232,6 @@ async function loadUsersData(page = 1, search = '', status = 'all', role = 'all'
                     </div>
                 </td>
                 <td>${roles.join('')}</td>
-                <td style="font-weight:600;color:var(--primary);">${u.orderCount||0}</td>
-                <td style="font-family:'DM Mono',monospace;font-size:.8rem;">$${(u.totalSpent||0).toFixed(2)}</td>
-                <td>${u.downloadCount||0}</td>
                 <td style="font-size:.75rem;color:#9ca3af;">${fd(u.createdAt)}</td>
                 <td>
                     <span class="status-badge ${u.isBanned?'status-inactive':'status-active'}">
@@ -6196,7 +6213,7 @@ async function loadOrdersData(page = 1, search = '', status = 'all') {
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                   <tr><th>Ref</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="ordersTable">
                     <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
@@ -6230,14 +6247,18 @@ async function loadOrdersData(page = 1, search = '', status = 'all') {
             }
             
             tbody.innerHTML = data.orders.map(order => `
-                <tr>
-                    <td>${order.orderReference}</td>
-                    <td>${order.customerInfo.name}<br><small style="color: var(--gray);">${order.customerInfo.email}</small></td>
-                    <td>${order.items.length}</td>
-                    <td>$${order.total.toFixed(2)}</td>
+               <tr>
+                    <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--primary);">
+                        ${(order.orderReference||'').slice(-10)}
+                    </td>
+                    <td>
+                        <div style="font-weight:500;font-size:.83rem;">${order.customerInfo.name}</div>
+                        <div style="font-size:.7rem;color:#6b7280;">${order.customerInfo.email}</div>
+                    </td>
+                    <td style="font-weight:700;color:var(--primary);">$${order.total.toFixed(2)}</td>
                     <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                    <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                   <td>
+                    <td style="font-size:.76rem;color:#9ca3af;">${new Date(order.createdAt).toLocaleDateString('en-GB')}</td>
+                    
                         <div class="action-btns">
                             <button class="action-btn" onclick="viewOrder('${order._id}')" title="View">
                                 <i class="fas fa-eye"></i>
@@ -6497,7 +6518,7 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Product</th><th>Type</th><th>Category</th><th>Price</th><th>File</th><th>Status</th><th>Actions</th></tr>
+                    <tr><th>Product</th><th>Type</th><th>Price</th><th>File</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="productsTable">
                     <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
@@ -6554,7 +6575,6 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
                             ${typeIcon[pType] || ''} ${pType}
                         </span>
                     </td>
-                    <td style="font-size:.82rem;color:#9ca3af;">${product.category}</td>
                     <td style="font-weight:700;color:var(--primary);">$${product.price.toFixed(2)}</td>
                     <td>
                         ${hasFile
@@ -6565,6 +6585,9 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
                     <td><span class="status-badge ${product.isActive ? 'status-active' : 'status-inactive'}">${product.isActive ? 'Active' : 'Inactive'}</span></td>
                     <td>
                         <div class="action-btns">
+                            <button class="action-btn" onclick="viewProductDetail('${product._id}','${esc(product.title)}','${esc(product.category)}','${esc(product.productType||'download')}',${product.price},'${esc(product.description||'')}','${product.isActive}')" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             <button class="action-btn" onclick="editProduct('${product._id}')" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -6584,6 +6607,47 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
         console.error('Products error:', error);
         showNotification('Failed to load products', 'error');
     }
+}
+
+function viewProductDetail(id, title, category, type, price, description, isActive) {
+    document.getElementById('productDetailModal')?.remove();
+    const typeIcon = { download:'📥', music:'🎵', software:'💻', video:'🎬', course:'🎓', ebook:'📖' };
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="cr-modal-overlay" id="productDetailModal" onclick="if(event.target===this)this.remove()">
+        <div class="cr-modal wide">
+            <h3>${typeIcon[type]||'📦'} ${esc(title)}</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
+                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Type</div>
+                    <div style="font-size:.84rem;color:#e5e7eb;font-weight:500;text-transform:capitalize;">${esc(type)}</div>
+                </div>
+                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
+                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Category</div>
+                    <div style="font-size:.84rem;color:#e5e7eb;font-weight:500;">${esc(category)}</div>
+                </div>
+                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
+                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Price</div>
+                    <div style="font-size:.84rem;color:var(--primary);font-weight:700;">$${parseFloat(price).toFixed(2)}</div>
+                </div>
+                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
+                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Status</div>
+                    <div><span class="status-badge ${isActive==='true'?'status-active':'status-inactive'}">${isActive==='true'?'Active':'Inactive'}</span></div>
+                </div>
+            </div>
+            ${description ? `
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);
+                 border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+                <div style="font-size:.68rem;color:#9ca3af;margin-bottom:5px;">Description</div>
+                <div style="font-size:.82rem;color:#d1d5db;line-height:1.6;">${esc(description)}</div>
+            </div>` : ''}
+            <div class="cr-modal-actions">
+                <button class="btn btn-secondary" onclick="document.getElementById('productDetailModal').remove()">Close</button>
+                <button class="btn btn-primary" onclick="document.getElementById('productDetailModal').remove();editProduct('${id}')">
+                    <i class="fas fa-edit"></i> Edit Product
+                </button>
+            </div>
+        </div>
+    </div>`);
 }
 
 async function handleCreateProduct(event) {
@@ -6992,6 +7056,517 @@ async function deleteCoupon(code) {
     } catch (error) {
         showNotification('Failed to delete coupon', 'error');
     }
+}
+
+// =====================================================================
+// CREATOR COUPONS
+// Admin review queue for creator-paid coupon fee submissions.
+// Routes:
+//   GET /api/admin/coupons/pending-approval       — paid, awaiting review
+//   GET /api/admin/coupons?creatorOnly=true&approvalStatus=
+//   PUT /api/admin/coupons/:id/review             — { action, adminNote }
+// =====================================================================
+
+let ccState = { filter: 'pending', list: [] };
+
+// ── Page loader ───────────────────────────────────────────────────
+async function loadCreatorCoupons() {
+    const page = document.getElementById('creator-couponsPage');
+    if (!page) return;
+
+    page.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Creator Coupons</h1>
+            <p class="page-subtitle">Review coupon fee payments and approve or reject creator coupon activations</p>
+        </div>
+
+        <div id="ccStatsRow" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+             gap:12px;margin-bottom:22px;"></div>
+
+        <div class="cr-filter-bar">
+            <select id="ccFilterSelect" onchange="ccState.filter=this.value;fetchCreatorCoupons()">
+                <option value="pending">⏳ Pending Approval</option>
+                <option value="approved">✅ Approved</option>
+                <option value="rejected">❌ Rejected</option>
+                <option value="unpaid">💳 Unpaid</option>
+                <option value="all">All Creator Coupons</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="fetchCreatorCoupons()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Creator</th>
+                        <th>Discount</th>
+                        <th>Qty</th>
+                        <th>Fee Paid</th>
+                        <th>TX Ref</th>
+                        <th>Payment</th>
+                        <th>Approval</th>
+                        <th>Active</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ccTableBody">
+                    <tr><td colspan="11" style="text-align:center;padding:30px;color:#9ca3af;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading…
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    document.getElementById('ccFilterSelect').value = ccState.filter;
+    await fetchCreatorCoupons();
+}
+
+// ── Fetch data ────────────────────────────────────────────────────
+async function fetchCreatorCoupons() {
+    const tbody    = document.getElementById('ccTableBody');
+    const statsRow = document.getElementById('ccStatsRow');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:30px;color:#9ca3af;">
+        <i class="fas fa-spinner fa-spin"></i> Loading…
+    </td></tr>`;
+
+    try {
+        const [listRes, pendingRes] = await Promise.all([
+            fetch(`${API_URL}/api/admin/coupons?creatorOnly=true&approvalStatus=${ccState.filter}`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            }),
+            fetch(`${API_URL}/api/admin/coupons/pending-approval`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            }),
+        ]);
+
+        const listData    = await listRes.json();
+        const pendingData = await pendingRes.json();
+
+        // Stats row
+        if (statsRow) {
+            const all         = listData.coupons  || [];
+            const pending     = pendingData.coupons || [];
+            const totalFee    = pending.reduce((s, c) => s + (c.paymentFee || 0), 0);
+            const approved    = all.filter(c => c.adminApprovalStatus === 'approved').length;
+            const rejected    = all.filter(c => c.adminApprovalStatus === 'rejected').length;
+            const unpaid      = all.filter(c => c.paymentStatus === 'unpaid').length;
+
+            statsRow.innerHTML =
+                ccStatCard('⏳ Pending',  pending.length,  '#fbbf24') +
+                ccStatCard('✅ Approved', approved,        '#00ff88') +
+                ccStatCard('❌ Rejected', rejected,        '#ff4444') +
+                ccStatCard('💳 Unpaid',   unpaid,          '#9ca3af') +
+                ccStatCard('💰 Fee Queue',
+                    '₦' + totalFee.toLocaleString('en-NG', { minimumFractionDigits: 2 }),
+                    '#60a5fa');
+
+            // Keep sidebar badge in sync
+            const badge = document.getElementById('pendingCouponsBadge');
+            if (badge) {
+                badge.textContent   = pending.length;
+                badge.style.display = pending.length > 0 ? 'inline' : 'none';
+            }
+            syncGroupBadges();
+        }
+
+        if (!listData.success) throw new Error(listData.message || 'Failed to load');
+
+        ccState.list = listData.coupons || [];
+        renderCcTable(ccState.list);
+
+    } catch (e) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="11"
+            style="text-align:center;padding:30px;color:#ff4444;">
+            <i class="fas fa-exclamation-circle"></i> ${esc(e.message)}
+        </td></tr>`;
+    }
+}
+
+function ccStatCard(label, value, color) {
+    return `<div style="background:#161616;border:1px solid rgba(255,255,255,.07);
+                 border-radius:12px;padding:16px 20px;">
+                <div style="font-size:.72rem;color:#9ca3af;margin-bottom:4px;">${label}</div>
+                <div style="font-size:1.35rem;font-weight:700;color:${color};">${value}</div>
+            </div>`;
+}
+
+// ── Render table rows ─────────────────────────────────────────────
+function renderCcTable(coupons) {
+    const tbody = document.getElementById('ccTableBody');
+    if (!tbody) return;
+
+    if (!coupons.length) {
+        tbody.innerHTML = `<tr><td colspan="11"
+            style="text-align:center;padding:50px;color:#9ca3af;">
+            <i class="fas fa-tags" style="font-size:2.2rem;display:block;margin-bottom:14px;opacity:.15;"></i>
+            No coupons found for this filter.
+        </td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = coupons.map(c => {
+        const creator = c.ownerCreatorId || {};
+
+        const payBadge =
+            c.paymentStatus === 'paid'     ? `<span class="cr-badge cr-badge-approved" style="font-size:.65rem;">Paid</span>` :
+            c.paymentStatus === 'refunded' ? `<span class="cr-badge" style="font-size:.65rem;background:rgba(150,150,150,.1);color:#aaa;border:1px solid rgba(150,150,150,.3);">Refunded</span>` :
+                                             `<span class="cr-badge cr-badge-pending" style="font-size:.65rem;">Unpaid</span>`;
+
+        const approvalBadge =
+            c.adminApprovalStatus === 'approved' ? `<span class="cr-badge cr-badge-approved" style="font-size:.65rem;">Approved</span>` :
+            c.adminApprovalStatus === 'rejected' ? `<span class="cr-badge cr-badge-rejected" style="font-size:.65rem;" title="${esc(c.adminNote||'')}">Rejected</span>` :
+                                                   `<span class="cr-badge cr-badge-pending" style="font-size:.65rem;">Pending</span>`;
+
+        const activeBadge = c.isActive
+            ? `<span class="cr-badge cr-badge-approved" style="font-size:.65rem;">Active</span>`
+            : `<span class="cr-badge" style="font-size:.65rem;background:rgba(150,150,150,.08);color:#9ca3af;border:1px solid rgba(150,150,150,.2);">Inactive</span>`;
+
+        const canReview = c.paymentStatus === 'paid' && c.adminApprovalStatus === 'pending';
+
+        const actions = `
+            <div class="action-btns">
+                <button class="action-btn" onclick="openCcDetailModal('${c._id}')" title="View full detail">
+                    <i class="fas fa-eye"></i>
+                </button>
+                ${canReview ? `
+                <button class="action-btn" style="color:#00ff88;"
+                    onclick="openCcReviewModal('${c._id}','approve')" title="Approve">
+                    <i class="fas fa-check-circle"></i>
+                </button>
+                <button class="action-btn danger"
+                    onclick="openCcReviewModal('${c._id}','reject')" title="Reject">
+                    <i class="fas fa-times-circle"></i>
+                </button>` : ''}
+            </div>`;
+
+        const createdDate = c.createdAt
+            ? new Date(c.createdAt).toLocaleDateString('en-GB') : '—';
+
+        return `<tr>
+            <td>
+                <strong style="font-family:'DM Mono',monospace;color:#00ff88;
+                    letter-spacing:.04em;font-size:.88rem;">${esc(c.code)}</strong>
+            </td>
+            <td>
+                <div style="font-weight:500;font-size:.84rem;">${esc(creator.storeName || '—')}</div>
+                <div style="font-size:.7rem;color:#9ca3af;">${esc(creator.userId?.email || '')}</div>
+            </td>
+            <td style="font-family:'DM Mono',monospace;">
+                ${c.discount}${c.type === 'percentage' ? '%' : '₦'}
+                <span style="display:block;font-size:.65rem;color:#9ca3af;">${c.type}</span>
+            </td>
+            <td style="font-family:'DM Mono',monospace;">${(c.usageLimit || 0).toLocaleString()}</td>
+            <td style="font-family:'DM Mono',monospace;color:#00ff88;font-weight:600;">
+                ${c.paymentFee > 0
+                    ? '₦' + (c.paymentFee).toLocaleString('en-NG', { minimumFractionDigits: 2 })
+                    : '—'}
+            </td>
+            <td style="font-family:'DM Mono',monospace;font-size:.72rem;color:#9ca3af;">
+                ${esc(c.paymentTxRef || '—')}
+            </td>
+            <td>${payBadge}</td>
+            <td>${approvalBadge}</td>
+            <td>${activeBadge}</td>
+            <td style="font-size:.78rem;color:#9ca3af;">${createdDate}</td>
+            <td>${actions}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ── Full detail modal ─────────────────────────────────────────────
+async function openCcDetailModal(couponId) {
+    const c = ccState.list.find(x => x._id === couponId);
+    if (!c) return;
+
+    const creator      = c.ownerCreatorId || {};
+    const approvedBy   = c.approvedBy     || {};
+    const createdDate  = c.createdAt  ? new Date(c.createdAt).toLocaleString()             : '—';
+    const approvedDate = c.approvedAt ? new Date(c.approvedAt).toLocaleString()            : '—';
+    const expiry       = c.expiresAt  ? new Date(c.expiresAt).toLocaleDateString('en-GB') : 'No expiry';
+
+    const productScope = (c.allowedProductIds || []).length > 0
+        ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">
+            ${c.allowedProductIds.map(id =>
+                `<span style="font-family:'DM Mono',monospace;font-size:.65rem;padding:2px 8px;
+                     background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);
+                     border-radius:6px;color:#00ff88;">${esc(id.toString().slice(-8))}</span>`
+            ).join('')}
+           </div>`
+        : `<span style="color:#9ca3af;font-size:.78rem;">All creator products</span>`;
+
+    const canReview = c.paymentStatus === 'paid' && c.adminApprovalStatus === 'pending';
+
+    removeCcModals();
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="cr-modal-overlay" id="ccDetailModal" onclick="if(event.target===this)removeCcModals()">
+        <div class="cr-modal wide" style="max-width:680px;">
+
+            <h3>
+                <i class="fas fa-tag" style="color:#00ff88;"></i>
+                <span style="font-family:'DM Mono',monospace;">${esc(c.code)}</span>
+                &nbsp;— Coupon Detail
+            </h3>
+
+            <!-- Status strip -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+                ${ccBadge(c.isActive ? 'Active' : 'Inactive',
+                    c.isActive ? '#00ff88' : '#9ca3af',
+                    c.isActive ? 'rgba(0,255,136,.1)' : 'rgba(150,150,150,.1)')}
+                ${ccBadge('Payment: ' + (c.paymentStatus || 'unpaid'),
+                    c.paymentStatus === 'paid' ? '#00ff88' : c.paymentStatus === 'refunded' ? '#aaa' : '#fbbf24',
+                    'rgba(0,0,0,.2)')}
+                ${ccBadge('Approval: ' + (c.adminApprovalStatus || 'pending'),
+                    c.adminApprovalStatus === 'approved' ? '#00ff88' :
+                    c.adminApprovalStatus === 'rejected' ? '#ff4444' : '#fbbf24',
+                    'rgba(0,0,0,.2)')}
+            </div>
+
+            <!-- Core fields grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+                ${ccField('Discount',       `${c.discount}${c.type === 'percentage' ? '%' : '₦'} (${c.type})`)}
+                ${ccField('Quantity',       (c.usageLimit || 0).toLocaleString() + ' uses')}
+                ${ccField('Used So Far',    `${c.usageCount || 0} / ${c.usageLimit || 0}`)}
+                ${ccField('Min Purchase',   c.minPurchaseAmount > 0 ? '₦' + c.minPurchaseAmount.toLocaleString() : 'None')}
+                ${ccField('Expires',        expiry)}
+                ${ccField('Single Use / User', c.singleUsePerUser ? 'Yes' : 'No')}
+                ${ccField('Platform Fee',
+                    c.paymentFee > 0
+                        ? '<span style="color:#00ff88;font-weight:600;">₦' +
+                          c.paymentFee.toLocaleString('en-NG', { minimumFractionDigits: 2 }) + '</span>'
+                        : '—')}
+                ${ccField('Created', createdDate)}
+            </div>
+
+            <!-- Creator -->
+            <div style="background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);
+                 border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+                <div style="font-size:.7rem;color:#9ca3af;text-transform:uppercase;
+                     letter-spacing:.04em;margin-bottom:7px;">Creator</div>
+                <div style="font-weight:600;color:#fff;font-size:.9rem;">${esc(creator.storeName || '—')}</div>
+                <div style="font-size:.76rem;color:#9ca3af;margin-top:3px;">
+                    ${esc(creator.userId?.email || creator._id || '—')}
+                </div>
+            </div>
+
+            <!-- Flutterwave payment -->
+            <div style="background:rgba(96,165,250,.04);border:1px solid rgba(96,165,250,.15);
+                 border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+                <div style="font-size:.7rem;color:#9ca3af;text-transform:uppercase;
+                     letter-spacing:.04em;margin-bottom:10px;">Flutterwave Payment</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    ${ccField('TX Ref', `<span style="font-family:'DM Mono',monospace;font-size:.78rem;">${esc(c.paymentTxRef || '—')}</span>`)}
+                    ${ccField('TX ID',  `<span style="font-family:'DM Mono',monospace;font-size:.78rem;">${esc(c.paymentTxId  || '—')}</span>`)}
+                </div>
+                ${c.paymentStatus === 'refunded' ? `
+                <div style="margin-top:10px;padding:9px 12px;background:rgba(251,191,36,.06);
+                     border-radius:8px;font-size:.76rem;color:#fbbf24;border:1px solid rgba(251,191,36,.18);">
+                    ⚠️ Marked for refund. Process manually via Flutterwave dashboard using TX Ref above.
+                </div>` : ''}
+            </div>
+
+            <!-- Applicable products -->
+            <div style="margin-bottom:14px;">
+                <div style="font-size:.7rem;color:#9ca3af;text-transform:uppercase;
+                     letter-spacing:.04em;margin-bottom:6px;">Applicable Products</div>
+                ${productScope}
+            </div>
+
+            <!-- Description -->
+            ${c.description ? `
+            <div style="margin-bottom:14px;">
+                <div style="font-size:.7rem;color:#9ca3af;text-transform:uppercase;
+                     letter-spacing:.04em;margin-bottom:5px;">Description</div>
+                <div style="font-size:.84rem;color:#e5e7eb;">${esc(c.description)}</div>
+            </div>` : ''}
+
+            <!-- Admin note (if rejected) -->
+            ${c.adminNote ? `
+            <div style="background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.2);
+                 border-radius:10px;padding:13px 16px;margin-bottom:14px;">
+                <div style="font-size:.7rem;color:#ff4444;text-transform:uppercase;
+                     letter-spacing:.04em;margin-bottom:5px;">Admin Note (Rejection Reason)</div>
+                <div style="font-size:.84rem;color:#e5e7eb;">${esc(c.adminNote)}</div>
+                <div style="font-size:.72rem;color:#9ca3af;margin-top:5px;">
+                    By ${esc(approvedBy.email || approvedBy._id || '—')} &nbsp;·&nbsp; ${approvedDate}
+                </div>
+            </div>` : ''}
+
+            <!-- Actions -->
+            <div class="cr-modal-actions">
+                <button class="btn btn-secondary" onclick="removeCcModals()">Close</button>
+                ${canReview ? `
+                <button class="btn btn-danger"
+                    onclick="removeCcModals();openCcReviewModal('${c._id}','reject')">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn btn-primary"
+                    onclick="removeCcModals();openCcReviewModal('${c._id}','approve')">
+                    <i class="fas fa-check"></i> Approve
+                </button>` : ''}
+            </div>
+
+        </div>
+    </div>`);
+}
+
+// ── Approve / Reject modal ────────────────────────────────────────
+function openCcReviewModal(couponId, action) {
+    const c = ccState.list.find(x => x._id === couponId);
+    if (!c) return;
+
+    const isApprove = action === 'approve';
+    const creator   = c.ownerCreatorId || {};
+
+    removeCcModals();
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="cr-modal-overlay" id="ccReviewModal" onclick="if(event.target===this)removeCcModals()">
+        <div class="cr-modal">
+
+            <h3>
+                <i class="fas fa-${isApprove ? 'check-circle' : 'times-circle'}"
+                   style="color:${isApprove ? '#00ff88' : '#ff4444'};"></i>
+                ${isApprove ? 'Approve' : 'Reject'} Creator Coupon
+            </h3>
+
+            <!-- Coupon summary card -->
+            <div style="padding:14px 16px;background:rgba(0,255,136,.05);
+                 border:1px solid rgba(0,255,136,.12);border-radius:10px;margin-bottom:18px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;
+                     gap:12px;flex-wrap:wrap;">
+                    <div>
+                        <span style="font-family:'DM Mono',monospace;font-size:1rem;
+                              color:#00ff88;font-weight:700;">${esc(c.code)}</span>
+                        <span style="font-size:.75rem;color:#9ca3af;margin-left:10px;">
+                            ${c.discount}${c.type === 'percentage' ? '%' : '₦'}
+                            &nbsp;·&nbsp;
+                            ${(c.usageLimit || 0).toLocaleString()} uses
+                        </span>
+                    </div>
+                    <div style="font-size:.85rem;font-weight:700;color:#fbbf24;">
+                        Fee: ₦${(c.paymentFee || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}
+                    </div>
+                </div>
+                <div style="font-size:.75rem;color:#9ca3af;margin-top:6px;">
+                    Creator: <strong style="color:#e5e7eb;">${esc(creator.storeName || '—')}</strong>
+                </div>
+                <div style="font-size:.72rem;color:#9ca3af;margin-top:3px;font-family:'DM Mono',monospace;">
+                    TX Ref: ${esc(c.paymentTxRef || '—')}
+                </div>
+            </div>
+
+            ${isApprove ? `
+            <!-- Approve info -->
+            <div style="padding:12px 14px;background:rgba(0,255,136,.04);
+                 border:1px solid rgba(0,255,136,.1);border-radius:9px;
+                 margin-bottom:18px;font-size:.8rem;color:#9ca3af;line-height:1.6;">
+                ✅ Approving will set this coupon to
+                <strong style="color:#00ff88;">active immediately</strong>.
+                Buyers will be able to use code
+                <span style="font-family:'DM Mono',monospace;color:#00ff88;">${esc(c.code)}</span>
+                at checkout on ${creator.storeName || 'the creator'}'s products.
+            </div>` : `
+            <!-- Reject fields -->
+            <div class="form-group" style="margin-bottom:14px;">
+                <label style="font-size:.78rem;color:#9ca3af;margin-bottom:7px;display:block;">
+                    Reason for Rejection <span style="color:#ff4444;">*</span>
+                </label>
+                <textarea id="ccRejectNote" rows="3"
+                    style="width:100%;background:#0f0f0f;border:1px solid rgba(255,255,255,.12);
+                           color:#fff;border-radius:9px;padding:11px 14px;font-size:.87rem;
+                           font-family:'Montserrat',sans-serif;resize:vertical;min-height:90px;
+                           transition:border-color .2s;"
+                    placeholder="Explain why this coupon is rejected — creator will see this message…"></textarea>
+            </div>
+            <!-- Refund warning -->
+            <div style="padding:11px 13px;background:rgba(255,165,0,.06);
+                 border:1px solid rgba(255,165,0,.2);border-radius:9px;
+                 font-size:.76rem;color:#fbbf24;line-height:1.6;margin-bottom:18px;">
+                ⚠️ Rejecting flags this payment as <strong>pending refund</strong>.
+                You must manually process
+                <strong>₦${(c.paymentFee || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}</strong>
+                back to the creator via the Flutterwave dashboard.
+                <br>TX Ref: <span style="font-family:'DM Mono',monospace;">${esc(c.paymentTxRef || '—')}</span>
+                &nbsp;·&nbsp;
+                TX ID: <span style="font-family:'DM Mono',monospace;">${esc(c.paymentTxId || '—')}</span>
+            </div>`}
+
+            <div class="cr-modal-actions">
+                <button class="btn btn-secondary" onclick="removeCcModals()">Cancel</button>
+                <button class="btn ${isApprove ? 'btn-primary' : 'btn-danger'}" id="ccReviewSubmitBtn"
+                    onclick="withDebounce(this, () => submitCcReview('${c._id}','${action}'))">
+                    <i class="fas fa-${isApprove ? 'check' : 'times'}"></i>
+                    ${isApprove ? 'Approve & Activate Coupon' : 'Reject & Flag for Refund'}
+                </button>
+            </div>
+
+        </div>
+    </div>`);
+}
+
+// ── Submit review to server ───────────────────────────────────────
+async function submitCcReview(couponId, action) {
+    const adminNote = action === 'reject'
+        ? (document.getElementById('ccRejectNote')?.value?.trim() || '')
+        : '';
+
+    if (action === 'reject' && !adminNote) {
+        showNotification('Please provide a rejection reason', 'error');
+        return;
+    }
+
+    try {
+        const res  = await fetch(`${API_URL}/api/admin/coupons/${couponId}/review`, {
+            method:  'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ action, adminNote }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showNotification(
+                action === 'approve'
+                    ? '✅ Coupon approved and activated'
+                    : '❌ Coupon rejected. Process the refund manually via Flutterwave.',
+                action === 'approve' ? 'success' : 'error'
+            );
+            removeCcModals();
+            await fetchCreatorCoupons();
+        } else {
+            showNotification(data.message || 'Action failed', 'error');
+        }
+    } catch (e) {
+        showNotification('Network error — please try again', 'error');
+    }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────
+function ccField(label, value) {
+    return `<div style="background:rgba(255,255,255,.02);border-radius:8px;
+                 padding:9px 12px;border:1px solid rgba(255,255,255,.05);">
+                <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">${label}</div>
+                <div style="font-size:.84rem;color:#e5e7eb;font-weight:500;">${value}</div>
+            </div>`;
+}
+
+function ccBadge(label, color, bg) {
+    return `<span style="font-size:.72rem;padding:4px 11px;border-radius:20px;font-weight:600;
+                 background:${bg};color:${color};border:1px solid ${color}44;">
+                ${esc(label)}
+            </span>`;
+}
+
+function removeCcModals() {
+    ['ccDetailModal', 'ccReviewModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    });
 }
 
 // ========== BLOG MANAGEMENT ==========
@@ -13485,6 +14060,7 @@ const PAGE_GROUP_MAP = {
     'creator-payouts':      'creator-marketplace',
     'payouts':              'creator-marketplace',
     'reviews':              'creator-marketplace',
+     'creator-coupons':      'creator-marketplace',
     // Services
     'blog':                 'services',
     'products':             'services',
@@ -13533,7 +14109,7 @@ function expandGroupForPage(page) {
 function syncGroupBadges() {
     const groupBadgeMap = {
         'user-management':      ['pendingAgentsBadge', 'totalAffiliatesBadge'],
-        'creator-marketplace':  ['pendingCreatorsBadge', 'pendingProductsBadge', 'pendingPayoutsBadge'],
+        'creator-marketplace':  ['pendingCreatorsBadge', 'pendingProductsBadge', 'pendingPayoutsBadge', 'pendingCouponsBadge'],
         'communication-center': ['openChatsBadge', 'openTicketsBadge'],
         'system':               ['criticalLogsBadge'],
     };
