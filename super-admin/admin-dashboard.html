@@ -244,7 +244,7 @@ body {
     transition: max-height 0.28s ease;
 }
 .nav-group.open > .nav-group-body {
-    max-height: 600px;
+    max-height: 1200px;
 }
 
 /* ── NAV ITEM (inside group) ── */
@@ -7407,28 +7407,28 @@ async function fetchCreatorCoupons() {
     </td></tr>`;
 
     try {
-        // Always fetch pending-approval separately — it has correct populate
-        // and is the source of truth for the stats badge.
-        // For the list, use the fixed route with creatorOnly + approvalStatus.
-        const [listRes, pendingRes] = await Promise.all([
-            fetch(`${API_URL}/api/admin/coupons?creatorOnly=true&approvalStatus=${ccState.filter}`, {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            }),
-            fetch(`${API_URL}/api/admin/coupons/pending-approval`, {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            }),
-        ]);
+        // Fetch the main list — this is the critical request
+        const listRes  = await fetch(
+            `${API_URL}/api/admin/coupons?creatorOnly=true&approvalStatus=${ccState.filter}`,
+            { headers: { 'Authorization': `Bearer ${adminToken}` } }
+        );
+        const listData = await listRes.json();
+        if (!listData.success) throw new Error(listData.message || 'Failed to load coupons');
+        const allList = listData.coupons || [];
 
-        const listData    = await listRes.json();
-        const pendingData = await pendingRes.json();
+        // Fetch pending-approval separately — isolated so its failure
+        // never breaks the main table render
+        let pending = [];
+        try {
+            const pendingRes  = await fetch(`${API_URL}/api/admin/coupons/pending-approval`,
+                { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const pendingData = await pendingRes.json();
+            if (pendingData.success) pending = pendingData.coupons || [];
+        } catch (_) {
+            // badge update fails silently — table still renders
+        }
 
-        if (!listData.success)   throw new Error(listData.message   || 'Failed to load coupons');
-        if (!pendingData.success) throw new Error(pendingData.message || 'Failed to load pending queue');
-
-        const allList = listData.coupons   || [];
-        const pending = pendingData.coupons || [];
-
-        // Stats — compute from the full creator list for accuracy
+        // Stats
         const totalFee = pending.reduce((s, c) => s + (c.paymentFee || 0), 0);
         const approved = allList.filter(c => c.adminApprovalStatus === 'approved').length;
         const rejected = allList.filter(c => c.adminApprovalStatus === 'rejected').length;
@@ -7452,10 +7452,10 @@ async function fetchCreatorCoupons() {
             syncGroupBadges();
         }
 
-        // For the pending filter, prefer the pending-approval list since it
-        // has ownerCreatorId.storeName and userId already populated.
-        // For all other filters, use the main list (now also populated).
-        ccState.list = ccState.filter === 'pending' ? pending : allList;
+        // For pending filter: use the pending-approval list (has full populate).
+        // For all other filters: use the main list.
+        // If pending is empty (fetch failed), fall back to allList for pending too.
+        ccState.list = (ccState.filter === 'pending' && pending.length > 0) ? pending : allList;
         renderCcTable(ccState.list);
 
     } catch (e) {
@@ -7559,8 +7559,17 @@ function renderCcTable(coupons) {
 
 // ── Full detail modal ─────────────────────────────────────────────
 async function openCcDetailModal(couponId) {
-    const c = ccState.list.find(x => x._id === couponId);
-    if (!c) return;
+    let c = ccState.list.find(x => x._id === couponId);
+    if (!c) {
+        // Not in current filtered list — fetch the coupon directly by ID
+        try {
+            const r = await fetch(`${API_URL}/api/admin/coupons/${couponId}`,
+                { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const d = await r.json();
+            if (d.success && d.coupon) c = d.coupon;
+        } catch (_) {}
+        if (!c) return; // give up gracefully
+    }
 
     const creator      = c.ownerCreatorId || {};
     const approvedBy   = c.approvedBy     || {};
@@ -7582,7 +7591,7 @@ async function openCcDetailModal(couponId) {
 
     removeCcModals();
     document.body.insertAdjacentHTML('beforeend', `
-    <div class="cr-modal-overlay" id="ccDetailModal" onclick="if(event.target===this)removeCcModals()">
+    <div class="cr-modal-overlay cc-modal-overlay" id="ccDetailModal" onclick="if(event.target===this)removeCcModals()">
         <div class="cr-modal wide" style="max-width:680px;">
 
             <h3>
@@ -7703,7 +7712,7 @@ function openCcReviewModal(couponId, action) {
 
     removeCcModals();
     document.body.insertAdjacentHTML('beforeend', `
-    <div class="cr-modal-overlay" id="ccReviewModal" onclick="if(event.target===this)removeCcModals()">
+    <div class="cr-modal-overlay cc-modal-overlay" id="ccReviewModal" onclick="if(event.target===this)removeCcModals()">
         <div class="cr-modal">
 
             <h3>
@@ -7844,6 +7853,8 @@ function removeCcModals() {
         const el = document.getElementById(id);
         if (el) el.remove();
     });
+    // Sweep any orphaned creator-coupon overlays
+    document.querySelectorAll('.cc-modal-overlay').forEach(el => el.remove());
 }
 
 // ========== BLOG MANAGEMENT ==========
