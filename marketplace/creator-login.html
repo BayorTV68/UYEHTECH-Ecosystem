@@ -327,6 +327,7 @@ body {
 .forgot-panel.show { display: block; }
 .main-panel { animation: fadeUp 0.3s ease; }
 .main-panel.hidden { display: none; }
+.main-panel.show   { display: block; }
 
 .back-btn {
   display: inline-flex; align-items: center; gap: 7px;
@@ -1006,30 +1007,23 @@ async function doLogin() {
     }
 
     // ── Normal login: verify creator status then store session ─────
-    const user = data.user;
     let creatorStatus = null;
-
-    if (user.isCreator) {
-      creatorStatus = 'approved';
-    } else {
-      try {
-        const creatorRes  = await fetch(`${API_URL}/api/creator/me`, {
-          headers: { 'Authorization': `Bearer ${data.token}` }
-        });
-        const creatorData = await creatorRes.json();
-
-        if (!creatorData.success || !creatorData.creator) {
-          showAlert('No creator account found. Apply to become a creator first.');
-          setLoading('btnLogin', false);
-          setTimeout(() => { window.location.href = '/marketplace/creator-apply'; }, 2200);
-          return;
-        }
-        creatorStatus = creatorData.creator?.applicationStatus;
-      } catch(_) {
-        showAlert('Could not verify creator status. Check your connection and try again.');
+    try {
+      const creatorRes  = await fetch(`${API_URL}/api/creator/me`, {
+        headers: { 'Authorization': `Bearer ${data.token}` }
+      });
+      const creatorData = await creatorRes.json();
+      if (!creatorData.success || !creatorData.creator) {
+        showAlert('No creator account found. Apply to become a creator first.');
         setLoading('btnLogin', false);
+        setTimeout(() => { window.location.href = '/marketplace/creator-apply'; }, 2200);
         return;
       }
+      creatorStatus = creatorData.creator.applicationStatus;
+    } catch(_) {
+      showAlert('Could not verify creator status. Check your connection and try again.');
+      setLoading('btnLogin', false);
+      return;
     }
 
     if (creatorStatus === 'pending') {
@@ -1054,7 +1048,11 @@ async function doLogin() {
 
   } catch (err) {
     console.error('Login error:', err);
-    showAlert('Connection error. Check your internet and try again.');
+    if (err instanceof SyntaxError) {
+      showAlert('Server is waking up — please wait a few seconds and try again.', 'info');
+    } else {
+      showAlert('Connection error. Check your internet and try again.');
+    }
     setLoading('btnLogin', false);
   }
 }
@@ -1319,29 +1317,26 @@ async function creator_submitTwoFA() {
     const user = data.user;
     let creatorStatus = null;
 
-    if (user.isCreator) {
-      creatorStatus = 'approved';
-    } else {
-      try {
-        const cRes  = await fetch(`${API_URL}/api/creator/me`, {
-          headers: { 'Authorization': `Bearer ${data.token}` }
-        });
-        const cData = await cRes.json();
-        if (!cData.success || !cData.creator) {
-          errEl.textContent = 'No creator account linked to this profile.';
-          errEl.classList.add('show');
-          btn.disabled = false;
-          btn.classList.remove('loading');
-          return;
-        }
-        creatorStatus = cData.creator?.applicationStatus;
-      } catch(_) {
-        errEl.textContent = 'Could not verify creator status. Try again.';
+    let creatorStatus = null;
+    try {
+      const cRes  = await fetch(`${API_URL}/api/creator/me`, {
+        headers: { 'Authorization': `Bearer ${data.token}` }
+      });
+      const cData = await cRes.json();
+      if (!cData.success || !cData.creator) {
+        errEl.textContent = 'No creator account linked to this profile.';
         errEl.classList.add('show');
         btn.disabled = false;
         btn.classList.remove('loading');
         return;
       }
+      creatorStatus = cData.creator.applicationStatus;
+    } catch(_) {
+      errEl.textContent = 'Could not verify creator status. Try again.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      return;
     }
 
     if (creatorStatus !== 'approved') {

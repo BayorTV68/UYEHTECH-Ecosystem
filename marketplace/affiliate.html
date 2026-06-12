@@ -287,9 +287,37 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
 
 /* ── V2 NEW STYLES ── */
 .tier-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:.68rem;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;border:1px solid}
-.tier-starter{background:rgba(148,163,184,.08);border-color:rgba(148,163,184,.25);color:#94a3b8}
-.tier-pro{background:rgba(245,166,35,.1);border-color:rgba(245,166,35,.3);color:var(--amber)}
-.tier-elite{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.35);color:var(--purple)}
+.tier-starter {background:rgba(148,163,184,.08);border-color:rgba(148,163,184,.25);color:#94a3b8}
+.tier-regular {background:rgba(45,212,191,.09); border-color:rgba(45,212,191,.28); color:var(--teal)}
+.tier-pro     {background:rgba(245,166,35,.1);  border-color:rgba(245,166,35,.3);  color:var(--amber)}
+.tier-elite   {background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.35);color:var(--purple)}
+
+/* ── Earnings-locked banner (starter < 10 referrals) ── */
+.locked-banner{
+  display:none;
+  align-items:flex-start;
+  gap:11px;
+  padding:13px 16px;
+  background:rgba(245,166,35,.07);
+  border:1px solid rgba(245,166,35,.25);
+  border-radius:12px;
+  margin-bottom:16px;
+  font-size:.78rem;
+  color:var(--t2);
+  line-height:1.6;
+}
+.locked-banner.show{display:flex;}
+.locked-banner-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.locked-banner strong{color:var(--amber);}
+.locked-banner .lb-prog{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.locked-banner .lb-track{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.locked-banner .lb-fill{height:100%;background:linear-gradient(90deg,var(--amber),#f5c842);border-radius:3px;transition:width .8s cubic-bezier(.34,1.56,.64,1);}
+.locked-banner .lb-hint{font-size:.68rem;color:var(--t3);font-family:'JetBrains Mono',monospace;}
 .funnel-wrap{display:flex;flex-direction:column;gap:8px}
 .funnel-step{display:grid;grid-template-columns:110px 1fr 70px;align-items:center;gap:10px;font-size:.78rem}
 .funnel-lbl{color:var(--t3);text-align:right;font-family:'JetBrains Mono',monospace;font-size:.68rem}
@@ -395,9 +423,9 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
       <p>Promote digital products from UYEH TECH creators. Every purchase through your unique link earns you a commission — automatically tracked, tiered, and credited to your account.</p>
       <div class="join-feats">
         <div class="join-feat"><div class="feat-icon">🔗</div><div><strong class="feat-t">Per-product tracked links</strong><span class="feat-s">Individual stats per product you promote</span></div></div>
-        <div class="join-feat"><div class="feat-icon">💰</div><div><strong class="feat-t">Tier commission bonuses</strong><span class="feat-s">Pro +2%, Elite +5% on top of base rate</span></div></div>
+        <div class="join-feat"><div class="feat-icon">💰</div><div><strong class="feat-t">4-tier commission system</strong><span class="feat-s">Regular 5% · Pro 7% · Elite 10% · unlocks with referrals</span></div></div>
         <div class="join-feat"><div class="feat-icon">📊</div><div><strong class="feat-t">Full funnel analytics</strong><span class="feat-s">Click → Cart → Purchase tracking</span></div></div>
-        <div class="join-feat"><div class="feat-icon">🌐</div><div><strong class="feat-t">Vanity link + referral upgrades</strong><span class="feat-s">Custom /ref/yourname — refer 10 people for Pro, 50 for Elite</span></div></div>
+        <div class="join-feat"><div class="feat-icon">🌐</div><div><strong class="feat-t">Vanity link + tier upgrades</strong><span class="feat-s">10 refs → Regular · 50 → Pro · 150 → Elite</span></div></div>
       </div>
       <div style="margin-bottom:22px;text-align:left">
         <label class="f-lbl" style="display:block;margin-bottom:6px">Referred by another affiliate? (optional)</label>
@@ -420,6 +448,25 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
       <div class="how-step"><div class="how-num">4</div><div class="how-icon">💸</div><div class="how-title">Earn + tier up</div><div class="how-desc">Commission credited instantly. Hit Pro or Elite for automatic bonus rate increases</div></div>
     </div>
 
+    <!-- Earnings locked banner — shown for starter tier with < 10 referrals -->
+    <div class="locked-banner" id="lockedBanner">
+      <div class="locked-banner-icon">🔒</div>
+      <div style="flex:1">
+        <strong>Commissions locked until 10 referrals</strong><br>
+        You are on the <strong>Starter tier</strong>. Your commission rate is <strong>2%</strong>,
+        but earnings are <strong>not credited</strong> until you refer 10 people who create accounts.
+        Share your <strong>Invite Link</strong> below to unlock earnings.
+        <div class="lb-prog">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:.68rem;color:var(--t3)">Referrals toward unlock</span>
+            <span style="font-size:.68rem;color:var(--amber);font-family:'JetBrains Mono',monospace" id="lockedRefCount">0 / 10</span>
+          </div>
+          <div class="lb-track"><div class="lb-fill" id="lockedFill" style="width:0%"></div></div>
+          <div class="lb-hint" id="lockedHint">Refer 10 people to unlock Regular tier (5%)</div>
+        </div>
+      </div>
+    </div>
+
     <!-- KPI STRIP -->
     <div class="sec-lbl"><i class="fas fa-chart-bar"></i>Your Numbers</div>
     <div class="kpi-strip" style="margin-bottom:14px">
@@ -439,9 +486,9 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
             <div style="font-size:.62rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:5px">Your Tier</div>
             <span class="tier-badge tier-starter" id="tierBadge">⭐ Starter</span>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:.62rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:3px">Tier Bonus</div>
-            <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--g)" id="tierBonus">+0%</div>
+         <div style="text-align:right">
+            <div style="font-size:.62rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:3px">Commission Rate</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--g)" id="tierCommRate">2%</div>
           </div>
         </div>
         <div id="tierProgressWrap">
@@ -456,11 +503,25 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
           <span class="panel-badge" id="referralCount">0 referred</span>
         </div>
         <div class="panel-body" style="padding:14px 18px">
-          <div style="margin-bottom:14px">
-            <div style="font-size:.68rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:6px">Share your referral link — every person who joins counts toward your tier</div>
+         <div style="margin-bottom:14px;">
+            <!-- INVITE LINK — for growing referral count & tier -->
+            <div style="font-size:.64rem;color:var(--amber);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">
+              🔗 Invite Link — counts toward your tier
+            </div>
+            <div style="font-size:.68rem;color:var(--t3);margin-bottom:6px;line-height:1.5;">
+              Share this link. Every person who <strong style="color:var(--t1)">creates an account</strong> through it adds 1 to your referral count.
+            </div>
+            <div class="link-row" style="margin-bottom:10px;">
+              <input class="link-url" id="refInviteLink" readonly placeholder="Loading…">
+              <button class="link-copy" id="refInviteCopyBtn" onclick="copyInviteLink()"><i class="fas fa-copy"></i>Copy</button>
+            </div>
+            <!-- SHOP LINK — for earning commissions on purchases -->
+            <div style="font-size:.64rem;color:var(--g);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">
+              🛒 Shop Link — earns commission on purchases
+            </div>
             <div class="link-row">
-              <input class="link-url" id="refJoinLink" readonly>
-              <button class="link-copy" id="refJoinCopyBtn" onclick="copyRefJoinLink()"><i class="fas fa-copy"></i>Copy</button>
+              <input class="link-url" id="refShopLink" readonly placeholder="Loading…">
+              <button class="link-copy" id="refShopCopyBtn" onclick="copyShopLink()"><i class="fas fa-copy"></i>Copy</button>
             </div>
           </div>
           <!-- Tier progress by referrals -->
@@ -472,17 +533,27 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
             <div class="prog-track"><div class="prog-fill" id="refTierFill" style="width:0%"></div></div>
             <div style="font-size:.67rem;color:var(--t3);margin-top:5px;font-family:'JetBrains Mono',monospace;" id="refTierHint"></div>
           </div>
-          <!-- Tier rewards explanation -->
-          <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--g3);border:1px solid var(--line2);border-radius:8px;padding:8px 12px;">
-              <span style="font-size:.76rem;color:var(--t1);font-weight:600;">🥈 Pro</span>
-              <span style="font-size:.72rem;color:var(--t2);">10 referrals</span>
-              <span style="font-size:.74rem;color:var(--g);font-family:'JetBrains Mono',monospace;font-weight:700;">+2% bonus</span>
+          <!-- 4-tier rewards table -->
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(148,163,184,.06);border:1px solid rgba(148,163,184,.18);border-radius:8px;padding:8px 12px;">
+              <span style="font-size:.76rem;color:#94a3b8;font-weight:700;">⭐ Starter</span>
+              <span style="font-size:.7rem;color:var(--t3);">0 referrals</span>
+              <span style="font-size:.72rem;color:#94a3b8;font-family:'JetBrains Mono',monospace;font-weight:700;">2% 🔒 locked</span>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--g3);border:1px solid var(--line2);border-radius:8px;padding:8px 12px;">
-              <span style="font-size:.76rem;color:var(--t1);font-weight:600;">🏆 Elite</span>
-              <span style="font-size:.72rem;color:var(--t2);">50 referrals</span>
-              <span style="font-size:.74rem;color:var(--g);font-family:'JetBrains Mono',monospace;font-weight:700;">+5% bonus</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);border-radius:8px;padding:8px 12px;">
+              <span style="font-size:.76rem;color:var(--teal);font-weight:700;">🥉 Regular</span>
+              <span style="font-size:.7rem;color:var(--t3);">10 referrals</span>
+              <span style="font-size:.72rem;color:var(--teal);font-family:'JetBrains Mono',monospace;font-weight:700;">5% ✅</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:8px 12px;">
+              <span style="font-size:.76rem;color:var(--amber);font-weight:700;">🥇 Pro</span>
+              <span style="font-size:.7rem;color:var(--t3);">50 referrals</span>
+              <span style="font-size:.72rem;color:var(--amber);font-family:'JetBrains Mono',monospace;font-weight:700;">7% ✅</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:8px 12px;">
+              <span style="font-size:.76rem;color:var(--purple);font-weight:700;">💎 Elite</span>
+              <span style="font-size:.7rem;color:var(--t3);">150 referrals</span>
+              <span style="font-size:.72rem;color:var(--purple);font-family:'JetBrains Mono',monospace;font-weight:700;">10% ✅</span>
             </div>
           </div>
         </div>
@@ -696,7 +767,7 @@ tbody tr:hover td{background:rgba(0,255,136,.02)}
           <div class="bk-item"><div class="bk-lbl">Pending</div><div class="bk-val" id="bkPending">$0.00</div></div>
           <div class="bk-item"><div class="bk-lbl">Confirmed</div><div class="bk-val" id="bkConfirmed">$0.00</div></div>
           <div class="bk-item"><div class="bk-lbl">Total Earned</div><div class="bk-val" id="bkTotal">$0.00</div></div>
-          <div class="bk-item"><div class="bk-lbl">Sub-Affiliate Earnings</div><div class="bk-val" id="bkSubEarnings">$0.00</div></div>
+          <div class="bk-item" id="bkUnlockWrap"><div class="bk-lbl" id="bkUnlockLbl">Refs to Unlock</div><div class="bk-val" id="bkUnlockVal">10</div></div>
         </div>
       </div>
       <div class="payout-card">
@@ -864,7 +935,23 @@ function renderBalance(confirmed,total,pending,paid,threshold) {
   pending=pending??+(D?.earnings?.pending||0); paid=paid??+(D?.earnings?.paid||0); threshold=threshold??(D?.affiliate?.payoutThreshold||20);
   setText('balDisplay',confirmed.toFixed(2)); setText('bkPending','$'+pending.toFixed(2));
   setText('bkConfirmed','$'+confirmed.toFixed(2)); setText('bkTotal','$'+total.toFixed(2));
-  setText('bkSubEarnings','$'+(+(D?.affiliate?.subEarnings||0)).toFixed(2));
+  // Replace sub-affiliate earnings with referrals-to-unlock counter
+  const refsToUnlock = D?.affiliate?.referralsToUnlock ?? 0;
+  const isLocked     = D?.affiliate?.earningsLocked ?? false;
+  const unlockWrap   = document.getElementById('bkUnlockWrap');
+  const unlockLbl    = document.getElementById('bkUnlockLbl');
+  const unlockVal    = document.getElementById('bkUnlockVal');
+  if (unlockLbl && unlockVal) {
+    if (isLocked) {
+      unlockLbl.textContent = 'Refs to Unlock';
+      unlockVal.textContent = refsToUnlock;
+      unlockVal.style.color = 'var(--amber)';
+    } else {
+      unlockLbl.textContent = 'Referrals';
+      unlockVal.textContent = D?.affiliate?.totalReferrals ?? 0;
+      unlockVal.style.color = 'var(--g)';
+    }
+  }
   const pct=Math.min(100,(confirmed/threshold)*100);
   document.getElementById('progFill').style.width=pct+'%'; setText('progPct',pct.toFixed(0)+'%');
   const canPay=confirmed>=threshold; document.getElementById('payoutBtn').disabled=!canPay;
@@ -872,38 +959,85 @@ function renderBalance(confirmed,total,pending,paid,threshold) {
   if(canPay) document.getElementById('progWrap').style.display='none';
 }
 function renderTier() {
-  const a=D.affiliate, tier=a.tier||'starter', bonus=a.tierBonus||0;
-  const icons={starter:'⭐',pro:'🥇',elite:'💎'};
-  const badge=document.getElementById('tierBadge'); badge.className=`tier-badge tier-${tier}`; badge.textContent=`${icons[tier]||'⭐'} ${cap(tier)}`;
-  setText('tierBonus',(bonus>0?'+':'')+bonus+'%');
- const tp = a.tierProgress;
-  if (tp && tp.nextTier) {
-    const current = a.totalReferrals || 0;
-    const thresh  = tp.thresholdReferrals || 1;
-    const pct     = Math.min(100, (current / thresh) * 100);
-    setText('tierProgressLabel', 'Progress to ' + cap(tp.nextTier));
-    setText('tierProgressPct', pct.toFixed(0) + '%');
+  const a    = D.affiliate;
+  const tier = a.tier || 'starter';
+
+  // ── Tier icons & badge ───────────────────────────────────────────────────
+  const icons = { starter:'⭐', regular:'🥉', pro:'🥇', elite:'💎' };
+  const badge = document.getElementById('tierBadge');
+  badge.className  = `tier-badge tier-${tier}`;
+  badge.textContent = `${icons[tier] || '⭐'} ${cap(tier)}`;
+
+  // ── Commission rate (actual rate for this tier, not a bonus delta) ───────
+  const rateMap  = { starter:2, regular:5, pro:7, elite:10 };
+  const commRate = a.commissionRate ?? rateMap[tier] ?? 2;
+  setText('tierCommRate', commRate + '%');
+
+  // ── Earnings-locked banner (starter < 10 referrals) ──────────────────────
+  const earningsLocked   = a.earningsLocked ?? (tier === 'starter' && (a.totalReferrals || 0) < 10);
+  const refsToUnlock     = a.referralsToUnlock ?? Math.max(0, 10 - (a.totalReferrals || 0));
+  const currentRefs      = a.totalReferrals || 0;
+  const banner           = document.getElementById('lockedBanner');
+  if (banner) {
+    banner.classList.toggle('show', !!earningsLocked);
+    if (earningsLocked) {
+      const pct = Math.min(100, (currentRefs / 10) * 100);
+      setText('lockedRefCount', currentRefs + ' / 10');
+      setText('lockedHint', refsToUnlock > 0
+        ? `Refer ${refsToUnlock} more person${refsToUnlock !== 1 ? 's' : ''} to unlock Regular tier (5%)`
+        : 'Almost there!');
+      const fill = document.getElementById('lockedFill');
+      if (fill) fill.style.width = pct + '%';
+    }
+  }
+
+  // ── Tier progress (next tier) ─────────────────────────────────────────────
+  const tp = a.tierProgress || null;
+  const tierThresholds = { regular:10, pro:50, elite:150 };
+  const nextTierMap    = { starter:'regular', regular:'pro', pro:'elite', elite:null };
+  const nextTierName   = (tp && tp.nextTier) ? tp.nextTier : nextTierMap[tier];
+
+  if (nextTierName) {
+    const thresh    = (tp && tp.thresholdReferrals) ? tp.thresholdReferrals : (tierThresholds[nextTierName] || 1);
+    const needed    = (tp && tp.referralsNeeded  != null) ? tp.referralsNeeded  : Math.max(0, thresh - currentRefs);
+    const pct       = Math.min(100, (currentRefs / thresh) * 100);
+
+    setText('tierProgressLabel', 'Progress to ' + cap(nextTierName));
+    setText('tierProgressPct',   pct.toFixed(0) + '%');
     document.getElementById('tierProgressFill').style.width = pct + '%';
-    const needed = tp.referralsNeeded || 0;
-    setText('tierProgressHint', needed > 0 ? `Refer ${needed} more person${needed !== 1 ? 's' : ''} to reach ${cap(tp.nextTier)}` : '');
+    setText('tierProgressHint',  needed > 0
+      ? `Refer ${needed} more person${needed !== 1 ? 's' : ''} to reach ${cap(nextTierName)}`
+      : '');
     document.getElementById('tierProgressWrap').style.display = 'block';
 
-    // Also update the referral panel progress bar
+    // Also update the referral panel twin progress bar
     const refFill  = document.getElementById('refTierFill');
     const refLabel = document.getElementById('refTierLabel');
     const refPct   = document.getElementById('refTierPct');
     const refHint  = document.getElementById('refTierHint');
     if (refFill)  refFill.style.width  = pct + '%';
-    if (refLabel) refLabel.textContent = 'Progress to ' + cap(tp.nextTier);
+    if (refLabel) refLabel.textContent = 'Progress to ' + cap(nextTierName);
     if (refPct)   refPct.textContent   = pct.toFixed(0) + '%';
-    if (refHint)  refHint.textContent  = needed > 0 ? `${needed} more referral${needed !== 1 ? 's' : ''} needed` : '';
+    if (refHint)  refHint.textContent  = needed > 0
+      ? `${needed} more referral${needed !== 1 ? 's' : ''} needed`
+      : 'Threshold reached!';
   } else {
-    document.getElementById('tierProgressWrap').innerHTML = '<div style="font-size:.74rem;color:var(--g);font-weight:700;margin-top:4px">🏆 Elite tier reached — maximum bonus active!</div>';
+    // At elite — maximum
+    document.getElementById('tierProgressWrap').innerHTML =
+      '<div style="font-size:.74rem;color:var(--g);font-weight:700;margin-top:4px">💎 Elite tier — maximum 10% commission active!</div>';
     const rtp = document.getElementById('referralTierProgress');
-    if (rtp) rtp.innerHTML = '<div style="font-size:.74rem;color:var(--g);font-weight:700;">🏆 Elite — maximum bonus active!</div>';
+    if (rtp) rtp.innerHTML = '<div style="font-size:.74rem;color:var(--g);font-weight:700;">💎 Elite — max commission active!</div>';
   }
 }
-function renderCode() { const code=D.affiliate.affiliateCode; setText('myCode',code); setInput('generalLink',`${SITE}/marketplace?ref=${code}`); }
+function renderCode() {
+  const code = D.affiliate.affiliateCode;
+  setText('myCode', code);
+  setInput('generalLink', `${SITE}/marketplace?ref=${code}`);
+  // Keep the shop link in the referral panel in sync
+  const shopEl = document.getElementById('refShopLink');
+  if (shopEl && !shopEl.value) setInput('refShopLink', `${SITE}/marketplace?ref=${code}`);
+}
+
 function buildProductLink(p,code) {
   if(p.storeSlug&&p.productId) return `${SITE}/marketplace/${p.storeSlug}/${p.productId}?ref=${code}`;
   if(p.storeSlug) return `${SITE}/marketplace/${p.storeSlug}?ref=${code}`;
@@ -911,18 +1045,35 @@ function buildProductLink(p,code) {
   return `${SITE}/marketplace?ref=${code}`;
 }
 function renderSubAffiliate() {
-  const code=D.affiliate.affiliateCode;
- // Referral panel — replaces sub-affiliate panel
-  const refCount = D.affiliate.totalReferrals || D.affiliate.referralCount || 0;
-  setInput('refJoinLink', `${SITE}/marketplace/affiliate?join=1&ref=${code}`);
+  const aff      = D.affiliate;
+  const code     = aff.affiliateCode;
+  const refCount = aff.totalReferrals || aff.referralCount || 0;
+
   setText('referralCount', refCount + (refCount === 1 ? ' referred' : ' referred'));
+
+  // ── Invite Link (for getting users to sign up — counts toward tier) ──────
+  // Prefer the inviteLink field returned by the backend (added in affiliate-referral-signup-patch).
+  // Fallback: point directly to the signup page with the ref code embedded.
+  const inviteLink = aff.inviteLink
+    || `${SITE}/marketplace/signup.html?ref=${code}`;
+  setInput('refInviteLink', inviteLink);
+
+  // ── Shop Link (for earning commissions on purchases) ─────────────────────
+  const shopLink = aff.affiliateLink
+    || `${SITE}/marketplace/?ref=${code}`;
+  setInput('refShopLink', shopLink);
 }
-function copyRefJoinLink() {
-  const el = document.getElementById('refJoinLink');
+
+function copyInviteLink() {
+  const el = document.getElementById('refInviteLink');
   if (!el) return;
-  navigator.clipboard.writeText(el.value)
-    .then(() => toast('Referral link copied!', 'ok'))
-    .catch(() => { el.select(); document.execCommand('copy'); toast('Copied', 'ok'); });
+  clipCopy(el.value, 'refInviteCopyBtn');
+}
+
+function copyShopLink() {
+  const el = document.getElementById('refShopLink');
+  if (!el) return;
+  clipCopy(el.value, 'refShopCopyBtn');
 }
 function renderVanitySlug() {
   const a=D.affiliate;
@@ -1025,12 +1176,16 @@ function filterProducts() {
   if(!list.length){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i><p>${q?'No products match':'No approved products available yet'}</p></div>`;return;}
   const code=D.affiliate.affiliateCode;
   grid.innerHTML=list.map((p,i)=>{
-    const url=buildProductLink(p,code), eff=p.effectiveRate||p.commission||0, bonus=p.tierBonus||0;
-    const earn=p.commissionAmount?`$${Number(p.commissionAmount).toFixed(2)} / sale`:`${eff}%`;
-    const price=p.price?`$${Number(p.price).toFixed(2)}`:'Free';
-    const storeUrl=p.storeSlug?`${SITE}/marketplace/${p.storeSlug}`:'#';
-    const thumb=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:(p.icon||'📦');
-    const bonusBdg=bonus>0?`<span class="bdg bdg-amber">+${bonus}% tier bonus</span>`:'';
+    const url  = buildProductLink(p, code);
+    const eff  = p.effectiveRate || p.commissionRate || p.commission || 0;
+    const earn = p.commissionAmount
+      ? `$${Number(p.commissionAmount).toFixed(2)} / sale`
+      : `${eff}%`;
+    const price    = p.price ? `$${Number(p.price).toFixed(2)}` : 'Free';
+    const storeUrl = p.storeSlug ? `${SITE}/marketplace/${p.storeSlug}` : '#';
+    const thumb    = p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy">` : (p.icon || '📦');
+    // tierBonus removed — commission rate shown directly in the bdg-comm badge
+    const bonusBdg = '';
     const salesBdg=p.totalSales>0?`<span class="bdg bdg-blue">${p.totalSales} sales</span>`:'';
     return `<div class="pc"><div class="pc-top"><div class="pc-thumb">${thumb}</div><div style="flex:1;min-width:0"><div class="pc-name" title="${esc(p.title)}">${esc(p.title)}</div><div class="pc-store">🏪 <a href="${esc(storeUrl)}" target="_blank" rel="noopener">${esc(p.storeName||p.storeSlug||'Creator Store')}</a></div><div class="pc-price">${price}${p.category?` · ${esc(cap(p.category||p.productType||''))}`:''}${p.totalSales>0?` · ${p.totalSales} sold`:''}</div></div></div><div class="pc-badges"><span class="bdg-comm">${eff}% commission</span><span class="bdg-earn">Earn ${earn}</span>${bonusBdg}</div><div class="pc-link-row"><input class="pc-url" readonly value="${esc(url)}"><button class="pc-copy" id="pb${i}" onclick="clipCopy('${esc(url)}','pb${i}')"><i class="fas fa-copy"></i>Copy</button></div><div class="pc-actions"><button class="pc-sh wa" onclick="shareUrl('wa','${esc(url)}','${esc(p.title)}')"><i class="fab fa-whatsapp"></i>WhatsApp</button><button class="pc-sh tw" onclick="shareUrl('tw','${esc(url)}','${esc(p.title)}')"><i class="fab fa-twitter"></i>Twitter</button><button class="pc-sh tg" onclick="shareUrl('tg','${esc(url)}','${esc(p.title)}')"><i class="fab fa-telegram-plane"></i>Telegram</button><button class="pc-sh" onclick="shareUrl('native','${esc(url)}','${esc(p.title)}')"><i class="fas fa-share-alt"></i></button></div></div>`;
   }).join('');
