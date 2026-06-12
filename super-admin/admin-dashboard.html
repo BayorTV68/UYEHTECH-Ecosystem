@@ -2831,9 +2831,132 @@ tr:hover {
     z-index: 10;
     pointer-events: none;
 }
- 
-</style>
 
+/* ══════════════════════════════════════════════════════════════
+   SHARED ADMIN MODAL SYSTEM
+   .adm-modal-overlay  — full-screen backdrop
+   .adm-modal          — centred content card (max 680px)
+   .adm-modal.wide     — wider variant (max 860px)
+   .adm-modal.narrow   — narrow variant (max 480px)
+   .adm-modal-header   — title bar with close button
+   .adm-modal-body     — scrollable content area
+   .adm-modal-footer   — action buttons row
+   .adm-info-grid      — 2-col key/value grid inside modal
+   .adm-info-cell      — single cell in info-grid
+══════════════════════════════════════════════════════════════ */
+.adm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.78);
+  z-index: 9900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: admFadeIn .18s ease;
+}
+@keyframes admFadeIn { from { opacity:0 } to { opacity:1 } }
+.adm-modal {
+  background: #131820;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: admSlideUp .22s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes admSlideUp { from { transform:translateY(24px);opacity:0 } to { transform:translateY(0);opacity:1 } }
+.adm-modal.wide   { max-width: 860px; }
+.adm-modal.narrow { max-width: 480px; }
+.adm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.adm-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.adm-modal-close {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #9ca3af;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .85rem;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.adm-modal-close:hover { background: rgba(255,80,80,.12); color: #ff6b6b; }
+.adm-modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  flex: 1;
+}
+.adm-modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+.adm-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-bottom: 16px;
+}
+.adm-info-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.adm-info-grid.cols-1 { grid-template-columns: 1fr; }
+.adm-info-cell {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 9px;
+  padding: 10px 13px;
+}
+.adm-info-cell .adm-cell-lbl {
+  font-size: .63rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.adm-info-cell .adm-cell-val {
+  font-size: .84rem;
+  color: #e5e7eb;
+  font-weight: 500;
+  word-break: break-word;
+}
+.adm-section-lbl {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: #4b5563;
+  font-family: 'DM Mono', monospace;
+  margin: 16px 0 8px;
+}
+/* Slim table overrides — less padding for data-dense tables */
+.table-slim th,
+.table-slim td { padding: 8px 10px; font-size: .78rem; }
+</style>
 </head>
 <body>
     <!-- SIDEBAR -->
@@ -4322,6 +4445,22 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.remove('active');
 }
+
+/* ── Shared admin modal helpers ── */
+function admOpenModal(html) {
+    document.getElementById('admModalHost')?.remove();
+    const host = document.createElement('div');
+    host.id = 'admModalHost';
+    host.innerHTML = html;
+    document.body.appendChild(host);
+}
+function admCloseModal() {
+    document.getElementById('admModalHost')?.remove();
+}
+// Escape key closes any open adm modal
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') admCloseModal();
+});
 
 function updatePagination(containerId, pagination, callback) {
     const container = document.getElementById(containerId);
@@ -6213,7 +6352,7 @@ async function loadOrdersData(page = 1, search = '', status = 'all') {
         <div class="table-container">
             <table>
                 <thead>
-                   <tr><th>Ref</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                  <tr><th>Ref</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="ordersTable">
                     <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
@@ -6249,22 +6388,18 @@ async function loadOrdersData(page = 1, search = '', status = 'all') {
             tbody.innerHTML = data.orders.map(order => `
                <tr>
                     <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--primary);">
-                        ${(order.orderReference||'').slice(-10)}
+                        ${(order.orderReference||'').slice(-8)}
                     </td>
                     <td>
-                        <div style="font-weight:500;font-size:.83rem;">${order.customerInfo.name}</div>
-                        <div style="font-size:.7rem;color:#6b7280;">${order.customerInfo.email}</div>
+                        <div style="font-weight:500;font-size:.82rem;">${esc(order.customerInfo?.name||'—')}</div>
+                        <div style="font-size:.69rem;color:#6b7280;">${esc(order.customerInfo?.email||'—')}</div>
                     </td>
-                    <td style="font-weight:700;color:var(--primary);">$${order.total.toFixed(2)}</td>
+                    <td style="font-weight:700;color:var(--primary);">$${Number(order.total||0).toFixed(2)}</td>
                     <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                    <td style="font-size:.76rem;color:#9ca3af;">${new Date(order.createdAt).toLocaleDateString('en-GB')}</td>
-                    
+                    <td>
                         <div class="action-btns">
-                            <button class="action-btn" onclick="viewOrder('${order._id}')" title="View">
+                            <button class="action-btn" onclick="viewOrder('${order._id}')" title="Full Detail">
                                 <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn" onclick="updateOrderStatus('${order._id}', '${order.status}')" title="Change Status">
-                                <i class="fas fa-edit"></i>
                             </button>
                             <button class="action-btn danger" onclick="deleteOrder('${order._id}')" title="Delete">
                                 <i class="fas fa-trash"></i>
@@ -6585,7 +6720,7 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
                     <td><span class="status-badge ${product.isActive ? 'status-active' : 'status-inactive'}">${product.isActive ? 'Active' : 'Inactive'}</span></td>
                     <td>
                         <div class="action-btns">
-                            <button class="action-btn" onclick="viewProductDetail('${product._id}','${esc(product.title)}','${esc(product.category)}','${esc(product.productType||'download')}',${product.price},'${esc(product.description||'')}','${product.isActive}')" title="View">
+                            <button class="action-btn" onclick="viewProductDetail('${product._id}')" title="View">
                                 <i class="fas fa-eye"></i>
                             </button>
                             <button class="action-btn" onclick="editProduct('${product._id}')" title="Edit">
@@ -6609,47 +6744,117 @@ async function loadProductsData(page = 1, search = '', status = 'all') {
     }
 }
 
-function viewProductDetail(id, title, category, type, price, description, isActive) {
-    document.getElementById('productDetailModal')?.remove();
-    const typeIcon = { download:'📥', music:'🎵', software:'💻', video:'🎬', course:'🎓', ebook:'📖' };
-    document.body.insertAdjacentHTML('beforeend', `
-    <div class="cr-modal-overlay" id="productDetailModal" onclick="if(event.target===this)this.remove()">
-        <div class="cr-modal wide">
-            <h3>${typeIcon[type]||'📦'} ${esc(title)}</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
-                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Type</div>
-                    <div style="font-size:.84rem;color:#e5e7eb;font-weight:500;text-transform:capitalize;">${esc(type)}</div>
-                </div>
-                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
-                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Category</div>
-                    <div style="font-size:.84rem;color:#e5e7eb;font-weight:500;">${esc(category)}</div>
-                </div>
-                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
-                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Price</div>
-                    <div style="font-size:.84rem;color:var(--primary);font-weight:700;">$${parseFloat(price).toFixed(2)}</div>
-                </div>
-                <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;">
-                    <div style="font-size:.68rem;color:#9ca3af;margin-bottom:3px;">Status</div>
-                    <div><span class="status-badge ${isActive==='true'?'status-active':'status-inactive'}">${isActive==='true'?'Active':'Inactive'}</span></div>
-                </div>
+async function viewProductDetail(productId) {
+    admOpenModal(`
+    <div class="adm-modal-overlay" onclick="if(event.target===this)admCloseModal()">
+        <div class="adm-modal wide">
+            <div class="adm-modal-header">
+                <div class="adm-modal-title"><i class="fas fa-box-open"></i> Product Detail</div>
+                <button class="adm-modal-close" onclick="admCloseModal()">✕</button>
             </div>
-            ${description ? `
-            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);
-                 border-radius:8px;padding:12px 14px;margin-bottom:16px;">
-                <div style="font-size:.68rem;color:#9ca3af;margin-bottom:5px;">Description</div>
-                <div style="font-size:.82rem;color:#d1d5db;line-height:1.6;">${esc(description)}</div>
-            </div>` : ''}
-            <div class="cr-modal-actions">
-                <button class="btn btn-secondary" onclick="document.getElementById('productDetailModal').remove()">Close</button>
-                <button class="btn btn-primary" onclick="document.getElementById('productDetailModal').remove();editProduct('${id}')">
-                    <i class="fas fa-edit"></i> Edit Product
-                </button>
+            <div class="adm-modal-body" id="prodDetailBody">
+                <div style="text-align:center;padding:40px;color:#6b7280;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i>
+                    <div style="margin-top:12px;font-size:.85rem;">Loading product…</div>
+                </div>
             </div>
         </div>
     </div>`);
-}
 
+    try {
+        const r = await fetch(`${API_URL}/api/admin/products/${productId}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message || 'Failed to load product');
+        const p = d.product || d;
+        const typeIcon = { download:'📥', music:'🎵', software:'💻', video:'🎬', course:'🎓', ebook:'📖', template:'🎨', script:'⚙️' };
+        const pType = p.productType || 'download';
+        const hasFile = !!(p.hostedFile?.secureUrl || p.downloadLink);
+
+        document.getElementById('prodDetailBody').innerHTML = `
+            ${p.image ? `<img src="${esc(p.image)}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:16px;border:1px solid rgba(255,255,255,.06);">` : ''}
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#e5e7eb;margin-bottom:14px;">
+                ${typeIcon[pType]||'📦'} ${esc(p.title||'—')}
+            </div>
+            <div class="adm-info-grid">
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Type</div>
+                    <div class="adm-cell-val" style="text-transform:capitalize;">${esc(pType)}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Category</div>
+                    <div class="adm-cell-val">${esc(p.category||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Price</div>
+                    <div class="adm-cell-val" style="color:var(--primary);font-weight:700;">$${Number(p.price||0).toFixed(2)}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Compare Price</div>
+                    <div class="adm-cell-val" style="text-decoration:${p.comparePrice>p.price?'line-through':'none'};color:#6b7280;">
+                        ${p.comparePrice ? '$'+Number(p.comparePrice).toFixed(2) : '—'}
+                    </div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Status</div>
+                    <div class="adm-cell-val">
+                        <span class="status-badge ${p.isActive?'status-active':'status-inactive'}">${p.isActive?'Active':'Inactive'}</span>
+                    </div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">File / Delivery</div>
+                    <div class="adm-cell-val">
+                        ${hasFile
+                            ? `<span style="color:var(--primary);"><i class="fas fa-check-circle"></i> Ready</span>`
+                            : `<span style="color:var(--error);"><i class="fas fa-times-circle"></i> Missing</span>`}
+                    </div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Downloads</div>
+                    <div class="adm-cell-val">${(p.downloadCount||p.downloads||0).toLocaleString()}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Rating</div>
+                    <div class="adm-cell-val">⭐ ${p.rating ? Number(p.rating).toFixed(1) : '—'} ${p.reviewCount ? `(${p.reviewCount})` : ''}</div>
+                </div>
+            </div>
+            ${p.tags?.length ? `
+            <div class="adm-section-lbl">Tags</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+                ${p.tags.map(t=>`<span style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:5px;padding:2px 8px;font-size:.72rem;color:#00ff88;">${esc(t)}</span>`).join('')}
+            </div>` : ''}
+            ${p.description ? `
+            <div class="adm-section-lbl">Description</div>
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:12px 14px;font-size:.83rem;color:#9ca3af;line-height:1.6;margin-bottom:14px;">
+                ${esc(p.description)}
+            </div>` : ''}
+            ${p.hostedFile?.secureUrl ? `
+            <div class="adm-section-lbl">Hosted File URL</div>
+            <div style="font-family:'DM Mono',monospace;font-size:.72rem;color:#6b7280;word-break:break-all;
+                 background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:8px 12px;">
+                ${esc(p.hostedFile.secureUrl)}
+            </div>` : ''}
+            <div class="adm-modal-footer" style="padding:14px 0 0;border-top:1px solid rgba(255,255,255,.06);margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-secondary btn-sm" onclick="editProduct('${productId}');admCloseModal()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-sm" style="background:rgba(255,80,80,.1);color:#ff6b6b;border:1px solid rgba(255,80,80,.2);"
+                    onclick="deleteProduct('${productId}');admCloseModal()">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="admCloseModal()">Close</button>
+            </div>
+        `;
+    } catch(e) {
+        document.getElementById('prodDetailBody').innerHTML = `
+            <div style="text-align:center;padding:30px;color:#ff6b6b;">
+                <i class="fas fa-exclamation-circle fa-2x" style="margin-bottom:10px;"></i>
+                <div>${esc(e.message)}</div>
+            </div>`;
+    }
+}
+ 
 async function handleCreateProduct(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -6926,7 +7131,7 @@ async function loadCouponsData(status = 'all') {
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Code</th><th>Discount</th><th>Type</th><th>Usage</th><th>Min. Purchase</th><th>Status</th><th>Actions</th></tr>
+                   <tr><th>Code</th><th>Discount</th><th>Usage</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="couponsTable">
                     <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
@@ -6956,18 +7161,22 @@ async function loadCouponsData(status = 'all') {
             
             tbody.innerHTML = data.coupons.map(coupon => `
                 <tr>
-                    <td><strong>${coupon.code}</strong></td>
-                    <td>${coupon.discount}${coupon.type === 'percentage' ? '%' : '$'}</td>
-                    <td>${coupon.type}</td>
-                    <td>${coupon.usageCount}${coupon.usageLimit ? `/${coupon.usageLimit}` : ''}</td>
-                    <td>$${coupon.minPurchaseAmount}</td>
-                    <td><span class="status-badge ${coupon.isActive ? 'status-active' : 'status-inactive'}">${coupon.isActive ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:.84rem;color:var(--primary);">${esc(coupon.code)}</div>
+                        <div style="font-size:.68rem;color:#6b7280;text-transform:capitalize;">${esc(coupon.type)}${coupon.minPurchaseAmount ? ` · min $${coupon.minPurchaseAmount}` : ''}</div>
+                    </td>
+                    <td style="font-weight:700;color:#e5e7eb;">${coupon.discount}${coupon.type==='percentage'?'%':'$'}</td>
+                    <td style="font-size:.78rem;color:#9ca3af;">${coupon.usageCount||0}${coupon.usageLimit?'/'+coupon.usageLimit:''}</td>
+                    <td><span class="status-badge ${coupon.isActive?'status-active':'status-inactive'}">${coupon.isActive?'Active':'Inactive'}</span></td>
                     <td>
                         <div class="action-btns">
-                            <button class="action-btn" onclick="toggleCouponStatus('${coupon.code}', ${!coupon.isActive})" title="${coupon.isActive ? 'Deactivate' : 'Activate'}">
-                                <i class="fas fa-toggle-${coupon.isActive ? 'on' : 'off'}"></i>
+                            <button class="action-btn" onclick="viewCouponDetail(${JSON.stringify(coupon).replace(/"/g,'&quot;')})" title="View Detail">
+                                <i class="fas fa-eye"></i>
                             </button>
-                            <button class="action-btn danger" onclick="deleteCoupon('${coupon.code}')" title="Delete">
+                            <button class="action-btn" onclick="toggleCouponStatus('${esc(coupon.code)}', ${!coupon.isActive})" title="${coupon.isActive?'Deactivate':'Activate'}">
+                                <i class="fas fa-toggle-${coupon.isActive?'on':'off'}"></i>
+                            </button>
+                            <button class="action-btn danger" onclick="deleteCoupon('${esc(coupon.code)}')" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -6979,6 +7188,67 @@ async function loadCouponsData(status = 'all') {
         console.error('Coupons error:', error);
         showNotification('Failed to load coupons', 'error');
     }
+}
+
+function viewCouponDetail(coupon) {
+    if (typeof coupon === 'string') { try { coupon = JSON.parse(coupon); } catch(e) { return; } }
+    const exp = coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString('en-GB') : 'No expiry';
+    admOpenModal(`
+    <div class="adm-modal-overlay" onclick="if(event.target===this)admCloseModal()">
+        <div class="adm-modal narrow">
+            <div class="adm-modal-header">
+                <div class="adm-modal-title"><i class="fas fa-ticket-alt"></i> Coupon Detail</div>
+                <button class="adm-modal-close" onclick="admCloseModal()">✕</button>
+            </div>
+            <div class="adm-modal-body">
+                <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--primary);
+                     text-align:center;letter-spacing:2px;padding:14px 0 18px;">${esc(coupon.code)}</div>
+                <div class="adm-info-grid">
+                    <div class="adm-info-cell">
+                        <div class="adm-cell-lbl">Discount</div>
+                        <div class="adm-cell-val" style="color:var(--primary);font-weight:700;font-size:1rem;">
+                            ${coupon.discount}${coupon.type==='percentage'?'%':'$'}
+                        </div>
+                    </div>
+                    <div class="adm-info-cell">
+                        <div class="adm-cell-lbl">Type</div>
+                        <div class="adm-cell-val" style="text-transform:capitalize;">${esc(coupon.type)}</div>
+                    </div>
+                    <div class="adm-info-cell">
+                        <div class="adm-cell-lbl">Usage</div>
+                        <div class="adm-cell-val">${coupon.usageCount||0}${coupon.usageLimit?'/'+coupon.usageLimit:' (unlimited)'}</div>
+                    </div>
+                    <div class="adm-info-cell">
+                        <div class="adm-cell-lbl">Min. Purchase</div>
+                        <div class="adm-cell-val">$${coupon.minPurchaseAmount||0}</div>
+                    </div>
+                    <div class="adm-info-cell">
+                        <div class="adm-cell-lbl">Expires</div>
+                        <div class="adm-cell-val">${exp}</div>
+                    </div>
+                    <div class="adm-info-cell">
+                        <div class="adm-cell-lbl">Status</div>
+                        <div class="adm-cell-val">
+                            <span class="status-badge ${coupon.isActive?'status-active':'status-inactive'}">${coupon.isActive?'Active':'Inactive'}</span>
+                        </div>
+                    </div>
+                </div>
+                ${coupon.applicableProducts?.length ? `
+                <div class="adm-section-lbl">Applicable Products</div>
+                <div style="font-size:.78rem;color:#9ca3af;">${coupon.applicableProducts.length} product(s) scoped</div>` : ''}
+            </div>
+            <div class="adm-modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="toggleCouponStatus('${esc(coupon.code)}',${!coupon.isActive});admCloseModal()">
+                    <i class="fas fa-toggle-${coupon.isActive?'off':'on'}"></i> ${coupon.isActive?'Deactivate':'Activate'}
+                </button>
+                <button class="btn btn-sm" style="background:rgba(255,80,80,.1);color:#ff6b6b;border:1px solid rgba(255,80,80,.2);"
+                    onclick="deleteCoupon('${esc(coupon.code)}');admCloseModal()">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="admCloseModal()">Close</button>
+            </div>
+        </div>
+    </div>`);
 }
 
 async function handleCreateCoupon(event) {
@@ -7600,14 +7870,10 @@ async function loadBlogData(status = 'all') {
             <table>
                 <thead>
                     <tr>
-                        <th style="width:60px;">Image</th>
+                        <th style="width:48px;">Image</th>
                         <th>Title</th>
-                        <th>Category</th>
                         <th>Status</th>
-                        <th>Views</th>
-                        <th>Likes</th>
-                        <th>Comments</th>
-                        <th>Date</th>
+                        <th>Engagement</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -7653,19 +7919,19 @@ async function loadBlogData(status = 'all') {
                 return `
                 <tr>
                     <td>${thumb}</td>
-                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-                        title="${post.title.replace(/"/g,'&quot;')}">${post.title}</td>
-                    <td>${post.category}</td>
-                    <td><span class="status-badge status-${post.status}">${post.status}</span></td>
-                    <td>${(post.views||0).toLocaleString()}</td>
-                    <td>❤️ ${post.likes||0}</td>
                     <td>
-                        <button onclick="openViewPost('${post._id}')"
-                            style="background:none;border:none;cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;padding:0;">
-                            💬 ${approved}${pending > 0 ? ` <span style="color:#ffa500;font-size:.72rem;">(${pending} pending)</span>` : ''}
-                        </button>
+                        <div style="font-weight:600;font-size:.83rem;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                            title="${post.title.replace(/"/g,'&quot;')}">${esc(post.title)}</div>
+                        <div style="font-size:.68rem;color:#6b7280;">${esc(post.category)} · ${new Date(post.createdAt).toLocaleDateString('en-GB')}</div>
                     </td>
-                    <td style="white-space:nowrap;">${new Date(post.createdAt).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${post.status}">${post.status}</span></td>
+                    <td>
+                        <div style="font-size:.75rem;color:#9ca3af;line-height:1.8;">
+                            👁 ${(post.views||0).toLocaleString()} &nbsp;
+                            ❤️ ${post.likes||0} &nbsp;
+                            💬 <span style="${pending>0?'color:#ffa500;font-weight:700;':''}">${approved}${pending>0?` (+${pending})`:''}</span>
+                        </div>
+                    </td>
                     <td>
                         <div class="action-btns">
                             <button class="action-btn" onclick="openViewPost('${post._id}')" title="View & Comments">
@@ -11983,420 +12249,123 @@ function closeCdDrawer() {
 }
 
 async function viewCreatorDetail(creatorId) {
-    closeCdDrawer();
-
-    // Inject loading shell instantly
-    document.body.insertAdjacentHTML('beforeend', `
-    <div class="cd-overlay" id="cdDrawerOverlay">
-        <div style="flex:1;cursor:pointer;" onclick="closeCdDrawer()"></div>
-        <div class="cd-drawer">
-            <div class="cd-header">
-                <button onclick="closeCdDrawer()"
-                    style="background:none;border:none;color:#9ca3af;cursor:pointer;
-                           font-size:1.1rem;padding:4px 8px;border-radius:6px;">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-                <span style="font-size:.88rem;color:#9ca3af;">Loading creator…</span>
+    admOpenModal(`
+    <div class="adm-modal-overlay" onclick="if(event.target===this)admCloseModal()">
+        <div class="adm-modal wide">
+            <div class="adm-modal-header">
+                <div class="adm-modal-title"><i class="fas fa-store"></i> Creator Detail</div>
+                <button class="adm-modal-close" onclick="admCloseModal()">✕</button>
             </div>
-            <div class="cd-body" style="display:flex;align-items:center;justify-content:center;min-height:300px;">
-                <div style="text-align:center;color:#6b7280;">
-                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);margin-bottom:14px;"></i>
-                    <div style="font-size:.85rem;">Fetching full creator details…</div>
+            <div class="adm-modal-body" id="creatorDetailBody">
+                <div style="text-align:center;padding:40px;color:#6b7280;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i>
+                    <div style="margin-top:12px;font-size:.85rem;">Loading creator…</div>
                 </div>
             </div>
         </div>
     </div>`);
 
-    let data;
     try {
         const r = await fetch(`${API_URL}/api/admin/creators/${creatorId}`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
-        data = await r.json();
-    } catch (e) {
-        closeCdDrawer();
-        showToast('Network error loading creator detail.', 'error');
-        return;
-    }
-    if (!data.success) {
-        closeCdDrawer();
-        showToast(data.message || 'Failed to load creator', 'error');
-        return;
-    }
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message || 'Not found');
+        const c    = d.creator || d;
+        const user = c.userId || {};
 
-    const c    = data.creator;
-    const user = c.userId   || {};
-    const pd   = c.payoutDetails || {};
-    const prods = (c.products?.list || []);
-    const earnings = c.recentEarnings  || [];
-    const payouts  = c.payoutHistory   || [];
-    const rs       = c.reviewStats     || {};
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
-    const e2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const fd  = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-    const fdt = d => d ? new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    const f   = (label, val, full=false) => val !== null && val !== undefined && val !== '' ? `
-        <div class="cd-field${full?' full':''}">
-            <div class="cd-field-label">${label}</div>
-            <div class="cd-field-value">${val}</div>
-        </div>` : '';
-
-    const status    = c.applicationStatus || 'pending';
-    const statusIcon = {approved:'✅',pending:'⏳',rejected:'❌',suspended:'🚫'}[status] || '❓';
-
-    // ── Status bar ───────────────────────────────────────────────────────────
-    const statusBar = `
-    <div class="cd-status-bar ${status}">
-        <span>${statusIcon} <strong>${status.toUpperCase()}</strong></span>
-        ${c.isVerified  ? '<span>· ✅ Verified</span>'  : ''}
-        ${c.isFeatured  ? '<span>· ⭐ Featured</span>'  : ''}
-        ${c.isSuspended ? `<span>· 🚫 Suspended${c.suspensionReason ? ': '+e2(c.suspensionReason) : ''}</span>` : ''}
-        ${c.approvedAt  ? `<span style="margin-left:auto;font-size:.75rem;opacity:.7;">Approved ${fd(c.approvedAt)}</span>` : ''}
-    </div>
-    ${user.isBanned ? `<div class="cd-notice error"><i class="fas fa-ban"></i> User account is <strong>banned</strong>${user.banReason ? ': '+e2(user.banReason) : ''}</div>` : ''}
-    ${!user.emailVerified ? `<div class="cd-notice warn"><i class="fas fa-envelope"></i> Email address not verified</div>` : ''}
-    ${c.rejectionReason ? `<div class="cd-notice error"><i class="fas fa-times-circle"></i> Rejection reason: ${e2(c.rejectionReason)}</div>` : ''}
-    ${c.applicationMessage ? `<div class="cd-notice info"><i class="fas fa-comment"></i> Application message: "${e2(c.applicationMessage)}"</div>` : ''}`;
-
-    // ── Store visuals ────────────────────────────────────────────────────────
-    const storeVisual = `
-    <div class="cd-store-visual">
-        ${c.storeBanner
-            ? `<img src="${e2(c.storeBanner)}" class="cd-banner" alt="banner"
-                    onerror="this.style.display='none'">`
-            : `<div class="cd-banner-placeholder"></div>`}
-        ${c.storeLogo ? `
-        <div class="cd-logo-wrap" style="${c.storeBanner ? '' : 'position:static;display:inline-flex;margin-top:8px;'}">
-            <img src="${e2(c.storeLogo)}" alt="logo"
-                 onerror="this.style.display='none'">
-        </div>` : ''}
-    </div>
-    ${c.storeBanner && c.storeLogo ? '<div style="height:24px;"></div>' : ''}`;
-
-    // ── Store identity ───────────────────────────────────────────────────────
-    const storeSection = `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-store"></i> Store Identity</div>
-        ${storeVisual}
-        <div class="cd-grid">
-            ${f('Store Name',        `<strong style="color:var(--primary)">${e2(c.storeName)}</strong>`)}
-            ${f('Store Slug',        `<code style="font-size:.75rem;color:#a5b4fc;">/${e2(c.storeSlug)}</code>`)}
-            ${f('Business Type',     e2(c.businessType))}
-            ${f('Business Name',     e2(c.businessName))}
-            ${f('Country',           e2(c.country))}
-            ${f('Website',           c.website ? `<a href="${e2(c.website)}" target="_blank" rel="noopener">${e2(c.website)}</a>` : null)}
-            ${f('Categories',        (c.categories||[]).length ? c.categories.map(cat=>`<span class="cd-tag">${e2(cat)}</span>`).join('') : null)}
-            ${f('Rating',            c.rating ? `${'★'.repeat(Math.round(c.rating))}${'☆'.repeat(5-Math.round(c.rating))} ${c.rating.toFixed(1)} (${c.totalRatings} ratings)` : null)}
-            ${f('Buyer Reviews',     rs.avgRating ? `${rs.avgRating}/5 avg · ${rs.totalReviews} reviews` : null)}
-            ${f('Creator Since',     fd(c.createdAt))}
-            ${f('Last Updated',      fd(c.updatedAt))}
-        </div>
-        ${c.storeDescription ? `
-        <div class="cd-field full" style="margin-top:9px;">
-            <div class="cd-field-label">Store Description</div>
-            <div class="cd-field-value" style="line-height:1.65;font-size:.81rem;white-space:pre-wrap;">${e2(c.storeDescription)}</div>
-        </div>` : ''}
-        ${(c.socialLinks && Object.values(c.socialLinks).some(Boolean)) ? `
-        <div style="margin-top:10px;">
-            <div class="cd-field-label" style="font-size:.65rem;color:#6b7280;margin-bottom:6px;">SOCIAL LINKS</div>
-            ${c.socialLinks.twitter   ? `<a href="${e2(c.socialLinks.twitter)}"   target="_blank" class="cd-social-link"><i class="fab fa-twitter"   style="color:#1da1f2"></i>Twitter</a>`   : ''}
-            ${c.socialLinks.instagram ? `<a href="${e2(c.socialLinks.instagram)}" target="_blank" class="cd-social-link"><i class="fab fa-instagram" style="color:#e1306c"></i>Instagram</a>` : ''}
-            ${c.socialLinks.linkedin  ? `<a href="${e2(c.socialLinks.linkedin)}"  target="_blank" class="cd-social-link"><i class="fab fa-linkedin"  style="color:#0a66c2"></i>LinkedIn</a>`  : ''}
-            ${c.socialLinks.youtube   ? `<a href="${e2(c.socialLinks.youtube)}"   target="_blank" class="cd-social-link"><i class="fab fa-youtube"   style="color:#ff0000"></i>YouTube</a>`   : ''}
-        </div>` : ''}
-    </div>`;
-
-    // ── Account owner ────────────────────────────────────────────────────────
-    const ownerSection = `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-user"></i> Account Owner</div>
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
-            ${user.profileImage
-                ? `<img src="${e2(user.profileImage)}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,255,136,.3);" onerror="this.style.display='none'">`
-                : `<div style="width:52px;height:52px;border-radius:50%;background:rgba(0,255,136,.12);border:2px solid rgba(0,255,136,.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">👤</div>`}
-            <div>
-                <div style="font-size:.92rem;font-weight:700;color:#e5e7eb;">${e2(user.fullName||'—')}</div>
-                <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">${e2(user.email||'—')}</div>
-            </div>
-        </div>
-        <div class="cd-grid">
-            ${f('Phone',             e2(user.phone || c.phone))}
-            ${f('Country',           e2(user.country || c.country))}
-            ${f('Email Verified',    user.emailVerified ? '✅ Yes' : '❌ No')}
-            ${f('2FA Enabled',       user.twoFactorEnabled ? '🔐 Yes' : '—')}
-            ${f('User Since',        fd(user.createdAt))}
-            ${f('Last Login',        fdt(user.lastLogin))}
-            ${f('Last Activity',     fdt(user.lastActivity))}
-            ${f('User Banned',       user.isBanned ? `<span style="color:#ff8888;font-weight:700;">⛔ Yes — ${e2(user.banReason||'No reason given')}</span>` : null)}
-            ${f('Notifications',     user.notificationPreferences
-                ? `Email: ${user.notificationPreferences.email?'✅':'❌'} · Orders: ${user.notificationPreferences.orders?'✅':'❌'} · Marketing: ${user.notificationPreferences.marketing?'✅':'❌'}`
-                : null)}
-        </div>
-        ${user.bio ? `
-        <div class="cd-field full" style="margin-top:9px;">
-            <div class="cd-field-label">Bio</div>
-            <div class="cd-field-value" style="font-size:.81rem;line-height:1.6;">${e2(user.bio)}</div>
-        </div>` : ''}
-    </div>`;
-
-    // ── Application info ─────────────────────────────────────────────────────
-    const reviewedByName = c.reviewedBy?.fullName || '—';
-    const appSection = (c.applicationMessage || c.rejectionReason || c.reviewedBy || c.reviewedAt) ? `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-clipboard-check"></i> Application & Review</div>
-        <div class="cd-grid">
-            ${f('Reviewed By',   e2(reviewedByName))}
-            ${f('Reviewed At',   fdt(c.reviewedAt))}
-            ${f('Approved At',   fd(c.approvedAt))}
-        </div>
-        ${c.applicationMessage ? `
-        <div class="cd-field full" style="margin-top:9px;">
-            <div class="cd-field-label">Creator's Application Message</div>
-            <div class="cd-field-value" style="font-size:.81rem;line-height:1.65;font-style:italic;">"${e2(c.applicationMessage)}"</div>
-        </div>` : ''}
-        ${c.rejectionReason ? `
-        <div class="cd-field full" style="margin-top:9px;border-color:rgba(255,68,68,.2);">
-            <div class="cd-field-label" style="color:#ff8888;">Rejection Reason</div>
-            <div class="cd-field-value" style="color:#ff8888;">${e2(c.rejectionReason)}</div>
-        </div>` : ''}
-    </div>` : '';
-
-    // ── Stats ────────────────────────────────────────────────────────────────
-    const statsSection = `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-chart-bar"></i> Performance & Earnings</div>
-        <div class="cd-stat-row">
-            <div class="cd-stat"><div class="cd-stat-num">${c.products?.total||0}</div><div class="cd-stat-lbl">Products</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">${c.products?.approved||0}</div><div class="cd-stat-lbl">Approved</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">${c.products?.pending||0}</div><div class="cd-stat-lbl">Pending</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">${c.products?.rejected||0}</div><div class="cd-stat-lbl">Rejected</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">${c.totalSales||0}</div><div class="cd-stat-lbl">Sales</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">$${(c.totalRevenue||0).toFixed(2)}</div><div class="cd-stat-lbl">Revenue</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">$${(c.totalEarnings||0).toFixed(2)}</div><div class="cd-stat-lbl">Earned</div></div>
-            <div class="cd-stat"><div class="cd-stat-num" style="color:#fbbf24;">$${(c.pendingPayout||0).toFixed(2)}</div><div class="cd-stat-lbl">Pending $</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">$${(c.totalPaidOut||0).toFixed(2)}</div><div class="cd-stat-lbl">Paid Out</div></div>
-            <div class="cd-stat"><div class="cd-stat-num">$${(c.payoutThreshold||50).toFixed(0)}</div><div class="cd-stat-lbl">Min Payout</div></div>
-        </div>
-
-        <!-- Commission editor inline -->
-        <div class="cd-inline-form" id="cdCommissionForm_${c._id}">
-            <div>
-                <label>Platform Commission %</label>
-                <input type="number" id="cdPlatformRate_${c._id}" value="${c.platformCommissionRate||20}" min="0" max="100">
-            </div>
-            <div>
-                <label>Affiliate Commission %</label>
-                <input type="number" id="cdAffiliateRate_${c._id}" value="${c.affiliateCommissionRate||10}" min="0" max="100">
-            </div>
-            <button class="btn btn-primary btn-sm"
-                onclick="cdSaveCommissions('${c._id}')">
-                <i class="fas fa-save"></i> Save Rates
-            </button>
-        </div>
-    </div>`;
-
-    // ── Payout details ───────────────────────────────────────────────────────
-    const methodLabel = (c.payoutMethod||'').replace(/_/g,' ').toUpperCase();
-    const payoutSection = `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-wallet"></i> Payout Details</div>
-        ${c.payoutMethod
-            ? `<div style="display:inline-block;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);border-radius:8px;padding:5px 13px;font-size:.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">${methodLabel}</div>`
-            : `<div class="cd-notice warn">No payout method configured yet.</div>`}
-        <div class="cd-grid">
-            ${f('Payout Country',   e2(pd.country))}
-            <!-- Bank Transfer -->
-            ${f('Bank Name',        e2(pd.bankName))}
-            ${f('Account Number',   pd.accountNumber ? `<code style="letter-spacing:.1em;color:#a5b4fc;">${e2(pd.accountNumber)}</code>` : null)}
-            ${f('Account Name',     e2(pd.accountName))}
-            ${f('Sort Code',        e2(pd.sortCode))}
-            ${f('SWIFT / BIC',      e2(pd.swift))}
-            ${f('IBAN',             pd.iban ? `<code style="font-size:.76rem;color:#a5b4fc;">${e2(pd.iban)}</code>` : null)}
-            ${f('Routing Number',   e2(pd.routingNumber))}
-            ${f('Other Details',    e2(pd.otherDetails))}
-            <!-- PayPal -->
-            ${f('PayPal Email',     pd.paypalEmail ? `<a href="mailto:${e2(pd.paypalEmail)}">${e2(pd.paypalEmail)}</a>` : null)}
-            ${f('PayPal Name',      e2(pd.paypalName))}
-            <!-- Flutterwave -->
-            ${f('FLW Email',        pd.flwEmail ? `<a href="mailto:${e2(pd.flwEmail)}">${e2(pd.flwEmail)}</a>` : null)}
-            ${f('FLW Account',      e2(pd.flwAccount))}
-            ${f('FLW Bank',         e2(pd.flwBank))}
-            ${f('FLW Country',      e2(pd.flwCountry))}
-            <!-- Crypto -->
-            ${f('Crypto Type',      e2(pd.cryptoType))}
-            ${f('Crypto Name',      e2(pd.cryptoName))}
-            ${f('Wallet Address',   pd.cryptoAddress ? `<code style="font-size:.72rem;word-break:break-all;color:#a5b4fc;">${e2(pd.cryptoAddress)}</code>` : null)}
-        </div>
-    </div>`;
-
-    // ── Products list ────────────────────────────────────────────────────────
-    const typeIcon = {course:'🎓',music:'🎵',video:'🎬',ebook:'📖',software:'💻',template:'🎨',script:'📜',component:'🧩'};
-    const prodSection = prods.length ? `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-box-open"></i> Products (${prods.length})</div>
-        <div style="border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;">
-            ${prods.map(p => {
-                const sk = p.status === 'pending_review' ? 'pending' : p.status;
-                const thumb = (p.images||[])[0];
-                const icon  = typeIcon[p.productType] || '📦';
-                return `
-                <div class="cd-product-row" onclick="openProductReviewDrawer('${p._id}')">
-                    <div class="cd-product-thumb">
-                        ${thumb
-                            ? `<img src="${e2(thumb)}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" onerror="this.parentNode.innerHTML='${icon}'">`
-                            : icon}
-                    </div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e2(p.title)}</div>
-                        <div style="font-size:.68rem;color:#6b7280;margin-top:2px;text-transform:capitalize;">
-                            ${e2(p.productType||'download')} · ${fd(p.submittedAt||p.createdAt)}
-                        </div>
-                    </div>
-                    <div style="text-align:right;flex-shrink:0;">
-                        <div style="font-size:.78rem;font-weight:700;color:var(--primary);font-family:'DM Mono',monospace;">
-                            $${(p.approvedPrice||p.suggestedPrice||0).toFixed(2)}
-                        </div>
-                        <span class="cr-badge cr-badge-${sk}" style="font-size:.58rem;padding:1px 6px;">
-                            ${(p.status||'').replace('_',' ').toUpperCase()}
-                        </span>
-                    </div>
-                    <i class="fas fa-chevron-right" style="font-size:.65rem;color:#4b5563;flex-shrink:0;"></i>
-                </div>`;
-            }).join('')}
-        </div>
-    </div>` : '';
-
-    // ── Recent earnings ──────────────────────────────────────────────────────
-    const earningsSection = earnings.length ? `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-coins"></i> Recent Earnings (last ${earnings.length})</div>
-        <div style="border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;">
-            <div style="display:grid;grid-template-columns:1fr 1fr 90px 90px;padding:6px 12px;
-                 background:rgba(0,255,136,.04);border-bottom:1px solid rgba(0,255,136,.1);">
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Date</span>
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Type</span>
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Amount</span>
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Status</span>
-            </div>
-            ${earnings.map(e => `
-            <div class="cd-earning-row" style="display:grid;grid-template-columns:1fr 1fr 90px 90px;">
-                <span style="color:#9ca3af;">${fd(e.createdAt)}</span>
-                <span style="color:#d1d5db;text-transform:capitalize;">${e2(e.type||'sale')}</span>
-                <span style="color:var(--primary);font-weight:700;font-family:'DM Mono',monospace;">$${(e.amount||0).toFixed(2)}</span>
-                <span style="font-size:.7rem;padding:1px 7px;border-radius:8px;width:fit-content;
-                    background:${e.status==='paid'?'rgba(0,255,136,.1)':'rgba(255,165,0,.1)'};
-                    color:${e.status==='paid'?'var(--primary)':'#fbbf24'};">
-                    ${e2(e.status||'pending')}
-                </span>
-            </div>`).join('')}
-        </div>
-    </div>` : '';
-
-    // ── Payout history ───────────────────────────────────────────────────────
-    const payoutSection2 = payouts.length ? `
-    <div class="cd-section">
-        <div class="cd-section-title"><i class="fas fa-paper-plane"></i> Payout Requests (last ${payouts.length})</div>
-        <div style="border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;">
-            <div style="display:grid;grid-template-columns:1fr 100px 90px 90px;padding:6px 12px;
-                 background:rgba(0,255,136,.04);border-bottom:1px solid rgba(0,255,136,.1);">
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Requested</span>
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Method</span>
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Amount</span>
-                <span style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;">Status</span>
-            </div>
-            ${payouts.map(p => {
-                const sc = {approved:'rgba(0,255,136,.1)',pending:'rgba(255,165,0,.1)',rejected:'rgba(255,68,68,.1)'}[p.status]||'rgba(255,255,255,.06)';
-                const tc = {approved:'var(--primary)',pending:'#fbbf24',rejected:'#ff8888'}[p.status]||'#9ca3af';
-                return `
-                <div class="cd-payout-row" style="display:grid;grid-template-columns:1fr 100px 90px 90px;">
-                    <span style="color:#9ca3af;">${fd(p.requestedAt)}</span>
-                    <span style="color:#d1d5db;font-size:.75rem;text-transform:capitalize;">${e2((p.method||'').replace(/_/g,' '))}</span>
-                    <span style="color:var(--primary);font-weight:700;font-family:'DM Mono',monospace;">$${(p.amount||0).toFixed(2)}</span>
-                    <span style="font-size:.7rem;padding:1px 7px;border-radius:8px;width:fit-content;
-                        background:${sc};color:${tc};">
-                        ${e2(p.status||'pending')}
-                    </span>
-                </div>`;
-            }).join('')}
-        </div>
-    </div>` : '';
-
-    // ── Footer actions ───────────────────────────────────────────────────────
-    const isSuspended = c.isSuspended || status === 'suspended';
-    const footerHtml = `
-        <div style="flex:1;font-size:.72rem;color:#4b5563;">
-            ID: ${e2(c._id)}
-        </div>
-        ${!isSuspended && status === 'approved' ? `
-        <button class="btn btn-warning btn-sm"
-            onclick="cdSuspend('${c._id}','${e2(c.storeName)}',true)">
-            <i class="fas fa-ban"></i> Suspend
-        </button>` : status !== 'approved' ? `
-        <button class="btn btn-success btn-sm"
-            onclick="cdSuspend('${c._id}','${e2(c.storeName)}',false)">
-            <i class="fas fa-undo"></i> Reinstate
-        </button>` : ''}
-        ${status === 'pending' ? `
-        <button class="btn btn-danger btn-sm"
-            onclick="withDebounce(this,()=>reviewCreatorAccount('${c._id}','reject'))">
-            <i class="fas fa-times"></i> Reject
-        </button>
-        <button class="btn btn-primary btn-sm"
-            onclick="withDebounce(this,()=>reviewCreatorAccount('${c._id}','approve'))">
-            <i class="fas fa-check"></i> Approve
-        </button>` : ''}
-        <button class="btn btn-secondary btn-sm" onclick="closeCdDrawer()">Close</button>`;
-
-    // ── Assemble ─────────────────────────────────────────────────────────────
-    const overlay = document.getElementById('cdDrawerOverlay');
-    if (!overlay) return;
-    overlay.innerHTML = `
-    <div style="flex:1;cursor:pointer;" onclick="closeCdDrawer()"></div>
-    <div class="cd-drawer">
-        <div class="cd-header">
-            <button onclick="closeCdDrawer()"
-                style="background:none;border:none;color:#9ca3af;cursor:pointer;
-                       font-size:1.1rem;padding:4px 8px;border-radius:6px;">
-                <i class="fas fa-arrow-right"></i>
-            </button>
-            <div style="flex:1;min-width:0;">
-                <div style="font-size:.95rem;font-weight:700;color:#fff;
-                     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                    🏪 ${e2(c.storeName)}
+        document.getElementById('creatorDetailBody').innerHTML = `
+            <div class="adm-info-grid">
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Store Name</div>
+                    <div class="adm-cell-val" style="font-weight:700;">${c.isVerified?'✅ ':''}${c.isFeatured?'⭐ ':''}${esc(c.storeName||'—')}</div>
                 </div>
-                <div style="font-size:.72rem;color:#6b7280;margin-top:2px;">
-                    ${e2(user.fullName||'—')}
-                    &nbsp;·&nbsp; ${e2(user.email||'—')}
-                    &nbsp;·&nbsp; Since ${fd(c.createdAt)}
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Store Slug</div>
+                    <div class="adm-cell-val" style="font-family:'DM Mono',monospace;color:var(--primary);">/${esc(c.storeSlug||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Owner</div>
+                    <div class="adm-cell-val">${esc(user.fullName||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Email</div>
+                    <div class="adm-cell-val" style="font-size:.78rem;word-break:break-all;">${esc(user.email||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Status</div>
+                    <div class="adm-cell-val">
+                        <span class="cr-badge cr-badge-${c.applicationStatus==='approved'?'approved':'suspended'}">${(c.applicationStatus||'').toUpperCase()}</span>
+                    </div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Business Type</div>
+                    <div class="adm-cell-val" style="text-transform:capitalize;">${esc(c.businessType||'individual')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Country</div>
+                    <div class="adm-cell-val">${esc(c.country||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Approved</div>
+                    <div class="adm-cell-val">${c.approvedAt ? new Date(c.approvedAt).toLocaleDateString('en-GB') : '—'}</div>
                 </div>
             </div>
-            <span class="cr-badge cr-badge-${status === 'pending_review' ? 'pending' : status}"
-                  style="flex-shrink:0;">
-                ${status.replace('_',' ').toUpperCase()}
-            </span>
-        </div>
-
-        <div class="cd-body">
-            ${statusBar}
-            ${storeSection}
-            ${ownerSection}
-            ${appSection}
-            ${statsSection}
-            ${payoutSection}
-            ${prodSection}
-            ${earningsSection}
-            ${payoutSection2}
-        </div>
-
-        <div class="cd-footer">
-            ${footerHtml}
-        </div>
-    </div>`;
-
-    // ESC to close
-    const onEsc = e => { if (e.key === 'Escape') { closeCdDrawer(); document.removeEventListener('keydown', onEsc); } };
-    document.addEventListener('keydown', onEsc);
+            <div class="adm-section-lbl">Performance</div>
+            <div class="adm-info-grid cols-3">
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Products</div>
+                    <div class="adm-cell-val" style="font-size:1.1rem;font-weight:700;">${c.totalProducts||0}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Total Sales</div>
+                    <div class="adm-cell-val" style="font-size:1.1rem;font-weight:700;">${c.totalSales||0}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Revenue</div>
+                    <div class="adm-cell-val" style="font-size:1.1rem;font-weight:700;color:var(--primary);">$${(c.totalRevenue||0).toFixed(2)}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Pending Payout</div>
+                    <div class="adm-cell-val" style="color:#fbbf24;font-weight:600;">$${(c.pendingPayout||0).toFixed(2)}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Platform Cut</div>
+                    <div class="adm-cell-val">${c.platformCommissionRate||20}%</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Affiliate Cut</div>
+                    <div class="adm-cell-val">${c.affiliateCommissionRate||10}%</div>
+                </div>
+            </div>
+            ${c.storeDescription ? `
+            <div class="adm-section-lbl">Store Description</div>
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:12px 14px;
+                 font-size:.83rem;color:#9ca3af;line-height:1.6;">${esc(c.storeDescription)}</div>` : ''}
+            <div class="adm-modal-footer" style="padding:14px 0 0;border-top:1px solid rgba(255,255,255,.06);margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-secondary btn-sm"
+                    onclick="openCommissionModal('${creatorId}','${esc(c.storeName||'')}',${c.platformCommissionRate||20},${c.affiliateCommissionRate||10});admCloseModal()">
+                    <i class="fas fa-percent"></i> Commissions
+                </button>
+                ${c.applicationStatus==='approved' ? `
+                <button class="btn btn-sm" style="background:rgba(255,170,0,.1);color:#fbbf24;border:1px solid rgba(255,170,0,.3);"
+                    onclick="withDebounce(this,()=>suspendCreator('${creatorId}','${esc(c.storeName||'')}',true));admCloseModal()">
+                    <i class="fas fa-ban"></i> Suspend
+                </button>` : `
+                <button class="btn btn-sm" style="background:rgba(0,255,136,.08);color:var(--primary);border:1px solid rgba(0,255,136,.2);"
+                    onclick="withDebounce(this,()=>suspendCreator('${creatorId}','${esc(c.storeName||'')}',false));admCloseModal()">
+                    <i class="fas fa-undo"></i> Reinstate
+                </button>`}
+                <button class="btn btn-secondary btn-sm" onclick="admCloseModal()">Close</button>
+            </div>
+        `;
+    } catch(e) {
+        document.getElementById('creatorDetailBody').innerHTML = `
+            <div style="text-align:center;padding:30px;color:#ff6b6b;">
+                <i class="fas fa-exclamation-circle fa-2x" style="margin-bottom:10px;"></i>
+                <div>${esc(e.message)}</div>
+            </div>`;
+    }
 }
 
 // ── Inline commission save from drawer ───────────────────────────────────────
@@ -12730,14 +12699,9 @@ function renderAffiliates(affiliates) {
                 <thead>
                     <tr>
                         <th>Affiliate</th>
-                        <th>Code / Slug</th>
-                        <th>Status / Tier</th>
-                        <th>Commission</th>
-                        <th>Clicks</th>
-                        <th>Conv.</th>
-                        <th>Earned</th>
-                        <th>Available</th>
-                        <th>Paid Out</th>
+                        <th>Code</th>
+                        <th>Tier / Status</th>
+                        <th>Performance</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -12755,52 +12719,45 @@ function renderAffiliates(affiliates) {
                             : `<span style="color:#6b7280;">default</span>`;
                         return `<tr>
                             <td>
-                                <div style="font-weight:600;font-size:.88rem;">${esc(user.fullName||'—')}</div>
-                                <div style="font-size:.72rem;color:#6b7280;">${esc(user.email||'—')}</div>
-                                ${user.country?`<div style="font-size:.68rem;color:#4b5563;">${esc(user.country)}</div>`:''}
+                                <div style="font-weight:600;font-size:.84rem;">${esc(user.fullName||'—')}</div>
+                                <div style="font-size:.68rem;color:#6b7280;">${esc(user.email||'—')}</div>
                             </td>
                             <td>
-                                <div style="font-family:monospace;color:var(--primary);font-size:.82rem;
-                                     font-weight:800;letter-spacing:1.5px;">${esc(a.affiliateCode||'—')}</div>
-                                ${a.customSlug?`<div style="font-size:.68rem;color:#6b7280;">/ref/${esc(a.customSlug)}</div>`:''}
+                                <div style="font-family:'DM Mono',monospace;color:var(--primary);font-size:.78rem;
+                                     font-weight:800;letter-spacing:1px;">${esc(a.affiliateCode||'—')}</div>
+                                ${a.customSlug?`<div style="font-size:.65rem;color:#6b7280;">/ref/${esc(a.customSlug)}</div>`:''}
                             </td>
                             <td>
                                 <span class="cr-badge cr-badge-${a.status==='active'?'approved':'suspended'}"
-                                      style="display:block;width:fit-content;margin-bottom:4px;">
+                                      style="display:block;width:fit-content;margin-bottom:3px;font-size:.63rem;">
                                     ${(a.status||'').toUpperCase()}
                                 </span>
-                                <span style="font-size:.68rem;font-weight:700;color:${tierColor};
-                                     text-transform:uppercase;letter-spacing:.5px;">
-                                    ${tier}
-                                </span>
+                                <span style="font-size:.65rem;font-weight:700;color:${tierColor};
+                                     text-transform:uppercase;letter-spacing:.5px;">${tier}</span>
                             </td>
-                            <td>${commDisplay}</td>
-                            <td>${(a.totalClicks||0).toLocaleString()}</td>
-                            <td>${convRate}</td>
-                            <td style="font-weight:600;">$${(a.totalEarnings||0).toFixed(2)}</td>
-                            <td style="color:var(--primary);">$${(earn.confirmed!==undefined?earn.confirmed:(a.pendingEarnings||0)).toFixed(2)}</td>
-                            <td style="color:#60a5fa;">$${(a.paidEarnings||0).toFixed(2)}</td>
                             <td>
-                                <div style="display:flex;flex-direction:column;gap:4px;">
-                                    <button class="btn btn-secondary btn-sm" style="font-size:.7rem;"
+                                <div style="font-size:.75rem;color:#9ca3af;line-height:1.8;">
+                                    🖱 ${(a.totalClicks||0).toLocaleString()} clicks<br>
+                                    📦 ${(a.totalConversions||0)} conv (${convRate})<br>
+                                    💰 $${(a.totalEarnings||0).toFixed(2)} earned
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-btns" style="flex-direction:column;align-items:flex-start;gap:4px;">
+                                    <button class="btn btn-secondary btn-sm" style="font-size:.68rem;"
                                         onclick="viewAffiliateDetail('${a._id}')">
                                         <i class="fas fa-eye"></i> Detail
                                     </button>
-                                    <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
-                                        color:#a78bfa;border-color:rgba(167,139,250,.3);"
+                                    <button class="btn btn-secondary btn-sm" style="font-size:.68rem;color:#a78bfa;border-color:rgba(167,139,250,.3);"
                                         onclick="openAffiliateCommissionModal('${a._id}','${esc(user.fullName||'')}',${a.commissionOverride??'null'},${a.cookieDays||30},'${tier}')">
                                         <i class="fas fa-percent"></i> Commission
                                     </button>
                                     ${a.status==='active' ? `
-                                    <button class="btn btn-sm" style="font-size:.7rem;
-                                        background:rgba(255,170,0,.1);color:#fbbf24;
-                                        border:1px solid rgba(255,170,0,.3);"
+                                    <button class="btn btn-sm" style="font-size:.68rem;background:rgba(255,170,0,.1);color:#fbbf24;border:1px solid rgba(255,170,0,.3);"
                                         onclick="withDebounce(this,()=>toggleAffiliateSuspend('${a._id}','${esc(user.fullName||'')}',true))">
                                         <i class="fas fa-ban"></i> Suspend
                                     </button>` : `
-                                    <button class="btn btn-sm" style="font-size:.7rem;
-                                        background:rgba(0,255,136,.08);color:var(--primary);
-                                        border:1px solid rgba(0,255,136,.2);"
+                                    <button class="btn btn-sm" style="font-size:.68rem;background:rgba(0,255,136,.08);color:var(--primary);border:1px solid rgba(0,255,136,.2);"
                                         onclick="withDebounce(this,()=>toggleAffiliateSuspend('${a._id}','${esc(user.fullName||'')}',false))">
                                         <i class="fas fa-undo"></i> Reinstate
                                     </button>`}
@@ -12816,7 +12773,7 @@ function renderAffiliates(affiliates) {
 // ── Affiliate Commission Modal ─────────────────────────────────────────────
 function openAffiliateCommissionModal(affiliateId, name, currentOverride, cookieDays, tier) {
     closeCrModal();
-    const tiers = ['starter','pro','elite'];
+    const tiers = ['starter','regular','pro','elite'];
     const html = `
     <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
         <div class="cr-modal">
@@ -12903,174 +12860,144 @@ async function toggleAffiliateSuspend(affiliateId, name, suspend) {
  
 // ── View affiliate detail modal ───────────────────────────────────────
 async function viewAffiliateDetail(affiliateId) {
-    closeCrModal();
-    const html = `
-    <div class="cr-modal-overlay" id="crModalOverlay" onclick="closeCrModalOutside(event)">
-        <div class="cr-modal wide">
-            <h3><i class="fas fa-link"></i> Affiliate Full Detail</h3>
-            <div id="affiliateDetailBody">
-                <div class="cr-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+    admOpenModal(`
+    <div class="adm-modal-overlay" onclick="if(event.target===this)admCloseModal()">
+        <div class="adm-modal wide">
+            <div class="adm-modal-header">
+                <div class="adm-modal-title"><i class="fas fa-link"></i> Affiliate Detail</div>
+                <button class="adm-modal-close" onclick="admCloseModal()">✕</button>
             </div>
-            <div class="cr-modal-actions">
-                <button class="btn btn-secondary" onclick="closeCrModal()">Close</button>
+            <div class="adm-modal-body" id="affDetailBody">
+                <div style="text-align:center;padding:40px;color:#6b7280;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i>
+                    <div style="margin-top:12px;font-size:.85rem;">Loading affiliate…</div>
+                </div>
             </div>
         </div>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', html);
- 
+    </div>`);
+
     try {
         const r = await fetch(`${API_URL}/api/admin/affiliates/${affiliateId}`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
         const d = await r.json();
-        if (!d.success) throw new Error(d.message);
- 
-        const a    = d.affiliate;
+        if (!d.success) throw new Error(d.message || 'Not found');
+        const a    = d.affiliate || d;
         const user = a.userId || {};
-        const pd   = a.payoutDetails || {};
- 
-        document.getElementById('affiliateDetailBody').innerHTML = `
-            <!-- Identity -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Affiliate Identity</div>
-                <div class="cr-detail-grid">
-                    <div class="cr-detail-item">
-                        <div class="cr-detail-item-label">Full Name</div>
-                        <div class="cr-detail-item-value" style="font-weight:700;color:var(--primary);">${esc(user.fullName || '—')}</div>
+        const earn = a.earnings || {};
+        const tier = a.tier || 'starter';
+        const tierColor = { elite:'#f59e0b', pro:'#a78bfa', regular:'#2dd4bf', starter:'#6b7280' }[tier] || '#6b7280';
+        const rateMap   = { starter:2, regular:5, pro:7, elite:10 };
+        const commRate  = a.commissionOverride != null ? a.commissionOverride : rateMap[tier];
+
+        document.getElementById('affDetailBody').innerHTML = `
+            <div class="adm-info-grid">
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Name</div>
+                    <div class="adm-cell-val">${esc(user.fullName||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Email</div>
+                    <div class="adm-cell-val" style="font-size:.78rem;word-break:break-all;">${esc(user.email||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Affiliate Code</div>
+                    <div class="adm-cell-val" style="font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:1.5px;font-weight:800;">${esc(a.affiliateCode||'—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Custom Slug</div>
+                    <div class="adm-cell-val">${a.customSlug ? '/ref/'+esc(a.customSlug) : '—'}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Status</div>
+                    <div class="adm-cell-val">
+                        <span class="cr-badge cr-badge-${a.status==='active'?'approved':'suspended'}">${(a.status||'').toUpperCase()}</span>
                     </div>
-                    <div class="cr-detail-item">
-                        <div class="cr-detail-item-label">Email</div>
-                        <div class="cr-detail-item-value" style="font-size:.82rem;">${esc(user.email || '—')}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Tier</div>
+                    <div class="adm-cell-val" style="color:${tierColor};font-weight:700;text-transform:uppercase;">${tier}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Commission Rate</div>
+                    <div class="adm-cell-val" style="color:var(--primary);font-weight:700;">
+                        ${commRate}%${a.commissionOverride!=null?' <span style="font-size:.65rem;color:#6b7280;">(override)</span>':''}
                     </div>
-                    <div class="cr-detail-item">
-                        <div class="cr-detail-item-label">Affiliate Code</div>
-                        <div class="cr-detail-item-value" style="font-family:monospace;color:var(--primary);font-size:1rem;font-weight:800;letter-spacing:2px;">${esc(a.affiliateCode || '—')}</div>
-                    </div>
-                    <div class="cr-detail-item">
-                        <div class="cr-detail-item-label">Status</div>
-                        <div class="cr-detail-item-value">
-                            <span class="cr-badge cr-badge-${a.status === 'active' ? 'approved' : 'suspended'}">${(a.status || '').toUpperCase()}</span>
-                        </div>
-                    </div>
-                    <div class="cr-detail-item">
-                        <div class="cr-detail-item-label">Country</div>
-                        <div class="cr-detail-item-value">${esc(user.country || '—')}</div>
-                    </div>
-                    <div class="cr-detail-item">
-                        <div class="cr-detail-item-label">Joined</div>
-                        <div class="cr-detail-item-value">${fmtDate(a.createdAt)}</div>
-                    </div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Cookie Duration</div>
+                    <div class="adm-cell-val">${a.cookieDays||30} days</div>
                 </div>
             </div>
- 
-            <!-- Performance -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Performance Stats</div>
-                <div class="cr-stats" style="margin-top:0;">
-                    <div class="cr-stat"><div class="cr-stat-num">${a.totalClicks||0}</div><div class="cr-stat-lbl">Clicks</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">${a.totalConversions||0}</div><div class="cr-stat-lbl">Conversions</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(a.totalEarnings||0).toFixed(2)}</div><div class="cr-stat-lbl">Total Earned</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(a.pendingEarnings||0).toFixed(2)}</div><div class="cr-stat-lbl">Pending</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(a.paidEarnings||0).toFixed(2)}</div><div class="cr-stat-lbl">Paid Out</div></div>
-                    <div class="cr-stat"><div class="cr-stat-num">$${(a.payoutThreshold||20)}</div><div class="cr-stat-lbl">Min Payout</div></div>
+            <div class="adm-section-lbl">Performance</div>
+            <div class="adm-info-grid cols-3">
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Total Clicks</div>
+                    <div class="adm-cell-val">${(a.totalClicks||0).toLocaleString()}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Conversions</div>
+                    <div class="adm-cell-val">${(a.totalConversions||0).toLocaleString()}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Conv. Rate</div>
+                    <div class="adm-cell-val">${a.totalClicks>0?((a.totalConversions/a.totalClicks)*100).toFixed(1)+'%':'0%'}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Total Referrals</div>
+                    <div class="adm-cell-val">${a.totalReferrals||0}</div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Earnings Locked</div>
+                    <div class="adm-cell-val" style="color:${a.earningsLocked?'#fbbf24':'var(--primary)'};">
+                        ${a.earningsLocked ? '🔒 Yes' : '✅ No'}
+                    </div>
+                </div>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Joined</div>
+                    <div class="adm-cell-val">${a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-GB') : '—'}</div>
                 </div>
             </div>
- 
-            <!-- Payout Details -->
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">💳 Payout Method & Payment Details</div>
-                ${a.payoutMethod ? `
-                <div style="display:inline-block;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);
-                     border-radius:8px;padding:6px 14px;font-size:.82rem;font-weight:700;
-                     color:#00ff88;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">
-                    ${esc(a.payoutMethod.replace(/_/g,' '))}
+            <div class="adm-section-lbl">Earnings Breakdown</div>
+            <div class="adm-info-grid cols-3">
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Total Earned</div>
+                    <div class="adm-cell-val" style="color:var(--primary);font-weight:700;">$${(a.totalEarnings||0).toFixed(2)}</div>
                 </div>
-                ` : '<div style="color:#9ca3af;font-size:.82rem;">No payout method configured yet.</div>'}
-                ${Object.keys(pd).length > 0 ? `
-                <div class="payout-details-grid">
-                    ${pd.bankName      ? `<div class="payout-detail-item"><div class="payout-detail-label">🏦 Bank Name</div><div class="payout-detail-value">${esc(pd.bankName)}</div></div>` : ''}
-                    ${pd.accountNumber ? `<div class="payout-detail-item"><div class="payout-detail-label">🔢 Account Number</div><div class="payout-detail-value highlight">${esc(String(pd.accountNumber))}</div></div>` : ''}
-                    ${pd.accountName   ? `<div class="payout-detail-item"><div class="payout-detail-label">👤 Account Name</div><div class="payout-detail-value">${esc(pd.accountName)}</div></div>` : ''}
-                    ${pd.routingNumber ? `<div class="payout-detail-item"><div class="payout-detail-label">#️⃣ Routing</div><div class="payout-detail-value">${esc(pd.routingNumber)}</div></div>` : ''}
-                    ${pd.swift         ? `<div class="payout-detail-item"><div class="payout-detail-label">🌐 SWIFT/BIC</div><div class="payout-detail-value">${esc(pd.swift)}</div></div>` : ''}
-                    ${pd.iban          ? `<div class="payout-detail-item"><div class="payout-detail-label">🔵 IBAN</div><div class="payout-detail-value" style="font-size:.78rem;">${esc(pd.iban)}</div></div>` : ''}
-                    ${pd.paypalEmail   ? `<div class="payout-detail-item"><div class="payout-detail-label">💳 PayPal Email</div><div class="payout-detail-value highlight">${esc(pd.paypalEmail)}</div></div>` : ''}
-                    ${pd.cryptoAddress ? `<div class="payout-detail-item"><div class="payout-detail-label">🔑 Wallet Address</div><div class="payout-detail-value highlight" style="font-size:.72rem;word-break:break-all;">${esc(pd.cryptoAddress)}</div></div>` : ''}
-                    ${pd.cryptoType    ? `<div class="payout-detail-item"><div class="payout-detail-label">₿ Crypto Type</div><div class="payout-detail-value">${esc(pd.cryptoType)}</div></div>` : ''}
-                    ${pd.flwEmail      ? `<div class="payout-detail-item"><div class="payout-detail-label">🌊 Flutterwave Email</div><div class="payout-detail-value highlight">${esc(pd.flwEmail)}</div></div>` : ''}
-                    ${pd.flwAccount    ? `<div class="payout-detail-item"><div class="payout-detail-label">🌊 FLW Account</div><div class="payout-detail-value highlight">${esc(pd.flwAccount)}</div></div>` : ''}
-                    ${pd.flwBank       ? `<div class="payout-detail-item"><div class="payout-detail-label">🏦 FLW Bank</div><div class="payout-detail-value">${esc(pd.flwBank)}</div></div>` : ''}
-                    ${pd.flwCountry    ? `<div class="payout-detail-item"><div class="payout-detail-label">🌍 FLW Country</div><div class="payout-detail-value">${esc(pd.flwCountry)}</div></div>` : ''}
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Available</div>
+                    <div class="adm-cell-val" style="color:#60a5fa;font-weight:600;">
+                        $${(earn.confirmed!==undefined ? earn.confirmed : (a.pendingEarnings||0)).toFixed(2)}
+                    </div>
                 </div>
-                ` : (a.payoutMethod ? `<div style="color:#ffa500;font-size:.82rem;margin-top:8px;"><i class="fas fa-exclamation-triangle"></i> Method set but no payment details yet.</div>` : '')}
-            </div>
- 
-            <!-- Recent Commissions -->
-            ${d.earnings?.length ? `
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Recent Commissions (last 20)</div>
-                <div style="overflow-x:auto;">
-                    <table style="width:100%;border-collapse:collapse;font-size:.8rem;">
-                        <thead>
-                            <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Date</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Product</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Order</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Sale</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Earned</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${d.earnings.map(e => `
-                            <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
-                                <td style="padding:8px 10px;color:#9ca3af;font-size:.72rem;">${fmtDate(e.createdAt)}</td>
-                                <td style="padding:8px 10px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(e.productId?.title || '—')}</td>
-                                <td style="padding:8px 10px;font-family:monospace;font-size:.72rem;color:#9ca3af;">${esc(e.orderId?.orderReference || '—')}</td>
-                                <td style="padding:8px 10px;">$${(e.saleAmount||0).toFixed(2)}</td>
-                                <td style="padding:8px 10px;font-weight:800;color:var(--primary);">$${(e.earningAmount||0).toFixed(2)}</td>
-                                <td style="padding:8px 10px;"><span class="cr-badge cr-badge-${e.status === 'confirmed' ? 'approved' : e.status === 'paid' ? 'approved' : e.status === 'pending' ? 'pending' : 'rejected'}">${e.status}</span></td>
-                            </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                <div class="adm-info-cell">
+                    <div class="adm-cell-lbl">Paid Out</div>
+                    <div class="adm-cell-val">$${(a.paidEarnings||0).toFixed(2)}</div>
                 </div>
             </div>
-            ` : ''}
- 
-            <!-- Recent Clicks -->
-            ${d.clicks?.length ? `
-            <div class="cr-detail-section">
-                <div class="cr-detail-section-title">Recent Link Clicks (last 20)</div>
-                <div style="overflow-x:auto;">
-                    <table style="width:100%;border-collapse:collapse;font-size:.8rem;">
-                        <thead>
-                            <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Date</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Product</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Converted</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Sale Amount</th>
-                                <th style="padding:8px 10px;text-align:left;color:var(--primary);font-size:.65rem;text-transform:uppercase;">Commission</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${d.clicks.map(c => `
-                            <tr style="border-bottom:1px solid rgba(255,255,255,.03);${c.converted ? 'border-left:2px solid var(--primary);' : ''}">
-                                <td style="padding:8px 10px;color:#9ca3af;font-size:.72rem;">${fmtDate(c.clickedAt)}</td>
-                                <td style="padding:8px 10px;">${esc(c.productId?.title || '—')}</td>
-                                <td style="padding:8px 10px;">${c.converted ? '<span class="cr-badge cr-badge-approved">Yes</span>' : '<span class="cr-badge cr-badge-pending">No</span>'}</td>
-                                <td style="padding:8px 10px;">${c.conversionAmount ? '$' + c.conversionAmount.toFixed(2) : '—'}</td>
-                                <td style="padding:8px 10px;color:var(--primary);font-weight:700;">${c.commissionEarned ? '$' + c.commissionEarned.toFixed(2) : '—'}</td>
-                            </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="adm-modal-footer" style="padding:14px 0 0;border-top:1px solid rgba(255,255,255,.06);margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-secondary btn-sm"
+                    onclick="openAffiliateCommissionModal('${affiliateId}','${esc(user.fullName||'')}',${a.commissionOverride??'null'},${a.cookieDays||30},'${tier}');admCloseModal()">
+                    <i class="fas fa-percent"></i> Set Commission
+                </button>
+                ${a.status==='active' ? `
+                <button class="btn btn-sm" style="background:rgba(255,170,0,.1);color:#fbbf24;border:1px solid rgba(255,170,0,.3);"
+                    onclick="withDebounce(this,()=>toggleAffiliateSuspend('${affiliateId}','${esc(user.fullName||'')}',true));admCloseModal()">
+                    <i class="fas fa-ban"></i> Suspend
+                </button>` : `
+                <button class="btn btn-sm" style="background:rgba(0,255,136,.08);color:var(--primary);border:1px solid rgba(0,255,136,.2);"
+                    onclick="withDebounce(this,()=>toggleAffiliateSuspend('${affiliateId}','${esc(user.fullName||'')}',false));admCloseModal()">
+                    <i class="fas fa-undo"></i> Reinstate
+                </button>`}
+                <button class="btn btn-secondary btn-sm" onclick="admCloseModal()">Close</button>
             </div>
-            ` : ''}
         `;
     } catch(e) {
-        document.getElementById('affiliateDetailBody').innerHTML = `<p style="color:#ff4444;">${e.message}</p>`;
+        document.getElementById('affDetailBody').innerHTML = `
+            <div style="text-align:center;padding:30px;color:#ff6b6b;">
+                <i class="fas fa-exclamation-circle fa-2x" style="margin-bottom:10px;"></i>
+                <div>${esc(e.message)}</div>
+            </div>`;
     }
 }
  
