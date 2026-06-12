@@ -4084,7 +4084,20 @@ tr:hover {
     pointer-events: all;
     visibility: visible;
 }
-
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    .topbar {
+        position: sticky;
+        top: 0;
+    }
+}
 </style>
 <!-- ══════════════════════════════════════════
      EMAIL PREVIEW MODAL  (Option A)
@@ -7394,6 +7407,9 @@ async function fetchCreatorCoupons() {
     </td></tr>`;
 
     try {
+        // Always fetch pending-approval separately — it has correct populate
+        // and is the source of truth for the stats badge.
+        // For the list, use the fixed route with creatorOnly + approvalStatus.
         const [listRes, pendingRes] = await Promise.all([
             fetch(`${API_URL}/api/admin/coupons?creatorOnly=true&approvalStatus=${ccState.filter}`, {
                 headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -7406,25 +7422,28 @@ async function fetchCreatorCoupons() {
         const listData    = await listRes.json();
         const pendingData = await pendingRes.json();
 
-        // Stats row
-        if (statsRow) {
-            const all         = listData.coupons  || [];
-            const pending     = pendingData.coupons || [];
-            const totalFee    = pending.reduce((s, c) => s + (c.paymentFee || 0), 0);
-            const approved    = all.filter(c => c.adminApprovalStatus === 'approved').length;
-            const rejected    = all.filter(c => c.adminApprovalStatus === 'rejected').length;
-            const unpaid      = all.filter(c => c.paymentStatus === 'unpaid').length;
+        if (!listData.success)   throw new Error(listData.message   || 'Failed to load coupons');
+        if (!pendingData.success) throw new Error(pendingData.message || 'Failed to load pending queue');
 
+        const allList = listData.coupons   || [];
+        const pending = pendingData.coupons || [];
+
+        // Stats — compute from the full creator list for accuracy
+        const totalFee = pending.reduce((s, c) => s + (c.paymentFee || 0), 0);
+        const approved = allList.filter(c => c.adminApprovalStatus === 'approved').length;
+        const rejected = allList.filter(c => c.adminApprovalStatus === 'rejected').length;
+        const unpaid   = allList.filter(c => c.paymentStatus === 'unpaid').length;
+
+        if (statsRow) {
             statsRow.innerHTML =
-                ccStatCard('⏳ Pending',  pending.length,  '#fbbf24') +
-                ccStatCard('✅ Approved', approved,        '#00ff88') +
-                ccStatCard('❌ Rejected', rejected,        '#ff4444') +
-                ccStatCard('💳 Unpaid',   unpaid,          '#9ca3af') +
+                ccStatCard('⏳ Pending',  pending.length, '#fbbf24') +
+                ccStatCard('✅ Approved', approved,       '#00ff88') +
+                ccStatCard('❌ Rejected', rejected,       '#ff4444') +
+                ccStatCard('💳 Unpaid',  unpaid,         '#9ca3af') +
                 ccStatCard('💰 Fee Queue',
                     '₦' + totalFee.toLocaleString('en-NG', { minimumFractionDigits: 2 }),
                     '#60a5fa');
 
-            // Keep sidebar badge in sync
             const badge = document.getElementById('pendingCouponsBadge');
             if (badge) {
                 badge.textContent   = pending.length;
@@ -7433,9 +7452,10 @@ async function fetchCreatorCoupons() {
             syncGroupBadges();
         }
 
-        if (!listData.success) throw new Error(listData.message || 'Failed to load');
-
-        ccState.list = listData.coupons || [];
+        // For the pending filter, prefer the pending-approval list since it
+        // has ownerCreatorId.storeName and userId already populated.
+        // For all other filters, use the main list (now also populated).
+        ccState.list = ccState.filter === 'pending' ? pending : allList;
         renderCcTable(ccState.list);
 
     } catch (e) {
@@ -13974,11 +13994,12 @@ const PAGE_GROUP_MAP = {
     'creator-payouts':      'creator-marketplace',
     'payouts':              'creator-marketplace',
     'reviews':              'creator-marketplace',
-     'creator-coupons':      'creator-marketplace',
+    
     // Services
     'blog':                 'services',
     'products':             'services',
     'coupons':              'services',
+    'creator-coupons':      'creator-marketplace',
     'orders':               'services',
     'downloads':            'services',
     // Communication Center
