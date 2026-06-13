@@ -159,6 +159,23 @@
   // 2. ANNOUNCEMENT BANNER
   // ─────────────────────────────────────────────────────────────
   function handleBanner(s) {
+    // Normalise: server returns flat fields (bannerEnabled, bannerText, bannerType…)
+    // but this function was written expecting a nested s.banner object.
+    // Build the nested shape from whichever form the server sends.
+    if (!s.banner) {
+      s = Object.assign({}, s, {
+        banner: {
+          enabled:     s.bannerEnabled     !== false && !!s.bannerEnabled,
+          text:        s.bannerText        || '',
+          type:        s.bannerType        || 'info',
+          link:        s.bannerLink        || '',
+          linkText:    s.bannerLinkText    || '',
+          dismissible: s.bannerDismissible !== false,
+          version:     s.bannerVersion     || null,
+        }
+      });
+    }
+
     const existing = document.getElementById('uyeh-site-banner');
 
     if (!s.banner || !s.banner.enabled || !s.banner.text) {
@@ -261,9 +278,13 @@
   //        script in strict mode. It is now correctly inside the function.
   // FIX 6: chatEnabled selectors updated to match real chat widget DOM identifiers
   //        instead of guessed class names that silently matched nothing.
-  function handleFeatureToggles(s) {
+ function handleFeatureToggles(s) {
+    // Never hide anything on admin or agent pages — they must always have access
+    const isAdminPage = window.location.pathname.toLowerCase().includes('admin') ||
+                        window.location.pathname.toLowerCase().includes('agent');
+    if (isAdminPage) return;
+
     // Map feature flag → CSS selectors to hide when the feature is disabled.
-    // Update chatEnabled selectors to match whatever class/id your chat widget uses.
     const featureMap = {
       storeEnabled:      [
         'a[href*="store"]',
@@ -276,8 +297,6 @@
         '[data-feature="blog"]'
       ],
       chatEnabled:       [
-        // FIX 6: replaced guessed selectors with the actual identifiers your
-        // chat widget uses. Add or change these to match your HTML.
         '#chatButton',
         '#liveChatWidget',
         '.chat-widget',
@@ -286,22 +305,26 @@
         '[data-feature="chat"]'
       ],
       creatorEnabled:    [
-        'a[href*="creator"]',
+        'a[href*="/marketplace/creator"]',   // scoped — avoids hitting admin links
+        'a[href*="/creator-store"]',
         '[data-feature="creator"]'
       ],
       affiliatesEnabled: [
         'a[href*="affiliate"]',
         '[data-feature="affiliate"]'
       ],
-      couponFeeEnabled: [
-        '[data-feature="coupon-fee"]',
-        '#createCouponBtn',
-        '.coupon-create-btn'
+      // creatorCouponsEnabled — dedicated coupon toggle (wired in Patch 3 below)
+      creatorCouponsEnabled: [
+        '[data-feature="creator-coupons"]',
+        '.creator-coupon-btn',
+        '#creatorCouponSection'
       ],
+      // couponFeeEnabled removed — was orphaned, never in DB schema, never returned
+      // by /api/settings/public, selectors matched nothing in current HTML
     };
 
     Object.entries(featureMap).forEach(function([flag, selectors]) {
-      const enabled = s[flag] !== false;
+      const enabled = s[flag] !== false; // undefined → enabled (safe default)
       selectors.forEach(function(sel) {
         try {
           document.querySelectorAll(sel).forEach(function(el) {
