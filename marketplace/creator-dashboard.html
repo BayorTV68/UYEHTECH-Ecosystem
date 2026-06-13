@@ -4410,6 +4410,10 @@ select.form-control option { background: var(--ink-3); }
               <option value="fixed">Fixed Amount (₦)</option>
             </select>
           </div>
+          <div class="form-group" id="couponMaxDiscountGroup" style="margin-top:12px;display:none;">
+          <label class="form-label">Max Discount Cap (₦) <span style="color:var(--muted);font-size:0.76rem;">optional — limits percentage discount ceiling</span></label>
+          <input type="number" class="form-control" id="couponMaxDiscount" placeholder="e.g. 2000" min="1">
+        </div>
         </div>
 
         <div class="form-row">
@@ -4448,6 +4452,12 @@ select.form-control option { background: var(--ink-3); }
         <div class="form-group">
           <label class="form-label">Description (optional)</label>
           <input type="text" class="form-control" id="couponDescription" placeholder="e.g. Launch week discount">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+            <input type="checkbox" id="couponSingleUse" style="accent-color:var(--green);width:15px;height:15px;">
+            <span>One use per buyer <span style="color:var(--muted);font-size:0.78rem;">(each buyer can only redeem this coupon once)</span></span>
+          </label>
         </div>
 
         <!-- Product restriction picker -->
@@ -5236,25 +5246,7 @@ function handleLogout() {
   }
 }
 
-// ── LOAD CREATOR DATA ──────────────────────────────────async function getFlwPublicKey() {
-  if (_flwPublicKey) return _flwPublicKey;
-  // 1. Try site-controller (already fetched from /api/settings/public, no auth needed)
-  if (window.uyehSiteController?.getFlwPublicKey) {
-    _flwPublicKey = window.uyehSiteController.getFlwPublicKey();
-    if (_flwPublicKey) return _flwPublicKey;
-  }
-  // 2. Try window globals (set by site-controller)
-  if (window.FLW_PUBLIC_KEY)         return (_flwPublicKey = window.FLW_PUBLIC_KEY);
-  if (window.FLUTTERWAVE_PUBLIC_KEY) return (_flwPublicKey = window.FLUTTERWAVE_PUBLIC_KEY);
-  // 3. Last resort: authenticated settings endpoint
-  try {
-    const token = localStorage.getItem('token');
-    const res   = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const data  = await res.json();
-    _flwPublicKey = data?.settings?.flutterwavePublicKey || null;
-  } catch (_) {}
-  return _flwPublicKey;
-}──────────
+// ── LOAD CREATOR DATA ────────────────────────────────────────────
 async function loadCreatorData() {
   const token = localStorage.getItem('token');
   if (!token) return;
@@ -8733,6 +8725,7 @@ async function resubmitProduct(id) {
 
 let _pendingCoupon   = null; // { _id, code, fee } — set when payment modal is open
 let _editingCouponId = null; // set when product-scope modal is open
+let _couponsCache = []; // populated by loadCoupons()
 let _flwPublicKey    = null; // cached Flutterwave public key
 
 // ── Fetch Flutterwave public key once ─────────────────────────────
@@ -8761,7 +8754,8 @@ function updateCouponFeePreview() {
   const box      = document.getElementById('couponFeePreview');
   const txt      = document.getElementById('couponFeePreviewText');
   const bkd      = document.getElementById('couponFeeBreakdown');
-
+  const maxGroup = document.getElementById('couponMaxDiscountGroup');
+  if (maxGroup) maxGroup.style.display = type === 'percentage' ? 'block' : 'none';
   if (!discount || !worth || !qty) { if (box) box.style.display = 'none'; return; }
 
   const discountPerUnit = type === 'percentage' ? (worth * discount) / 100 : discount;
@@ -8782,9 +8776,11 @@ function openCouponModal() {
 }
 function closeCouponModal() {
   document.getElementById('couponModal').classList.remove('open');
-  ['couponCode','couponDiscount','couponProductWorth','couponQuantity',
+  ['couponCode','couponDiscount','couponProductWorth','couponQuantity', 'couponMaxDiscount',
    'couponExpiresAt','couponMinPurchase','couponDescription']
     .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const suCb = document.getElementById('couponSingleUse');
+  if (suCb) suCb.checked = false;
   const box = document.getElementById('couponFeePreview');
   if (box) box.style.display = 'none';
 }
@@ -8857,6 +8853,7 @@ async function loadCoupons() {
     }
 
     const coupons = data.coupons || [];
+    _couponsCache = coupons;
     if (total) total.textContent = coupons.length + ' total';
 
     if (!coupons.length) {
@@ -8875,7 +8872,7 @@ async function loadCoupons() {
         ? `<span class="badge badge-muted" style="font-size:0.7rem;">Refunded</span>`
         : `<button class="btn btn-ghost btn-sm"
             style="color:var(--amber);font-size:0.71rem;padding:3px 7px;border:1px solid rgba(246,173,85,0.4);"
-            onclick="openCouponPayModal({_id:'${c._id}',code:'${c.code}'}, ${c.paymentFee || 0})">
+            onclick="openCouponPayModal({_id:'${c._id}',code:'${c.code}',_feeBreakdown:'Platform fee: 20% of coupon total worth'}, ${c.paymentFee || 0})">
             💳 Pay ₦${fmt(c.paymentFee)}
           </button>`;
 
@@ -8936,7 +8933,7 @@ async function createCoupon() {
   const expiresAt    = document.getElementById('couponExpiresAt')?.value || null;
   const minPurchase  = parseFloat(document.getElementById('couponMinPurchase')?.value) || 0;
   const description  = document.getElementById('couponDescription')?.value.trim();
-
+  
   // Collect product opt-in selection
   const checkboxes       = document.querySelectorAll('#couponProductPicker input[type="checkbox"]');
   const allChecked        = [...checkboxes].every(cb => cb.checked);
@@ -8950,22 +8947,25 @@ async function createCoupon() {
   if (!productWorth || productWorth <= 0) { showToast('⚠️ Enter your average product price to compute the fee', 'amber'); return; }
   if (!quantity || quantity < 1)  { showToast('⚠️ Enter the number of uses (quantity)', 'amber'); return; }
   if (quantity > 100000)          { showToast('⚠️ Quantity cannot exceed 100,000', 'amber'); return; }
-
+  maxDiscountAmount: type === 'percentage'
+            ? (parseFloat(document.getElementById('couponMaxDiscount')?.value) || null)
+            : null;
   const btn = document.getElementById('createCouponBtn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…'; }
-
+  
   try {
     const res  = await fetch(`${API_URL}/api/creator/coupons`, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body:    JSON.stringify({
-        code, discount, type, productWorth, quantity,
-        expiresAt, minPurchaseAmount: minPurchase, description,
-        allowedProductIds,
-      }),
+          code, discount, type, productWorth, quantity,
+          expiresAt, minPurchaseAmount: minPurchase, description,
+          allowedProductIds,
+          singleUsePerUser: document.getElementById('couponSingleUse')?.checked === true,
+        }),
     });
     const data = await res.json();
-
+    
     if (data.success) {
       closeCouponModal();
       // Open payment modal immediately
@@ -9066,6 +9066,7 @@ async function payCouponFee() {
 
 // ── Server-side verify after Flutterwave callback ─────────────────
 async function _verifyCouponPayment(couponId, transactionId, token) {
+  const btn = document.getElementById('payCouponFeeBtn');
   try {
     const res  = await fetch(`${API_URL}/api/creator/coupons/${couponId}/pay`, {
       method:  'POST',
@@ -9073,34 +9074,26 @@ async function _verifyCouponPayment(couponId, transactionId, token) {
       body:    JSON.stringify({ transactionId }),
     });
     const data = await res.json();
-
     if (data.success) {
       showToast('🎉 Verified! Your coupon is now pending admin review.', 'green');
       document.getElementById('couponPayModal').classList.remove('open');
       _pendingCoupon = null;
       loadCoupons();
     } else {
-      showToast('⚠️ ' + (data.message || 'Verification failed. Contact support with your transaction ID.'), 'amber');
+      showToast('❌ ' + (data.message || 'Verification failed'), 'red');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
     }
   } catch(e) {
-    showToast('⚠️ Network error during verification. Contact support.', 'amber');
+    showToast('❌ Network error during verification. Contact support with your transaction ID: ' + transactionId, 'red');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
   }
 }
 
 // ── Manage product scope for an active coupon ─────────────────────
 async function manageCouponProducts(couponId) {
   _editingCouponId = couponId;
-  const token = localStorage.getItem('token');
-
-  // Get existing allowedProductIds for this coupon
-  let checkedIds = [];
-  try {
-    const res  = await fetch(`${API_URL}/api/creator/coupons`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const data = await res.json();
-    const coupon = (data.coupons || []).find(c => c._id === couponId);
-    checkedIds = coupon?.allowedProductIds || [];
-  } catch (_) {}
-
+  const coupon = _couponsCache.find(c => c._id === couponId);
+  const checkedIds = coupon?.allowedProductIds || [];
   _populateCouponProductPicker('couponProductModalPicker', checkedIds);
   document.getElementById('couponProductModal').classList.add('open');
 }
