@@ -418,7 +418,7 @@
 
     async function fetchSuggestions(q) {
         try {
-            const res  = await fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`);
+            const res  = await fetch(`https://uyehtechbackend.onrender.com/api/search/suggest?q=${encodeURIComponent(q)}`);
             const data = await res.json();
             if (!data.success || !data.suggestions?.length) { closeSuggest(); return; }
             renderSuggest(data.suggestions, q);
@@ -555,7 +555,7 @@
             const token = getToken();
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-            const url = `/api/search?q=${encodeURIComponent(q)}&scope=${scope}&page=${page}&limit=10`;
+            const url = `https://uyehtechbackend.onrender.com/api/search?q=${encodeURIComponent(q)}&scope=${scope}&page=${page}&limit=10`;
             const res  = await fetch(url, { headers });
             const data = await res.json();
 
