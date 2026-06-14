@@ -2498,6 +2498,18 @@ body {
     scroll-behavior: smooth;
 }
 
+/* ── Agent-specific additions ── */
+.alert {
+    display:flex;gap:12px;padding:14px 18px;border-radius:10px;margin-bottom:20px;
+    font-size:.88rem;line-height:1.5;
+}
+.alert.info { background:rgba(0,150,255,.06);border:1px solid rgba(0,150,255,.2); }
+.alert.info i { color:var(--info);flex-shrink:0;margin-top:2px; }
+.alert.warning { background:rgba(255,165,0,.06);border:1px solid rgba(255,165,0,.2); }
+.alert.warning i { color:var(--warning);flex-shrink:0;margin-top:2px; }
+.alert p { margin:0;color:var(--gray-light); }
+.alert strong { color:var(--white); }
+
 </style>
 </head>
 <body>
@@ -2573,7 +2585,11 @@ body {
             </a>
             <a href="#" class="nav-item" data-section="templates">
                 <i class="fas fa-file-alt"></i>
-                <span>Quick Replies</span>
+                <span>Canned Responses</span>
+            </a>
+            <a href="#" class="nav-item" data-section="user-actions">
+                <i class="fas fa-user-shield"></i>
+                <span>User Actions</span>
             </a>
             <a href="#" class="nav-item" data-section="analytics">
                 <i class="fas fa-chart-line"></i>
@@ -3025,6 +3041,39 @@ body {
                 </div>
             </section>
 
+            <!-- User Actions Section -->
+            <section id="section-user-actions" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2>User Actions</h2>
+                        <p class="section-subtitle">Ban, unban, reset 2FA, or force password resets</p>
+                    </div>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="userActionSearch" placeholder="Search by email or name...">
+                    </div>
+                </div>
+                <div class="alert info" style="margin-bottom:24px;">
+                    <i class="fas fa-shield-alt"></i>
+                    <p><strong>Agent Permissions:</strong> You can ban/unban users, reset 2FA, and trigger password resets. You cannot delete accounts or access financial data.</p>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userActionsTableBody">
+                            <tr><td colspan="5" class="empty-state"><i class="fas fa-users"></i><p>Search for a user above</p></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
             <!-- Settings Section -->
             <section id="section-settings" class="content-section">
                 <div class="section-header">
@@ -3185,12 +3234,19 @@ body {
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="flex-wrap:wrap;gap:8px;">
+                <button class="btn btn-secondary btn-sm" onclick="app.sendInternalNote()" title="Visible to agents only">
+                    <i class="fas fa-sticky-note"></i> Internal Note
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="app.transferChat()">
+                    <i class="fas fa-share"></i> Transfer
+                </button>
+                <div style="flex:1;"></div>
                 <button class="btn btn-secondary" id="endChatBtn">
                     <i class="fas fa-phone-slash"></i> End Chat
                 </button>
                 <button class="btn btn-success" id="resolveChatBtn">
-                    <i class="fas fa-check"></i> Resolve & Close
+                    <i class="fas fa-check"></i> Resolve & Rate
                 </button>
             </div>
         </div>
@@ -4489,13 +4545,11 @@ window.wsService = wsService;
  */
 function wsSendChatMessage(chatId, message, senderId, senderName) {
     return wsService.send({
-        type: 'chat_message',
+        type:    'new_message',
         chatId,
         message,
-        sender: 'agent',
-        senderId,
-        senderName,
-        timestamp: new Date().toISOString()
+        messageType: 'text',
+        tempId:  'temp-' + Date.now(),
     });
 }
 
@@ -5529,6 +5583,16 @@ async init() {
         const userId = this.currentUser.id || this.currentUser._id;
         wsService.connect(userId);
 
+        // After connection opens, send join_agent to register on server
+        wsService.onConnectionChange((status) => {
+          if (status.connected && userId) {
+            wsService.send({
+              type:    'join_agent',
+              agentId: userId.toString(),
+            });
+          }
+        });
+
 
         // Register connection handler
         wsService.onConnectionChange((status) => {
@@ -5548,59 +5612,132 @@ async init() {
         wsService.onMessage((data) => {
             debugLog('info', 'WebSocket message received', data);
 
-            switch (data.type) {
-                case 'chat_message':
+           switch (data.type) {
+                // ── Real-time messages ──────────────────────────────────
+                case 'new_message':          // server WS sends 'new_message'
+                case 'chat_message':         // legacy fallback
                     this.handleIncomingMessage(data);
                     break;
-                
+
+                case 'message_sent':         // confirm to sender
+                    this.updateMessageStatus(data.tempId || data.messageId, { status: 'sent', _id: data.messageId });
+                    break;
+
+                case 'message_status':       // delivered / read tick
+                    (data.messageIds || [data.messageId]).forEach(mid =>
+                        this.updateMessageStatus(mid, { status: data.status })
+                    );
+                    break;
+
+                // ── Typing ─────────────────────────────────────────────
                 case 'typing':
                     this.handleTypingIndicator(data);
                     break;
-                
-                case 'message_read':
-                    this.handleMessageRead(data);
+                case 'stop_typing':
+                    this.hideTypingIndicator(data);
                     break;
-                
+
+                // ── Chat lifecycle ─────────────────────────────────────
+                case 'new_chat':
+                    ui.showInfo(`📩 New chat: ${data.customerName || 'Customer'}`);
+                    this.loadChatQueue();
+                    this.updateQueueBadge();
+                    this._playAlert();
+                    break;
+
                 case 'chat_assigned':
                     this.handleChatAssigned(data);
                     break;
-                
+
+                case 'chat_taken':
+                    this.handleChatTaken(data);
+                    break;
+
+                case 'chat_transferred':
+                    ui.showInfo(`Chat transferred to ${data.toAgent || 'another agent'}`);
+                    this.loadChatQueue();
+                    this.loadMyChats();
+                    break;
+
                 case 'chat_ended':
                     this.handleChatEnded(data);
                     break;
-                
-                case 'agent_joined':
-                    debugLog('info', 'Agent joined chat', data);
-                    break;
-                
-               case 'pong':
-                    // Keepalive response
+
+                case 'priority_changed':
+                    if (this.currentChat && getChatId(this.currentChat) === data.chatId) {
+                        ui.showInfo(`Chat priority changed to ${data.priority}`);
+                    }
+                    this.loadChatQueue();
                     break;
 
+                // ── Reactions / deletes ────────────────────────────────
+                case 'reaction_updated':
+                    this._updateMessageReactions(data.messageId, data.reactions);
+                    break;
+
+                case 'message_deleted':
+                    this._softDeleteMessageInUI(data.messageId);
+                    break;
+
+                // ── Internal notes ─────────────────────────────────────
+                case 'internal_note':
+                    if (this.currentChat && getChatId(this.currentChat) === data.chatId) {
+                        this.addMessageToUI({ ...data.note, isInternal: true });
+                    }
+                    break;
+
+                // ── Customer presence ──────────────────────────────────
+                case 'customer_online':
+                    if (this.currentChat && getChatId(this.currentChat) === data.chatId) {
+                        this._showPresence('online');
+                    }
+                    break;
+
+                // ── Ratings ────────────────────────────────────────────
+                case 'new_rating':
+                    this._showRatingReceived(data);
+                    break;
+
+                // ── Agent presence ─────────────────────────────────────
+                case 'agent_online':
+                case 'agent_status_changed':
+                    debugLog('info', 'Agent status update', data);
+                    break;
+
+                case 'suspended':
+                    ui.showError('⛔ Your account has been suspended. Contact admin.');
+                    setTimeout(() => api.logout(), 3000);
+                    break;
+
+                case 'maintenance':
+                    ui.showError(`🔧 ${data.title || 'Maintenance'}: ${data.message}`);
+                    break;
+
+                // ── Tickets ────────────────────────────────────────────
                 case 'new_ticket':
-                    // New ticket arrived — refresh list and bump badge
-                    ui.showInfo(`New ticket: ${data.ticketId}`);
+                    ui.showInfo(`🎫 New ticket: ${data.ticketId}`);
                     this.loadTickets();
                     break;
 
                 case 'ticket_assigned':
-                    // A ticket was assigned (could be to this agent)
-                    if (this._activeTicket?.ticketId === data.ticketId) {
-                        this.viewTicket(data.ticketId); // refresh open modal
-                    }
+                    if (this._activeTicket?.ticketId === data.ticketId) this.viewTicket(data.ticketId);
                     this.loadTickets();
                     break;
 
                 case 'ticket_reply':
-                    // Someone replied — refresh open modal if it's the same ticket
-                    if (this._activeTicket?.ticketId === data.ticketId) {
-                        this.viewTicket(data.ticketId);
-                    }
+                    if (this._activeTicket?.ticketId === data.ticketId) this.viewTicket(data.ticketId);
                     this.loadTickets();
                     break;
-                
+
+                case 'pong':
+                    break;
+
+                case 'connected':
+                    debugLog('info', 'WS connected to server');
+                    break;
+
                 default:
-                    debugLog('warn', 'Unknown WebSocket message type', data.type);
+                    debugLog('warn', 'Unknown WS message type', data.type);
             }
         });
     }
@@ -6432,6 +6569,7 @@ async assignChatToSelf(chatId) {
         this.renderChatMessages(chat.messages || []);
     }
 
+    
     /**
      * Render chat messages
      * @param {array} messages - Array of message objects
@@ -6510,10 +6648,44 @@ addMessageToUI(message) {
             statusIndicator = `<span class="message-status" data-status="${message.status || 'delivered'}">${statusIcons[message.status] || statusIcons.delivered}</span>`;
         }
         
+        // Render message body — images inline, text escaped
+        let bodyHtml = '';
+        const attachments = message.attachments || [];
+
+        if (message.isInternal) {
+            // Internal notes — amber background, agent-only label
+            bodyHtml = `
+                <div class="message-bubble" style="background:rgba(255,165,0,.08);border:1px dashed rgba(255,165,0,.3);color:var(--gray-light);">
+                    <span style="font-size:.7rem;font-weight:700;color:var(--warning);letter-spacing:.5px;display:block;margin-bottom:4px;">🔒 INTERNAL NOTE</span>
+                    ${ui.escapeHtml(message.message)}
+                </div>`;
+        } else if (attachments.length > 0) {
+            const imgAttachments  = attachments.filter(a => a.resourceType === 'image');
+            const fileAttachments = attachments.filter(a => a.resourceType !== 'image');
+            bodyHtml = `
+                <div class="message-bubble" style="${message.message ? '' : 'padding:6px;background:transparent;box-shadow:none;'}">
+                    ${message.message ? `<p style="margin-bottom:8px;">${ui.escapeHtml(message.message)}</p>` : ''}
+                    ${imgAttachments.map(a => `
+                        <a href="${a.url}" target="_blank" rel="noopener">
+                            <img src="${a.thumbnailUrl || a.url}" alt="${ui.escapeHtml(a.filename)}"
+                                 style="max-width:240px;max-height:200px;border-radius:8px;display:block;margin:4px 0;object-fit:cover;cursor:pointer;"
+                                 onerror="this.style.display='none'">
+                        </a>`).join('')}
+                    ${fileAttachments.map(a => `
+                        <a href="${a.url}" target="_blank" rel="noopener"
+                           style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.06);border-radius:8px;text-decoration:none;color:var(--primary);font-size:.82rem;margin-top:4px;">
+                            <i class="fas fa-file" style="flex-shrink:0;"></i>
+                            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ui.escapeHtml(a.filename)}</span>
+                        </a>`).join('')}
+                </div>`;
+        } else {
+            bodyHtml = `<div class="message-bubble">${ui.escapeHtml(message.message)}</div>`;
+        }
+
         messageDiv.innerHTML = `
             <div class="message-avatar">${initials}</div>
             <div class="message-content">
-                <div class="message-bubble">${ui.escapeHtml(message.message)}</div>
+                ${bodyHtml}
                 <div class="message-footer">
                     <span class="message-time">${ui.formatTime(message.timestamp)}</span>
                     ${statusIndicator}
@@ -6640,9 +6812,15 @@ async sendChatMessage() {
                 status: 'delivered'
             });
 
-            // 🎯 FIX #3: Broadcast via WebSocket for real-time delivery
+            // Send via WebSocket new_message type (server saves + broadcasts)
             if (wsService.isConnected) {
-                wsSendChatMessage(chatId, message, userId, senderName);
+                wsService.send({
+                    type:        'new_message',
+                    chatId,
+                    message,
+                    messageType: 'text',
+                    tempId:      'temp-' + Date.now(),
+                });
             }
 
             debugLog('info', 'Message sent successfully');
@@ -6721,14 +6899,15 @@ handleIncomingMessage(data) {
     async handleResolveChat() {
         if (!this.currentChat) return;
 
-        const confirmed = await ui.confirm('Mark this chat as resolved?');
+        const confirmed = await ui.confirm('Mark this chat as resolved? A rating prompt will be sent to the customer.');
         if (!confirmed) return;
 
         try {
             ui.showLoading('Resolving chat...');
             
             const chatId = getChatId(this.currentChat);
-            await api.endChat(chatId);
+            // Call the correct RESOLVE endpoint (not end)
+            await api.request(`${api.baseURL}/api/chat/${chatId}/resolve`, { method: 'POST' });
             
             ui.showSuccess('Chat resolved successfully');
             ui.closeModal('chatModal');
@@ -6774,6 +6953,9 @@ handleIncomingMessage(data) {
                 break;
             case 'analytics':
                 await this.loadAnalytics();
+                break;
+            case 'user-actions':
+                this._setupUserActionsSearch();
                 break;
             case 'settings':
                 this.loadSettings();
@@ -7111,6 +7293,62 @@ renderAnalyticsChart(dailyData) {
     `).join('');
 }
 
+
+_setupUserActionsSearch() {
+        const input = document.getElementById('userActionSearch');
+        if (input && !input._bound) {
+            input._bound = true;
+            input.addEventListener('input', ui.debounce(async (e) => {
+                const q = e.target.value.trim();
+                if (q.length < 2) return;
+                try {
+                    const data = await api.get(`/api/customers?search=${encodeURIComponent(q)}`);
+                    if (data.success) this._renderUserActionsTable(data.customers || []);
+                } catch(_) {}
+            }, 400));
+        }
+    }
+
+    _renderUserActionsTable(users) {
+        const tbody = document.getElementById('userActionsTableBody');
+        if (!tbody) return;
+        if (!users.length) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><i class="fas fa-users"></i><p>No users found</p></td></tr>`;
+            return;
+        }
+        tbody.innerHTML = users.map(u => `
+            <tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:700;font-size:.8rem;">
+                            ${ui.getInitials(u.fullName || 'U')}
+                        </div>
+                        <strong style="font-size:.88rem;">${ui.escapeHtml(u.fullName || 'Unknown')}</strong>
+                    </div>
+                </td>
+                <td style="font-size:.85rem;">${ui.escapeHtml(u.email)}</td>
+                <td>
+                    ${u.isBanned
+                        ? `<span class="badge badge-error" style="font-size:.7rem;">Banned</span>`
+                        : `<span class="badge badge-success" style="font-size:.7rem;">Active</span>`}
+                </td>
+                <td style="font-size:.82rem;color:var(--gray);">${ui.formatTime(u.createdAt)}</td>
+                <td>
+                    <div class="action-btns">
+                        ${u.isBanned
+                          ? `<button class="btn btn-sm btn-secondary" onclick="app.unbanCustomer('${u._id}')" style="border-color:rgba(0,255,136,.3);color:var(--success);"><i class="fas fa-unlock"></i> Unban</button>`
+                          : `<button class="btn btn-sm btn-secondary" onclick="app.banCustomer('${u._id}')" style="border-color:rgba(255,68,68,.3);color:var(--error);"><i class="fas fa-ban"></i> Ban</button>`}
+                        <button class="btn btn-sm btn-secondary" onclick="app.reset2FA('${u._id}')" title="Reset 2FA" style="border-color:rgba(255,165,0,.3);color:var(--warning);">
+                            <i class="fas fa-shield-alt"></i> Reset 2FA
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="app.forcePasswordReset('${u._id}')" title="Send password reset" style="border-color:rgba(0,150,255,.3);color:var(--info);">
+                            <i class="fas fa-key"></i> Reset PW
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
 
 async loadTickets(page = null) {
     try {
@@ -7627,6 +7865,13 @@ renderCustomers() {
                         <button class="action-btn" onclick="event.stopPropagation(); app.startChatWithCustomer('${customer.email}')" title="Start Chat">
                             <i class="fas fa-comment"></i>
                         </button>
+                        ${customer.isBanned
+                          ? `<button class="action-btn" style="border-color:rgba(0,255,136,.3);color:var(--success);" onclick="event.stopPropagation();app.unbanCustomer('${customer._id}')" title="Unban user"><i class="fas fa-unlock"></i></button>`
+                          : `<button class="action-btn" style="border-color:rgba(255,68,68,.3);color:var(--error);" onclick="event.stopPropagation();app.banCustomer('${customer._id}')" title="Ban user"><i class="fas fa-ban"></i></button>`
+                        }
+                        <button class="action-btn" style="border-color:rgba(255,165,0,.3);color:var(--warning);" onclick="event.stopPropagation();app.reset2FA('${customer._id}')" title="Reset 2FA">
+                            <i class="fas fa-shield-alt"></i>
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -7775,6 +8020,11 @@ handleMessageRead(data) {
         const confirmed = await ui.confirm('Are you sure you want to logout?');
         if (!confirmed) return;
 
+        try {
+            // Mark agent offline on server before disconnecting
+            await api.request(`${api.baseURL}/api/auth/agent/logout`, { method: 'POST' });
+        } catch(_) {}
+
         // Disconnect WebSocket
         wsService.disconnect();
 
@@ -7783,7 +8033,7 @@ handleMessageRead(data) {
             clearInterval(interval);
         });
 
-        // Logout via API
+        // Clear local state and redirect
         api.logout();
     }
 
@@ -7899,8 +8149,209 @@ handleMessageRead(data) {
         this.renderChatQueue();
         this.chats = originalChats;
     }
-}
 
+
+// ── WhatsApp-style typing indicator display ───────────────────────────
+    handleTypingIndicator(data) {
+        if (!this.currentChat || getChatId(this.currentChat) !== data.chatId) return;
+        let indicator = document.getElementById('typingIndicator');
+        if (!indicator) {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+            indicator = document.createElement('div');
+            indicator.id = 'typingIndicator';
+            indicator.className = 'message customer';
+            indicator.innerHTML = `
+                <div class="message-avatar">C</div>
+                <div class="message-content">
+                    <div class="message-bubble" style="padding:10px 14px;">
+                        <div style="display:flex;gap:4px;align-items:center;">
+                            <span style="width:8px;height:8px;border-radius:50%;background:var(--gray);animation:typingDot 1.4s infinite;display:inline-block;"></span>
+                            <span style="width:8px;height:8px;border-radius:50%;background:var(--gray);animation:typingDot 1.4s infinite .2s;display:inline-block;"></span>
+                            <span style="width:8px;height:8px;border-radius:50%;background:var(--gray);animation:typingDot 1.4s infinite .4s;display:inline-block;"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(indicator);
+        }
+        indicator.style.display = 'flex';
+        this.scrollChatToBottom();
+        clearTimeout(this._typingTimer);
+        this._typingTimer = setTimeout(() => this.hideTypingIndicator(), 4000);
+    }
+
+    hideTypingIndicator() {
+        const el = document.getElementById('typingIndicator');
+        if (el) el.style.display = 'none';
+    }
+
+    // ── Message reaction update ───────────────────────────────────────────
+    _updateMessageReactions(messageId, reactions) {
+        const msgEl = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (!msgEl) return;
+        let reactionBar = msgEl.querySelector('.reaction-bar');
+        if (!reactionBar) {
+            reactionBar = document.createElement('div');
+            reactionBar.className = 'reaction-bar';
+            reactionBar.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;';
+            msgEl.querySelector('.message-content')?.appendChild(reactionBar);
+        }
+        reactionBar.innerHTML = Object.entries(reactions || {})
+            .filter(([, users]) => users.length > 0)
+            .map(([emoji, users]) =>
+                `<span style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:10px;padding:2px 7px;font-size:.75rem;cursor:pointer;" title="${users.length} reaction(s)">${emoji} ${users.length}</span>`
+            ).join('');
+    }
+
+    // ── Soft delete message in UI ─────────────────────────────────────────
+    _softDeleteMessageInUI(messageId) {
+        const msgEl = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (!msgEl) return;
+        const bubble = msgEl.querySelector('.message-bubble');
+        if (bubble) {
+            bubble.style.opacity = '.5';
+            bubble.style.fontStyle = 'italic';
+            bubble.textContent = 'This message was deleted.';
+        }
+    }
+
+    // ── Customer presence indicator ───────────────────────────────────────
+    _showPresence(status) {
+        const avatarEl = document.getElementById('chatCustomerAvatar');
+        if (!avatarEl) return;
+        const dot = avatarEl.querySelector('.presence-dot') || document.createElement('span');
+        dot.className = 'presence-dot';
+        dot.style.cssText = `
+            position:absolute;bottom:0;right:0;width:10px;height:10px;
+            border-radius:50%;background:${status === 'online' ? 'var(--success)' : 'var(--gray)'};
+            border:2px solid var(--dark-lighter);
+        `;
+        if (!avatarEl.querySelector('.presence-dot')) {
+            avatarEl.style.position = 'relative';
+            avatarEl.appendChild(dot);
+        }
+    }
+
+    // ── Rating received notification ──────────────────────────────────────
+    _showRatingReceived(data) {
+        const stars = '⭐'.repeat(data.rating || 0);
+        ui.showSuccess(`${stars} New rating (${data.rating}/5) received for chat ${data.chatId.slice(-6)}`);
+        this.loadDashboardStats();
+    }
+
+    // ── Audio alert for new messages ──────────────────────────────────────
+    _playAlert() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } catch(_) {}
+    }
+
+    playMessageSound() { this._playAlert(); }
+
+    // ── Chat action: transfer ─────────────────────────────────────────────
+    async transferChat() {
+        if (!this.currentChat) return;
+        const toAgentId = prompt('Enter agent ID to transfer this chat to:');
+        if (!toAgentId?.trim()) return;
+        const reason = prompt('Transfer reason (optional):') || '';
+        try {
+            ui.showLoading('Transferring...');
+            const chatId = getChatId(this.currentChat);
+            const data = await api.request(`${api.baseURL}/api/agent/chats/${chatId}/transfer`, {
+                method: 'POST',
+                body: JSON.stringify({ toAgentId: toAgentId.trim(), reason }),
+            });
+            if (data.success) {
+                ui.showSuccess(data.message);
+                ui.closeModal('chatModal');
+                this.currentChat = null;
+                await this.loadMyChats();
+            } else {
+                ui.showError(data.message || 'Transfer failed');
+            }
+        } catch(e) {
+            ui.showError('Transfer failed: ' + e.message);
+        } finally {
+            ui.hideLoading();
+        }
+    }
+
+    // ── Chat action: internal note ────────────────────────────────────────
+    async sendInternalNote() {
+        if (!this.currentChat) return;
+        const note = prompt('Internal note (only visible to agents):');
+        if (!note?.trim()) return;
+        try {
+            const chatId = getChatId(this.currentChat);
+            const data = await api.request(`${api.baseURL}/api/chat/${chatId}/internal-note`, {
+                method: 'POST',
+                body: JSON.stringify({ message: note.trim() }),
+            });
+            if (data.success) {
+                this.addMessageToUI({ ...data.note, isInternal: true });
+            } else {
+                ui.showError(data.message || 'Note failed');
+            }
+        } catch(e) {
+            ui.showError('Note failed: ' + e.message);
+        }
+    }
+
+    // ── User actions (ban / 2FA / password reset) ─────────────────────────
+    async banCustomer(customerId) {
+        const reason = prompt('Reason for ban (required):');
+        if (!reason?.trim()) return;
+        try {
+            const data = await api.request(`${api.baseURL}/api/agent/users/${customerId}/ban`, {
+                method: 'PUT',
+                body: JSON.stringify({ reason: reason.trim() }),
+            });
+            if (data.success) ui.showSuccess(data.message);
+            else ui.showError(data.message);
+            this.loadCustomers();
+        } catch(e) { ui.showError('Ban failed'); }
+    }
+
+    async unbanCustomer(customerId) {
+        if (!confirm('Remove this user\'s ban?')) return;
+        try {
+            const data = await api.request(`${api.baseURL}/api/agent/users/${customerId}/unban`, { method: 'PUT' });
+            if (data.success) ui.showSuccess(data.message);
+            else ui.showError(data.message);
+            this.loadCustomers();
+        } catch(e) { ui.showError('Unban failed'); }
+    }
+
+    async reset2FA(userId) {
+        if (!confirm('Reset 2FA for this user? They will receive an email.')) return;
+        try {
+            const data = await api.request(`${api.baseURL}/api/agent/users/${userId}/reset-2fa`, { method: 'POST' });
+            if (data.success) ui.showSuccess(data.message);
+            else ui.showError(data.message);
+        } catch(e) { ui.showError('2FA reset failed'); }
+    }
+
+    async forcePasswordReset(userId) {
+        if (!confirm('Send password reset email to this user?')) return;
+        try {
+            const data = await api.request(`${api.baseURL}/api/agent/users/${userId}/force-password-reset`, { method: 'POST' });
+            if (data.success) ui.showSuccess(data.message);
+            else ui.showError(data.message);
+        } catch(e) { ui.showError('Password reset failed'); }
+    }
+}
+    
 // Create global app instance
 const app = new AgentDashboardApp();
 

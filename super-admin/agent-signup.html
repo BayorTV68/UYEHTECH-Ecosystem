@@ -1,2451 +1,1440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent Signup - UYEH TECH</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Link CSS File -->
-    <style>
-        /* ========================================
-   UYEH TECH - Complete Agent Signup CSS
-   Admin Dashboard Color Scheme
-   ======================================== */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Application — UYEH TECH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
 :root {
-    /* Admin Dashboard Colors */
-    --primary: #00ff88;
-    --primary-dark: #00b359;
-    --dark: #0a0a0a;
-    --dark-light: #1a1a1a;
-    --gray: #9ca3af;
-    --gray-light: #d1d5db;
-    --success: #00ff88;
-    --error: #ff4444;
-    --warning: #ffa500;
-    --info: #0096ff;
-    --white: #ffffff;
-    
-    /* Effects */
-    --shadow: 0 4px 20px rgba(0, 255, 136, 0.1);
-    --shadow-lg: 0 8px 40px rgba(0, 255, 136, 0.15);
-    --glow: 0 0 20px rgba(0, 255, 136, 0.3);
-}
-
-body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--dark);
-    min-height: 100vh;
-    color: var(--white);
-    line-height: 1.6;
-    padding: 20px;
-    position: relative;
-    overflow-x: hidden;
-}
-
-/* ========== BACKGROUND ANIMATION ========== */
-.bg-animation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.15;
-    animation: float 20s infinite ease-in-out;
-}
-
-.glow-1 {
-    width: 500px;
-    height: 500px;
-    background: var(--primary);
-    top: -250px;
-    left: -250px;
-}
-
-.glow-2 {
-    width: 400px;
-    height: 400px;
-    background: var(--primary-dark);
-    bottom: -200px;
-    right: -200px;
-    animation-delay: -5s;
-}
-
-.glow-3 {
-    width: 300px;
-    height: 300px;
-    background: var(--primary);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation-delay: -10s;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0, 0) scale(1);
-    }
-    33% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-    66% {
-        transform: translate(-30px, 30px) scale(0.9);
-    }
-}
-
-/* ========== CONTAINER ========== */
-.container {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(15, 15, 15, 0.95));
-    border-radius: 20px;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-/* ========== HEADER ========== */
-.header {
-    background: linear-gradient(135deg, var(--dark-light), var(--dark));
-    padding: 40px;
-    text-align: center;
-    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
-    position: relative;
-}
-
-.header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--primary), transparent);
-    animation: shimmer 3s infinite;
-}
-
-@keyframes shimmer {
-    0%, 100% {
-        opacity: 0.5;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
-
-.logo-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    color: var(--dark);
-    box-shadow: var(--glow);
-}
-
-.logo-text h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    color: var(--primary);
-    margin-bottom: 5px;
-    letter-spacing: 2px;
-}
-
-.logo-text p {
-    font-size: 0.9rem;
-    color: var(--gray);
-    font-weight: 300;
-}
-
-/* ========== PROGRESS CONTAINER ========== */
-.progress-container {
-    padding: 30px 40px;
-    background: rgba(10, 10, 10, 0.5);
-}
-
-.progress-bar {
-    width: 100%;
-    height: 4px;
-    background: var(--dark-light);
-    border-radius: 2px;
-    margin-bottom: 30px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-dark), var(--primary));
-    width: 20%;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px var(--primary);
-}
-
-.steps {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    position: relative;
-}
-
-.step-number {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: var(--dark-light);
-    border: 2px solid var(--gray);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    color: var(--gray);
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 2;
-}
-
-.step.active .step-number {
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    border-color: var(--primary);
-    color: var(--dark);
-    box-shadow: var(--glow);
-}
-
-.step.completed .step-number {
-    background: var(--success);
-    border-color: var(--success);
-    color: var(--dark);
-}
-
-.step.completed .step-number::after {
-    content: '\f00c';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-}
-
-.step-label {
-    font-size: 0.8rem;
-    color: var(--gray);
-    font-weight: 500;
-    text-align: center;
-}
-
-.step.active .step-label {
-    color: var(--primary);
-}
-
-/* ========== FORM CONTAINER ========== */
-.form-container {
-    padding: 40px;
-}
-
-.form-step {
-    display: none;
-}
-
-.form-step.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.form-step h2 {
-    font-size: 1.8rem;
-    color: var(--white);
-    margin-bottom: 10px;
-    font-weight: 600;
-}
-
-.step-description {
-    font-size: 0.95rem;
-    color: var(--gray);
-    margin-bottom: 30px;
-}
-
-/* ========== FORM GROUPS ========== */
-.form-group {
-    margin-bottom: 25px;
-}
-
-.form-group label {
-    display: block;
-    color: var(--gray-light);
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.form-group label i {
-    color: var(--primary);
-    margin-right: 8px;
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="tel"],
-.form-group input[type="date"],
-.form-group input[type="password"],
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 15px;
-    background: var(--dark-light);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-    border-radius: 10px;
-    color: var(--white);
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color: var(--gray);
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-/* Phone Input Group */
-.phone-input-group {
-    display: flex;
-    gap: 10px;
-}
-
-.country-code {
-    flex: 0 0 140px;
-}
-
-.phone-input-group input {
-    flex: 1;
-}
-
-/* Password Input Group */
-.password-input-group {
-    position: relative;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--gray);
-    cursor: pointer;
-    font-size: 1rem;
-    transition: color 0.3s ease;
-}
-
-.toggle-password:hover {
-    color: var(--primary);
-}
-
-/* Password Strength */
-.password-strength {
-    height: 4px;
-    background: var(--dark-light);
-    border-radius: 2px;
-    margin-top: 10px;
-    overflow: hidden;
-}
-
-.password-strength::after {
-    content: '';
-    display: block;
-    height: 100%;
-    width: 0;
-    transition: all 0.3s ease;
-}
-
-.password-strength.weak::after {
-    width: 33%;
-    background: var(--error);
-}
-
-.password-strength.medium::after {
-    width: 66%;
-    background: var(--warning);
-}
-
-.password-strength.strong::after {
-    width: 100%;
-    background: var(--success);
-    box-shadow: 0 0 5px var(--primary);
-}
-
-/* Password Requirements */
-.password-requirements {
-    background: rgba(26, 26, 26, 0.5);
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 15px;
-    border: 1px solid rgba(0, 255, 136, 0.1);
-}
-
-.password-requirements p {
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-    color: var(--white);
-}
-
-.password-requirements ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.password-requirements li {
-    font-size: 0.85rem;
-    color: var(--gray);
-    margin-bottom: 5px;
-    padding-left: 25px;
-    position: relative;
-}
-
-.password-requirements li::before {
-    content: '○';
-    position: absolute;
-    left: 0;
-    color: var(--gray);
-}
-
-.password-requirements li.valid {
-    color: var(--success);
-}
-
-.password-requirements li.valid::before {
-    content: '✓';
-    color: var(--success);
-    font-weight: bold;
-}
-
-/* ========== FILE UPLOAD ========== */
-.file-upload-container {
-    position: relative;
-}
-
-.file-upload-container input[type="file"] {
-    display: none;
-}
-
-.file-upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    border: 2px dashed rgba(0, 255, 136, 0.3);
-    border-radius: 10px;
-    background: rgba(26, 26, 26, 0.5);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.file-upload-label:hover {
-    border-color: var(--primary);
-    background: rgba(0, 255, 136, 0.05);
-}
-
-.upload-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-}
-
-.upload-text {
-    font-size: 1rem;
-    color: var(--white);
-    margin-bottom: 5px;
-}
-
-.upload-hint {
-    font-size: 0.85rem;
-    color: var(--gray);
-}
-
-.file-preview {
-    margin-top: 15px;
-    display: none;
-}
-
-.file-preview.active {
-    display: block;
-}
-
-.file-preview-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background: var(--dark-light);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 136, 0.2);
-}
-
-.file-preview-icon {
-    font-size: 2rem;
-}
-
-.file-preview-details {
-    flex: 1;
-}
-
-.file-preview-name {
-    font-size: 0.9rem;
-    color: var(--white);
-    margin-bottom: 3px;
-}
-
-.file-preview-size {
-    font-size: 0.8rem;
-    color: var(--gray);
-}
-
-.file-remove-btn {
-    background: var(--error);
-    color: var(--white);
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: opacity 0.3s;
-}
-
-.file-remove-btn:hover {
-    opacity: 0.8;
-}
-
-/* ========== PHOTO SNAP CONTAINER ========== */
-.photo-snap-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin: 30px 0;
-}
-
-.photo-preview {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3/4;
-    border-radius: 15px;
-    overflow: hidden;
-    background: var(--dark-light);
-    border: 2px solid rgba(0, 255, 136, 0.2);
-}
-
-.preview-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: var(--gray);
-}
-
-.placeholder-icon {
-    font-size: 4rem;
-    margin-bottom: 15px;
-}
-
-.preview-placeholder p {
-    font-size: 1rem;
-}
-
-#capturedImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.photo-instructions h3 {
-    font-size: 1.2rem;
-    color: var(--white);
-    margin-bottom: 20px;
-}
-
-.requirements-list {
-    list-style: none;
-    padding: 0;
-}
-
-.requirements-list li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: rgba(26, 26, 26, 0.5);
-    border-radius: 8px;
-    margin-bottom: 10px;
-    border: 1px solid rgba(0, 255, 136, 0.1);
-}
-
-.req-icon {
-    width: 24px;
-    height: 24px;
-    background: var(--success);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    color: var(--dark);
-    font-weight: bold;
-}
-
-.photo-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin: 30px 0;
-}
-
-/* ========== OTP CONTAINER ========== */
-.otp-container {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 30px 0;
-}
-
-.otp-input {
-    width: 50px !important;
-    height: 55px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    padding: 0 !important;
-}
-
-.resend-container {
-    text-align: center;
-    margin: 20px 0;
-}
-
-.resend-container button {
-    background: none;
-    border: none;
-    color: var(--primary);
-    cursor: pointer;
-    font-size: 0.9rem;
-    text-decoration: underline;
-    padding: 5px;
-}
-
-.resend-container button:hover {
-    color: var(--primary-dark);
-}
-
-/* ========== INFO BOX ========== */
-.info-box {
-    background: rgba(0, 150, 255, 0.1);
-    border-left: 4px solid var(--info);
-    padding: 15px;
-    border-radius: 8px;
-    margin: 20px 0;
-    color: var(--gray-light);
-    font-size: 0.9rem;
-}
-
-.info-box i {
-    color: var(--info);
-    margin-right: 10px;
-}
-
-.info-box strong {
-    color: var(--white);
-}
-
-/* ========== CHECKBOX GROUP ========== */
-.checkbox-group {
-    margin: 20px 0;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.checkbox-label input[type="checkbox"] {
-    display: none;
-}
-
-.checkbox-custom {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(0, 255, 136, 0.3);
-    border-radius: 5px;
-    background: var(--dark-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-}
-
-.checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
-    background: var(--primary);
-    border-color: var(--primary);
-}
-
-.checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
-    content: '\f00c';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    color: var(--dark);
-    font-size: 0.7rem;
-}
-
-.checkbox-text {
-    font-size: 0.9rem;
-    color: var(--gray-light);
-    line-height: 1.4;
-}
-
-.checkbox-text a {
-    color: var(--primary);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.checkbox-text a:hover {
-    color: var(--primary-dark);
-}
-
-/* ========== BUTTONS ========== */
-.btn,
-.btn-primary,
-.btn-next,
-.btn-prev,
-.btn-camera,
-.btn-verify,
-.btn-submit,
-.btn-link {
-    padding: 15px 30px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-family: inherit;
-}
-
-.btn-primary,
-.btn-next,
-.btn-verify,
-.btn-submit {
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    color: var(--dark);
-    box-shadow: var(--glow);
-}
-
-.btn-primary:hover,
-.btn-next:hover,
-.btn-verify:hover,
-.btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
-}
-
-.btn-prev {
-    background: var(--dark-light);
-    color: var(--gray-light);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-}
-
-.btn-prev:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.btn-camera {
-    background: rgba(0, 150, 255, 0.2);
-    color: var(--info);
-    border: 1px solid var(--info);
-}
-
-.btn-camera:hover {
-    background: var(--info);
-    color: var(--white);
-}
-
-.btn:disabled,
-.btn-primary:disabled,
-.btn-next:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btn-link {
-    background: none;
-    color: var(--primary);
-    padding: 10px;
-    font-size: 0.9rem;
-}
-
-/* ========== FORM NAVIGATION ========== */
-.form-navigation {
-    display: flex;
-    gap: 15px;
-    justify-content: space-between;
-    margin-top: 30px;
-}
-
-.form-navigation .btn {
-    flex: 1;
-}
-
-/* ========== ERROR MESSAGES ========== */
-.error-message {
-    display: block;
-    color: var(--error);
-    font-size: 0.85rem;
-    margin-top: 8px;
-    min-height: 20px;
-}
-
-input.error,
-select.error,
-textarea.error {
-    border-color: var(--error) !important;
-}
-
-/* ========== SUCCESS CONTAINER ========== */
-.success-container {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.success-icon {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 30px;
-    font-size: 3rem;
-    color: var(--dark);
-    box-shadow: var(--glow);
-    animation: scaleIn 0.5s ease;
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.success-title {
-    font-size: 1.8rem;
-    color: var(--white);
-    margin-bottom: 15px;
-}
-
-.success-message {
-    font-size: 1rem;
-    color: var(--gray);
-    margin-bottom: 30px;
-}
-
-.success-details {
-    background: var(--dark-light);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--gray-light);
-    margin: 10px 0;
-}
-
-.detail-item i {
-    color: var(--primary);
-    font-size: 1.1rem;
-}
-
-/* ========== TOAST NOTIFICATION ========== */
-.toast {
-    position: fixed;
-    bottom: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--dark-light);
-    color: var(--white);
-    padding: 15px 25px;
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    z-index: 9999;
-    transition: bottom 0.3s ease;
-    min-width: 300px;
-}
-
-.toast.show {
-    bottom: 30px;
-}
-
-.toast.success {
-    border-color: var(--success);
-}
-
-.toast.success i {
-    color: var(--success);
-}
-
-.toast.error {
-    border-color: var(--error);
-}
-
-.toast.error i {
-    color: var(--error);
-}
-
-.toast.info {
-    border-color: var(--info);
-}
-
-.toast.info i {
-    color: var(--info);
-}
-
-/* ========== RESPONSIVE DESIGN ========== */
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-
-    .container {
-        border-radius: 15px;
-    }
-
-    .header {
-        padding: 30px 20px;
-    }
-
-    .logo {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .logo-text h1 {
-        font-size: 1.5rem;
-    }
-
-    .form-container {
-        padding: 30px 20px;
-    }
-
-    .progress-container {
-        padding: 20px;
-    }
-
-    .steps {
-        overflow-x: auto;
-        padding-bottom: 10px;
-    }
-
-    .step {
-        min-width: 80px;
-    }
-
-    .step-number {
-        width: 40px;
-        height: 40px;
-        font-size: 0.9rem;
-    }
-
-    .step-label {
-        font-size: 0.7rem;
-    }
-
-    .photo-snap-container {
-        grid-template-columns: 1fr;
-    }
-
-    .phone-input-group {
-        flex-direction: column;
-    }
-
-    .country-code {
-        flex: 1;
-        width: 100%;
-    }
-
-    .form-navigation {
-        flex-direction: column;
-    }
-
-    .otp-input {
-        width: 45px !important;
-        height: 50px;
-        font-size: 1.3rem;
-    }
-
-    .photo-actions {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo-text h1 {
-        font-size: 1.3rem;
-    }
-
-    .form-step h2 {
-        font-size: 1.5rem;
-    }
-
-    .btn {
-        padding: 12px 20px;
-        font-size: 0.9rem;
-    }
-
-    .otp-input {
-        width: 40px !important;
-        height: 45px;
-        font-size: 1.2rem;
-    }
-}
-    </style>
+  --primary:#00ff88; --primary-dark:#00b359; --primary-light:#33ff9f;
+  --primary-glow:rgba(0,255,136,.18);
+  --dark:#0a0a0a; --dark-light:#141414; --dark-lighter:#1e1e1e; --dark-surface:#252525;
+  --white:#ffffff; --gray:#9ca3af; --gray-light:#d1d5db; --gray-dark:#6b7280;
+  --error:#ff4444; --warning:#ffa500; --info:#0096ff; --success:#00ff88;
+  --radius:12px; --radius-lg:16px; --radius-xl:20px;
+  --shadow-glow:0 0 40px rgba(0,255,136,.12);
+  --transition:.25s ease;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--dark);
+  color:var(--white);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--dark-light);}
+::-webkit-scrollbar-thumb{background:rgba(0,255,136,.25);border-radius:3px;}
+
+/* ── HEADER ── */
+.page-header{
+  width:100%;
+  padding:20px 40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(0,255,136,.12);
+  background:rgba(10,10,10,.97);
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--dark);
+}
+.logo-text{font-family:'Syne',sans-serif;font-size:1.2rem;color:var(--primary);font-weight:700;}
+.header-badge{
+  padding:6px 16px;border:1px solid rgba(0,255,136,.3);border-radius:20px;
+  font-size:.8rem;color:var(--primary);letter-spacing:.5px;
+}
+
+/* ── MAIN WRAP ── */
+.app-wrap{
+  width:100%;max-width:820px;
+  padding:48px 24px 80px;
+  flex:1;
+}
+
+/* ── HERO ── */
+.hero{text-align:center;margin-bottom:48px;}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 18px;border-radius:20px;
+  background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);
+  font-size:.8rem;color:var(--primary);letter-spacing:.5px;
+  margin-bottom:20px;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;font-size:2.6rem;font-weight:800;
+  line-height:1.1;margin-bottom:14px;
+}
+.hero h1 span{color:var(--primary);}
+.hero p{color:var(--gray);font-size:1rem;max-width:540px;margin:0 auto;line-height:1.7;}
+
+/* ── PROGRESS STEPPER ── */
+.stepper{
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:48px;gap:0;
+  overflow-x:auto;padding:4px 0;
+}
+.step{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex:1;min-width:80px;position:relative;
+}
+.step:not(:last-child)::after{
+  content:'';position:absolute;top:18px;left:50%;
+  width:100%;height:2px;
+  background:rgba(0,255,136,.15);
+  z-index:0;
+}
+.step.completed:not(:last-child)::after{background:var(--primary);}
+.step-circle{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid rgba(0,255,136,.2);
+  background:var(--dark-lighter);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;font-weight:700;color:var(--gray);
+  position:relative;z-index:1;
+  transition:all var(--transition);
+}
+.step.active .step-circle{
+  border-color:var(--primary);background:rgba(0,255,136,.12);
+  color:var(--primary);box-shadow:0 0 16px rgba(0,255,136,.3);
+}
+.step.completed .step-circle{
+  border-color:var(--primary);background:var(--primary);color:var(--dark);
+}
+.step-label{font-size:.7rem;color:var(--gray);text-align:center;white-space:nowrap;font-weight:500;}
+.step.active .step-label{color:var(--primary);}
+.step.completed .step-label{color:var(--primary-light);}
+
+/* ── CARD ── */
+.card{
+  background:var(--dark-lighter);
+  border:1px solid rgba(0,255,136,.15);
+  border-radius:var(--radius-xl);
+  padding:36px;
+  box-shadow:var(--shadow-glow);
+  margin-bottom:24px;
+}
+.card-heading{
+  display:flex;align-items:center;gap:14px;margin-bottom:30px;
+  padding-bottom:20px;border-bottom:1px solid rgba(0,255,136,.1);
+}
+.card-heading-icon{
+  width:46px;height:46px;border-radius:12px;
+  background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;color:var(--primary);flex-shrink:0;
+}
+.card-heading h2{font-family:'Syne',sans-serif;font-size:1.25rem;color:var(--white);}
+.card-heading p{font-size:.85rem;color:var(--gray);margin-top:2px;}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.form-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.form-grid.cols-1{grid-template-columns:1fr;}
+.field{display:flex;flex-direction:column;gap:7px;}
+.field.span-2{grid-column:1/-1;}
+.field label{
+  font-size:.82rem;font-weight:600;color:var(--gray-light);
+  display:flex;align-items:center;gap:6px;
+}
+.field label .req{color:var(--error);font-size:.9rem;}
+.field label .tip{
+  font-size:.72rem;color:var(--gray-dark);font-weight:400;
+  background:rgba(255,255,255,.05);padding:2px 7px;border-radius:4px;
+}
+.field input,.field select,.field textarea{
+  padding:12px 15px;
+  background:rgba(30,30,30,.9);
+  border:1px solid rgba(0,255,136,.15);
+  border-radius:10px;
+  color:var(--white);
+  font-size:.93rem;font-family:'Inter',sans-serif;
+  transition:all var(--transition);
+  outline:none;
+  width:100%;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--primary);
+  background:rgba(0,255,136,.04);
+  box-shadow:0 0 0 3px rgba(0,255,136,.1);
+}
+.field input::placeholder,.field textarea::placeholder{color:var(--gray-dark);}
+.field select{
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300ff88' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
+}
+.field select option{background:var(--dark-surface);}
+.field textarea{resize:vertical;min-height:100px;}
+.field .hint{font-size:.75rem;color:var(--gray-dark);margin-top:2px;}
+.field.error input,.field.error select,.field.error textarea{border-color:var(--error);}
+.field .error-msg{font-size:.75rem;color:var(--error);display:none;}
+.field.error .error-msg{display:block;}
+
+/* ── UPLOAD ZONES ── */
+.upload-zone{
+  border:2px dashed rgba(0,255,136,.2);border-radius:12px;
+  padding:28px 20px;text-align:center;cursor:pointer;
+  transition:all var(--transition);position:relative;overflow:hidden;
+}
+.upload-zone:hover,.upload-zone.drag-over{
+  border-color:var(--primary);background:rgba(0,255,136,.04);
+}
+.upload-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-zone-icon{font-size:2rem;color:rgba(0,255,136,.4);margin-bottom:10px;}
+.upload-zone p{font-size:.85rem;color:var(--gray);margin:0;}
+.upload-zone small{font-size:.75rem;color:var(--gray-dark);}
+.upload-zone .uploaded-preview{
+  display:none;flex-direction:column;align-items:center;gap:8px;
+}
+.upload-zone.has-file .upload-content{display:none;}
+.upload-zone.has-file .uploaded-preview{display:flex;}
+.preview-img{
+  width:120px;height:80px;object-fit:cover;border-radius:8px;
+  border:2px solid rgba(0,255,136,.3);
+}
+.preview-name{font-size:.78rem;color:var(--primary);}
+.upload-remove{
+  font-size:.7rem;color:var(--error);cursor:pointer;
+  text-decoration:underline;background:none;border:none;
+}
+
+/* ── SKILLS TAGS ── */
+.skills-input-wrap{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:10px 12px;
+  background:rgba(30,30,30,.9);border:1px solid rgba(0,255,136,.15);
+  border-radius:10px;min-height:50px;cursor:text;
+  transition:all var(--transition);
+}
+.skills-input-wrap:focus-within{
+  border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,255,136,.1);
+}
+.skill-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 11px;border-radius:6px;
+  background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.25);
+  font-size:.78rem;color:var(--primary);
+}
+.skill-tag button{background:none;border:none;color:var(--primary);cursor:pointer;font-size:.85rem;line-height:1;padding:0;}
+.skills-text-input{
+  border:none;background:transparent;outline:none;
+  color:var(--white);font-size:.88rem;font-family:'Inter',sans-serif;
+  min-width:120px;flex:1;
+}
+
+/* ── CHECKBOX / RADIO GROUPS ── */
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.check-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:9px;
+  border:1px solid rgba(0,255,136,.12);
+  background:rgba(255,255,255,.02);cursor:pointer;
+  transition:all var(--transition);
+}
+.check-item:hover{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.04);}
+.check-item input{accent-color:var(--primary);width:16px;height:16px;cursor:pointer;}
+.check-item span{font-size:.85rem;color:var(--gray-light);}
+.check-item.checked{border-color:rgba(0,255,136,.35);background:rgba(0,255,136,.07);}
+.check-item.checked span{color:var(--primary);}
+
+/* ── SECTION DIVIDER ── */
+.section-divider{
+  display:flex;align-items:center;gap:12px;margin:28px 0 24px;
+}
+.section-divider span{
+  font-size:.75rem;font-weight:700;letter-spacing:1px;
+  color:var(--primary);text-transform:uppercase;white-space:nowrap;
+}
+.section-divider::before,.section-divider::after{
+  content:'';flex:1;height:1px;background:rgba(0,255,136,.12);
+}
+
+/* ── REF CARD ── */
+.ref-card{
+  background:rgba(0,255,136,.03);border:1px solid rgba(0,255,136,.1);
+  border-radius:12px;padding:20px;
+}
+.ref-card h4{
+  font-size:.85rem;font-weight:700;color:var(--primary);
+  margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+
+/* ── REVIEW STEP ── */
+.review-block{
+  background:rgba(0,0,0,.3);border:1px solid rgba(0,255,136,.1);
+  border-radius:12px;padding:20px;margin-bottom:16px;
+}
+.review-block h4{
+  font-size:.8rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.review-row{
+  display:flex;gap:8px;padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem;
+}
+.review-row:last-child{border-bottom:none;}
+.review-row .label{color:var(--gray);min-width:160px;flex-shrink:0;}
+.review-row .value{color:var(--white);font-weight:500;word-break:break-word;}
+
+/* ── TERMS ── */
+.terms-box{
+  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:20px;max-height:200px;overflow-y:auto;
+  font-size:.8rem;color:var(--gray);line-height:1.7;margin-bottom:20px;
+}
+.terms-box h4{color:var(--white);margin-bottom:12px;font-size:.9rem;}
+.terms-box p{margin-bottom:8px;}
+.terms-accept{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:16px;border-radius:10px;
+  border:1px solid rgba(0,255,136,.15);
+  background:rgba(0,255,136,.04);cursor:pointer;margin-bottom:12px;
+}
+.terms-accept input{accent-color:var(--primary);width:18px;height:18px;flex-shrink:0;margin-top:1px;}
+.terms-accept span{font-size:.88rem;color:var(--gray-light);line-height:1.5;}
+.terms-accept span strong{color:var(--primary);}
+
+/* ── ALERT BOXES ── */
+.alert{
+  display:flex;gap:12px;padding:14px 18px;border-radius:10px;margin-bottom:20px;
+}
+.alert.info{background:rgba(0,150,255,.08);border:1px solid rgba(0,150,255,.2);}
+.alert.warning{background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.2);}
+.alert i{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.alert.info i{color:var(--info);}
+.alert.warning i{color:var(--warning);}
+.alert p{font-size:.85rem;color:var(--gray-light);margin:0;line-height:1.5;}
+.alert strong{color:var(--white);}
+
+/* ── STEP NAVIGATION ── */
+.step-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:32px;padding-top:24px;border-top:1px solid rgba(0,255,136,.1);
+  gap:12px;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 28px;border-radius:10px;
+  font-size:.93rem;font-weight:600;font-family:'Inter',sans-serif;
+  cursor:pointer;border:none;transition:all var(--transition);text-decoration:none;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+  color:var(--dark);box-shadow:0 4px 16px rgba(0,255,136,.25);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,255,136,.35);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-secondary{
+  background:rgba(255,255,255,.05);color:var(--white);
+  border:1px solid rgba(255,255,255,.12);
+}
+.btn-secondary:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2);}
+.btn-ghost{
+  background:transparent;color:var(--gray);padding:13px 0;
+}
+.btn-ghost:hover{color:var(--white);}
+.step-counter{font-size:.82rem;color:var(--gray);}
+.step-counter strong{color:var(--primary);}
+
+/* ── SUCCESS SCREEN ── */
+#successScreen{display:none;text-align:center;padding:48px 24px;}
+.success-icon{
+  width:90px;height:90px;border-radius:50%;
+  background:rgba(0,255,136,.12);border:2px solid rgba(0,255,136,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;color:var(--primary);margin:0 auto 28px;
+  box-shadow:0 0 40px rgba(0,255,136,.2);
+}
+#successScreen h2{font-family:'Syne',sans-serif;font-size:2rem;margin-bottom:16px;}
+#successScreen p{color:var(--gray);max-width:460px;margin:0 auto;line-height:1.7;}
+.ref-number{
+  display:inline-block;margin:24px auto;padding:14px 32px;
+  border:1px solid rgba(0,255,136,.3);border-radius:10px;
+  background:rgba(0,255,136,.06);font-family:monospace;font-size:1.1rem;
+  color:var(--primary);letter-spacing:2px;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;top:24px;right:24px;
+  padding:14px 22px;border-radius:10px;
+  background:var(--dark-lighter);border:1px solid rgba(0,255,136,.3);
+  color:var(--white);font-size:.9rem;font-weight:500;
+  min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transform:translateX(calc(100% + 32px));transition:transform .3s ease;
+  z-index:9999;
+}
+.toast.show{transform:translateX(0);}
+.toast.error{border-color:var(--error);background:rgba(255,68,68,.08);}
+.toast.success{border-color:var(--success);background:rgba(0,255,136,.06);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:680px){
+  .page-header{padding:16px 20px;}
+  .hero h1{font-size:1.9rem;}
+  .card{padding:24px 20px;}
+  .form-grid,.form-grid.cols-3{grid-template-columns:1fr;}
+  .field.span-2{grid-column:auto;}
+  .stepper{gap:0;}
+  .step-label{display:none;}
+}
+</style>
 </head>
 <body>
-    <!-- Background Animation -->
-    <div class="bg-animation">
-        <div class="glow-orb glow-1"></div>
-        <div class="glow-orb glow-2"></div>
-        <div class="glow-orb glow-3"></div>
+
+<!-- Header -->
+<header class="page-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">U</div>
+    <span class="logo-text">UYEH TECH</span>
+  </a>
+  <span class="header-badge"><i class="fas fa-shield-alt"></i> &nbsp;Agent Application</span>
+</header>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Main -->
+<main class="app-wrap">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow"><i class="fas fa-user-tie"></i>&nbsp; Support Agent Programme</div>
+    <h1>Join Our <span>Support Team</span></h1>
+    <p>Complete this application to become a verified UYEH TECH support agent. We collect bank-standard identity verification to protect our community.</p>
+  </div>
+
+  <!-- Progress Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="step active" data-step="1">
+      <div class="step-circle">1</div>
+      <span class="step-label">Personal</span>
     </div>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="logo-text">
-                    <h1>UYEH TECH</h1>
-                    <p>Support Agent Registration</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress Container -->
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="steps">
-                <div class="step active" data-step="1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Basic Info</div>
-                </div>
-                <div class="step" data-step="2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Contact Details</div>
-                </div>
-                <div class="step" data-step="3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">ID Verification</div>
-                </div>
-                <div class="step" data-step="4">
-                    <div class="step-number">4</div>
-                    <div class="step-label">Face Verification</div>
-                </div>
-                <div class="step" data-step="5">
-                    <div class="step-number">5</div>
-                    <div class="step-label">Email Verification</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Form Container -->
-        <div class="form-container">
-            <form id="signupForm">
-                
-                <!-- Step 1: Basic Information -->
-                <div class="form-step active" data-step="1">
-                    <h2>Basic Information</h2>
-                    <p class="step-description">Let's start with your basic details</p>
-
-                    <div class="form-group">
-                        <label for="firstName">
-                            <i class="fas fa-user"></i>
-                            First Name *
-                        </label>
-                        <input type="text" id="firstName" name="firstName" placeholder="Enter first name" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lastName">
-                            <i class="fas fa-user"></i>
-                            Last Name *
-                        </label>
-                        <input type="text" id="lastName" name="lastName" placeholder="Enter last name" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="middleName">
-                            <i class="fas fa-user"></i>
-                            Middle Name (Optional)
-                        </label>
-                        <input type="text" id="middleName" name="middleName" placeholder="Enter middle name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="dateOfBirth">
-                            <i class="fas fa-calendar"></i>
-                            Date of Birth *
-                        </label>
-                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gender">
-                            <i class="fas fa-venus-mars"></i>
-                            Gender *
-                        </label>
-                        <select id="gender" name="gender" required>
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                            <option value="prefer-not-to-say">Prefer not to say</option>
-                        </select>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-navigation">
-                        <button type="button" class="btn btn-next" onclick="nextStep()">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 2: Contact Details -->
-                <div class="form-step" data-step="2">
-                    <h2>Contact Details</h2>
-                    <p class="step-description">Provide your contact information</p>
-
-                    <div class="form-group">
-                        <label for="email">
-                            <i class="fas fa-envelope"></i>
-                            Email Address *
-                        </label>
-                        <input type="email" id="email" name="email" placeholder="agent@example.com" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirmEmail">
-                            <i class="fas fa-envelope"></i>
-                            Confirm Email Address *
-                        </label>
-                        <input type="email" id="confirmEmail" name="confirmEmail" placeholder="Confirm email" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">
-                            <i class="fas fa-phone"></i>
-                            Phone Number *
-                        </label>
-                        <div class="phone-input-group">
-                            <select id="countryCode" name="countryCode" class="country-code" required>
-                                <option value="+234">🇳🇬 +234</option>
-                                <option value="+1">🇺🇸 +1</option>
-                                <option value="+44">🇬🇧 +44</option>
-                                <option value="+91">🇮🇳 +91</option>
-                                <option value="+86">🇨🇳 +86</option>
-                                <option value="+81">🇯🇵 +81</option>
-                                <option value="+49">🇩🇪 +49</option>
-                                <option value="+33">🇫🇷 +33</option>
-                                <option value="+39">🇮🇹 +39</option>
-                                <option value="+7">🇷🇺 +7</option>
-                                <option value="+27">🇿🇦 +27</option>
-                                <option value="+254">🇰🇪 +254</option>
-                                <option value="+233">🇬🇭 +233</option>
-                            </select>
-                            <input type="tel" id="phone" name="phone" placeholder="8012345678" required>
-                        </div>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="country">
-                            <i class="fas fa-globe"></i>
-                            Country *
-                        </label>
-                        <select id="country" name="country" required onchange="loadStates()">
-                            <option value="">Select Country</option>
-                            <option value="NG">🇳🇬 Nigeria</option>
-                            <option value="US">🇺🇸 United States</option>
-                            <option value="GB">🇬🇧 United Kingdom</option>
-                            <option value="CA">🇨🇦 Canada</option>
-                            <option value="GH">🇬🇭 Ghana</option>
-                            <option value="KE">🇰🇪 Kenya</option>
-                            <option value="ZA">🇿🇦 South Africa</option>
-                        </select>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="state">
-                            <i class="fas fa-map-marker-alt"></i>
-                            State/Province *
-                        </label>
-                        <select id="state" name="state" required>
-                            <option value="">Select State</option>
-                        </select>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="city">
-                            <i class="fas fa-city"></i>
-                            City *
-                        </label>
-                        <input type="text" id="city" name="city" placeholder="Enter city" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="address">
-                            <i class="fas fa-home"></i>
-                            Full Address *
-                        </label>
-                        <textarea id="address" name="address" rows="3" placeholder="Enter full address" required></textarea>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="postalCode">
-                            <i class="fas fa-mail-bulk"></i>
-                            Postal/ZIP Code
-                        </label>
-                        <input type="text" id="postalCode" name="postalCode" placeholder="Enter postal code">
-                    </div>
-
-                    <div class="form-navigation">
-                        <button type="button" class="btn btn-prev" onclick="prevStep()">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </button>
-                        <button type="button" class="btn btn-next" onclick="nextStep()">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 3: ID Verification -->
-                <div class="form-step" data-step="3">
-                    <h2>Identity Verification</h2>
-                    <p class="step-description">Upload a valid government-issued ID</p>
-
-                    <div class="form-group">
-                        <label for="idType">
-                            <i class="fas fa-id-card"></i>
-                            ID Type *
-                        </label>
-                        <select id="idType" name="idType" required>
-                            <option value="">Select ID Type</option>
-                            <option value="nin">National Identity Number (NIN)</option>
-                            <option value="passport">International Passport</option>
-                            <option value="drivers-license">Driver's License</option>
-                            <option value="voters-card">Voter's Card</option>
-                        </select>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="idNumber">
-                            <i class="fas fa-hashtag"></i>
-                            ID Number *
-                        </label>
-                        <input type="text" id="idNumber" name="idNumber" placeholder="Enter ID number" required>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="idUpload">
-                            <i class="fas fa-upload"></i>
-                            Upload ID Document *
-                        </label>
-                        <div class="file-upload-container">
-                            <input type="file" id="idUpload" name="idUpload" accept=".jpg,.jpeg,.png,.pdf" required>
-                            <label for="idUpload" class="file-upload-label">
-                                <span class="upload-icon">📄</span>
-                                <span class="upload-text">Click to upload or drag and drop</span>
-                                <span class="upload-hint">JPG, PNG or PDF (Max 5MB)</span>
-                            </label>
-                            <div class="file-preview" id="idPreview"></div>
-                        </div>
-                        <span class="error-message"></span>
-                    </div>
-
-                    <div class="info-box">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Important:</strong> Make sure your ID is clear, readable, and all corners are visible.
-                    </div>
-
-                    <div class="form-navigation">
-                        <button type="button" class="btn btn-prev" onclick="prevStep()">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </button>
-                        <button type="button" class="btn btn-next" onclick="nextStep()">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 4: Face Verification -->
-                <div class="form-step" data-step="4">
-                    <h2>Face Verification</h2>
-                    <p class="step-description">Take a clear photo of yourself for verification</p>
-
-                    <div class="photo-snap-container">
-                        <div class="photo-preview" id="photoPreview">
-                            <div class="preview-placeholder" id="previewPlaceholder">
-                                <span class="placeholder-icon">📷</span>
-                                <p>Take a photo to continue</p>
-                            </div>
-                            <img id="capturedImage" alt="Your photo" style="display: none;">
-                        </div>
-                        
-                        <div class="photo-instructions">
-                            <h3>Photo Requirements</h3>
-                            <ul class="requirements-list">
-                                <li>
-                                    <span class="req-icon">✓</span>
-                                    <span>Face clearly visible</span>
-                                </li>
-                                <li>
-                                    <span class="req-icon">✓</span>
-                                    <span>Good lighting</span>
-                                </li>
-                                <li>
-                                    <span class="req-icon">✓</span>
-                                    <span>No sunglasses or hat</span>
-                                </li>
-                                <li>
-                                    <span class="req-icon">✓</span>
-                                    <span>Look directly at camera</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="photo-actions">
-                        <input type="file" id="photoInput" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoCapture(event)">
-                        <button type="button" class="btn btn-camera" id="takePhotoBtn" onclick="triggerPhotoCapture()">
-                            <i class="fas fa-camera"></i> Take Photo
-                        </button>
-                        <button type="button" class="btn btn-camera" id="retakePhotoBtn" onclick="retakePhoto()" style="display: none;">
-                            <i class="fas fa-redo"></i> Retake Photo
-                        </button>
-                    </div>
-
-                    <div class="info-box">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> Make sure your face is clearly visible and well-lit. This photo will be used for identity verification.
-                    </div>
-
-                    <div class="form-navigation">
-                        <button type="button" class="btn btn-prev" onclick="prevStep()">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </button>
-                        <button type="button" class="btn btn-next" id="faceVerifyNext" onclick="nextStep()" disabled>
-                            Next <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 5: Email Verification & Password -->
-                <div class="form-step" data-step="5">
-                    <h2>Email Verification & Password</h2>
-                    <p class="step-description">Verify your email and create your password</p>
-
-                    <!-- Email Verification Section -->
-                    <div id="emailVerificationSection">
-                        <div class="info-box">
-                            <i class="fas fa-envelope"></i>
-                            We'll send a 6-digit code to <strong id="displayEmail"></strong>
-                        </div>
-
-                        <div class="form-group">
-                            <button type="button" class="btn btn-verify" id="sendOtpBtn" onclick="sendEmailOTP()">
-                                <i class="fas fa-paper-plane"></i> Send Verification Code
-                            </button>
-                        </div>
-
-                        <div id="otpSection" style="display: none;">
-                            <div class="form-group">
-                                <label>
-                                    <i class="fas fa-shield-alt"></i>
-                                    Enter 6-Digit Code
-                                </label>
-                                <div class="otp-container">
-                                    <input type="text" maxlength="1" class="otp-input" data-index="0">
-                                    <input type="text" maxlength="1" class="otp-input" data-index="1">
-                                    <input type="text" maxlength="1" class="otp-input" data-index="2">
-                                    <input type="text" maxlength="1" class="otp-input" data-index="3">
-                                    <input type="text" maxlength="1" class="otp-input" data-index="4">
-                                    <input type="text" maxlength="1" class="otp-input" data-index="5">
-                                </div>
-                                <span class="error-message" id="otpError"></span>
-                            </div>
-
-                            <div class="resend-container">
-                                <button type="button" class="btn-link" id="resendOtpBtn" onclick="resendEmailOTP()">
-                                    Resend Code
-                                </button>
-                                <span id="resendTimer" style="display: none;">Resend in <span id="countdown">60</span>s</span>
-                            </div>
-
-                            <div class="form-group">
-                                <button type="button" class="btn btn-verify" id="verifyOtpBtn" onclick="verifyEmailOTP()">
-                                    <i class="fas fa-check"></i> Verify Code
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Password Section (shows after email verification) -->
-                    <div id="passwordSection" style="display: none;">
-                        <div class="form-group">
-                            <label for="password">
-                                <i class="fas fa-lock"></i>
-                                Password *
-                            </label>
-                            <div class="password-input-group">
-                                <input type="password" id="password" name="password" placeholder="Create password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="password-strength" id="passwordStrength"></div>
-                            <span class="error-message"></span>
-                        </div>
-
-                        <div class="password-requirements">
-                            <p>Password must contain:</p>
-                            <ul>
-                                <li id="req-length">At least 8 characters</li>
-                                <li id="req-uppercase">One uppercase letter</li>
-                                <li id="req-lowercase">One lowercase letter</li>
-                                <li id="req-number">One number</li>
-                                <li id="req-special">One special character</li>
-                            </ul>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="confirmPassword">
-                                <i class="fas fa-lock"></i>
-                                Confirm Password *
-                            </label>
-                            <div class="password-input-group">
-                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <span class="error-message"></span>
-                        </div>
-
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="terms" required>
-                                <span class="checkbox-custom"></span>
-                                <span class="checkbox-text">
-                                    I agree to the <a href="#" target="_blank">Terms of Service</a> and 
-                                    <a href="#" target="_blank">Privacy Policy</a>
-                                </span>
-                            </label>
-                        </div>
-
-                        <div class="form-navigation">
-                            <button type="button" class="btn btn-prev" onclick="prevStep()">
-                                <i class="fas fa-arrow-left"></i> Previous
-                            </button>
-                            <button type="submit" class="btn btn-submit" id="submitBtn">
-                                <i class="fas fa-check-circle"></i> Complete Registration
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </form>
-
-            <!-- Success Step -->
-            <div id="successStep" class="success-container" style="display: none;">
-                <div class="success-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h2 class="success-title">Registration Submitted!</h2>
-               <p>Your agent registration has been submitted for admin approval.</p>
-               <p>You will receive an email once your account is approved.</p>
-                    <div class="success-details">
-                    <div class="detail-item">
-                        <i class="fas fa-envelope"></i>
-                        <span id="successEmail"></span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-user"></i>
-                        <span id="successName"></span>
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="window.location.href='agent-login.html'">
-                    <i class="fas fa-sign-in-alt"></i> Go to Login
-                </button>
-            </div>
-        </div>
+    <div class="step" data-step="2">
+      <div class="step-circle">2</div>
+      <span class="step-label">Identity</span>
     </div>
+    <div class="step" data-step="3">
+      <div class="step-circle">3</div>
+      <span class="step-label">Professional</span>
+    </div>
+    <div class="step" data-step="4">
+      <div class="step-circle">4</div>
+      <span class="step-label">References</span>
+    </div>
+    <div class="step" data-step="5">
+      <div class="step-circle"><i class="fas fa-check" style="font-size:.7rem;"></i></div>
+      <span class="step-label">Review</span>
+    </div>
+  </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">
+  <!-- ═══ STEP 1: PERSONAL INFO ═══ -->
+  <div id="step-1" class="step-content">
+    <div class="card">
+      <div class="card-heading">
+        <div class="card-heading-icon"><i class="fas fa-user"></i></div>
+        <div>
+          <h2>Personal Information</h2>
+          <p>Provide your legal personal details as they appear on your government-issued ID.</p>
+        </div>
+      </div>
+
+      <div class="alert info">
         <i class="fas fa-info-circle"></i>
-        <span id="toastMessage"></span>
+        <p><strong>Why we need this:</strong> Personal information is required to verify your identity, process your agent contract, and set up payroll. All data is encrypted and never shared with third parties.</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="firstName" placeholder="e.g. Chioma" autocomplete="given-name">
+          <span class="error-msg">First name is required.</span>
+        </div>
+        <div class="field">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" id="lastName" placeholder="e.g. Okonkwo" autocomplete="family-name">
+          <span class="error-msg">Last name is required.</span>
+        </div>
+        <div class="field">
+          <label>Middle Name <span class="tip">Optional</span></label>
+          <input type="text" id="middleName" placeholder="Middle name" autocomplete="additional-name">
+        </div>
+        <div class="field">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+          <span class="error-msg">Valid email is required.</span>
+        </div>
+        <div class="field">
+          <label>Phone Number <span class="req">*</span></label>
+          <input type="tel" id="phone" placeholder="+234 801 234 5678" autocomplete="tel">
+          <span class="error-msg">Phone number is required.</span>
+        </div>
+        <div class="field">
+          <label>Alternate Phone <span class="tip">Optional</span></label>
+          <input type="tel" id="altPhone" placeholder="+234 802 000 0000">
+        </div>
+        <div class="field">
+          <label>Date of Birth <span class="req">*</span></label>
+          <input type="date" id="dob" max="">
+          <span class="hint">Must be at least 18 years old.</span>
+          <span class="error-msg">Date of birth is required.</span>
+        </div>
+        <div class="field">
+          <label>Gender <span class="req">*</span></label>
+          <select id="gender">
+            <option value="">— Select gender —</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="non-binary">Non-binary</option>
+            <option value="prefer-not">Prefer not to say</option>
+          </select>
+          <span class="error-msg">Please select a gender.</span>
+        </div>
+        <div class="field">
+          <label>Nationality <span class="req">*</span></label>
+          <input type="text" id="nationality" placeholder="e.g. Nigerian" autocomplete="country-name">
+          <span class="error-msg">Nationality is required.</span>
+        </div>
+        <div class="field">
+          <label>Country of Residence <span class="req">*</span></label>
+          <select id="country">
+            <option value="">— Select country —</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Kenya">Kenya</option>
+            <option value="South Africa">South Africa</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="United States">United States</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error-msg">Country is required.</span>
+        </div>
+        <div class="field">
+          <label>State / Province <span class="req">*</span></label>
+          <input type="text" id="state" placeholder="e.g. Lagos">
+          <span class="error-msg">State is required.</span>
+        </div>
+        <div class="field span-2">
+          <label>Residential Address <span class="req">*</span></label>
+          <input type="text" id="address" placeholder="House number, street, area" autocomplete="street-address">
+          <span class="error-msg">Address is required.</span>
+        </div>
+        <div class="field">
+          <label>City <span class="req">*</span></label>
+          <input type="text" id="city" placeholder="e.g. Lagos Island" autocomplete="address-level2">
+          <span class="error-msg">City is required.</span>
+        </div>
+        <div class="field">
+          <label>Postal / ZIP Code</label>
+          <input type="text" id="postalCode" placeholder="e.g. 100001" autocomplete="postal-code">
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <span class="step-counter">Step <strong>1</strong> of 5</span>
+        <button class="btn btn-primary" onclick="goToStep(2)">Next — Identity <i class="fas fa-arrow-right"></i></button>
+      </div>
     </div>
+  </div>
 
-    <!-- Link JavaScript File -->
-    <script>
-        // ========================================
-// UYEH TECH - Complete Agent Signup JS
-// Multi-Step Registration with Email Verification
-// ========================================
+  <!-- ═══ STEP 2: IDENTITY VERIFICATION ═══ -->
+  <div id="step-2" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="card-heading">
+        <div class="card-heading-icon"><i class="fas fa-id-card"></i></div>
+        <div>
+          <h2>Identity Verification</h2>
+          <p>Government-issued ID and biometric data to confirm your identity. This is required for all agents.</p>
+        </div>
+      </div>
 
-// Configuration
-const API_BASE_URL = 'https://uyehtechbackend.onrender.com'; // Change to your backend URL
+      <div class="alert warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p><strong>Important:</strong> Upload clear, readable photos. Blurred, cropped, or edited images will be rejected. All documents are reviewed by our compliance team within 2 business days.</p>
+      </div>
 
-// Global Variables
-let currentStep = 1;
-const totalSteps = 5;
-let formData = {};
-let capturedImageData = null;
-let uploadedFileData = null;
-let emailVerified = false;
-let faceVerified = false;
+      <div class="section-divider"><span>Government ID</span></div>
 
-// State/Province Data
-const statesByCountry = {
-    NG: ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'],
-    US: ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'],
-    GB: ['England', 'Scotland', 'Wales', 'Northern Ireland'],
-    CA: ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'],
-    GH: ['Ashanti', 'Brong-Ahafo', 'Central', 'Eastern', 'Greater Accra', 'Northern', 'Upper East', 'Upper West', 'Volta', 'Western'],
-    KE: ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Nyeri', 'Machakos', 'Kakamega', 'Meru', 'Kisii'],
-    ZA: ['Eastern Cape', 'Free State', 'Gauteng', 'KwaZulu-Natal', 'Limpopo', 'Mpumalanga', 'Northern Cape', 'North West', 'Western Cape']
-};
+      <div class="form-grid">
+        <div class="field">
+          <label>ID Type <span class="req">*</span></label>
+          <select id="idType">
+            <option value="">— Select ID type —</option>
+            <option value="national_id">National ID Card (NIN)</option>
+            <option value="passport">International Passport</option>
+            <option value="drivers_license">Driver's Licence</option>
+            <option value="voters_card">Voter's Card / PVC</option>
+            <option value="residence_permit">Residence Permit</option>
+          </select>
+          <span class="error-msg">ID type is required.</span>
+        </div>
+        <div class="field">
+          <label>ID Number <span class="req">*</span></label>
+          <input type="text" id="idNumber" placeholder="ID document number">
+          <span class="error-msg">ID number is required.</span>
+        </div>
+        <div class="field">
+          <label>ID Issue Date <span class="req">*</span></label>
+          <input type="date" id="idIssueDate">
+          <span class="error-msg">Issue date is required.</span>
+        </div>
+        <div class="field">
+          <label>ID Expiry Date <span class="req">*</span></label>
+          <input type="date" id="idExpiryDate">
+          <span class="hint">Must be valid for at least 6 months.</span>
+          <span class="error-msg">Expiry date is required and must be in the future.</span>
+        </div>
+        <div class="field">
+          <label>Issuing Country <span class="req">*</span></label>
+          <input type="text" id="idIssuingCountry" placeholder="e.g. Nigeria">
+          <span class="error-msg">Issuing country is required.</span>
+        </div>
+        <div class="field">
+          <label>Issuing Authority</label>
+          <input type="text" id="idIssuingAuthority" placeholder="e.g. Nigeria Immigration Service">
+        </div>
+      </div>
 
-// ========================================
-// INITIALIZATION
-// ========================================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 UYEH TECH Agent Signup Initialized');
-    initializeForm();
-    setupEventListeners();
-    setupOTPInputs();
-});
+      <div class="section-divider"><span>National Identification Numbers</span></div>
 
-function initializeForm() {
-    updateProgressBar();
-    showStep(currentStep);
-}
+      <div class="form-grid">
+        <div class="field">
+          <label>NIN (National ID Number) <span class="tip">Nigeria</span></label>
+          <input type="text" id="nin" placeholder="11-digit NIN" maxlength="11">
+          <span class="hint">Leave blank if not applicable to your country.</span>
+        </div>
+        <div class="field">
+          <label>BVN (Bank Verification Number) <span class="tip">Nigeria</span></label>
+          <input type="text" id="bvn" placeholder="11-digit BVN" maxlength="11">
+          <span class="hint">Used to verify your bank account for payout.</span>
+        </div>
+      </div>
 
-function setupEventListeners() {
-    // Form submission
-    document.getElementById('signupForm').addEventListener('submit', handleFormSubmit);
-    
-    // Real-time validation
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            if (this.hasAttribute('required')) {
-                validateField(this);
-            }
-        });
-        
-        input.addEventListener('input', function() {
-            clearError(this);
-        });
-    });
-    
-    // Password strength checker
-    const passwordInput = document.getElementById('password');
-    if (passwordInput) {
-        passwordInput.addEventListener('input', checkPasswordStrength);
-    }
-    
-    // Email confirmation
-    const confirmEmailInput = document.getElementById('confirmEmail');
-    if (confirmEmailInput) {
-        confirmEmailInput.addEventListener('input', validateEmailMatch);
-    }
-    
-    // Password confirmation
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    if (confirmPasswordInput) {
-        confirmPasswordInput.addEventListener('input', validatePasswordMatch);
-    }
-    
-    // File upload
-    const idUploadInput = document.getElementById('idUpload');
-    if (idUploadInput) {
-        idUploadInput.addEventListener('change', handleFileUpload);
-    }
-}
+      <div class="section-divider"><span>Document Photos</span></div>
 
-// ========================================
-// NAVIGATION FUNCTIONS
-// ========================================
-function nextStep() {
-    if (validateStep(currentStep)) {
-        saveStepData(currentStep);
-        
-        if (currentStep < totalSteps) {
-            currentStep++;
-            showStep(currentStep);
-            updateProgressBar();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-}
-
-function prevStep() {
-    if (currentStep > 1) {
-        currentStep--;
-        showStep(currentStep);
-        updateProgressBar();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function showStep(step) {
-    const steps = document.querySelectorAll('.form-step');
-    steps.forEach((stepEl, index) => {
-        if (index + 1 === step) {
-            stepEl.classList.add('active');
-        } else {
-            stepEl.classList.remove('active');
-        }
-    });
-    
-    // Update step indicators
-    const stepIndicators = document.querySelectorAll('.step');
-    stepIndicators.forEach((indicator, index) => {
-        if (index + 1 < step) {
-            indicator.classList.add('completed');
-            indicator.classList.remove('active');
-        } else if (index + 1 === step) {
-            indicator.classList.add('active');
-            indicator.classList.remove('completed');
-        } else {
-            indicator.classList.remove('active', 'completed');
-        }
-    });
-}
-
-function updateProgressBar() {
-    const progressFill = document.getElementById('progressFill');
-    const percentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-    progressFill.style.width = percentage + '%';
-}
-
-// ========================================
-// DATA MANAGEMENT
-// ========================================
-function saveStepData(step) {
-    const stepEl = document.querySelector(`.form-step[data-step="${step}"]`);
-    const inputs = stepEl.querySelectorAll('input, select, textarea');
-    
-    inputs.forEach(input => {
-        if (input.type === 'checkbox') {
-            formData[input.name] = input.checked;
-        } else if (input.type !== 'file') {
-            formData[input.name] = input.value;
-        }
-    });
-}
-
-// ========================================
-// VALIDATION FUNCTIONS
-// ========================================
-function validateStep(step) {
-    const stepEl = document.querySelector(`.form-step[data-step="${step}"]`);
-    const requiredInputs = stepEl.querySelectorAll('[required]');
-    let isValid = true;
-    
-    requiredInputs.forEach(input => {
-        if (!validateField(input)) {
-            isValid = false;
-        }
-    });
-    
-    // Special validations
-    if (step === 1) {
-        // Check age (must be 18+)
-        const dobInput = document.getElementById('dateOfBirth');
-        if (dobInput && dobInput.value) {
-            const dob = new Date(dobInput.value);
-            const today = new Date();
-            const age = today.getFullYear() - dob.getFullYear();
-            if (age < 18) {
-                showError(dobInput, 'You must be at least 18 years old');
-                isValid = false;
-            }
-        }
-    }
-    
-    if (step === 2) {
-        // Email match validation
-        const email = document.getElementById('email').value;
-        const confirmEmail = document.getElementById('confirmEmail').value;
-        if (email !== confirmEmail) {
-            showError(document.getElementById('confirmEmail'), 'Emails do not match');
-            isValid = false;
-        }
-    }
-    
-    if (step === 3) {
-        // File upload validation
-        const fileInput = document.getElementById('idUpload');
-        if (!uploadedFileData) {
-            showError(fileInput, 'Please upload your ID document');
-            isValid = false;
-        }
-    }
-    
-    if (step === 4) {
-        // Face verification check
-        if (!faceVerified) {
-            showToast('Please take a photo before proceeding', 'error');
-            isValid = false;
-        }
-    }
-    
-    if (step === 5) {
-        // Email verification check
-        if (!emailVerified) {
-            showToast('Please verify your email first', 'error');
-            isValid = false;
-        }
-        
-        // Password validation
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-        
-        if (password && password.value) {
-            if (!validatePassword(password.value)) {
-                showError(password, 'Password does not meet requirements');
-                isValid = false;
-            }
-            
-            if (confirmPassword && password.value !== confirmPassword.value) {
-                showError(confirmPassword, 'Passwords do not match');
-                isValid = false;
-            }
-        }
-        
-        // Terms checkbox
-        const terms = document.getElementById('terms');
-        if (terms && !terms.checked) {
-            showToast('You must agree to the terms and conditions', 'error');
-            isValid = false;
-        }
-    }
-    
-    return isValid;
-}
-
-function validateField(field) {
-    const value = field.value.trim();
-    let isValid = true;
-    
-    // Clear previous error
-    clearError(field);
-    
-    // Required field check
-    if (field.hasAttribute('required') && !value) {
-        showError(field, 'This field is required');
-        return false;
-    }
-    
-    // Email validation
-    if (field.type === 'email' && value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-            showError(field, 'Please enter a valid email address');
-            isValid = false;
-        }
-    }
-    
-    // Phone validation
-    if (field.id === 'phone' && value) {
-        const phoneRegex = /^\d{10,15}$/;
-        if (!phoneRegex.test(value.replace(/\s/g, ''))) {
-            showError(field, 'Please enter a valid phone number');
-            isValid = false;
-        }
-    }
-    
-    return isValid;
-}
-
-function showError(field, message) {
-    field.classList.add('error');
-    const errorSpan = field.parentElement.querySelector('.error-message');
-    if (errorSpan) {
-        errorSpan.textContent = message;
-    }
-}
-
-function clearError(field) {
-    field.classList.remove('error');
-    const errorSpan = field.parentElement.querySelector('.error-message');
-    if (errorSpan) {
-        errorSpan.textContent = '';
-    }
-}
-
-// ========================================
-// COUNTRY & STATE MANAGEMENT
-// ========================================
-function loadStates() {
-    const countrySelect = document.getElementById('country');
-    const stateSelect = document.getElementById('state');
-    const selectedCountry = countrySelect.value;
-    
-    // Clear current options
-    stateSelect.innerHTML = '<option value="">Select State</option>';
-    
-    if (selectedCountry && statesByCountry[selectedCountry]) {
-        const states = statesByCountry[selectedCountry];
-        states.forEach(state => {
-            const option = document.createElement('option');
-            option.value = state;
-            option.textContent = state;
-            stateSelect.appendChild(option);
-        });
-    }
-}
-
-// ========================================
-// EMAIL VALIDATION & VERIFICATION
-// ========================================
-function validateEmailMatch() {
-    const email = document.getElementById('email').value;
-    const confirmEmail = document.getElementById('confirmEmail').value;
-    
-    if (confirmEmail && email !== confirmEmail) {
-        showError(document.getElementById('confirmEmail'), 'Emails do not match');
-    } else {
-        clearError(document.getElementById('confirmEmail'));
-    }
-}
-
-async function sendEmailOTP() {
-    const email = document.getElementById('email').value;
-    const sendBtn = document.getElementById('sendOtpBtn');
-    
-    if (!email) {
-        showToast('Please enter your email first', 'error');
-        return;
-    }
-    
-    // Display email
-    document.getElementById('displayEmail').textContent = email;
-    
-    // Show loading
-    sendBtn.disabled = true;
-    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/send-email-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showToast('Verification code sent to your email!', 'success');
-            document.getElementById('otpSection').style.display = 'block';
-            sendBtn.style.display = 'none';
-            
-            // For development - show OTP in console
-            if (data.debug_otp) {
-                console.log('🔑 DEBUG OTP:', data.debug_otp);
-                showToast(`DEBUG: Your OTP is ${data.debug_otp}`, 'info');
-            }
-            
-            startResendTimer();
-        } else {
-            showToast(data.message || 'Failed to send code', 'error');
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Verification Code';
-        }
-    } catch (error) {
-        console.error('❌ Send OTP error:', error);
-        showToast('Network error. Please try again.', 'error');
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Verification Code';
-    }
-}
-
-function setupOTPInputs() {
-    const otpInputs = document.querySelectorAll('.otp-input');
-    
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', function(e) {
-            const value = e.target.value;
-            
-            // Only allow numbers
-            if (!/^\d*$/.test(value)) {
-                e.target.value = '';
-                return;
-            }
-            
-            // Move to next input
-            if (value && index < otpInputs.length - 1) {
-                otpInputs[index + 1].focus();
-            }
-        });
-        
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                otpInputs[index - 1].focus();
-            }
-        });
-        
-        // Handle paste
-        input.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const pastedData = e.clipboardData.getData('text');
-            const digits = pastedData.replace(/\D/g, '').slice(0, 6);
-            
-            digits.split('').forEach((digit, i) => {
-                if (otpInputs[i]) {
-                    otpInputs[i].value = digit;
-                }
-            });
-            
-            if (digits.length === 6) {
-                otpInputs[5].focus();
-            }
-        });
-    });
-}
-
-function getOTPValue() {
-    const otpInputs = document.querySelectorAll('.otp-input');
-    return Array.from(otpInputs).map(input => input.value).join('');
-}
-
-function clearOTPInputs() {
-    document.querySelectorAll('.otp-input').forEach(input => {
-        input.value = '';
-    });
-    document.querySelectorAll('.otp-input')[0].focus();
-}
-
-async function verifyEmailOTP() {
-    const otp = getOTPValue();
-    const email = document.getElementById('email').value;
-    const verifyBtn = document.getElementById('verifyOtpBtn');
-    const otpError = document.getElementById('otpError');
-    
-    if (otp.length !== 6) {
-        otpError.textContent = 'Please enter the complete 6-digit code';
-        return;
-    }
-    
-    verifyBtn.disabled = true;
-    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/verify-email-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code: otp })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            emailVerified = true;
-            showToast('Email verified successfully!', 'success');
-            
-            // Hide verification section, show password section
-            document.getElementById('emailVerificationSection').style.display = 'none';
-            document.getElementById('passwordSection').style.display = 'block';
-        } else {
-            otpError.textContent = data.message || 'Invalid verification code';
-            clearOTPInputs();
-            verifyBtn.disabled = false;
-            verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify Code';
-        }
-    } catch (error) {
-        console.error('❌ Verify OTP error:', error);
-        showToast('Network error. Please try again.', 'error');
-        verifyBtn.disabled = false;
-        verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify Code';
-    }
-}
-
-async function resendEmailOTP() {
-    await sendEmailOTP();
-    clearOTPInputs();
-}
-
-function startResendTimer() {
-    const resendBtn = document.getElementById('resendOtpBtn');
-    const resendTimer = document.getElementById('resendTimer');
-    const countdown = document.getElementById('countdown');
-    
-    let timeLeft = 60;
-    resendBtn.style.display = 'none';
-    resendTimer.style.display = 'inline';
-    
-    const timer = setInterval(() => {
-        timeLeft--;
-        countdown.textContent = timeLeft;
-        
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            resendBtn.style.display = 'inline-block';
-            resendTimer.style.display = 'none';
-        }
-    }, 1000);
-}
-
-// ========================================
-// PASSWORD FUNCTIONS
-// ========================================
-function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const button = field.nextElementSibling;
-    const icon = button.querySelector('i');
-    
-    if (field.type === 'password') {
-        field.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        field.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-
-function checkPasswordStrength() {
-    const password = document.getElementById('password').value;
-    const strengthBar = document.getElementById('passwordStrength');
-    
-    let strength = 0;
-    const requirements = {
-        length: password.length >= 8,
-        uppercase: /[A-Z]/.test(password),
-        lowercase: /[a-z]/.test(password),
-        number: /[0-9]/.test(password),
-        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
-    
-    // Update requirement indicators
-    document.getElementById('req-length').classList.toggle('valid', requirements.length);
-    document.getElementById('req-uppercase').classList.toggle('valid', requirements.uppercase);
-    document.getElementById('req-lowercase').classList.toggle('valid', requirements.lowercase);
-    document.getElementById('req-number').classList.toggle('valid', requirements.number);
-    document.getElementById('req-special').classList.toggle('valid', requirements.special);
-    
-    // Calculate strength
-    Object.values(requirements).forEach(req => {
-        if (req) strength++;
-    });
-    
-    // Update strength bar
-    strengthBar.className = 'password-strength';
-    if (strength <= 2) {
-        strengthBar.classList.add('weak');
-    } else if (strength <= 4) {
-        strengthBar.classList.add('medium');
-    } else {
-        strengthBar.classList.add('strong');
-    }
-}
-
-function validatePassword(password) {
-    return password.length >= 8 &&
-           /[A-Z]/.test(password) &&
-           /[a-z]/.test(password) &&
-           /[0-9]/.test(password) &&
-           /[!@#$%^&*(),.?":{}|<>]/.test(password);
-}
-
-function validatePasswordMatch() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (confirmPassword && password !== confirmPassword) {
-        showError(document.getElementById('confirmPassword'), 'Passwords do not match');
-    } else {
-        clearError(document.getElementById('confirmPassword'));
-    }
-}
-
-// ========================================
-// FILE UPLOAD HANDLERS
-// ========================================
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById('idPreview');
-    const fileInput = event.target;
-    
-    if (!file) return;
-    
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-        showError(fileInput, 'File size must be less than 5MB');
-        fileInput.value = '';
-        return;
-    }
-    
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
-        showError(fileInput, 'Only JPG, PNG, or PDF files are allowed');
-        fileInput.value = '';
-        return;
-    }
-    
-    clearError(fileInput);
-    uploadedFileData = file;
-    
-    // Show preview
-    preview.classList.add('active');
-    
-    if (file.type === 'application/pdf') {
-        preview.innerHTML = `
-            <div class="file-preview-info">
-                <span class="file-preview-icon">📄</span>
-                <div class="file-preview-details">
-                    <div class="file-preview-name">${file.name}</div>
-                    <div class="file-preview-size">${formatFileSize(file.size)}</div>
-                </div>
-                <button type="button" class="file-remove-btn" onclick="removeFile()">Remove</button>
+      <div class="form-grid">
+        <div class="field">
+          <label>ID Front Photo <span class="req">*</span></label>
+          <div class="upload-zone" id="zone-idFront" onclick="triggerUpload('idFrontFile')">
+            <input type="file" id="idFrontFile" accept="image/jpeg,image/png,image/webp" onchange="handleUpload(this,'zone-idFront','prev-idFront')">
+            <div class="upload-content">
+              <div class="upload-zone-icon"><i class="fas fa-id-card-alt"></i></div>
+              <p>Click or drag your ID front photo</p>
+              <small>JPG, PNG, WEBP · Max 5MB</small>
             </div>
-        `;
+            <div class="uploaded-preview" id="prev-idFront">
+              <img class="preview-img" src="" alt="ID Front">
+              <span class="preview-name"></span>
+              <button class="upload-remove" onclick="removeUpload(event,'zone-idFront','idFrontFile','prev-idFront')">Remove</button>
+            </div>
+          </div>
+          <span class="error-msg" id="err-idFront">ID front photo is required.</span>
+        </div>
+        <div class="field">
+          <label>ID Back Photo <span class="req">*</span></label>
+          <div class="upload-zone" id="zone-idBack" onclick="triggerUpload('idBackFile')">
+            <input type="file" id="idBackFile" accept="image/jpeg,image/png,image/webp" onchange="handleUpload(this,'zone-idBack','prev-idBack')">
+            <div class="upload-content">
+              <div class="upload-zone-icon"><i class="fas fa-id-card"></i></div>
+              <p>Click or drag your ID back photo</p>
+              <small>JPG, PNG, WEBP · Max 5MB</small>
+            </div>
+            <div class="uploaded-preview" id="prev-idBack">
+              <img class="preview-img" src="" alt="ID Back">
+              <span class="preview-name"></span>
+              <button class="upload-remove" onclick="removeUpload(event,'zone-idBack','idBackFile','prev-idBack')">Remove</button>
+            </div>
+          </div>
+          <span class="error-msg" id="err-idBack">ID back photo is required.</span>
+        </div>
+        <div class="field span-2">
+          <label>Selfie Holding Your ID <span class="req">*</span></label>
+          <div class="upload-zone" id="zone-selfie" onclick="triggerUpload('selfieFile')" style="max-width:360px;">
+            <input type="file" id="selfieFile" accept="image/jpeg,image/png,image/webp" capture="user" onchange="handleUpload(this,'zone-selfie','prev-selfie')">
+            <div class="upload-content">
+              <div class="upload-zone-icon"><i class="fas fa-camera"></i></div>
+              <p>Click to take a selfie or upload a photo</p>
+              <small>Hold your open ID next to your face · Clear lighting required</small>
+            </div>
+            <div class="uploaded-preview" id="prev-selfie">
+              <img class="preview-img" src="" alt="Selfie" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+              <span class="preview-name"></span>
+              <button class="upload-remove" onclick="removeUpload(event,'zone-selfie','selfieFile','prev-selfie')">Remove</button>
+            </div>
+          </div>
+          <span class="error-msg" id="err-selfie">Selfie photo is required.</span>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>Address Proof</span></div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Proof of Address Type</label>
+          <select id="poaType">
+            <option value="">— Select document type —</option>
+            <option value="utility_bill">Utility Bill (not older than 3 months)</option>
+            <option value="bank_statement">Bank Statement</option>
+            <option value="tenancy_agreement">Tenancy / Lease Agreement</option>
+            <option value="government_letter">Government Correspondence</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Proof of Address Upload</label>
+          <div class="upload-zone" id="zone-poa" onclick="triggerUpload('poaFile')" style="padding:18px;">
+            <input type="file" id="poaFile" accept="image/jpeg,image/png,application/pdf" onchange="handleUpload(this,'zone-poa','prev-poa')">
+            <div class="upload-content">
+              <div class="upload-zone-icon" style="font-size:1.5rem;"><i class="fas fa-file-alt"></i></div>
+              <p style="font-size:.8rem;">JPG, PNG, or PDF · Max 10MB</p>
+            </div>
+            <div class="uploaded-preview" id="prev-poa">
+              <span class="preview-name" style="font-size:.82rem;color:var(--primary);"></span>
+              <button class="upload-remove" onclick="removeUpload(event,'zone-poa','poaFile','prev-poa')">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step <strong>2</strong> of 5</span>
+        <button class="btn btn-primary" onclick="goToStep(3)">Next — Professional <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: PROFESSIONAL BACKGROUND ═══ -->
+  <div id="step-3" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="card-heading">
+        <div class="card-heading-icon"><i class="fas fa-briefcase"></i></div>
+        <div>
+          <h2>Professional Background</h2>
+          <p>Tell us about your experience, skills, and preferred department.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Preferred Department <span class="req">*</span></label>
+          <select id="preferredDept">
+            <option value="">— Select department —</option>
+            <option value="General">General Support</option>
+            <option value="Technical">Technical Support</option>
+            <option value="Billing">Billing & Payments</option>
+            <option value="Sales">Sales</option>
+          </select>
+          <span class="error-msg">Please select a department.</span>
+        </div>
+        <div class="field">
+          <label>Years of Customer Support Experience <span class="req">*</span></label>
+          <select id="yearsExp">
+            <option value="">— Select range —</option>
+            <option value="0">Less than 1 year</option>
+            <option value="1">1 – 2 years</option>
+            <option value="3">3 – 5 years</option>
+            <option value="5">5 – 10 years</option>
+            <option value="10">10+ years</option>
+          </select>
+          <span class="error-msg">Please select experience range.</span>
+        </div>
+        <div class="field">
+          <label>Highest Education Level <span class="req">*</span></label>
+          <select id="education">
+            <option value="">— Select —</option>
+            <option value="secondary">Secondary / High School</option>
+            <option value="diploma">Diploma / OND / HND</option>
+            <option value="bachelor">Bachelor's Degree (B.Sc / B.A)</option>
+            <option value="master">Master's Degree</option>
+            <option value="phd">Doctorate (PhD)</option>
+            <option value="other">Other</option>
+          </select>
+          <span class="error-msg">Education level is required.</span>
+        </div>
+        <div class="field">
+          <label>Current Employment Status</label>
+          <select id="employmentStatus">
+            <option value="">— Select —</option>
+            <option value="employed">Employed (seeking part-time)</option>
+            <option value="unemployed">Unemployed</option>
+            <option value="student">Student</option>
+            <option value="freelance">Freelancer / Self-employed</option>
+            <option value="retired">Retired</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>Skills & Competencies</span></div>
+
+      <div class="field span-2" style="margin-bottom:20px;">
+        <label>Support Skills <span class="req">*</span> <span class="tip">Type and press Enter to add</span></label>
+        <div class="skills-input-wrap" id="skillsWrap" onclick="document.getElementById('skillsInput').focus()">
+          <!-- Tags injected here -->
+          <input type="text" class="skills-text-input" id="skillsInput" placeholder="e.g. Conflict resolution, CRM tools...">
+        </div>
+        <span class="hint">Add skills like: Live Chat, Email Support, Ticket Management, CRM, Zendesk, etc.</span>
+        <span class="error-msg" id="err-skills">Please add at least one skill.</span>
+      </div>
+
+      <div class="section-divider"><span>Language Proficiency</span></div>
+      <div class="field">
+        <label>Languages Spoken <span class="req">*</span></label>
+        <div class="check-grid" id="languageGrid">
+          <label class="check-item"><input type="checkbox" value="English"> <span>English</span></label>
+          <label class="check-item"><input type="checkbox" value="Yoruba"> <span>Yoruba</span></label>
+          <label class="check-item"><input type="checkbox" value="Igbo"> <span>Igbo</span></label>
+          <label class="check-item"><input type="checkbox" value="Hausa"> <span>Hausa</span></label>
+          <label class="check-item"><input type="checkbox" value="Pidgin"> <span>Nigerian Pidgin</span></label>
+          <label class="check-item"><input type="checkbox" value="French"> <span>French</span></label>
+          <label class="check-item"><input type="checkbox" value="Swahili"> <span>Swahili</span></label>
+          <label class="check-item"><input type="checkbox" value="Arabic"> <span>Arabic</span></label>
+          <label class="check-item"><input type="checkbox" value="Portuguese"> <span>Portuguese</span></label>
+          <label class="check-item"><input type="checkbox" value="Other"> <span>Other</span></label>
+        </div>
+        <span class="error-msg" id="err-languages">Please select at least one language.</span>
+      </div>
+
+      <div class="section-divider"><span>Availability</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Available Hours Per Week <span class="req">*</span></label>
+          <select id="hoursPerWeek">
+            <option value="">— Select —</option>
+            <option value="10-20">10 – 20 hours</option>
+            <option value="20-30">20 – 30 hours</option>
+            <option value="30-40">30 – 40 hours (Full-time)</option>
+            <option value="flexible">Flexible / As needed</option>
+          </select>
+          <span class="error-msg">Please select availability.</span>
+        </div>
+        <div class="field">
+          <label>Preferred Shift</label>
+          <select id="preferredShift">
+            <option value="">— Select —</option>
+            <option value="morning">Morning (6am – 12pm)</option>
+            <option value="afternoon">Afternoon (12pm – 6pm)</option>
+            <option value="evening">Evening (6pm – 12am)</option>
+            <option value="night">Night (12am – 6am)</option>
+            <option value="any">Any shift</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Can you work weekends?</label>
+          <select id="weekends">
+            <option value="">— Select —</option>
+            <option value="yes">Yes, available</option>
+            <option value="no">No</option>
+            <option value="sometimes">Occasionally</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Time Zone</label>
+          <input type="text" id="timezone" placeholder="e.g. Africa/Lagos (WAT UTC+1)">
+        </div>
+      </div>
+
+      <div class="section-divider"><span>About You</span></div>
+      <div class="field span-2">
+        <label>Professional Bio / Motivation <span class="req">*</span></label>
+        <textarea id="bio" rows="5" placeholder="Tell us about your customer support experience, why you want to join UYEH TECH, and what makes you a great support agent..."></textarea>
+        <span class="hint">Minimum 100 characters. Be specific about your achievements.</span>
+        <span class="error-msg">Bio is required (min 100 characters).</span>
+      </div>
+
+      <div class="field span-2">
+        <label>Previous Support Tools Used</label>
+        <input type="text" id="prevTools" placeholder="e.g. Zendesk, Freshdesk, Intercom, Slack, Jira...">
+      </div>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step <strong>3</strong> of 5</span>
+        <button class="btn btn-primary" onclick="goToStep(4)">Next — References <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: REFERENCES & EMERGENCY ═══ -->
+  <div id="step-4" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="card-heading">
+        <div class="card-heading-icon"><i class="fas fa-users"></i></div>
+        <div>
+          <h2>References & Emergency Contact</h2>
+          <p>Two professional references and one emergency contact are required for all agents.</p>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>Professional Reference 1</span></div>
+      <div class="ref-card">
+        <h4><i class="fas fa-user-tie"></i> First Reference</h4>
+        <div class="form-grid">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="ref1Name" placeholder="Reference's full name">
+            <span class="error-msg">Reference name is required.</span>
+          </div>
+          <div class="field">
+            <label>Job Title / Position <span class="req">*</span></label>
+            <input type="text" id="ref1Title" placeholder="e.g. Senior Manager">
+            <span class="error-msg">Job title is required.</span>
+          </div>
+          <div class="field">
+            <label>Company / Organisation <span class="req">*</span></label>
+            <input type="text" id="ref1Company" placeholder="Company name">
+            <span class="error-msg">Company is required.</span>
+          </div>
+          <div class="field">
+            <label>Relationship to You <span class="req">*</span></label>
+            <select id="ref1Relationship">
+              <option value="">— Select —</option>
+              <option value="former_employer">Former Employer</option>
+              <option value="supervisor">Supervisor / Manager</option>
+              <option value="colleague">Colleague</option>
+              <option value="client">Client</option>
+              <option value="mentor">Mentor / Trainer</option>
+            </select>
+            <span class="error-msg">Relationship is required.</span>
+          </div>
+          <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" id="ref1Email" placeholder="reference@company.com">
+            <span class="error-msg">Valid email is required.</span>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="ref1Phone" placeholder="+234 800 000 0000">
+            <span class="error-msg">Phone number is required.</span>
+          </div>
+          <div class="field">
+            <label>Years Known</label>
+            <input type="number" id="ref1Years" placeholder="e.g. 3" min="1" max="30">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>Professional Reference 2</span></div>
+      <div class="ref-card">
+        <h4><i class="fas fa-user-tie"></i> Second Reference</h4>
+        <div class="form-grid">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="ref2Name" placeholder="Reference's full name">
+            <span class="error-msg">Reference name is required.</span>
+          </div>
+          <div class="field">
+            <label>Job Title / Position <span class="req">*</span></label>
+            <input type="text" id="ref2Title" placeholder="e.g. Customer Success Lead">
+            <span class="error-msg">Job title is required.</span>
+          </div>
+          <div class="field">
+            <label>Company / Organisation <span class="req">*</span></label>
+            <input type="text" id="ref2Company" placeholder="Company name">
+            <span class="error-msg">Company is required.</span>
+          </div>
+          <div class="field">
+            <label>Relationship to You <span class="req">*</span></label>
+            <select id="ref2Relationship">
+              <option value="">— Select —</option>
+              <option value="former_employer">Former Employer</option>
+              <option value="supervisor">Supervisor / Manager</option>
+              <option value="colleague">Colleague</option>
+              <option value="client">Client</option>
+              <option value="mentor">Mentor / Trainer</option>
+            </select>
+            <span class="error-msg">Relationship is required.</span>
+          </div>
+          <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" id="ref2Email" placeholder="reference@company.com">
+            <span class="error-msg">Valid email is required.</span>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="ref2Phone" placeholder="+234 800 000 0000">
+            <span class="error-msg">Phone number is required.</span>
+          </div>
+          <div class="field">
+            <label>Years Known</label>
+            <input type="number" id="ref2Years" placeholder="e.g. 2" min="1" max="30">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>Emergency Contact</span></div>
+      <div class="ref-card" style="border-color:rgba(255,165,0,.15);background:rgba(255,165,0,.02);">
+        <h4 style="color:var(--warning);"><i class="fas fa-phone-alt"></i> Emergency Contact</h4>
+        <div class="form-grid">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="emgName" placeholder="Emergency contact name">
+            <span class="error-msg">Emergency contact name is required.</span>
+          </div>
+          <div class="field">
+            <label>Relationship <span class="req">*</span></label>
+            <select id="emgRelationship">
+              <option value="">— Select —</option>
+              <option value="parent">Parent</option>
+              <option value="spouse">Spouse / Partner</option>
+              <option value="sibling">Sibling</option>
+              <option value="child">Child</option>
+              <option value="friend">Friend</option>
+              <option value="other">Other</option>
+            </select>
+            <span class="error-msg">Relationship is required.</span>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="emgPhone" placeholder="+234 800 000 0000">
+            <span class="error-msg">Emergency phone is required.</span>
+          </div>
+          <div class="field">
+            <label>Alternate Phone</label>
+            <input type="tel" id="emgAltPhone" placeholder="+234 800 000 0000">
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="emgEmail" placeholder="emergency@example.com">
+          </div>
+          <div class="field">
+            <label>City / Location</label>
+            <input type="text" id="emgCity" placeholder="e.g. Abuja">
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step <strong>4</strong> of 5</span>
+        <button class="btn btn-primary" onclick="goToStep(5)">Review Application <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5: REVIEW & SUBMIT ═══ -->
+  <div id="step-5" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="card-heading">
+        <div class="card-heading-icon"><i class="fas fa-clipboard-check"></i></div>
+        <div>
+          <h2>Review & Submit</h2>
+          <p>Verify all details before submitting. Incorrect information may delay your approval.</p>
+        </div>
+      </div>
+
+      <!-- Review blocks rendered by JS -->
+      <div id="reviewContent"></div>
+
+      <!-- Terms -->
+      <div class="section-divider"><span>Terms & Conditions</span></div>
+      <div class="terms-box">
+        <h4>UYEH TECH Agent Agreement — Summary</h4>
+        <p>By applying to become a UYEH TECH Support Agent, you confirm that all information provided in this application is accurate and complete. Knowingly providing false information is grounds for immediate disqualification and potential legal action.</p>
+        <p><strong>Data Usage:</strong> Your personal data, identity documents, and background information will be stored securely and used solely for the purpose of verifying your identity, processing your agent contract, and conducting your duties as a support agent. Your data will never be sold or shared with third parties without your explicit consent.</p>
+        <p><strong>Background Checks:</strong> You consent to UYEH TECH conducting identity verification, reference checks, and where applicable, criminal background screening prior to approval.</p>
+        <p><strong>Conduct:</strong> As an agent, you agree to maintain the highest standards of professionalism, respect customer confidentiality, and uphold the UYEH TECH Code of Conduct at all times.</p>
+        <p><strong>Confidentiality:</strong> All customer data, platform information, and internal processes you encounter in your role are strictly confidential and must not be disclosed to any unauthorised party.</p>
+        <p><strong>Termination:</strong> UYEH TECH reserves the right to terminate any agent's access at any time, with or without cause, in accordance with applicable law.</p>
+      </div>
+
+      <label class="terms-accept">
+        <input type="checkbox" id="termsCheck">
+        <span>I confirm that all information in this application is accurate and truthful. I have read and agree to the <strong>UYEH TECH Agent Agreement</strong>, including the data usage policy and code of conduct.</span>
+      </label>
+      <label class="terms-accept">
+        <input type="checkbox" id="backgroundCheck">
+        <span>I consent to UYEH TECH conducting <strong>identity verification, reference checks, and background screening</strong> as part of the agent approval process.</span>
+      </label>
+      <label class="terms-accept">
+        <input type="checkbox" id="privacyCheck">
+        <span>I acknowledge that my personal data will be stored securely and used in accordance with the <strong>UYEH TECH Privacy Policy</strong>.</span>
+      </label>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(4)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step <strong>5</strong> of 5</span>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitApplication()">
+          <i class="fas fa-paper-plane"></i> Submit Application
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUCCESS ═══ -->
+  <div id="successScreen">
+    <div class="success-icon"><i class="fas fa-check"></i></div>
+    <h2>Application Submitted!</h2>
+    <p>Your agent application has been received. Our compliance team will review your documents and get back to you within <strong>2–5 business days</strong>.</p>
+    <div class="ref-number" id="appRefNumber">APP-XXXXXXXX</div>
+    <p style="font-size:.85rem;">Please save your reference number. You'll receive a confirmation email at the address you provided.</p>
+    <br>
+    <a href="index.html" class="btn btn-primary" style="margin:0 auto;display:inline-flex;">
+      <i class="fas fa-home"></i> Return to Homepage
+    </a>
+  </div>
+
+</main>
+
+<script>
+const API_URL = 'https://uyehtechbackend.onrender.com';
+
+// ── State ──
+let currentStep = 1;
+const skills = [];
+let uploadedFiles = {};
+
+// ── Toast ──
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3800);
+}
+
+// ── Stepper ──
+function updateStepper(step) {
+  document.querySelectorAll('.step').forEach(el => {
+    const n = parseInt(el.dataset.step);
+    el.classList.remove('active','completed');
+    if (n === step) el.classList.add('active');
+    else if (n < step) el.classList.add('completed');
+    if (el.classList.contains('completed')) {
+      el.querySelector('.step-circle').innerHTML = '<i class="fas fa-check" style="font-size:.7rem;"></i>';
     } else {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML = `
-                <div class="file-preview-info">
-                    <img src="${e.target.result}" style="max-width: 100px; border-radius: 8px;">
-                    <div class="file-preview-details">
-                        <div class="file-preview-name">${file.name}</div>
-                        <div class="file-preview-size">${formatFileSize(file.size)}</div>
-                    </div>
-                    <button type="button" class="file-remove-btn" onclick="removeFile()">Remove</button>
-                </div>
-            `;
-        };
-        reader.readAsDataURL(file);
+      el.querySelector('.step-circle').textContent = n;
     }
+  });
 }
 
-function removeFile() {
-    const fileInput = document.getElementById('idUpload');
-    const preview = document.getElementById('idPreview');
-    fileInput.value = '';
-    preview.innerHTML = '';
-    preview.classList.remove('active');
-    uploadedFileData = null;
+// ── Navigation ──
+function goToStep(target) {
+  if (target > currentStep && !validateStep(currentStep)) return;
+  document.getElementById(`step-${currentStep}`).style.display = 'none';
+  if (target === 5) buildReviewContent();
+  document.getElementById(`step-${target}`).style.display = 'block';
+  currentStep = target;
+  updateStepper(target);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+// ── Validation ──
+function validateStep(step) {
+  let ok = true;
+  const required = getRequiredFields(step);
+  required.forEach(({ id, type, msg }) => {
+    const el = document.getElementById(id);
+    const field = el?.closest('.field');
+    let val = el?.value?.trim();
+    let valid = true;
+    if (type === 'email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    else if (type === 'file') valid = !!uploadedFiles[id];
+    else if (type === 'skills') valid = skills.length > 0;
+    else if (type === 'languages') valid = document.querySelectorAll('#languageGrid input:checked').length > 0;
+    else valid = !!val;
+    if (!valid) {
+      field?.classList.add('error');
+      ok = false;
+    } else {
+      field?.classList.remove('error');
+    }
+  });
+  if (!ok) showToast('Please fill in all required fields.', 'error');
+  return ok;
 }
 
-// ========================================
-// PHOTO CAPTURE FUNCTIONS
-// ========================================
-function triggerPhotoCapture() {
-    document.getElementById('photoInput').click();
+function getRequiredFields(step) {
+  if (step === 1) return [
+    { id:'firstName' }, { id:'lastName' }, { id:'email', type:'email' },
+    { id:'phone' }, { id:'dob' }, { id:'gender' }, { id:'nationality' },
+    { id:'country' }, { id:'state' }, { id:'address' }, { id:'city' }
+  ];
+  if (step === 2) return [
+    { id:'idType' }, { id:'idNumber' }, { id:'idIssueDate' }, { id:'idExpiryDate' },
+    { id:'idIssuingCountry' },
+    { id:'idFrontFile', type:'file' }, { id:'idBackFile', type:'file' }, { id:'selfieFile', type:'file' }
+  ];
+  if (step === 3) return [
+    { id:'preferredDept' }, { id:'yearsExp' }, { id:'education' }, { id:'hoursPerWeek' },
+    { id:'bio' }, { id:'skillsInput', type:'skills' }, { id:'languageGrid', type:'languages' }
+  ];
+  if (step === 4) return [
+    { id:'ref1Name' }, { id:'ref1Title' }, { id:'ref1Company' }, { id:'ref1Relationship' },
+    { id:'ref1Email', type:'email' }, { id:'ref1Phone' },
+    { id:'ref2Name' }, { id:'ref2Title' }, { id:'ref2Company' }, { id:'ref2Relationship' },
+    { id:'ref2Email', type:'email' }, { id:'ref2Phone' },
+    { id:'emgName' }, { id:'emgRelationship' }, { id:'emgPhone' }
+  ];
+  return [];
 }
 
-function handlePhotoCapture(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
+// ── File Upload ──
+function triggerUpload(inputId) {
+  // Click handled by input[type=file] overlay — no action needed
+}
+
+function handleUpload(input, zoneId, prevId) {
+  const file = input.files[0];
+  if (!file) return;
+  const maxMB = 10;
+  if (file.size > maxMB * 1024 * 1024) {
+    showToast(`File too large. Max ${maxMB}MB.`, 'error'); input.value = ''; return;
+  }
+  uploadedFiles[input.id] = file;
+  const zone = document.getElementById(zoneId);
+  const prev = document.getElementById(prevId);
+  zone.classList.add('has-file');
+  prev.querySelector('.preview-name').textContent = file.name;
+  if (file.type.startsWith('image/')) {
     const reader = new FileReader();
-    reader.onload = function(e) {
-        capturedImageData = e.target.result;
-        
-        // Show captured image
-        document.getElementById('previewPlaceholder').style.display = 'none';
-        const capturedImage = document.getElementById('capturedImage');
-        capturedImage.src = e.target.result;
-        capturedImage.style.display = 'block';
-        
-        // Show retake button, hide take button
-        document.getElementById('takePhotoBtn').style.display = 'none';
-        document.getElementById('retakePhotoBtn').style.display = 'inline-flex';
-        
-        // Enable next button
-        document.getElementById('faceVerifyNext').disabled = false;
-        faceVerified = true;
-        
-        showToast('Photo captured successfully!', 'success');
+    reader.onload = e => {
+      const img = prev.querySelector('img');
+      if (img) { img.src = e.target.result; img.style.display = 'block'; }
     };
     reader.readAsDataURL(file);
+  }
 }
 
-function retakePhoto() {
-    // Reset photo
-    document.getElementById('previewPlaceholder').style.display = 'flex';
-    document.getElementById('capturedImage').style.display = 'none';
-    document.getElementById('photoInput').value = '';
-    capturedImageData = null;
-    
-    // Show take button, hide retake button
-    document.getElementById('takePhotoBtn').style.display = 'inline-flex';
-    document.getElementById('retakePhotoBtn').style.display = 'none';
-    
-    // Disable next button
-    document.getElementById('faceVerifyNext').disabled = true;
-    faceVerified = false;
+function removeUpload(e, zoneId, inputId, prevId) {
+  e.stopPropagation();
+  delete uploadedFiles[inputId];
+  document.getElementById(inputId).value = '';
+  const zone = document.getElementById(zoneId);
+  zone.classList.remove('has-file');
+  const prev = document.getElementById(prevId);
+  prev.querySelector('.preview-name').textContent = '';
+  const img = prev.querySelector('img');
+  if (img) { img.src = ''; }
 }
 
-// ========================================
-// FORM SUBMISSION
-// ========================================
-async function handleFormSubmit(e) {
+// ── Skills Tags ──
+document.getElementById('skillsInput').addEventListener('keydown', function(e) {
+  if (['Enter','Tab',','].includes(e.key)) {
     e.preventDefault();
-    
-    if (!validateStep(currentStep)) {
-        return;
+    const val = this.value.trim().replace(/,$/, '');
+    if (val && !skills.includes(val) && skills.length < 20) {
+      skills.push(val);
+      renderSkillTags();
     }
-    
-    saveStepData(currentStep);
-    
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
-    
-    try {
-        // Prepare data for submission
-        const fullName = `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}`.trim();
-        
-        const signupData = {
-            fullName: fullName,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.countryCode + formData.phone,
-            country: formData.country,
-        };
-        
-        console.log('📝 Submitting registration:', signupData);
-        
-            const response = await fetch(`${API_BASE_URL}/api/auth/agent/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(signupData)
-        });
-                const data = await response.json();
-        
-        if (data.success) {
-            console.log('✅ Registration successful');
-            
-            // Store token
-            if (data.token) {
-                localStorage.setItem('authToken', data.token);
-                localStorage.setItem('userData', JSON.stringify(data.user));
-            }
-            
-            // Show success step
-            document.getElementById('signupForm').style.display = 'none';
-            document.getElementById('successStep').style.display = 'block';
-            document.getElementById('successEmail').textContent = formData.email;
-            document.getElementById('successName').textContent = fullName;
-            
-            // Update progress to complete
-            document.querySelectorAll('.step').forEach(step => {
-                step.classList.add('completed');
-                step.classList.remove('active');
-            });
-            document.getElementById('progressFill').style.width = '100%';
-            
-            showToast('Registration successful!', 'success');
-        } else {
-            showToast(data.message || 'Registration failed', 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Registration';
-        }
-    } catch (error) {
-        console.error('❌ Registration error:', error);
-        showToast('Network error. Please try again.', 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Registration';
-    }
+    this.value = '';
+  }
+  if (e.key === 'Backspace' && !this.value && skills.length > 0) {
+    skills.pop();
+    renderSkillTags();
+  }
+});
+
+function renderSkillTags() {
+  const wrap = document.getElementById('skillsWrap');
+  const input = document.getElementById('skillsInput');
+  const tags = wrap.querySelectorAll('.skill-tag');
+  tags.forEach(t => t.remove());
+  skills.forEach((s, i) => {
+    const tag = document.createElement('span');
+    tag.className = 'skill-tag';
+    tag.innerHTML = `${s} <button onclick="removeSkill(${i})" type="button">&times;</button>`;
+    wrap.insertBefore(tag, input);
+  });
 }
 
-// ========================================
-// UTILITY FUNCTIONS
-// ========================================
-function showToast(message, type = 'info') {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toastMessage');
-    
-    // Remove existing type classes
-    toast.classList.remove('success', 'error', 'info');
-    
-    // Add new type class
-    toast.classList.add(type);
-    
-    // Update icon
-    const icon = toast.querySelector('i');
-    icon.className = 'fas ';
-    switch(type) {
-        case 'success':
-            icon.className += 'fa-check-circle';
-            break;
-        case 'error':
-            icon.className += 'fa-exclamation-circle';
-            break;
-        default:
-            icon.className += 'fa-info-circle';
-    }
-    
-    // Set message
-    toastMessage.textContent = message;
-    
-    // Show toast
-    toast.classList.add('show');
-    
-    // Hide after 4 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 4000);
+function removeSkill(i) { skills.splice(i, 1); renderSkillTags(); }
+
+// ── Check-item toggle ──
+document.querySelectorAll('.check-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const cb = item.querySelector('input');
+    item.classList.toggle('checked', cb.checked);
+  });
+});
+
+// ── Review Content Builder ──
+function gv(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+function buildReviewContent() {
+  const languages = [...document.querySelectorAll('#languageGrid input:checked')].map(c => c.value);
+  const html = `
+    <div class="review-block">
+      <h4><i class="fas fa-user"></i> Personal Information</h4>
+      ${row('Full Name', `${gv('firstName')} ${gv('middleName') !== '—' ? gv('middleName') + ' ' : ''}${gv('lastName')}`)}
+      ${row('Email', gv('email'))}
+      ${row('Phone', gv('phone'))}
+      ${row('Date of Birth', gv('dob'))}
+      ${row('Gender', gv('gender'))}
+      ${row('Nationality', gv('nationality'))}
+      ${row('Country', gv('country'))}
+      ${row('Address', `${gv('address')}, ${gv('city')}, ${gv('state')}`)}
+    </div>
+    <div class="review-block">
+      <h4><i class="fas fa-id-card"></i> Identity Verification</h4>
+      ${row('ID Type', gv('idType'))}
+      ${row('ID Number', gv('idNumber'))}
+      ${row('ID Expiry', gv('idExpiryDate'))}
+      ${row('Issuing Country', gv('idIssuingCountry'))}
+      ${row('NIN', gv('nin'))}
+      ${row('BVN', gv('bvn'))}
+      ${row('ID Front', uploadedFiles['idFrontFile'] ? '✅ Uploaded' : '❌ Missing')}
+      ${row('ID Back', uploadedFiles['idBackFile']  ? '✅ Uploaded' : '❌ Missing')}
+      ${row('Selfie', uploadedFiles['selfieFile']   ? '✅ Uploaded' : '❌ Missing')}
+    </div>
+    <div class="review-block">
+      <h4><i class="fas fa-briefcase"></i> Professional</h4>
+      ${row('Department', gv('preferredDept'))}
+      ${row('Experience', gv('yearsExp') + ' years')}
+      ${row('Education', gv('education'))}
+      ${row('Skills', skills.join(', ') || '—')}
+      ${row('Languages', languages.join(', ') || '—')}
+      ${row('Availability', gv('hoursPerWeek') + ' hrs/week')}
+    </div>
+    <div class="review-block">
+      <h4><i class="fas fa-users"></i> References</h4>
+      ${row('Ref 1', `${gv('ref1Name')} — ${gv('ref1Company')} (${gv('ref1Email')})`)}
+      ${row('Ref 2', `${gv('ref2Name')} — ${gv('ref2Company')} (${gv('ref2Email')})`)}
+      ${row('Emergency', `${gv('emgName')} · ${gv('emgRelationship')} · ${gv('emgPhone')}`)}
+    </div>
+  `;
+  document.getElementById('reviewContent').innerHTML = html;
+}
+function row(label, value) {
+  return `<div class="review-row"><span class="label">${label}</span><span class="value">${value}</span></div>`;
 }
 
-// ========================================
-// CONSOLE LOG
-// ========================================
-console.log(`
-╔═══════════════════════════════════════════════════════════════╗
-║     UYEH TECH - Complete Agent Signup System v6.1          ║
-╚═══════════════════════════════════════════════════════════════╝
+// ── Submission ──
+async function submitApplication() {
+  if (!document.getElementById('termsCheck').checked ||
+      !document.getElementById('backgroundCheck').checked ||
+      !document.getElementById('privacyCheck').checked) {
+    showToast('Please accept all agreements before submitting.', 'error'); return;
+  }
 
-📋 Features:
-  ✅ Multi-Step Registration (5 Steps)
-  ✅ Email Verification with OTP
-  ✅ Real-time Password Strength
-  ✅ Country & State Selection
-  ✅ ID Document Upload
-  ✅ Face Photo Capture
-  ✅ Complete Form Validation
-  ✅ Toast Notifications
-  ✅ Responsive Design
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting…';
 
-🔧 API Endpoint: ${API_BASE_URL}
+  try {
+    const fd = new FormData();
 
-💡 Remember:
-  - Backend must be running
-  - Check console for debug OTP
-  - All steps must be completed
-`);
-    </script>
+    // Personal
+    fd.append('firstName', gv('firstName'));
+    fd.append('lastName',  gv('lastName'));
+    fd.append('middleName',gv('middleName'));
+    fd.append('email',     gv('email'));
+    fd.append('phone',     gv('phone'));
+    fd.append('altPhone',  gv('altPhone'));
+    fd.append('dob',       gv('dob'));
+    fd.append('gender',    gv('gender'));
+    fd.append('nationality',gv('nationality'));
+    fd.append('country',   gv('country'));
+    fd.append('state',     gv('state'));
+    fd.append('city',      gv('city'));
+    fd.append('address',   gv('address'));
+    fd.append('postalCode',gv('postalCode'));
+
+    // Identity
+    fd.append('idType',           gv('idType'));
+    fd.append('idNumber',         gv('idNumber'));
+    fd.append('idIssueDate',      gv('idIssueDate'));
+    fd.append('idExpiryDate',     gv('idExpiryDate'));
+    fd.append('idIssuingCountry', gv('idIssuingCountry'));
+    fd.append('idIssuingAuthority',gv('idIssuingAuthority'));
+    fd.append('nin',              gv('nin'));
+    fd.append('bvn',              gv('bvn'));
+    fd.append('poaType',          gv('poaType'));
+
+    // Professional
+    fd.append('preferredDept',  gv('preferredDept'));
+    fd.append('yearsExp',       gv('yearsExp'));
+    fd.append('education',      gv('education'));
+    fd.append('employmentStatus',gv('employmentStatus'));
+    fd.append('bio',            gv('bio'));
+    fd.append('prevTools',      gv('prevTools'));
+    fd.append('hoursPerWeek',   gv('hoursPerWeek'));
+    fd.append('preferredShift', gv('preferredShift'));
+    fd.append('weekends',       gv('weekends'));
+    fd.append('timezone',       gv('timezone'));
+    fd.append('skills',         JSON.stringify(skills));
+    const languages = [...document.querySelectorAll('#languageGrid input:checked')].map(c=>c.value);
+    fd.append('languages', JSON.stringify(languages));
+
+    // References
+    fd.append('ref1Name',         gv('ref1Name'));
+    fd.append('ref1Title',        gv('ref1Title'));
+    fd.append('ref1Company',      gv('ref1Company'));
+    fd.append('ref1Relationship', gv('ref1Relationship'));
+    fd.append('ref1Email',        gv('ref1Email'));
+    fd.append('ref1Phone',        gv('ref1Phone'));
+    fd.append('ref1Years',        gv('ref1Years'));
+    fd.append('ref2Name',         gv('ref2Name'));
+    fd.append('ref2Title',        gv('ref2Title'));
+    fd.append('ref2Company',      gv('ref2Company'));
+    fd.append('ref2Relationship', gv('ref2Relationship'));
+    fd.append('ref2Email',        gv('ref2Email'));
+    fd.append('ref2Phone',        gv('ref2Phone'));
+    fd.append('ref2Years',        gv('ref2Years'));
+
+    // Emergency
+    fd.append('emgName',         gv('emgName'));
+    fd.append('emgRelationship', gv('emgRelationship'));
+    fd.append('emgPhone',        gv('emgPhone'));
+    fd.append('emgAltPhone',     gv('emgAltPhone'));
+    fd.append('emgEmail',        gv('emgEmail'));
+    fd.append('emgCity',         gv('emgCity'));
+
+    // Files
+    ['idFrontFile','idBackFile','selfieFile','poaFile'].forEach(fid => {
+      if (uploadedFiles[fid]) fd.append(fid, uploadedFiles[fid]);
+    });
+
+    const res = await fetch(`${API_URL}/api/agent/apply`, { method:'POST', body: fd });
+    const data = await res.json();
+
+    if (data.success) {
+      // Hide all steps
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (el) el.style.display = 'none';
+      }
+      document.querySelector('.stepper').style.display = 'none';
+      document.querySelector('.hero').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+      document.getElementById('appRefNumber').textContent = data.referenceNumber || 'APP-' + Date.now().toString(36).toUpperCase();
+    } else {
+      throw new Error(data.message || 'Submission failed');
+    }
+  } catch (err) {
+    showToast('❌ ' + (err.message || 'Submission failed. Try again.'), 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+  }
+}
+
+// ── DOB max date (must be 18+) ──
+const maxDOB = new Date();
+maxDOB.setFullYear(maxDOB.getFullYear() - 18);
+document.getElementById('dob').max = maxDOB.toISOString().split('T')[0];
+
+// ── Clear field error on input ──
+document.querySelectorAll('input,select,textarea').forEach(el => {
+  el.addEventListener('input', () => el.closest('.field')?.classList.remove('error'));
+  el.addEventListener('change', () => el.closest('.field')?.classList.remove('error'));
+});
+</script>
 </body>
 </html>
