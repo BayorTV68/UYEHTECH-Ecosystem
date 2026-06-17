@@ -783,6 +783,7 @@ const Chat = {
     this._setupTextareaResize();
     this._setupContextMenu();
     this._restoreSession();
+    this._prefillFromAuth();
   },
 
   // ── SESSION ─────────────────────────────────────────────
@@ -792,6 +793,24 @@ const Chat = {
     customerName  = localStorage.getItem('uyeh_customerName');
     customerEmail = localStorage.getItem('uyeh_customerEmail');
     if (chatId && customerId) this._fetchAndRestore();
+  },
+
+  // Pre-fill form if user is already logged in
+  _prefillFromAuth() {
+    try {
+      const tok = localStorage.getItem('token') || localStorage.getItem('authToken');
+      if (!tok) return;
+      // Decode JWT payload (no verification needed — server verifies on send)
+      const payload = JSON.parse(atob(tok.split('.')[1]));
+      if (payload?.name || payload?.fullName) {
+        const nameEl = document.getElementById('fName');
+        if (nameEl && !nameEl.value) nameEl.value = payload.name || payload.fullName || '';
+      }
+      if (payload?.email) {
+        const emailEl = document.getElementById('fEmail');
+        if (emailEl && !emailEl.value) emailEl.value = payload.email;
+      }
+    } catch (_) { /* JWT decode failed — leave form blank */ }
   },
 
   async _fetchAndRestore() {
@@ -936,8 +955,13 @@ const Chat = {
         messageType: uploadedFiles.length ? 'image' : 'text',
         replyTo:     replyingTo || null,
       };
+      // Attach auth token if the user is logged in — lets agent verify customer identity
+      const _tok = localStorage.getItem('token') || localStorage.getItem('authToken') || null;
+      const _headers = { 'Content-Type':'application/json' };
+      if (_tok) _headers['Authorization'] = 'Bearer ' + _tok;
+
       const r = await fetch(`${API}/api/chat/${chatId}/send`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', headers: _headers,
         body: JSON.stringify(body)
       });
       const d = await r.json();
