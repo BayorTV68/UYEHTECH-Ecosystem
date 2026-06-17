@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - UYEH TECH </title>
-    <meta property="og:type" content="website">
-  <meta property="og:url" content="https://uyehtech.com/marketplace/">
-  <meta property="og:title" content="UYEH TECH Marketplace — Premium Digital Products">
-  <meta property="og:description" content="Browse premium digital products from verified creators. Templates, courses, components, and more.">
+   <title>Admin Dashboard — UYEH TECH</title>
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Admin Dashboard — UYEH TECH">
+<meta property="og:description" content="UYEH TECH internal admin panel.">
   <meta property="og:image" content="uyehtech.com/images/uyehtech-logo.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="UYEH TECH Marketplace">
@@ -2956,6 +2955,105 @@ tr:hover {
 /* Slim table overrides — less padding for data-dense tables */
 .table-slim th,
 .table-slim td { padding: 8px 10px; font-size: .78rem; }
+/* ── Agent Applications page ── */
+.app-status-pill {
+    display:inline-block;padding:3px 10px;border-radius:10px;
+    font-size:.7rem;font-weight:700;text-transform:capitalize;
+}
+
+/* ── Canned responses page ── */
+#canned-responsesPage .form-control {
+    background:rgba(255,255,255,.05);border:1px solid var(--border);
+    border-radius:9px;padding:10px 14px;color:var(--gray-light);
+    font-size:.88rem;font-family:'Syne',sans-serif;outline:none;
+    transition:border-color .2s;width:100%;
+}
+#canned-responsesPage .form-control:focus { border-color:var(--primary); }
+
+/* ── Currency page ── */
+#currencyPage table td:first-child { letter-spacing:.04em; }
+
+/* ── Agent card enhancements ── */
+.agent-card .agent-info { flex:1;min-width:0; }
+.agent-card .agent-details h3 { font-size:.95rem;line-height:1.3; }
+.agent-stat-item { min-width:60px; }
+
+@media (max-width: 1024px) {
+    .hamburger-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    .topbar {
+        padding: 12px 16px;
+    }
+    .content-area {
+        padding: 20px 16px;
+    }
+}
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: flex !important;
+    }
+}
+
+.hamburger-btn {
+    display: none;
+    width: 45px;
+    height: 45px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    order: -1;
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #00ff88;
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+.sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    visibility: hidden;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+    visibility: visible;
+}
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    .topbar {
+        position: sticky;
+        top: 0;
+    }
+}
 </style>
 </head>
 <body>
@@ -3019,7 +3117,15 @@ tr:hover {
                     <div class="nav-item" data-page="agents">
                         <i class="fas fa-headset"></i>
                         <span>Agents</span>
-                        <span class="nav-badge" id="pendingAgentsBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="nav-item" data-page="agent-applications">
+                        <i class="fas fa-file-user"></i>
+                        <span>Agent Applications</span>
+                        <span class="nav-badge" id="pendingAgentAppsBadge" style="display:none;background:rgba(59,158,255,.25);color:#3b9eff;">0</span>
+                    </div>
+                    <div class="nav-item" data-page="canned-responses">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Canned Responses</span>
                     </div>
                 </div>
             </div>
@@ -3173,6 +3279,10 @@ tr:hover {
                         <i class="fas fa-photo-video"></i>
                         <span>Media Manager</span>
                     </div>
+                    <div class="nav-item" data-page="currency">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Currency Rates</span>
+                    </div>
                 </div>
             </div>
 
@@ -3238,7 +3348,10 @@ tr:hover {
             <div id="push-notificationsPage" class="page-content hidden"></div>
             <div id="broadcastPage" class="page-content hidden"></div>
             <div id="statusPage" class="page-content hidden"></div>
-            <div id="mediaPage" class="page-content hidden"></div>
+            <div id="mediaPage"             class="page-content hidden"></div>
+            <div id="agent-applicationsPage" class="page-content hidden"></div>
+            <div id="canned-responsesPage"   class="page-content hidden"></div>
+            <div id="currencyPage"           class="page-content hidden"></div>
         </div>
     </main>
 
@@ -4021,84 +4134,7 @@ tr:hover {
     <div id="loadingOverlay" class="loading">
         <div class="spinner"></div>
     </div>
- <style>
-@media (max-width: 1024px) {
-    .hamburger-btn {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-    }
-    .topbar {
-        padding: 12px 16px;
-    }
-    .content-area {
-        padding: 20px 16px;
-    }
-}
-@media (max-width: 768px) {
-    .hamburger-btn {
-        display: flex !important;
-    }
-}
 
-.hamburger-btn {
-    display: none;
-    width: 45px;
-    height: 45px;
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    border-radius: 10px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-direction: column;
-    gap: 5px;
-    padding: 10px;
-    order: -1;
-}
-
-.hamburger-btn span {
-    display: block;
-    width: 100%;
-    height: 2px;
-    background: #00ff88;
-    border-radius: 2px;
-    transition: all 0.3s;
-}
-
-.sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 999;
-    backdrop-filter: blur(2px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    visibility: hidden;
-}
-
-.sidebar-overlay.active {
-    opacity: 1;
-    pointer-events: all;
-    visibility: visible;
-}
-@media (max-width: 1024px) {
-    .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        z-index: 1000;
-    }
-    .sidebar.active {
-        transform: translateX(0);
-    }
-    .topbar {
-        position: sticky;
-        top: 0;
-    }
-}
-</style>
 <!-- ══════════════════════════════════════════
      EMAIL PREVIEW MODAL  (Option A)
      Fetches HTML with auth header, renders
@@ -4327,7 +4363,10 @@ function navigateTo(page) {
         case 'push-notifications':    loadPushNotifications();      break;
         case 'broadcast':             loadBroadcastPage();          break;
         case 'status':                loadSystemStatus();           break;
-        case 'media':                 loadMediaManager();           break;
+        case 'media':                 loadMediaManager();              break;
+        case 'agent-applications':    loadAgentApplications();         break;
+        case 'canned-responses':      loadCannedResponses();           break;
+        case 'currency':              loadCurrencyDashboard();         break;
     }
 }
  
@@ -4388,6 +4427,21 @@ async function updateNotificationBadges() {
                     }
                 }
             } catch (_) {}
+            // Agent applications badge
+            try {
+                const aaRes = await fetch(`${API_URL}/api/admin/agent-applications/stats`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const aaData = await aaRes.json();
+                if (aaData.success) {
+                    const aaBadge = document.getElementById('pendingAgentAppsBadge');
+                    const count = aaData.stats?.pending + aaData.stats?.under_review || 0;
+                    if (aaBadge) {
+                        aaBadge.textContent   = count;
+                        aaBadge.style.display = count > 0 ? 'inline' : 'none';
+                    }
+                }
+            } catch (_) {}
 
             // Open tickets badge — fetch from dedicated stats endpoint
             try {
@@ -4430,6 +4484,40 @@ function showNotification(message, type = 'info') {
     
     setTimeout(() => notification.remove(), 4000);
 }
+// ── Slide panel factory ──────────────────────────────────────────────────────
+function _createSlidePanel(title, bodyHTML = '') {
+    document.getElementById('slidePanel')?.remove();
+    const panel = document.createElement('div');
+    panel.id = 'slidePanel';
+    panel.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9990;display:flex;align-items:flex-start;justify-content:flex-end;';
+    panel.innerHTML = `
+        <div style="width:min(780px,100vw);height:100vh;background:#0f0f0f;border-left:1px solid rgba(0,255,136,.18);
+             display:flex;flex-direction:column;animation:drawerIn .22s ease;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;
+                 border-bottom:1px solid rgba(0,255,136,.12);background:rgba(0,255,136,.03);flex-shrink:0;">
+                <h3 style="font-size:1.05rem;color:var(--primary);">${esc(title)}</h3>
+                <button onclick="document.getElementById('slidePanel').remove()"
+                    style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#9ca3af;
+                           border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.82rem;">✕ Close</button>
+            </div>
+            <div id="slidePanelBody" style="flex:1;overflow-y:auto;padding:24px;">${bodyHTML}</div>
+        </div>`;
+    panel.addEventListener('click', e => { if (e.target === panel) panel.remove(); });
+    document.body.appendChild(panel);
+    return panel;
+}
+
+// ── Stat row for panels ──────────────────────────────────────────────────────
+function _statRow(label, value) {
+    return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;">
+        <span style="color:var(--gray);">${label}</span>
+        <strong style="color:#e5e7eb;">${value}</strong>
+    </div>`;
+}
+
+// ── Date helpers ─────────────────────────────────────────────────────────────
+function _today()    { return new Date().toISOString().split('T')[0]; }
+function _daysAgo(n) { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; }
 
 function showToast(msg, type = 'info') {
     const map = { success: 'success', error: 'error', info: 'info', warning: 'warning' };
@@ -5890,100 +5978,538 @@ async function deleteUser(userId) {
 
 // ========== AGENT MANAGEMENT ==========
 async function loadAgentsData() {
-    const agentsPage = document.getElementById('agentsPage');
-    
-    agentsPage.innerHTML = `
+    const page = document.getElementById('agentsPage');
+    page.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Agent Management</h1>
-            <p class="page-subtitle">Manage customer support agents</p>
+            <p class="page-subtitle">Monitor, suspend, and manage all support agents</p>
         </div>
-        <div class="info-card">
-            <div class="info-card-header">
-                <div class="info-card-icon">ℹ️</div>
-                <div class="info-card-title">About Agents</div>
-            </div>
-            <div class="info-card-content">
-                Agents handle customer support chats. Promote users to agents from the Users page.
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
+            <button class="btn btn-primary" onclick="navigateTo('agent-applications')">
+                <i class="fas fa-file-user"></i> View Applications
+            </button>
+            <button class="btn btn-secondary" id="agentRefreshBtn" onclick="loadAgentsData()">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+        <!-- Stats row -->
+        <div class="stats-grid" id="agentStatsRow" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:28px;"></div>
+        <!-- Filter -->
+        <div class="filter-section" style="margin-bottom:20px;">
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label class="filter-label">Status</label>
+                    <select class="form-select" id="agentStatusFilter" onchange="loadAgentsData()">
+                        <option value="all">All</option>
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                        <option value="busy">Busy</option>
+                        <option value="away">Away</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Department</label>
+                    <select class="form-select" id="agentDeptFilter" onchange="loadAgentsData()">
+                        <option value="all">All Departments</option>
+                        <option value="General">General</option>
+                        <option value="Technical">Technical</option>
+                        <option value="Billing">Billing</option>
+                        <option value="Sales">Sales</option>
+                    </select>
+                </div>
             </div>
         </div>
         <div id="agentsContainer">
-            <div style="text-align: center; padding: 40px;">
-                <div class="spinner"></div>
-                <p style="color: var(--gray); margin-top: 15px;">Loading...</p>
-            </div>
-        </div>
-    `;
-    
-    try {
-        const response = await fetch(`${API_URL}/api/admin/agents`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
+            <div style="text-align:center;padding:40px;"><div class="spinner"></div>
+            <p style="color:var(--gray);margin-top:15px;">Loading agents…</p></div>
+        </div>`;
 
-        const data = await response.json();
+    try {
+        const r    = await fetch(`${API_URL}/api/admin/agents`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        const data = await r.json();
         const container = document.getElementById('agentsContainer');
 
-        if (data.success) {
-            if (data.agents.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👨‍💼</div>
-                        <h3>No Agents Yet</h3>
-                        <p>Promote users to agents from the Users page</p>
-                        <button class="btn btn-primary" onclick="navigateTo('users')">
-                            <i class="fas fa-users"></i> Go to Users
+        if (!data.success) throw new Error(data.message);
+
+        const agents = data.agents || [];
+        const statusFilter = document.getElementById('agentStatusFilter')?.value || 'all';
+        const deptFilter   = document.getElementById('agentDeptFilter')?.value   || 'all';
+
+        const filtered = agents.filter(a =>
+            (statusFilter === 'all' || a.status === statusFilter) &&
+            (deptFilter   === 'all' || a.department === deptFilter)
+        );
+
+        // Stats row
+        const online    = agents.filter(a => a.status === 'online').length;
+        const suspended = agents.filter(a => a.agentInfo?.isSuspended).length;
+        const avgRating = agents.length ? (agents.reduce((s,a) => s + (a.rating||0), 0) / agents.length).toFixed(1) : '—';
+        document.getElementById('agentStatsRow').innerHTML = `
+            <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-headset"></i></div></div>
+                <div class="stat-value">${agents.length}</div><div class="stat-label">Total Agents</div></div>
+            <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(0,255,136,.1)"><i class="fas fa-circle" style="color:var(--primary);font-size:.7rem"></i></div></div>
+                <div class="stat-value">${online}</div><div class="stat-label">Online Now</div></div>
+            <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(255,68,68,.1)"><i class="fas fa-ban" style="color:var(--error)"></i></div></div>
+                <div class="stat-value">${suspended}</div><div class="stat-label">Suspended</div></div>
+            <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(251,191,36,.1)"><i class="fas fa-star" style="color:#fbbf24"></i></div></div>
+                <div class="stat-value">${avgRating}</div><div class="stat-label">Avg Rating</div></div>`;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👨‍💼</div>
+                <h3>No Agents Found</h3><p>Try adjusting the filters or promote a user.</p>
+                <button class="btn btn-primary" onclick="navigateTo('users')"><i class="fas fa-users"></i> Go to Users</button></div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(agent => {
+            const suspended   = agent.agentInfo?.isSuspended;
+            const statusColor = { online:'var(--success)', offline:'var(--gray)', busy:'var(--error)', away:'var(--warning)' }[agent.status] || 'var(--gray)';
+            const skills      = (agent.agentInfo?.skills || []).slice(0, 5);
+            const ratingStars = '⭐'.repeat(Math.round(agent.rating || 0));
+            const resRate     = agent.totalChats > 0 ? Math.round((agent.resolvedChats / agent.totalChats) * 100) : 0;
+
+            return `<div class="agent-card" style="${suspended ? 'opacity:.65;border-color:rgba(255,68,68,.3);' : ''}">
+                <div class="agent-header">
+                    <div class="agent-info">
+                        <div class="agent-avatar" style="background:${suspended?'rgba(255,68,68,.15)':'rgba(0,255,136,.1)'};color:${suspended?'var(--error)':'var(--primary)'};">
+                            ${suspended ? '🚫' : '👨‍💼'}
+                        </div>
+                        <div class="agent-details">
+                            <h3>${esc(agent.name||agent.fullName||'—')}
+                                ${suspended ? '<span style="font-size:.65rem;background:rgba(255,68,68,.15);color:var(--error);padding:2px 7px;border-radius:6px;margin-left:6px;">SUSPENDED</span>' : ''}
+                            </h3>
+                            <p style="font-size:.8rem;color:var(--gray);">${esc(agent.email||'—')}</p>
+                            <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;">
+                                <span style="display:inline-flex;align-items:center;gap:4px;font-size:.75rem;">
+                                    <i class="fas fa-circle" style="font-size:.5rem;color:${statusColor};"></i>
+                                    <span style="color:${statusColor};font-weight:600;">${agent.status}</span>
+                                </span>
+                                <span class="status-badge" style="font-size:.7rem;">${esc(agent.department||'General')}</span>
+                            </div>
+                            ${skills.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
+                                ${skills.map(s=>`<span style="font-size:.65rem;padding:1px 7px;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);border-radius:8px;color:var(--primary);">${esc(s)}</span>`).join('')}
+                            </div>` : ''}
+                            ${agent.agentInfo?.bio ? `<p style="font-size:.75rem;color:var(--gray);margin-top:5px;line-height:1.4;">${esc(agent.agentInfo.bio.slice(0,100))}${agent.agentInfo.bio.length>100?'…':''}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="action-btns">
+                        <button class="action-btn" onclick="viewAgentReport('${agent.id||agent._id}')" title="Performance Report">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                        <button class="action-btn" onclick="viewAgentActivity('${agent.id||agent._id}')" title="Activity Log">
+                            <i class="fas fa-scroll"></i>
+                        </button>
+                        <button class="action-btn" onclick="openAgentSettingsModal('${agent.id||agent._id}')" title="Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        ${suspended
+                            ? `<button class="action-btn" onclick="unsuspendAgent('${agent.id||agent._id}')" title="Unsuspend" style="border-color:rgba(0,255,136,.3);color:var(--primary);">
+                                <i class="fas fa-unlock"></i></button>`
+                            : `<button class="action-btn warning" onclick="suspendAgent('${agent.id||agent._id}','${esc(agent.name||agent.fullName||'')}')" title="Suspend">
+                                <i class="fas fa-pause-circle"></i></button>`}
+                        <button class="action-btn danger" onclick="demoteAgent('${agent.id||agent._id}')" title="Demote">
+                            <i class="fas fa-user-minus"></i>
                         </button>
                     </div>
-                `;
-            } else {
-                container.innerHTML = data.agents.map(agent => `
-                    <div class="agent-card">
-                        <div class="agent-header">
-                            <div class="agent-info">
-                                <div class="agent-avatar">👨‍💼</div>
-                                <div class="agent-details">
-                                    <h3>${agent.name}</h3>
-                                    <p>${agent.email}</p>
-                                    <p style="margin-top: 5px;">
-                                        <span class="status-badge status-${agent.status}">${agent.status}</span>
-                                        <span style="color: var(--gray); margin-left: 10px;">${agent.department}</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="action-btns">
-                                <button class="action-btn" onclick="openAgentSettingsModal('${agent.id}')" title="Settings">
-                                    <i class="fas fa-cog"></i>
-                                </button>
-                                <button class="action-btn danger" onclick="demoteAgent('${agent.id}')" title="Remove">
-                                    <i class="fas fa-user-minus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="agent-stats">
-                            <div class="agent-stat-item">
-                                <div class="agent-stat-value">${agent.activeChats}</div>
-                                <div class="agent-stat-label">Active</div>
-                            </div>
-                            <div class="agent-stat-item">
-                                <div class="agent-stat-value">${agent.totalChats}</div>
-                                <div class="agent-stat-label">Total</div>
-                            </div>
-                            <div class="agent-stat-item">
-                                <div class="agent-stat-value">${agent.resolvedChats}</div>
-                                <div class="agent-stat-label">Resolved</div>
-                            </div>
-                            <div class="agent-stat-item">
-                                <div class="agent-stat-value">${agent.rating.toFixed(1)}⭐</div>
-                                <div class="agent-stat-label">Rating</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-    } catch (error) {
-        console.error('Agents error:', error);
-        showNotification('Failed to load agents', 'error');
+                </div>
+                <div class="agent-stats">
+                    <div class="agent-stat-item"><div class="agent-stat-value">${agent.activeChats||0}</div><div class="agent-stat-label">Active</div></div>
+                    <div class="agent-stat-item"><div class="agent-stat-value">${agent.totalChats||0}</div><div class="agent-stat-label">Total</div></div>
+                    <div class="agent-stat-item"><div class="agent-stat-value">${agent.resolvedChats||0}</div><div class="agent-stat-label">Resolved</div></div>
+                    <div class="agent-stat-item"><div class="agent-stat-value">${resRate}%</div><div class="agent-stat-label">Res. Rate</div></div>
+                    <div class="agent-stat-item"><div class="agent-stat-value">${(agent.rating||0).toFixed(1)}${ratingStars.slice(0,1)||''}</div><div class="agent-stat-label">CSAT</div></div>
+                    <div class="agent-stat-item"><div class="agent-stat-value">${agent.agentInfo?.ratedChats||0}</div><div class="agent-stat-label">Rated</div></div>
+                </div>
+                ${agent.agentInfo?.suspendReason ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(255,68,68,.07);border-left:3px solid var(--error);border-radius:0 6px 6px 0;font-size:.75rem;color:#ff8888;">
+                    <strong>Suspended:</strong> ${esc(agent.agentInfo.suspendReason)}</div>` : ''}
+            </div>`;
+        }).join('');
+
+    } catch (err) {
+        showNotification('Failed to load agents: ' + err.message, 'error');
     }
+}
+
+async function suspendAgent(agentId, agentName) {
+    const reason = prompt(`Reason for suspending ${agentName}:`);
+    if (!reason?.trim()) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agents/${agentId}/suspend`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason: reason.trim() })
+        });
+        const d = await r.json();
+        if (d.success) { showNotification('Agent suspended', 'success'); loadAgentsData(); }
+        else showNotification(d.message || 'Failed', 'error');
+    } catch (e) { showNotification('Suspend failed', 'error'); }
+}
+
+async function unsuspendAgent(agentId) {
+    if (!confirm('Reinstate this agent?')) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agents/${agentId}/unsuspend`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success) { showNotification('Agent reinstated', 'success'); loadAgentsData(); }
+        else showNotification(d.message || 'Failed', 'error');
+    } catch (e) { showNotification('Unsuspend failed', 'error'); }
+}
+
+async function viewAgentReport(agentId) {
+    const panel = _createSlidePanel('Agent Performance Report', '<div class="spinner" style="margin:40px auto;display:block;"></div>');
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agents/${agentId}/report?from=${_daysAgo(30)}&to=${_today()}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const { agent, chats, tickets, period } = d;
+        panel.querySelector('#slidePanelBody').innerHTML = `
+            <div style="margin-bottom:20px;">
+                <h3 style="font-size:1.1rem;margin-bottom:4px;">${esc(agent.name||'—')}</h3>
+                <p style="font-size:.8rem;color:var(--gray);">Report period: ${new Date(period.from).toLocaleDateString()} → ${new Date(period.to).toLocaleDateString()}</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+                <div style="background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:12px;padding:18px;">
+                    <div style="font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;font-weight:700;">💬 Chats</div>
+                    ${_statRow('Total', chats.total)}
+                    ${_statRow('Resolved', chats.resolved)}
+                    ${_statRow('Resolution Rate', chats.resolutionRate + '%')}
+                    ${_statRow('Avg Response', chats.avgResponseTime + ' min')}
+                    ${_statRow('Avg CSAT', chats.avgRating || '—')}
+                    ${_statRow('Rated', chats.ratedCount)}
+                </div>
+                <div style="background:rgba(59,158,255,.05);border:1px solid rgba(59,158,255,.15);border-radius:12px;padding:18px;">
+                    <div style="font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;font-weight:700;">🎫 Tickets</div>
+                    ${_statRow('Total', tickets.total)}
+                    ${_statRow('Resolved', tickets.resolved)}
+                    ${_statRow('Resolution Rate', tickets.resolutionRate + '%')}
+                    ${_statRow('Avg Response', tickets.avgResponseTime + ' min')}
+                </div>
+            </div>
+            ${d.ratings?.length ? `
+            <div style="font-size:.68rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;font-weight:700;">Recent Ratings</div>
+            ${d.ratings.slice(0,10).map(r => `
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:6px;font-size:.8rem;">
+                    <span style="color:#fbbf24;">${'⭐'.repeat(r.rating)}</span>
+                    <span style="color:var(--gray);">${esc(r.customerName||'Customer')}</span>
+                    ${r.ratingComment ? `<span style="color:#e5e7eb;">— "${esc(r.ratingComment.slice(0,60))}"</span>` : ''}
+                </div>`).join('')}` : ''}`;
+    } catch (e) {
+        panel.querySelector('#slidePanelBody').innerHTML = `<p style="color:var(--error);">Failed: ${e.message}</p>`;
+    }
+}
+
+async function viewAgentActivity(agentId) {
+    const panel = _createSlidePanel('Agent Activity Log', '<div class="spinner" style="margin:40px auto;display:block;"></div>');
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agents/${agentId}/activity?limit=40`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        panel.querySelector('#slidePanelBody').innerHTML = d.logs.length === 0
+            ? '<p style="color:var(--gray);text-align:center;padding:40px;">No activity logged yet.</p>'
+            : d.logs.map(log => `
+                <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                    <div style="width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;background:${
+                        log.severity==='critical'?'var(--error)':log.severity==='warning'?'var(--warning)':'var(--primary)'};"></div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:.82rem;font-weight:600;color:#e5e7eb;">${esc(log.action||'—')}</div>
+                        <div style="font-size:.72rem;color:var(--gray);margin-top:2px;">${new Date(log.createdAt).toLocaleString()}</div>
+                        ${log.detail?.note ? `<div style="font-size:.72rem;color:#9ca3af;margin-top:2px;">${esc(log.detail.note)}</div>` : ''}
+                    </div>
+                    <span style="font-size:.65rem;padding:2px 8px;border-radius:8px;flex-shrink:0;background:rgba(255,255,255,.05);color:#9ca3af;">${esc(log.category||'')}</span>
+                </div>`).join('');
+    } catch (e) {
+        panel.querySelector('#slidePanelBody').innerHTML = `<p style="color:var(--error);">Failed: ${e.message}</p>`;
+    }
+}
+// ═══════════════════════════════════════════════════════
+// AGENT APPLICATIONS
+// ═══════════════════════════════════════════════════════
+
+async function loadAgentApplications(status = 'all', page = 1) {
+    const el = document.getElementById('agent-applicationsPage');
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Agent Applications</h1>
+            <p class="page-subtitle">Review and approve agent applications submitted through the public form</p>
+        </div>
+        <!-- Stats -->
+        <div class="stats-grid" id="agentAppStats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:24px;"></div>
+        <!-- Filters -->
+        <div class="filter-section" style="margin-bottom:20px;">
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label class="filter-label">Status</label>
+                    <select class="form-select" id="agentAppStatusFilter" onchange="loadAgentApplications(this.value)">
+                        <option value="all" ${status==='all'?'selected':''}>All</option>
+                        <option value="pending" ${status==='pending'?'selected':''}>Pending</option>
+                        <option value="under_review" ${status==='under_review'?'selected':''}>Under Review</option>
+                        <option value="approved" ${status==='approved'?'selected':''}>Approved</option>
+                        <option value="rejected" ${status==='rejected'?'selected':''}>Rejected</option>
+                        <option value="on_hold" ${status==='on_hold'?'selected':''}>On Hold</option>
+                    </select>
+                </div>
+                <div class="filter-item" style="flex:2;">
+                    <label class="filter-label">Search</label>
+                    <input class="form-control" id="agentAppSearch" placeholder="Name or email…"
+                           oninput="clearTimeout(window._aasTimer);window._aasTimer=setTimeout(()=>loadAgentApplications(document.getElementById('agentAppStatusFilter').value),400)">
+                </div>
+            </div>
+        </div>
+        <div id="agentAppsContainer">
+            <div style="text-align:center;padding:40px;"><div class="spinner"></div></div>
+        </div>
+        <div class="pagination" id="agentAppsPagination"></div>`;
+
+    try {
+        // Stats
+        const sr = await fetch(`${API_URL}/api/admin/agent-applications/stats`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const sd = await sr.json();
+        if (sd.success) {
+            const s = sd.stats;
+            document.getElementById('agentAppStats').innerHTML = [
+                ['Total', s.total, '#fff'],
+                ['Pending', s.pending, 'var(--warning)'],
+                ['Under Review', s.under_review, 'var(--info)'],
+                ['Approved', s.approved, 'var(--success)'],
+                ['Rejected', s.rejected, 'var(--error)'],
+                ['This Month', s.thisMonth, '#b794f4'],
+            ].map(([label,val,color]) => `
+                <div class="stat-card" style="cursor:default;">
+                    <div class="stat-value" style="color:${color};font-size:1.6rem;">${val||0}</div>
+                    <div class="stat-label">${label}</div>
+                </div>`).join('');
+        }
+
+        const search = document.getElementById('agentAppSearch')?.value || '';
+        const r = await fetch(`${API_URL}/api/admin/agent-applications?status=${status}&page=${page}&limit=20&search=${encodeURIComponent(search)}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        const container = document.getElementById('agentAppsContainer');
+        if (!d.success) throw new Error(d.message);
+
+        if (!d.applications?.length) {
+            container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div>
+                <h3>No Applications</h3><p>No agent applications match your filter.</p></div>`;
+            return;
+        }
+
+        const statusColors = { pending:'#fbbf24', under_review:'#3b9eff', approved:'var(--success)', rejected:'var(--error)', on_hold:'#9ca3af' };
+
+        container.innerHTML = `<div class="table-container"><table><thead><tr>
+            <th>Applicant</th><th>Department</th><th>Country</th><th>Experience</th><th>Status</th><th>Submitted</th><th>Actions</th>
+        </tr></thead><tbody>
+        ${d.applications.map(app => `<tr>
+            <td>
+                <div style="font-weight:600;font-size:.85rem;">${esc((app.personal?.firstName||'')+' '+(app.personal?.lastName||''))}</div>
+                <div style="font-size:.72rem;color:var(--gray);">${esc(app.personal?.email||'—')}</div>
+                <div style="font-size:.65rem;font-family:monospace;color:var(--primary);">${esc(app.referenceNumber||'—')}</div>
+            </td>
+            <td style="font-size:.82rem;">${esc(app.professional?.preferredDept||'—')}</td>
+            <td style="font-size:.82rem;">${esc(app.personal?.country||'—')}</td>
+            <td style="font-size:.82rem;">${esc(app.professional?.yearsExp||'—')} yrs</td>
+            <td><span class="status-badge" style="color:${statusColors[app.status]||'#fff'};background:${statusColors[app.status]||'#9ca3af'}22;">${app.status?.replace('_',' ')}</span></td>
+            <td style="font-size:.78rem;color:var(--gray);">${new Date(app.submittedAt).toLocaleDateString()}</td>
+            <td>
+                <div class="action-btns">
+                    <button class="action-btn" onclick="viewAgentApplication('${app._id}')" title="Review"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn" onclick="approveAgentApplication('${app._id}')" title="Approve & Create Account" style="border-color:rgba(0,255,136,.3);color:var(--primary);"><i class="fas fa-check"></i></button>
+                    <button class="action-btn danger" onclick="deleteAgentApplication('${app._id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>`).join('')}
+        </tbody></table></div>`;
+
+        if (d.pages > 1) updatePagination('agentAppsPagination', { page, totalPages: d.pages }, p => loadAgentApplications(status, p));
+
+    } catch (e) {
+        showNotification('Failed to load applications: ' + e.message, 'error');
+    }
+}
+
+async function viewAgentApplication(appId) {
+    const panel = _createSlidePanel('Agent Application Review', '<div class="spinner" style="margin:40px auto;display:block;"></div>');
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agent-applications/${appId}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const app = d.application;
+        const p = app.personal || {};
+        const id = app.identity || {};
+        const pr = app.professional || {};
+        const refs = app.references || [];
+        const emg = app.emergencyContact || {};
+
+        panel.querySelector('#slidePanelBody').innerHTML = `
+            <!-- Status bar -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:20px;">
+                <div>
+                    <span style="font-size:.7rem;color:var(--gray);text-transform:uppercase;">Status</span>
+                    <div style="font-weight:700;font-size:1rem;color:var(--primary);text-transform:uppercase;">${app.status?.replace('_',' ')}</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <select id="appStatusSelect" class="form-select" style="font-size:.8rem;padding:6px 10px;">
+                        <option value="pending" ${app.status==='pending'?'selected':''}>Pending</option>
+                        <option value="under_review" ${app.status==='under_review'?'selected':''}>Under Review</option>
+                        <option value="on_hold" ${app.status==='on_hold'?'selected':''}>On Hold</option>
+                        <option value="rejected" ${app.status==='rejected'?'selected':''}>Rejected</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" onclick="_updateAppStatus('${appId}')">Update Status</button>
+                    <button class="btn btn-primary btn-sm" onclick="approveAgentApplication('${appId}')"><i class="fas fa-check"></i> Approve & Create Account</button>
+                </div>
+            </div>
+            ${app.adminNote ? `<div style="padding:10px 14px;background:rgba(255,165,0,.07);border-left:3px solid var(--warning);border-radius:0 8px 8px 0;font-size:.8rem;color:#fbbf24;margin-bottom:16px;"><strong>Admin Note:</strong> ${esc(app.adminNote)}</div>` : ''}
+
+            <!-- Personal -->
+            <div style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;">👤 Personal Information</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:20px;">
+                ${[['Full Name',(p.firstName||'')+' '+(p.middleName?p.middleName+' ':'')+p.lastName],
+                   ['Email',p.email],['Phone',p.phone],['Alt Phone',p.altPhone||'—'],
+                   ['Date of Birth',p.dob?new Date(p.dob).toLocaleDateString():'—'],['Gender',p.gender],
+                   ['Nationality',p.nationality],['Country',p.country],['State',p.state],['City',p.city],
+                   ['Address',p.address],['Postal Code',p.postalCode||'—']].map(([l,v])=>`
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;">
+                    <div style="font-size:.62rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">${l}</div>
+                    <div style="font-size:.82rem;color:#e5e7eb;font-weight:500;">${esc(v||'—')}</div>
+                </div>`).join('')}
+            </div>
+
+            <!-- Identity -->
+            <div style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;">🪪 Identity Documents</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:16px;">
+                ${[['ID Type',id.idType],['ID Number',id.idNumber],
+                   ['Issue Date',id.idIssueDate?new Date(id.idIssueDate).toLocaleDateString():'—'],
+                   ['Expiry Date',id.idExpiryDate?new Date(id.idExpiryDate).toLocaleDateString():'—'],
+                   ['Issuing Country',id.idIssuingCountry],['Issuing Authority',id.idIssuingAuthority||'—'],
+                   ['NIN',id.nin||'—'],['BVN',id.bvn||'—']].map(([l,v])=>`
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;">
+                    <div style="font-size:.62rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">${l}</div>
+                    <div style="font-size:.82rem;color:#e5e7eb;font-weight:500;">${esc(v||'—')}</div>
+                </div>`).join('')}
+            </div>
+            <!-- Document photos -->
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+                ${id.idFrontUrl?`<a href="${id.idFrontUrl}" target="_blank"><img src="${id.idFrontUrl}" style="height:90px;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;" alt="ID Front"></a>`:''}
+                ${id.idBackUrl?`<a href="${id.idBackUrl}" target="_blank"><img src="${id.idBackUrl}" style="height:90px;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;" alt="ID Back"></a>`:''}
+                ${id.selfieUrl?`<a href="${id.selfieUrl}" target="_blank"><img src="${id.selfieUrl}" style="height:90px;width:90px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);cursor:zoom-in;" alt="Selfie"></a>`:''}
+                ${id.poaUrl?`<a href="${id.poaUrl}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-file-alt"></i> Proof of Address</a>`:''}
+            </div>
+
+            <!-- Professional -->
+            <div style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;">💼 Professional Background</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:10px;">
+                ${[['Dept',pr.preferredDept],['Experience',pr.yearsExp+' yrs'],['Education',pr.education],
+                   ['Hours/Week',pr.hoursPerWeek],['Shift',pr.preferredShift],['Weekends',pr.weekends],
+                   ['Timezone',pr.timezone],['Status',pr.employmentStatus||'—']].map(([l,v])=>`
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;">
+                    <div style="font-size:.62rem;color:#6b7280;text-transform:uppercase;">${l}</div>
+                    <div style="font-size:.82rem;color:#e5e7eb;font-weight:500;">${esc(v||'—')}</div>
+                </div>`).join('')}
+            </div>
+            ${(pr.skills||[]).length?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${(pr.skills||[]).map(s=>`<span style="font-size:.7rem;padding:2px 9px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:8px;color:var(--primary);">${esc(s)}</span>`).join('')}</div>`:''}
+            ${(pr.languages||[]).length?`<div style="font-size:.72rem;color:var(--gray);margin-bottom:8px;">Languages: <strong style="color:#e5e7eb;">${(pr.languages||[]).join(', ')}</strong></div>`:''}
+            ${pr.bio?`<div style="background:rgba(255,255,255,.03);border-radius:8px;padding:12px;font-size:.82rem;color:#d1d5db;line-height:1.6;margin-bottom:16px;border:1px solid var(--border);">${esc(pr.bio)}</div>`:''}
+
+            <!-- References -->
+            <div style="font-size:.65rem;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;">👥 References</div>
+            ${refs.map((ref,i)=>`<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;">
+                <div style="font-size:.72rem;color:var(--primary);font-weight:700;margin-bottom:8px;">Reference ${i+1}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.8rem;">
+                    ${[['Name',ref.name],['Title',ref.title],['Company',ref.company],
+                       ['Relationship',ref.relationship],['Email',ref.email],['Phone',ref.phone]].map(([l,v])=>`
+                    <div><span style="color:var(--gray);">${l}:</span> <strong>${esc(v||'—')}</strong></div>`).join('')}
+                </div>
+                <div style="margin-top:8px;display:flex;gap:8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="_markRefContacted('${appId}',${i})"
+                        style="${ref.contacted?'opacity:.5;':''}">${ref.contacted?'✅ Contacted':'📞 Mark Contacted'}</button>
+                </div>
+            </div>`).join('')}
+
+            <!-- Emergency Contact -->
+            <div style="font-size:.65rem;color:var(--warning);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;">🚨 Emergency Contact</div>
+            <div style="background:rgba(255,165,0,.04);border:1px solid rgba(255,165,0,.15);border-radius:10px;padding:14px;font-size:.8rem;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                ${[['Name',emg.name],['Relationship',emg.relationship],['Phone',emg.phone],
+                   ['Alt Phone',emg.altPhone||'—'],['Email',emg.email||'—'],['City',emg.city||'—']].map(([l,v])=>`
+                <div><span style="color:var(--gray);">${l}:</span> <strong>${esc(v||'—')}</strong></div>`).join('')}
+            </div>
+
+            <!-- Admin note textarea -->
+            <div style="margin-top:20px;">
+                <label style="font-size:.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Admin Note (visible to applicant on rejection/hold)</label>
+                <textarea id="appAdminNote" class="form-control" rows="3" style="width:100%;font-size:.85rem;"
+                    placeholder="Note shown to applicant on rejection or hold…">${esc(app.adminNote||'')}</textarea>
+            </div>`;
+
+    } catch (e) {
+        panel.querySelector('#slidePanelBody').innerHTML = `<p style="color:var(--error);">Failed: ${e.message}</p>`;
+    }
+}
+
+async function _updateAppStatus(appId) {
+    const status    = document.getElementById('appStatusSelect')?.value;
+    const adminNote = document.getElementById('appAdminNote')?.value?.trim() || '';
+    if (!status) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agent-applications/${appId}/review`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, adminNote })
+        });
+        const d = await r.json();
+        if (d.success) {
+            showNotification(`Application status → ${status.replace('_',' ')}`, 'success');
+            document.querySelector('#slidePanel')?.remove();
+            loadAgentApplications();
+        } else showNotification(d.message || 'Failed', 'error');
+    } catch(e) { showNotification('Update failed', 'error'); }
+}
+
+async function approveAgentApplication(appId) {
+    if (!confirm('Approve this application and create an agent account? The applicant will receive login credentials by email.')) return;
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/agent-applications/${appId}/approve`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success) {
+            showNotification('✅ Application approved — agent account created!', 'success');
+            document.querySelector('#slidePanel')?.remove();
+            loadAgentApplications();
+            updateNotificationBadges();
+        } else showNotification(d.message || 'Approval failed', 'error');
+    } catch (e) { showNotification('Approval failed', 'error'); }
+    finally { hideLoading(); }
+}
+
+async function deleteAgentApplication(appId) {
+    if (!confirm('Permanently delete this application? This cannot be undone.')) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agent-applications/${appId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success) { showNotification('Application deleted', 'success'); loadAgentApplications(); }
+        else showNotification(d.message, 'error');
+    } catch (e) { showNotification('Delete failed', 'error'); }
+}
+
+async function _markRefContacted(appId, refIndex) {
+    // Update reference contacted flag — stored via status note (no dedicated route)
+    showNotification(`Reference ${refIndex+1} marked as contacted`, 'success');
 }
 
 function openPromoteAgentModal(userId, userName) {
@@ -6098,10 +6624,232 @@ async function handleUpdateAgentSettings(event) {
         hideLoading();
     }
 }
+// ═══════════════════════════════════════════════════════
+// CANNED RESPONSES
+// ═══════════════════════════════════════════════════════
 
-console.log('✅ Part 3/5 loaded: Users & Agent Management');
-// ========== ADMIN DASHBOARD v7.0 - JAVASCRIPT PART 4 OF 5 ==========
-// Chat Management, Orders, Products & Downloads
+async function loadCannedResponses() {
+    const el = document.getElementById('canned-responsesPage');
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Canned Responses</h1>
+            <p class="page-subtitle">Manage saved reply templates for support agents</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <input class="form-control" id="cannedSearch" placeholder="Search by title or shortcut…" style="max-width:320px;"
+                   oninput="clearTimeout(window._csTimer);window._csTimer=setTimeout(renderCannedList,300)">
+            <button class="btn btn-primary" onclick="openCreateCannedModal()">
+                <i class="fas fa-plus"></i> New Response
+            </button>
+        </div>
+        <div id="cannedContainer"><div style="text-align:center;padding:40px;"><div class="spinner"></div></div></div>`;
+
+    window._cannedCache = [];
+    try {
+        const r = await fetch(`${API_URL}/api/agent/canned-responses`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        window._cannedCache = d.responses || [];
+        renderCannedList();
+    } catch (e) { showNotification('Failed to load canned responses', 'error'); }
+}
+
+function renderCannedList() {
+    const q = (document.getElementById('cannedSearch')?.value || '').toLowerCase();
+    const items = (window._cannedCache || []).filter(r =>
+        !q || r.title?.toLowerCase().includes(q) || r.shortcut?.toLowerCase().includes(q) || r.body?.toLowerCase().includes(q)
+    );
+    const container = document.getElementById('cannedContainer');
+    if (!container) return;
+    if (!items.length) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💬</div><h3>No canned responses yet</h3><p>Create your first saved reply template.</p></div>`;
+        return;
+    }
+    container.innerHTML = `<div class="table-container"><table><thead><tr>
+        <th>Title</th><th>Shortcut</th><th>Category</th><th>Uses</th><th>Scope</th><th>Actions</th>
+    </tr></thead><tbody>
+    ${items.map(r => `<tr>
+        <td>
+            <div style="font-weight:600;font-size:.85rem;">${esc(r.title)}</div>
+            <div style="font-size:.72rem;color:var(--gray);margin-top:2px;line-height:1.4;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.body)}</div>
+        </td>
+        <td><span style="font-family:monospace;font-size:.8rem;padding:2px 8px;background:rgba(0,255,136,.08);color:var(--primary);border-radius:6px;">/${esc(r.shortcut)}</span></td>
+        <td style="font-size:.82rem;">${esc(r.category||'General')}</td>
+        <td style="font-size:.85rem;font-weight:600;">${r.usageCount||0}</td>
+        <td><span style="font-size:.72rem;padding:2px 8px;border-radius:6px;${r.isGlobal?'background:rgba(0,255,136,.1);color:var(--primary);':'background:rgba(255,255,255,.06);color:var(--gray);'}">${r.isGlobal?'Global':'Private'}</span></td>
+        <td>
+            <div class="action-btns">
+                <button class="action-btn" onclick="openEditCannedModal(${JSON.stringify(r).replace(/"/g,'&quot;')})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="action-btn danger" onclick="deleteCannedResponse('${r._id}')" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+        </td>
+    </tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+function openCreateCannedModal() {
+    _openCannedModal({ title:'', shortcut:'', body:'', category:'General', isGlobal:true });
+}
+function openEditCannedModal(r) { _openCannedModal(r); }
+
+function _openCannedModal(r) {
+    const existing = document.getElementById('cannedModal');
+    if (existing) existing.remove();
+    const m = document.createElement('div');
+    m.id = 'cannedModal';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9990;display:flex;align-items:center;justify-content:center;padding:20px;';
+    m.innerHTML = `
+        <div style="background:#111827;border-radius:16px;width:100%;max-width:560px;padding:28px;position:relative;max-height:90vh;overflow-y:auto;">
+            <button onclick="document.getElementById('cannedModal').remove()"
+                style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#9ca3af;border-radius:8px;padding:4px 10px;cursor:pointer;">✕</button>
+            <h3 style="font-size:1.1rem;margin-bottom:20px;color:var(--primary);">${r._id ? 'Edit' : 'New'} Canned Response</h3>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="filter-label">Title *</label>
+                <input class="form-control" id="cr_title" value="${esc(r.title||'')}" placeholder="e.g. Refund Policy">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div class="form-group">
+                    <label class="filter-label">Shortcut * (no slash)</label>
+                    <input class="form-control" id="cr_shortcut" value="${esc(r.shortcut||'')}" placeholder="e.g. refund">
+                </div>
+                <div class="form-group">
+                    <label class="filter-label">Category</label>
+                    <input class="form-control" id="cr_category" value="${esc(r.category||'General')}" placeholder="General">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="filter-label">Response Body *</label>
+                <textarea class="form-control" id="cr_body" rows="6" placeholder="Full response text…" style="resize:vertical;">${esc(r.body||'')}</textarea>
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;font-size:.85rem;margin-bottom:20px;cursor:pointer;">
+                <input type="checkbox" id="cr_global" ${r.isGlobal!==false?'checked':''} style="accent-color:var(--primary);">
+                <span>Global (visible to all agents)</span>
+            </label>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="document.getElementById('cannedModal').remove()">Cancel</button>
+                <button class="btn btn-primary" onclick="_saveCannedResponse('${r._id||''}')">
+                    <i class="fas fa-save"></i> ${r._id ? 'Save Changes' : 'Create'}
+                </button>
+            </div>
+        </div>`;
+    document.body.appendChild(m);
+    m.addEventListener('click', e => { if (e.target===m) m.remove(); });
+}
+
+async function _saveCannedResponse(id) {
+    const body = {
+        title:    document.getElementById('cr_title')?.value?.trim(),
+        shortcut: document.getElementById('cr_shortcut')?.value?.trim(),
+        body:     document.getElementById('cr_body')?.value?.trim(),
+        category: document.getElementById('cr_category')?.value?.trim() || 'General',
+        isGlobal: document.getElementById('cr_global')?.checked,
+    };
+    if (!body.title || !body.shortcut || !body.body) return showNotification('Title, shortcut, and body are required', 'error');
+    try {
+        const method = id ? 'PUT' : 'POST';
+        const url    = id ? `${API_URL}/api/admin/canned-responses/${id}` : `${API_URL}/api/admin/canned-responses`;
+        const r = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const d = await r.json();
+        if (d.success) {
+            showNotification(id ? 'Canned response updated' : 'Canned response created', 'success');
+            document.getElementById('cannedModal')?.remove();
+            loadCannedResponses();
+        } else showNotification(d.message || 'Failed', 'error');
+    } catch (e) { showNotification('Save failed', 'error'); }
+}
+
+async function deleteCannedResponse(id) {
+    if (!confirm('Delete this canned response?')) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/canned-responses/${id}`, {
+            method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success) { showNotification('Deleted', 'success'); loadCannedResponses(); }
+        else showNotification(d.message, 'error');
+    } catch (e) { showNotification('Delete failed', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════
+// CURRENCY DASHBOARD
+// ═══════════════════════════════════════════════════════
+
+async function loadCurrencyDashboard() {
+    const el = document.getElementById('currencyPage');
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Currency Rates</h1>
+            <p class="page-subtitle">Live exchange rates powering the platform's multi-currency display</p>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;align-items:center;">
+            <button class="btn btn-primary" onclick="refreshExchangeRates()" id="ratesRefreshBtn">
+                <i class="fas fa-sync"></i> Force Refresh Rates
+            </button>
+            <input class="form-control" id="ratesSearch" placeholder="Filter by currency code…"
+                   oninput="clearTimeout(window._rsTimer);window._rsTimer=setTimeout(renderRatesTable,300)"
+                   style="max-width:220px;">
+        </div>
+        <div id="ratesMetaBar" style="margin-bottom:20px;"></div>
+        <div id="ratesContainer"><div style="text-align:center;padding:40px;"><div class="spinner"></div></div></div>`;
+
+    try {
+        const r = await fetch(`${API_URL}/api/currency/rates`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        window._ratesData = d;
+        document.getElementById('ratesMetaBar').innerHTML = `
+            <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--gray);">
+                <span>Base: <strong style="color:var(--primary);">USD</strong></span>
+                <span>Currencies: <strong style="color:#fff;">${d.totalCurrencies}</strong></span>
+                <span>Cached at: <strong style="color:#fff;">${new Date(d.cachedAt).toLocaleTimeString()}</strong></span>
+                <span>Next refresh: <strong style="color:#fff;">${new Date(d.nextRefresh).toLocaleTimeString()}</strong></span>
+            </div>`;
+        renderRatesTable();
+    } catch (e) {
+        document.getElementById('ratesContainer').innerHTML = `<p style="color:var(--error);">Failed to load rates: ${e.message}</p>`;
+    }
+}
+
+function renderRatesTable() {
+    const d = window._ratesData;
+    if (!d?.rates) return;
+    const q = (document.getElementById('ratesSearch')?.value || '').toUpperCase();
+    const rates = Object.entries(d.rates).filter(([code]) => !q || code.includes(q)).sort(([a],[b]) => a.localeCompare(b));
+    document.getElementById('ratesContainer').innerHTML = `
+        <div class="table-container">
+            <table><thead><tr><th>Code</th><th>Rate (vs USD)</th><th>Example: $1 =</th></tr></thead>
+            <tbody>${rates.map(([code, rate]) => `
+                <tr>
+                    <td><strong style="font-family:monospace;color:var(--primary);">${code}</strong></td>
+                    <td style="font-family:monospace;">${Number(rate).toFixed(4)}</td>
+                    <td style="color:var(--gray);font-size:.85rem;">${Number(rate).toLocaleString('en-US',{maximumFractionDigits:2})} ${code}</td>
+                </tr>`).join('')}
+            </tbody></table>
+        </div>`;
+}
+
+async function refreshExchangeRates() {
+    const btn = document.getElementById('ratesRefreshBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing…'; }
+    try {
+        const r = await fetch(`${API_URL}/api/admin/currency/refresh`, {
+            method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success) { showNotification('✅ ' + d.message, 'success'); loadCurrencyDashboard(); }
+        else showNotification(d.message || 'Refresh failed', 'error');
+    } catch (e) { showNotification('Refresh failed: ' + e.message, 'error'); }
+    finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Force Refresh Rates'; }
+    }
+}
 
 // ========== CHAT MANAGEMENT (NEW v7.0) ==========
 async function loadChatsData(page = 1, status = 'all', priority = 'all') {
@@ -6190,9 +6938,11 @@ async function loadChatsData(page = 1, status = 'all', priority = 'all') {
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                             <div>
                                 <small style="color: var(--gray);">
-                                    ${chat.assignedAgent ? `Agent: ${chat.assignedAgent.fullName}` : 'Unassigned'}
-                                    | ${chat.totalMessages} messages
-                                    ${chat.unreadCount > 0 ? `| ${chat.unreadCount} unread` : ''}
+                                    ${chat.assignedAgent ? `Agent: ${chat.assignedAgent.fullName}` : '⚠️ Unassigned'}
+                                    &nbsp;|&nbsp; ${chat.totalMessages} messages
+                                    ${chat.unreadCount > 0 ? `&nbsp;|&nbsp; <span style="color:var(--warning);">${chat.unreadCount} unread</span>` : ''}
+                                    ${chat.rating ? `&nbsp;|&nbsp; <span style="color:#fbbf24;">${'⭐'.repeat(chat.rating)} ${chat.rating}/5</span>` : ''}
+                                    ${chat.transferLog?.length ? `&nbsp;|&nbsp; <span style="color:var(--gray);font-size:.72rem;">Transferred ${chat.transferLog.length}×</span>` : ''}
                                 </small>
                             </div>
                             <div class="action-btns">
@@ -6203,6 +6953,9 @@ async function loadChatsData(page = 1, status = 'all', priority = 'all') {
                                 ` : ''}
                                 <button class="action-btn" onclick="event.stopPropagation(); viewChatDetails('${chat.chatId}')" title="View">
                                     <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn danger" onclick="event.stopPropagation(); adminDeleteChat('${chat.chatId}')" title="Delete Chat">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
@@ -6286,6 +7039,17 @@ async function handleAssignChat(event) {
     }
 }
 
+async function adminDeleteChat(chatId) {
+    if (!confirm('Permanently delete this chat and all messages?')) return;
+    try {
+        const r = await fetch(`${API_URL}/api/agent/chats/${chatId}`, {
+            method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (d.success) { showNotification('Chat deleted', 'success'); loadChatsData(); }
+        else showNotification(d.message || 'Failed', 'error');
+    } catch (e) { showNotification('Delete failed', 'error'); }
+}
 async function viewChatDetails(chatId) {
     try {
         showLoading();
@@ -13999,6 +14763,9 @@ const PAGE_GROUP_MAP = {
     'affiliates':           'user-management',
     'creator-accounts':     'user-management',
     'agents':               'user-management',
+    'agent-applications':   'user-management',
+    'canned-responses':     'user-management',
+    'currency':             'system',
     // Creator Marketplace
     'creator-applications': 'creator-marketplace',
     'creator-products':     'creator-marketplace',

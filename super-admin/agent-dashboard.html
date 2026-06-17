@@ -7235,9 +7235,11 @@ async loadAnalytics() {
         const timeRange = document.getElementById('analyticsTimeRange')?.value || 'week';
         
         const data = await api.get(`/api/agent/analytics?timeRange=${timeRange}`);
-        
+
         if (data.success && data.analytics) {
             this.renderAnalytics(data.analytics);
+        } else if (data.success === false) {
+            ui.showError('Analytics error: ' + (data.message || 'Unknown error'));
         }
     } catch (error) {
         debugLog('error', 'Failed to load analytics', error);
@@ -7251,24 +7253,24 @@ async loadAnalytics() {
  * Render analytics data
  */
 renderAnalytics(analytics) {
-    // Update metrics
-    if (document.getElementById('metricTotalConvos')) {
-        document.getElementById('metricTotalConvos').textContent = analytics.totalChats || 0;
-    }
-    if (document.getElementById('metricMessagesSent')) {
-        document.getElementById('metricMessagesSent').textContent = analytics.totalMessages || 0;
-    }
-    if (document.getElementById('metricFirstResponse')) {
-        document.getElementById('metricFirstResponse').textContent = analytics.avgResponseTime || '0min';
-    }
-    if (document.getElementById('metricResolutionRate')) {
-        document.getElementById('metricResolutionRate').textContent = analytics.resolutionRate || '0%';
-    }
-    
-    // Render daily breakdown chart if available
-    if (analytics.dailyBreakdown && analytics.dailyBreakdown.length > 0) {
-        this.renderAnalyticsChart(analytics.dailyBreakdown);
-    }
+    const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+
+    // Flat fields (server now always returns these)
+    set('metricTotalConvos',    analytics.totalChats      || analytics.chats?.total       || 0);
+    set('metricMessagesSent',   analytics.totalMessages   || analytics.chats?.agentMessages|| 0);
+    set('metricFirstResponse',  analytics.avgResponseTime || (analytics.chats?.avgResponseTime != null ? analytics.chats.avgResponseTime + 'min' : '0min'));
+    set('metricResolutionRate', analytics.resolutionRate  || (analytics.chats?.resolutionRate != null ? analytics.chats.resolutionRate + '%' : '0%'));
+
+    // Ticket stats if elements exist
+    set('metricTicketsTotal',    analytics.tickets?.total    || 0);
+    set('metricTicketsResolved', analytics.tickets?.resolved || 0);
+
+    // Daily chart
+    const breakdown = analytics.dailyBreakdown || analytics.dailySeries?.map(d => ({ date: d._id, total: d.total, resolved: d.resolved })) || [];
+    if (breakdown.length > 0) this.renderAnalyticsChart(breakdown);
 }
 
 /**
