@@ -7050,10 +7050,13 @@ async function adminDeleteChat(chatId) {
         else showNotification(d.message || 'Failed', 'error');
     } catch (e) { showNotification('Delete failed', 'error'); }
 }
+
 async function viewChatDetails(chatId) {
     try {
         showLoading();
-        const response = await fetch(`${API_URL}/api/chat/${chatId}`);
+        const response = await fetch(`${API_URL}/api/chat/${chatId}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+        });
         const data = await response.json();
 
         if (data.success) {
@@ -7068,14 +7071,35 @@ async function viewChatDetails(chatId) {
                         ${chat.assignedAgent ? `<br>Agent: ${chat.assignedAgent.fullName}` : ''}
                     </p>
                 </div>
-                <div class="chat-messages">
-                    ${chat.messages.map(msg => `
-                        <div class="chat-message ${msg.sender}">
-                            <div class="message-sender">${msg.senderName || msg.sender}</div>
-                            <div class="message-text">${msg.message}</div>
-                            <div class="message-time">${new Date(msg.timestamp).toLocaleString()}</div>
-                        </div>
-                    `).join('')}
+                <div class="chat-messages" style="max-height:460px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+                    ${(chat.messages || []).filter(m => !m.isInternal).map(msg => {
+                        const isAgent    = msg.sender === 'agent';
+                        const isSystem   = msg.sender === 'system';
+                        const bubbleColor = isSystem
+                            ? 'rgba(255,255,255,.05)'
+                            : isAgent
+                            ? 'rgba(0,255,136,.1)'
+                            : 'rgba(255,255,255,.07)';
+                        const align = isSystem ? 'center' : isAgent ? 'flex-end' : 'flex-start';
+                        const time  = msg.timestamp ? fmtDateTime(msg.timestamp) : '';
+                        // Render image attachments
+                        const attachHTML = (msg.attachments || []).map(a => {
+                            if (a.resourceType === 'image' || a.fileType?.startsWith('image/')) {
+                                return `<a href="${esc(a.url)}" target="_blank"><img src="${esc(a.thumbnailUrl||a.url)}" style="max-width:180px;border-radius:8px;margin-top:6px;display:block;" alt="${esc(a.filename||'img')}"></a>`;
+                            }
+                            return `<a href="${esc(a.url)}" target="_blank" style="display:block;margin-top:6px;color:var(--primary);font-size:.8rem;"><i class="fas fa-file"></i> ${esc(a.filename||'File')}</a>`;
+                        }).join('');
+                        return `
+                        <div style="display:flex;flex-direction:column;align-items:${align};gap:2px;">
+                            ${!isSystem ? `<span style="font-size:.68rem;color:var(--gray);padding:0 4px;">${esc(msg.senderName||msg.sender)}</span>` : ''}
+                            <div style="background:${bubbleColor};border-radius:10px;padding:9px 13px;max-width:75%;font-size:.85rem;line-height:1.5;border:1px solid rgba(255,255,255,.06);">
+                                ${msg.message ? esc(msg.message) : ''}
+                                ${attachHTML}
+                            </div>
+                            ${time ? `<span style="font-size:.65rem;color:var(--gray);padding:0 4px;">${time}</span>` : ''}
+                        </div>`;
+                    }).join('')}
+                    ${(chat.messages||[]).length === 0 ? '<p style="color:var(--gray);text-align:center;padding:20px;">No messages in this chat.</p>' : ''}
                 </div>
             `;
             openModal('viewChatModal');

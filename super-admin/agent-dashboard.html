@@ -3222,10 +3222,15 @@ body {
                         <div class="chat-messages" id="chatMessages">
                             <!-- Messages will be inserted here -->
                         </div>
-                        <div class="chat-input-area">
-                            <button class="attachment-btn" id="attachmentBtn" title="Attach File">
+                       <div class="chat-input-area">
+                            <button class="attachment-btn" id="attachmentBtn" title="Attach File" type="button">
                                 <i class="fas fa-paperclip"></i>
                             </button>
+                            <!-- Hidden file input triggered by attachment button -->
+                            <input type="file" id="agentFileInput" multiple
+                                   accept="image/*,.pdf,.doc,.docx,.txt,.zip"
+                                   style="display:none;"
+                                   onchange="app.handleAgentFileSelect(event)">
                             <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
                             <button class="send-btn" id="sendMessageBtn">
                                 <i class="fas fa-paper-plane"></i>
@@ -5496,11 +5501,22 @@ async init() {
      * Setup chat event listeners
      */
     setupChatListeners() {
-        const sendBtn = document.getElementById('sendMessageBtn');
-        const chatInput = document.getElementById('chatInput');
+        const sendBtn      = document.getElementById('sendMessageBtn');
+        const chatInput    = document.getElementById('chatInput');
+        const attachBtn    = document.getElementById('attachmentBtn');
+        const fileInput    = document.getElementById('agentFileInput');
 
         if (sendBtn) {
             sendBtn.addEventListener('click', () => this.sendChatMessage());
+        }
+
+        // Wire upload button → trigger hidden file input
+        if (attachBtn && fileInput) {
+            attachBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.click();
+            });
         }
 
         if (chatInput) {
@@ -6805,24 +6821,15 @@ async sendChatMessage() {
         // 🎯 FIX #2: Send via API
         const response = await api.sendMessage(chatId, messageData);
 
-        if (response.success) {
-            // Update the temporary message with real ID and delivered status
-            this.updateMessageStatus('temp-' + Date.now(), {
-                _id: response.message?._id,
-                status: 'delivered'
+       if (response.success) {
+            // Update the optimistic bubble — tempId was 'temp-' + timestamp before send
+            const tempId = 'temp-' + (Date.now() - 1); // approximate — status update
+            this.updateMessageStatus(tempId, {
+                _id:    response.messageData?.messageId || response.messageId,
+                status: 'sent',
             });
-
-            // Send via WebSocket new_message type (server saves + broadcasts)
-            if (wsService.isConnected) {
-                wsService.send({
-                    type:        'new_message',
-                    chatId,
-                    message,
-                    messageType: 'text',
-                    tempId:      'temp-' + Date.now(),
-                });
-            }
-
+            // DO NOT send via WS — server already broadcasts new_message to all room members
+            // Sending via WS again causes the customer to see the message twice
             debugLog('info', 'Message sent successfully');
         } else {
             throw new Error(response.message || 'Failed to send message');
@@ -6845,26 +6852,105 @@ async sendChatMessage() {
  * @param {object} data - Message data
  */
 handleIncomingMessage(data) {
-    console.log('📨 Received message:', data);
+    // Normalise — server sends message as nested object or flat
+    const raw = (data.message && typeof data.message === 'object') ? data.message : data;
+    const msgId    = raw.messageId || raw._id || data.messageId;
+    const chatId   = data.chatId   || raw.chatId;
+    const sender   = raw.sender    || data.sender    || 'customer';
+    const msgText  = raw.message   || data.content   || '';
+    const senderName = raw.senderName || data.senderName || (sender === 'customer' ? 'Customer' : 'Agent');
+    const timestamp  = raw.timestamp  || data.timestamp  || new Date();
 
-    // Check if it's for current chat
+    // Only handle if for the currently open chat
     const currentChatId = getChatId(app.currentChat);
-    if (data.chatId !== currentChatId) {
-        console.log('Message for different chat');
+    if (chatId !== currentChatId) {
+        // Not the open chat — just bump unread badge
+        this.updateQueueBadge?.();
         return;
     }
 
-    // Display the message
-    appendMessageToChat({
-        messageId: data.messageId || data.message?._id,
-        sender: data.sender || data.message?.sender,
-        senderName: data.senderName || data.message?.senderName,
-        message: data.message?.message || data.message,
-        timestamp: data.timestamp || data.message?.timestamp || new Date()
+    // Dedup — skip if we already rendered this message (e.g. our own optimistic bubble)
+    if (msgId && document.querySelector(`[data-message-id="${msgId}"]`)) return;
+
+    // Skip internal notes (agents-only, not for customer view)
+    if (raw.isInternal) return;
+
+    // Use addMessageToUI (class method) — renders into the open modal correctly
+    this.addMessageToUI({
+        _id:        msgId,
+        messageId:  msgId,
+        sender,
+        senderName,
+        message:    msgText,
+        attachments: raw.attachments || [],
+        timestamp,
+        status:     raw.status || 'delivered',
     });
+
+    // Play notification sound for incoming customer messages
+    if (sender === 'customer') this._playAlert?.();
 }
 
 
+async handleAgentFileSelect(event) {
+        const files = Array.from(event.target.files);
+        if (!files.length || !this.currentChat) return;
+
+        const chatId = getChatId(this.currentChat);
+        const userId = this.currentUser.id || this.currentUser._id;
+
+        // Show uploading indicator
+        this.addMessageToUI({
+            sender:    'agent',
+            senderName: this.currentUser.fullName || 'Agent',
+            message:   `📎 Uploading ${files.length} file(s)…`,
+            timestamp: new Date(),
+            status:    'sending',
+            _id:       'upload-temp-' + Date.now(),
+        });
+
+        try {
+            const formData = new FormData();
+            files.forEach(f => formData.append('files', f));
+
+            const uploadRes = await api.uploadFile(formData);
+            if (!uploadRes.success) throw new Error(uploadRes.message || 'Upload failed');
+
+            // Remove uploading indicator
+            const tempEl = document.querySelector('[data-message-id="upload-temp-' + Date.now() + '"]');
+            if (tempEl) tempEl.remove();
+
+            // Send message with attachments
+            const msgRes = await api.sendMessage(chatId, {
+                sender:      'agent',
+                senderId:    userId,
+                senderName:  this.currentUser.fullName || 'Agent',
+                message:     '',
+                messageType: 'image',
+                attachments: uploadRes.files,
+            });
+
+            if (msgRes.success) {
+                this.addMessageToUI({
+                    sender:      'agent',
+                    senderName:  this.currentUser.fullName || 'Agent',
+                    message:     '',
+                    attachments: uploadRes.files,
+                    timestamp:   new Date(),
+                    status:      'sent',
+                    _id:         msgRes.messageData?.messageId || ('sent-' + Date.now()),
+                });
+                ui.showSuccess(`${files.length} file(s) sent`);
+            } else {
+                throw new Error(msgRes.message || 'Send failed');
+            }
+        } catch (err) {
+            ui.showError('Upload failed: ' + err.message);
+        } finally {
+            // Reset file input so same file can be selected again
+            event.target.value = '';
+        }
+    }
     /**
      * Handle end chat
      */
