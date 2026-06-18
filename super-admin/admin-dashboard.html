@@ -3191,6 +3191,7 @@ tr:hover {
                     <div class="nav-item" data-page="blog">
                         <i class="fas fa-feather-alt"></i>
                         <span>Blog</span>
+                        <span class="nav-badge" id="pendingBlogCommentsBadge" style="display:none;background:rgba(255,165,0,.2);color:#ffa500;">0</span>
                     </div>
                     <div class="nav-item" data-page="products">
                         <i class="fas fa-box"></i>
@@ -3820,14 +3821,23 @@ tr:hover {
     <!-- ── TITLE ── -->
     <div class="form-group">
       <label class="form-label">Title *</label>
-      <input type="text" class="form-input" id="blogTitle" required
+     <input type="text" class="form-input" id="blogTitle" required
         oninput="autoSlug(this.value)" placeholder="Enter post title">
     </div>
  
     <!-- ── SLUG ── -->
     <div class="form-group">
-      <label class="form-label">Slug (auto-generated)</label>
-      <input type="text" class="form-input" id="blogSlug" placeholder="auto-slug-from-title">
+      <label class="form-label">
+        Slug (auto-generated)
+        <span id="slugEditWarning" style="display:none;color:#ffa500;font-size:.72rem;font-weight:400;margin-left:8px;">
+          <i class="fas fa-triangle-exclamation"></i> Changing this will break the post's current public URL
+        </span>
+      </label>
+      <input type="text" class="form-input" id="blogSlug" placeholder="auto-slug-from-title"
+        oninput="_slugManuallyEdited = true; if (_blogEditMode) document.getElementById('slugEditWarning').style.display = 'inline'; checkSlugCollision(this.value);">
+      <p id="slugCollisionWarning" style="display:none;color:#ffa500;font-size:.75rem;margin-top:6px;">
+        <i class="fas fa-triangle-exclamation"></i> A post with this slug already exists — a unique suffix will be added automatically on save.
+      </p>
     </div>
  
     <!-- ── EXCERPT ── -->
@@ -3925,6 +3935,11 @@ tr:hover {
         <span id="viewPostTitle">Post Viewer</span>
       </h2>
       <div style="display:flex;gap:8px;align-items:center;">
+        <a id="viewLiveLink" href="#" target="_blank" rel="noopener"
+          class="btn" style="display:none;padding:7px 16px;font-size:.8rem;
+                              background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.25);color:#00ff88;">
+          <i class="fas fa-arrow-up-right-from-square"></i> View Live
+        </a>
         <button class="btn btn-primary" style="padding:7px 16px;font-size:.8rem;"
           onclick="viewPostSwitchToEdit()">
           <i class="fas fa-edit"></i> Edit Post
@@ -8646,7 +8661,10 @@ function removeCcModals() {
 }
 
 // ========== BLOG MANAGEMENT ==========
+let _currentBlogStatusFilter = 'all'; // remembers the active filter across reloads (audit 2.2)
+
 async function loadBlogData(status = 'all') {
+    _currentBlogStatusFilter = status;
     const blogPage = document.getElementById('blogPage');
     
     blogPage.innerHTML = `
@@ -8684,7 +8702,7 @@ async function loadBlogData(status = 'all') {
                     </tr>
                 </thead>
                 <tbody id="blogTable">
-                    <tr><td colspan="9" style="text-align:center;padding:30px;">
+                    <tr><td colspan="5" style="text-align:center;padding:30px;">
                         <i class="fas fa-spinner fa-spin" style="color:#00ff88;font-size:1.4rem;"></i>
                     </td></tr>
                 </tbody>
@@ -8705,9 +8723,10 @@ async function loadBlogData(status = 'all') {
         if (data.success) {
             const tbody = document.getElementById('blogTable');
             const posts = data.posts || [];
+            _lastLoadedBlogPosts = posts; // cache for client-side slug collision checks
             
             if (!posts.length) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#555;">No posts found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#555;">No posts found</td></tr>';
                 return;
             }
             
@@ -8788,6 +8807,8 @@ function openCreateBlogModal() {
   document.getElementById('blogCategory').value = 'Technology';
   document.getElementById('blogStatus').value   = 'draft';
   clearImageSelection();
+  _slugManuallyEdited = false;
+  document.getElementById('slugEditWarning').style.display = 'none';
  
   openModal('createBlogModal');
 }
@@ -8815,15 +8836,39 @@ function openEditBlogModal(post) {
   if (post.featuredImage) showUrlPreview(post.featuredImage);
   else clearImageSelection();
  
+  _slugManuallyEdited = false;
+  document.getElementById('slugEditWarning').style.display = 'none';
+ 
   openModal('createBlogModal');
 }
 
-/* Auto-generate slug from title */
+/* Auto-generate slug from title — but never silently rewrite an existing
+   post's slug once it's published, and never override a slug the admin
+   has deliberately typed themselves (audit 2.1). */
+let _slugManuallyEdited = false;
+
 function autoSlug(title) {
+  // In edit mode, only auto-fill the slug if it's currently empty —
+  // an existing post already has a real slug that may be live and linked to.
+  if (_blogEditMode && document.getElementById('blogSlug').value.trim()) return;
+  if (_slugManuallyEdited) return;
+
   document.getElementById('blogSlug').value = title.toLowerCase().trim()
     .replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,100);
 }
  
+/* Warn (non-blocking) if the typed slug collides with another post already
+   loaded in the table — checked against in-memory data, no extra network call. */
+let _lastLoadedBlogPosts = [];
+
+function checkSlugCollision(slug) {
+  const warning = document.getElementById('slugCollisionWarning');
+  if (!warning) return;
+  const editId = document.getElementById('blogEditId').value;
+  const collides = _lastLoadedBlogPosts.some(p => p.slug === slug.trim() && p._id !== editId);
+  warning.style.display = (slug.trim() && collides) ? 'block' : 'none';
+}
+
 /* Preview image from file input */
 function previewBlogImage(input) {
   const file = input.files[0];
@@ -8980,7 +9025,7 @@ async function handleCreateBlogPost() {
     if (data.success) {
       showNotification(_blogEditMode ? 'Post updated!' : 'Blog post created!', 'success');
       closeModal('createBlogModal');
-      loadBlogData();
+      loadBlogData(_currentBlogStatusFilter);
     } else {
       showNotification(data.message || 'Operation failed.', 'error');
     }
@@ -13245,17 +13290,19 @@ async function refreshCreatorBadges() {
         if (!d.success) return;
         const o = d.dashboard.overview;
         const sets = [
-            ['pendingCreatorsBadge',  o.pendingCreators || 0],
-            ['pendingProductsBadge',  o.pendingCreatorProducts || 0],
-            ['pendingPayoutsBadge',   o.pendingPayouts || 0],
+            ['pendingCreatorsBadge',      o.pendingCreators || 0],
+            ['pendingProductsBadge',      o.pendingCreatorProducts || 0],
+            ['pendingPayoutsBadge',       o.pendingPayouts || 0],
+            ['pendingBlogCommentsBadge',  o.pendingBlogComments || 0],
         ];
         sets.forEach(([id, count]) => {
             const el = document.getElementById(id);
             if (el) { el.textContent = count; el.style.display = count > 0 ? 'inline' : 'none'; }
         });
+        syncGroupBadges();
     } catch(e) { /* silent */ }
 }
-
+ 
 setInterval(refreshCreatorBadges, 60000);
 
 console.log('✅ Creator Marketplace Module v2.0 Loaded');
@@ -13996,6 +14043,15 @@ async function openViewPost(postId) {
         ${p.status}
       </span>`;
  
+    // "View Live" link — only shown for published posts, since drafts/archived have no public URL
+    const liveLink = document.getElementById('viewLiveLink');
+    if (p.status === 'published' && p.slug) {
+      liveLink.href = `https://www.uyehtech.com/blog/post?slug=${encodeURIComponent(p.slug)}`;
+      liveLink.style.display = 'inline-flex';
+    } else {
+      liveLink.style.display = 'none';
+    }
+
     // Image
     const imgWrap = document.getElementById('viewPostImgWrap');
     if (p.featuredImage) {
@@ -14847,6 +14903,7 @@ function syncGroupBadges() {
     const groupBadgeMap = {
         'user-management':      ['pendingAgentsBadge', 'totalAffiliatesBadge'],
         'creator-marketplace':  ['pendingCreatorsBadge', 'pendingProductsBadge', 'pendingPayoutsBadge', 'pendingCouponsBadge'],
+        'services':             ['pendingBlogCommentsBadge'],
         'communication-center': ['openChatsBadge', 'openTicketsBadge'],
         'system':               ['criticalLogsBadge'],
     };
