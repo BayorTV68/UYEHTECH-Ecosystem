@@ -21,9 +21,9 @@
 <!-- ========== OPEN GRAPH / FACEBOOK ========== -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.uyehtech.com/blog/">
-<meta property="og:title" content="UYEH TECH - Professional Web Development & Digital Solutions">
-<meta property="og:description" content="UYEH TECH offers cutting-edge web development, mobile app development, UI/UX design, and digital marketing services. Transform your business with our expert solutions.">
-<meta property="og:image" content="https://www.uyehtech.com/images/og-image.jpg">
+<meta property="og:title" content="UYEH TECH Blog — Ideas, Tutorials & Tech Insights">
+<meta property="og:description" content="Deep dives into web development, design systems, digital marketing, and the technology shaping tomorrow — from the UYEH TECH team.">
+<meta property="og:image" content="https://www.uyehtech.com/images/blog-og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:site_name" content="UYEH TECH">
@@ -31,10 +31,10 @@
 
 <!-- ========== TWITTER CARD ========== -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://www.uyehtech.com/">
-<meta name="twitter:title" content="UYEH TECH - Professional Web Development & Digital Solutions">
-<meta name="twitter:description" content="UYEH TECH offers cutting-edge web development, mobile app development, UI/UX design, and digital marketing services.">
-<meta name="twitter:image" content="https://www.uyehtech.com/images/twitter-card.jpg">
+<meta name="twitter:url" content="https://www.uyehtech.com/blog/">
+<meta name="twitter:title" content="UYEH TECH Blog — Ideas, Tutorials & Tech Insights">
+<meta name="twitter:description" content="Deep dives into web development, design systems, digital marketing, and the technology shaping tomorrow.">
+<meta name="twitter:image" content="https://www.uyehtech.com/images/blog-og-image.jpg">
 <meta name="twitter:creator" content="@uyehtech">
 <meta name="twitter:site" content="@uyehtech">
 
@@ -112,18 +112,16 @@
   }
 }
 </script>
-
-    <!-- Performance & Optimization -->
+ 
+   <!-- Performance & Optimization -->
     <link rel="preload" href="styles.css" as="style">
     <link rel="stylesheet" href="styles.css">
     <script src="search.js" defer></script>
-    <!-- Optional: Canonical URL for SEO -->
-    <link rel="canonical" href="https://uyehtech.com">
 
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+     <script src="/site-controller.js" defer></script>
     <style>
 
 /* ========== NAVBAR ========== */
@@ -1554,6 +1552,8 @@ a.read-more, .post-card { cursor:pointer; }
     <button class="cat-tab" data-cat="News">News</button>
     <button class="cat-tab" data-cat="Development">Development</button>
     <button class="cat-tab" data-cat="Marketing">Marketing</button>
+    <button class="cat-tab" data-cat="Product">Product</button>
+    <button class="cat-tab" data-cat="Other">Other</button>
   </div>
 </div>
 
@@ -1627,12 +1627,16 @@ a.read-more, .post-card { cursor:pointer; }
 ════════════════════════════════════════════════════ -->
 <script>
 /* =============================================================
-   UYEH TECH Blog Section — JS v2.0  (nav-free drop-in)
+   UYEH TECH Blog Section — JS v3.0  (paginated, server-search aware)
 ============================================================= */
 const BLOG_API_URL = 'https://uyehtechbackend.onrender.com';
-let allPosts       = [];
-let currentCat     = 'all';
-let isSearching    = false;
+const PAGE_SIZE     = 20;
+let allPosts        = [];   // currently-loaded page(s) for the active category
+let currentCat      = 'all';
+let isSearching      = false;
+let currentSkip      = 0;
+let hasMorePosts     = false;
+let isLoadingMore     = false;
 
 /* ── Helpers ── */
 const $b = id => document.getElementById(id);
@@ -1666,29 +1670,30 @@ window.addEventListener('load', () => {
   }, 800);
 });
 
-/* ── Category tabs ── */
+/* ── Category tabs — now refetch from the server instead of filtering in-memory ── */
 document.querySelectorAll('.cat-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    currentCat = tab.dataset.cat;
+    currentCat  = tab.dataset.cat;
     isSearching = false;
     hideSearchStatus();
-    filterAndDisplay();
+    currentSkip = 0;
+    allPosts    = [];
+    $b('loadingState').style.display = 'block';
+    loadBlogPosts();
   });
 });
 
-/* ── Filter ── */
+/* ── Filter (display-only now; fetching already happened server-side) ── */
 function filterAndDisplay() {
-  let filtered = allPosts;
-  if (currentCat !== 'all') {
-    filtered = allPosts.filter(p => p.category === currentCat);
-  }
-  renderPosts(filtered);
+  renderPosts(allPosts);
 }
 
-/* ── Search ── */
-function runSearch(query) {
+/* ── Search — instant search over the currently-loaded page, then offer a full
+   site-wide search using the backend's dedicated /api/blog/search endpoint
+   (audit 4.2 — this endpoint existed and was previously unused) ── */
+async function runSearch(query) {
   if (!query) { clearSearch(); return; }
   isSearching = true;
   const q  = query.toLowerCase();
@@ -1698,7 +1703,6 @@ function runSearch(query) {
     let score = 0;
     const t   = (post.title||'').toLowerCase();
     const e   = (post.excerpt||'').toLowerCase();
-    const c   = (post.content||'').toLowerCase();
     const cat = (post.category||'').toLowerCase();
     const tags = (post.tags||[]).join(' ').toLowerCase();
     if (t === q)          score += 100;
@@ -1708,14 +1712,29 @@ function runSearch(query) {
     ws.forEach(w => {
       if(t.includes(w))   score += 10;
       if(e.includes(w))   score += 5;
-      if(c.includes(w))   score += 2;
       if(cat.includes(w)) score += 8;
     });
     return { post, score };
   }).filter(x => x.score > 0).sort((a,b) => b.score - a.score).map(x => x.post);
 
-  showSearchStatus(query, scored.length);
-  renderPosts(scored);
+  if (scored.length) {
+    showSearchStatus(query, scored.length);
+    renderPosts(scored);
+    return;
+  }
+
+  // Nothing matched on the currently-loaded page — fall back to a real
+  // server-side search across ALL published posts, not just what's loaded.
+  try {
+    const res  = await fetch(`${BLOG_API_URL}/api/blog/search?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    const results = (data.success && data.posts) ? data.posts : [];
+    showSearchStatus(query, results.length);
+    renderPosts(results);
+  } catch (_) {
+    showSearchStatus(query, 0);
+    renderPosts([]);
+  }
 }
 
 function clearSearch() {
@@ -1748,6 +1767,7 @@ function renderPosts(posts) {
     grid.innerHTML = '';
     showNoResults(isSearching ? 'No posts match your search.' : 'No posts in this category yet.');
     label.textContent = '';
+    renderLoadMoreButton();
     return;
   }
 
@@ -1764,6 +1784,40 @@ function renderPosts(posts) {
     grid.style.display = 'none';
     grid.innerHTML = '';
   }
+
+  renderLoadMoreButton();
+}
+
+/* ── Load more (server-side pagination, audit 4.1) ── */
+function renderLoadMoreButton() {
+  let btn = $b('loadMoreBtn');
+  // Hide entirely while searching — search results are a fixed batch, not paged
+  if (isSearching || !hasMorePosts) {
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'loadMoreBtn';
+    btn.className = 'cta-btn-ghost';
+    btn.style.cssText = 'display:block;margin:32px auto 0;';
+    btn.addEventListener('click', loadMorePosts);
+    $b('postsGrid').insertAdjacentElement('afterend', btn);
+  }
+  btn.style.display = 'inline-flex';
+  btn.disabled = isLoadingMore;
+  btn.innerHTML = isLoadingMore
+    ? '<i class="fas fa-spinner fa-spin"></i> Loading…'
+    : '<i class="fas fa-plus"></i> Load More Articles';
+}
+
+async function loadMorePosts() {
+  if (isLoadingMore || !hasMorePosts) return;
+  isLoadingMore = true;
+  renderLoadMoreButton();
+  currentSkip += PAGE_SIZE;
+  await loadBlogPosts(true);
+  isLoadingMore = false;
 }
 
 function showNoResults(msg) {
@@ -1877,30 +1931,43 @@ async function subscribeNewsletter() {
   }
 }
 
-/* ── Load posts ── */
-async function loadBlogPosts() {
+/* ── Load posts (paginated, category-aware server fetch — audit 4.1 / 4.2) ── */
+async function loadBlogPosts(isAppending = false) {
   try {
-    const res  = await fetch(`${BLOG_API_URL}/api/blog/posts?limit=100`);
+    const catParam = currentCat !== 'all' ? `&category=${encodeURIComponent(currentCat)}` : '';
+    const res  = await fetch(`${BLOG_API_URL}/api/blog/posts?limit=${PAGE_SIZE}&skip=${currentSkip}${catParam}`);
     const data = await res.json();
+
+    if (data.disabled) {
+      showNoResults(data.message || 'The blog is currently unavailable. Please check back later.');
+      hasMorePosts = false;
+      return;
+    }
+
     if (data.success && data.posts?.length) {
-      allPosts = data.posts;
-      updateHeroStats(data.posts);
+      allPosts = isAppending ? allPosts.concat(data.posts) : data.posts;
+      hasMorePosts = !!data.hasMore;
+      if (!isAppending) updateHeroStats(allPosts, data.total);
       filterAndDisplay();
-    } else {
+    } else if (!isAppending) {
+      hasMorePosts = false;
       showNoResults('No posts published yet. Check back soon!');
+    } else {
+      hasMorePosts = false;
+      renderLoadMoreButton();
     }
   } catch(err) {
     console.error('loadBlogPosts:', err);
-    showNoResults('Could not load posts. Please check your connection.');
+    if (!isAppending) showNoResults('Could not load posts. Please check your connection.');
   } finally {
     $b('loadingState').style.display = 'none';
   }
 }
 
-function updateHeroStats(posts) {
+function updateHeroStats(posts, total) {
   const tc = $b('totalPostsCount');
   const cc = $b('totalCatsCount');
-  if (tc) tc.textContent = posts.length;
+  if (tc) tc.textContent = total ?? posts.length;
   const cats = new Set(posts.map(p=>p.category).filter(Boolean));
   if (cc) cc.textContent = cats.size || '—';
 }
@@ -1908,7 +1975,7 @@ function updateHeroStats(posts) {
 /* ── Boot ── */
 document.addEventListener('DOMContentLoaded', () => {
   $b('loadingState').style.display = 'block';
-  loadBlogPosts();
+  loadBlogPosts(false);
 });
 </script>
 <!-- END SCRIPT BLOCK ↑ -->

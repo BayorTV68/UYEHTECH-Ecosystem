@@ -6,6 +6,20 @@
   <title>Blog Post — UYEH TECH</title>
   <meta name="description" content="UYEH TECH Blog Article">
 
+  <!-- These are placeholders — all overwritten dynamically once the post loads, see applySEO() -->
+  <link rel="canonical" id="canonicalTag" href="https://www.uyehtech.com/blog/post">
+  <meta property="og:type" content="article">
+  <meta property="og:url" id="ogUrl" content="https://www.uyehtech.com/blog/post">
+  <meta property="og:title" id="ogTitle" content="UYEH TECH Blog">
+  <meta property="og:description" id="ogDesc" content="UYEH TECH Blog Article">
+  <meta property="og:image" id="ogImage" content="https://www.uyehtech.com/images/og-image.jpg">
+  <meta property="og:site_name" content="UYEH TECH">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="twTitle" content="UYEH TECH Blog">
+  <meta name="twitter:description" id="twDesc" content="UYEH TECH Blog Article">
+  <meta name="twitter:image" id="twImage" content="https://www.uyehtech.com/images/og-image.jpg">
+  <script type="application/ld+json" id="articleSchema">{}</script>
+   <script src="/site-controller.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -410,7 +424,16 @@
   .appear { opacity:0; transform:translateY(16px); animation:appear .55s ease forwards; }
   @keyframes appear { to { opacity:1; transform:translateY(0); } }
   .d1{animation-delay:.05s} .d2{animation-delay:.15s} .d3{animation-delay:.25s} .d4{animation-delay:.35s}
-  </style>
+
+.related-section { margin-top:40px; }
+.related-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:16px; }
+.related-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; text-decoration:none; color:var(--txt); transition:border-color .2s, transform .2s; display:block; }
+.related-card:hover { border-color:var(--g); transform:translateY(-2px); }
+.related-card img { width:100%; height:120px; object-fit:cover; display:block; }
+.related-card .rc-body { padding:12px 14px; }
+.related-card .rc-cat { font-size:.7rem; color:var(--g); font-weight:600; text-transform:uppercase; }
+.related-card .rc-title { font-size:.92rem; font-weight:600; margin-top:4px; line-height:1.35; }
+</style>
 </head>
 <body>
 
@@ -478,7 +501,7 @@
       <div class="author-avatar" id="authorAvatar"></div>
       <div class="author-info">
         <h4 id="authorName"></h4>
-        <p>Published on UYEH TECH · Expert insights on tech, business &amp; digital growth.</p>
+        <p id="authorBio">Published on UYEH TECH · Expert insights on tech, business &amp; digital growth.</p>
       </div>
     </div>
 
@@ -535,12 +558,18 @@
         </button>
         <p class="form-note">
           <i class="fas fa-info-circle"></i>
-          Your comment will appear after moderation. Your email is shown publicly to identify you — please use a real address.
+          Your comment will appear after moderation. Your email is never shown publicly — it's used only to identify you and is not displayed to other readers.
         </p>
       </div>
 
       <!-- Comments list -->
       <div id="commentsList" class="comments-list"></div>
+    </div>
+
+    <!-- ── RELATED POSTS ── -->
+    <div class="related-section appear d4" id="relatedSection" style="display:none;">
+      <h3 class="comments-title">You Might Also Like</h3>
+      <div class="related-grid" id="relatedGrid"></div>
     </div>
   </article>
 
@@ -636,7 +665,7 @@ async function loadPost() {
 
 /* ── render post ── */
 function renderPost(post) {
-  const img    = post.coverImage || post.featuredImage || '';
+  const img    = post.featuredImage || '';
   const author = post.author?.fullName || post.author || 'UYEH TECH Team';
   const rt     = calcReadTime(post.content);
   const date   = fmtDate(post.publishedAt || post.createdAt);
@@ -644,7 +673,8 @@ function renderPost(post) {
   const views  = (post.views || 0).toLocaleString();
   const likes  = post.likes || 0;
 
-  document.title = `${post.title} — UYEH TECH`;
+  document.title = post.metaTitle || `${post.title} — UYEH TECH`;
+  applySEO(post, img, author, date);
 
   const byline = `
     <i class="fas fa-user"></i>${esc(author)}
@@ -684,6 +714,8 @@ function renderPost(post) {
   /* author */
   $('authorAvatar').textContent = initials(author);
   $('authorName').textContent   = author;
+  const bio = post.author?.bio;
+  if (bio) $('authorBio').textContent = bio;
 
   /* likes */
   $('likeCount').textContent = likes;
@@ -714,7 +746,78 @@ function renderPost(post) {
   $('loadScreen').classList.add('fade');
   setTimeout(() => $('loadScreen').style.display = 'none', 480);
 
-  pingView(post.slug || post._id);
+// View count is already incremented server-side by GET /api/blog/posts/:slug
+  // (or /id/:id) when this post was fetched above — no separate ping needed.
+
+  loadRelatedPosts(post._id);
+}
+
+/* ── related posts (audit 4.3) ── */
+async function loadRelatedPosts(postId) {
+  try {
+    const res  = await fetch(`${API_URL}/api/blog/posts/${postId}/related?limit=4`);
+    const data = await res.json();
+    if (!data.success || !data.posts?.length) return;
+
+    $('relatedGrid').innerHTML = data.posts.map(p => {
+      const img = p.featuredImage
+        ? `<img src="${p.featuredImage}" alt="${esc(p.title)}" onerror="this.style.display='none'">`
+        : '';
+      return `
+      <a class="related-card" href="/blog/post?slug=${encodeURIComponent(p.slug)}">
+        ${img}
+        <div class="rc-body">
+          <div class="rc-cat">${esc(p.category || '')}</div>
+          <div class="rc-title">${esc(p.title)}</div>
+        </div>
+      </a>`;
+    }).join('');
+
+    $('relatedSection').style.display = 'block';
+  } catch (_) {
+    // Non-fatal — related posts are a nice-to-have, not core content
+  }
+}
+/* ── SEO: canonical, OG, Twitter Card, JSON-LD Article schema (audit 3.7, 3.8) ── */
+function applySEO(post, img, author, date) {
+  const base        = 'https://www.uyehtech.com';
+  const canonicalUrl = `${base}/blog/post?slug=${encodeURIComponent(post.slug)}`;
+  const title       = post.metaTitle       || post.title;
+  const description = post.metaDescription || post.excerpt || '';
+  const image       = img || `${base}/images/og-image.jpg`;
+
+  const setAttr = (id, attr, val) => { const el = $(id); if (el) el.setAttribute(attr, val); };
+
+  $('canonicalTag').setAttribute('href', canonicalUrl);
+  setAttr('ogUrl',   'content', canonicalUrl);
+  setAttr('ogTitle', 'content', title);
+  setAttr('ogDesc',  'content', description);
+  setAttr('ogImage', 'content', image);
+  setAttr('twTitle', 'content', title);
+  setAttr('twDesc',  'content', description);
+  setAttr('twImage', 'content', image);
+
+  const meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute('content', description);
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: description,
+    image: image ? [image] : undefined,
+    datePublished: post.publishedAt || post.createdAt,
+    dateModified: post.updatedAt || post.publishedAt || post.createdAt,
+    author: { '@type': 'Person', name: author },
+    publisher: {
+      '@type': 'Organization',
+      name: 'UYEH TECH',
+      logo: { '@type': 'ImageObject', url: `${base}/uyehtech-logo.png` }
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl }
+  };
+  const schemaEl = $('articleSchema');
+  if (schemaEl) schemaEl.textContent = JSON.stringify(schema);
 }
 
 /* ── comments ── */
@@ -735,16 +838,16 @@ function renderComments(comments) {
   }
 
   list.innerHTML = approved.map(c => {
-    const nameInitial = (c.userName || c.userEmail || '?')[0].toUpperCase();
-    const displayName = c.userName || (c.userEmail ? c.userEmail.split('@')[0] : 'Anonymous');
-    const displayEmail = c.userEmail || '';
+    // Email is intentionally NOT displayed publicly (audit 3.9) — only used
+    // server-side for moderation contact. Avatar initial falls back to name only.
+    const nameInitial = (c.userName || '?')[0].toUpperCase();
+    const displayName = c.userName || 'Anonymous';
     return `
     <div class="comment-item">
       <div class="comment-header">
         <div class="comment-avatar">${esc(nameInitial)}</div>
         <div class="comment-meta">
           <div class="comment-author">${esc(displayName)}</div>
-          ${displayEmail ? `<div class="comment-email"><i class="fas fa-envelope" style="font-size:.65rem;margin-right:3px;color:var(--g);"></i>${esc(displayEmail)}</div>` : ''}
         </div>
         <div class="comment-date">${fmtDateShort(c.createdAt)}</div>
       </div>
@@ -771,28 +874,19 @@ async function submitComment() {
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting…';
 
   try {
-    /* Try authenticated endpoint first; fall back to visitor endpoint */
+    /* One endpoint, optionalAuth on the server handles both logged-in and visitor cases */
     const token = localStorage.getItem('auth_token') || localStorage.getItem('user_token');
+    const headers = { 'Content-Type':'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    let res, data;
-
-    if (token) {
-      /* Logged-in user */
-      res  = await fetch(`${API_URL}/api/blog/posts/${_post._id}/comments`, {
-        method:'POST',
-        headers:{ 'Authorization':`Bearer ${token}`, 'Content-Type':'application/json' },
-        body: JSON.stringify({ comment })
-      });
-      data = await res.json();
-    } else {
-      /* Visitor — send name + email + comment */
-      res  = await fetch(`${API_URL}/api/blog/posts/${_post._id}/comments`, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ comment, visitorName: name, visitorEmail: email })
-      });
-      data = await res.json();
-    }
+    // Always send visitor fields too — the server ignores them if a valid
+    // token is present and uses the account's name/email instead.
+    const res  = await fetch(`${API_URL}/api/blog/posts/${_post._id}/comments`, {
+      method:'POST',
+      headers,
+      body: JSON.stringify({ comment, visitorName: name, visitorEmail: email })
+    });
+    const data = await res.json();
 
     if (data.success) {
       toast('✅ Comment submitted! It will appear after review.');
@@ -833,16 +927,16 @@ async function likePost() {
   if (!_post) return;
   if (_liked) { toast('You already liked this article ❤️'); return; }
 
+  // Likes now work with or without an account — the backend accepts both
+  // via optionalAuth, deduping by user ID when logged in and by IP otherwise.
   const token = localStorage.getItem('auth_token') || localStorage.getItem('user_token');
-  if (!token) {
-    toast('💡 Sign in to like articles — or enjoy reading for free!');
-    return;
-  }
+  const headers = { 'Content-Type':'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
   try {
     const res  = await fetch(`${API_URL}/api/blog/posts/${_post._id}/like`, {
       method:'POST',
-      headers:{ 'Authorization':`Bearer ${token}`, 'Content-Type':'application/json' }
+      headers
     });
     const data = await res.json();
     if (data.success) {
@@ -852,6 +946,10 @@ async function likePost() {
       setLiked(true);
       localStorage.setItem(`liked_${_post._id}`, '1');
       toast('❤️ Liked! Thanks for your support.');
+    } else if (data.alreadyLiked) {
+      setLiked(true);
+      localStorage.setItem(`liked_${_post._id}`, '1');
+      toast('You already liked this article ❤️');
     } else {
       toast('❌ ' + (data.message || 'Like failed.'));
     }
@@ -922,11 +1020,6 @@ function showErr() {
     $('loadScreen').style.display = 'none';
     $('errScreen').style.display  = 'block';
   }, 480);
-}
-
-/* ── view ping ── */
-async function pingView(id) {
-  try { await fetch(`${API_URL}/api/blog/posts/${id}/view`, { method:'POST' }); } catch(_){}
 }
 
 document.addEventListener('DOMContentLoaded', loadPost);
