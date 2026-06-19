@@ -25,7 +25,7 @@
   <!-- Fonts — aligned to UYEH TECH brand (matches affiliate dashboard) -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+   <script src="/site-controller.js" defer></script>
   <style>
     /* ════════════════════════════════════════════════
        DESIGN SYSTEM
@@ -1355,8 +1355,38 @@ window.cookieSystem = cookieSystem;
 // UYEH TECH — STORE JAVASCRIPT (FIXED)
 // ════════════════════════════════════════
 
-const API_URL   = 'https://uyehtechbackend.onrender.com';
-const STORE_BASE = 'https://uyehtech.netlify.app/marketplace';
+const API_URL = 'https://uyehtechbackend.onrender.com';
+
+// Resolved once on load — used by every price-rendering function below.
+// Cosmetic/display only; the server is always the source of truth for what
+// actually gets charged (checkout.html → initialize-payment).
+let currencySymbol = '$';
+let currencyRate    = 1; // USD → visitor's currency
+
+async function fetchUserCurrency() {
+  const token = localStorage.getItem('token');
+  if (!token) return; // guest — stays on USD/1:1 until they log in (see server-side IP-geo gap discussed separately)
+  try {
+    const res  = await fetch(`${API_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (data.success) {
+      currencySymbol = data.symbol || '$';
+      currencyRate   = data.rate   || 1;
+      // Re-render anything already on screen with the correct currency
+      if (typeof filteredProducts !== 'undefined' && filteredProducts.length) {
+        displayProducts(filteredProducts);
+      }
+      if (typeof updateCartUI === 'function') updateCartUI();
+    }
+  } catch (_) { /* keep $/1:1 fallback */ }
+}
+
+// Convert a raw USD number to the visitor's currency for display.
+// Falls back to the value itself if no rate has loaded yet (1:1).
+function toDisplay(usdAmount) {
+  return (Number(usdAmount) || 0) * currencyRate;
+}
+const STORE_BASE = 'https://uyehtech.netlify.app/marketplace/';
 
 let currentCategory  = 'all';
 let currentSort      = 'default';
@@ -1450,6 +1480,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await checkAuthentication();
   loadCart();
   await loadProducts();
+  fetchUserCurrency();
   setupBackToTop();
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
   console.log('✅ Store loaded');
@@ -1460,10 +1491,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkAuthentication() {
   const token = localStorage.getItem('token');
   const user  = localStorage.getItem('user');
-  if (token && user) {
-    try { currentUser = JSON.parse(user); showUserDropdown(currentUser); }
-    catch(e) { showGuestButtons(); }
-  } else { showGuestButtons(); }
+  if (!token || !user) { showGuestButtons(); return; }
+  try {
+    currentUser = JSON.parse(user);
+    showUserDropdown(currentUser);
+    // Validate token with server in the background — refresh stale user data
+    fetch(`${API_URL}/api/user/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data || !data.success) {
+        // Token rejected — clear and show guest state
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        currentUser = null;
+        showGuestButtons();
+      } else if (data.user) {
+        // Refresh cached user object
+        currentUser = data.user;
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showUserDropdown(data.user);
+      }
+    })
+    .catch(() => {}); // network error — keep showing cached state
+  } catch(e) {
+    showGuestButtons();
+  }
 }
 
 function showUserDropdown(user) {
@@ -1516,7 +1570,11 @@ async function loadProducts() {
   try {
     const [adminRes, creatorRes] = await Promise.all([
       fetch(`${API_URL}/api/products?limit=200`),
-      fetch(`${API_URL}/api/marketplace/products?status=approved&limit=200`)
+      fetch(`${API_URL}/api/marketplace/products?status=approved&limit=200`, {
+  headers: localStorage.getItem('token')
+    ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    : {}
+})
     ]);
     const adminData  = await adminRes.json();
     const creatorData = await creatorRes.json();
@@ -1530,6 +1588,7 @@ async function loadProducts() {
         description:        p.description,
         category:           p.category || 'General',
         price:              p.approvedPrice || p.suggestedPrice || 0,
+        displayPrice:       p.displayPrice || null, // server-converted price — don't drop this
         comparePrice:       0,
         icon:               '📦',
         image:              (p.images && p.images[0]) || null,
@@ -1649,7 +1708,9 @@ function renderFeaturedSection(products) {
   if (!section || !scroll) return;
 
   scroll.innerHTML = featured.map(p => {
-    const price   = p.price === 0 ? 'Free' : `$${parseFloat(p.price).toFixed(2)}`;
+    const featuredSymbol = p.displayPrice?.symbol ?? currencySymbol;
+    const featuredPrice  = p.displayPrice?.converted ?? toDisplay(p.price);
+    const price = p.price === 0 ? 'Free' : `${featuredSymbol}${parseFloat(featuredPrice).toFixed(2)}`;
     const imgHTML = p.image
       ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" style="width:100%;height:100%;object-fit:cover;">`
       : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:3rem;background:linear-gradient(135deg,#0d1f15,#1a3d2a);">${p.icon || '📦'}</div>`;
@@ -1743,9 +1804,14 @@ function displayProducts(products) {
   }
 
   grid.innerHTML = products.map(p => {
-    const price        = p.price || 0;
-    const comparePrice = p.comparePrice || 0;
-    const discount     = comparePrice > 0 ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
+    const rawUSD       = p.price ?? p.approvedPrice ?? p.suggestedPrice ?? 0;
+    const price         = p.displayPrice?.converted ?? toDisplay(rawUSD);
+    const priceSymbol   = p.displayPrice?.symbol ?? currencySymbol;
+    const comparePrice  = p.comparePrice ? (toDisplay(p.comparePrice)) : 0;
+    // Discount % is currency-independent — compute it from USD values before conversion
+    const discount = (comparePrice > 0 && rawUSD > 0)
+      ? Math.round(((p.comparePrice - rawUSD) / p.comparePrice) * 100)
+      : 0;
 
     // Badge
     let badgeHTML = '';
@@ -1761,10 +1827,10 @@ function displayProducts(products) {
     }
 
     // Price
-    const priceHTML = price === 0
+    const priceHTML = rawUSD === 0
       ? `<span class="price-free">Free</span>`
-      : `<span class="current-price">$${parseFloat(price).toFixed(2)}</span>
-         ${comparePrice > 0 ? `<span class="original-price">$${parseFloat(comparePrice).toFixed(2)}</span>` : ''}`;
+      : `<span class="current-price">${priceSymbol}${parseFloat(price).toFixed(2)}</span>
+         ${comparePrice > 0 ? `<span class="original-price">${priceSymbol}${parseFloat(comparePrice).toFixed(2)}</span>` : ''}`;
 
     // Image
     const imgHTML = p.image
@@ -1805,8 +1871,9 @@ function displayProducts(products) {
           </button>
         </div>
         <div class="product-content">
-          <div class="product-meta" ${getProductTypeBadge(p.productType)}
-${p.productType === 'course' ? getCourseMetaBadge(p.courseData) : ''}>
+          <div class="product-meta">
+            ${getProductTypeBadge(p.productType)}
+            ${p.productType === 'course' ? getCourseMetaBadge(p.courseData) : ''}
             <span class="product-category">${esc(p.category || '')}</span>
             ${creatorHTML}
           </div>
@@ -1903,10 +1970,10 @@ function viewProduct(productId) {
       <p class="modal-description">${esc(product.description || '')}</p>
       ${creatorSection}
       <div class="modal-price">
-        ${product.comparePrice > 0 ? `<span class="original-price">$${parseFloat(product.comparePrice).toFixed(2)}</span>` : ''}
+        ${product.comparePrice > 0 ? `<span class="original-price">${product.displayPrice?.symbol ?? currencySymbol}${parseFloat(product.displayPrice?.converted ?? toDisplay(product.comparePrice)).toFixed(2)}</span>` : ''}
         ${product.price === 0
           ? `<span class="current-price" style="font-size:2rem;">Free</span>`
-          : `<span class="current-price">$${parseFloat(product.price).toFixed(2)}</span>`}
+          : `<span class="current-price">${product.displayPrice?.symbol ?? currencySymbol}${parseFloat(product.displayPrice?.converted ?? toDisplay(product.price)).toFixed(2)}</span>`}
       </div>
       <button class="modal-add-cart" onclick="addToCart('${product._id}'); closeProductModal();">
         <i class="fas fa-shopping-cart"></i> Add to Cart
@@ -2104,7 +2171,7 @@ function updateCartUI() {
         <div class="cart-item-thumb">${thumbHTML}</div>
         <div class="cart-item-info">
           <div class="cart-item-title">${esc(item.title)}</div>
-          <div class="cart-item-price">${item.price === 0 ? 'Free' : '$' + parseFloat(item.price).toFixed(2)}</div>
+          <div class="cart-item-price">${item.price === 0 ? 'Free' : currencySymbol + parseFloat(toDisplay(item.price)).toFixed(2)}</div>
         </div>
         <button class="cart-item-remove" onclick="removeFromCart(${idx})"><i class="fas fa-times"></i></button>
       </div>`;
@@ -2115,21 +2182,24 @@ function updateCartUI() {
 }
 
 function updateCartTotals() {
-  const subtotal = cart.reduce((s, item) => s + (item.price || 0), 0);
-  let discount   = 0;
+  // All math in USD (matches cart storage + what the server will recompute at
+  // checkout) — only the displayed strings are converted.
+  const subtotalUSD = cart.reduce((s, item) => s + (item.price || 0), 0);
+  let discountUSD    = 0;
   if (appliedCoupon) {
-    discount = appliedCoupon.type === 'percentage'
-      ? (subtotal * appliedCoupon.discount) / 100
+    discountUSD = appliedCoupon.type === 'percentage'
+      ? (subtotalUSD * appliedCoupon.discount) / 100
       : appliedCoupon.discount;
-    discount = Math.min(discount, subtotal);
+    discountUSD = Math.min(discountUSD, subtotalUSD);
   }
-  const total = Math.max(0, subtotal - discount);
-  document.getElementById('cartSubtotal').textContent    = `$${subtotal.toFixed(2)}`;
-  document.getElementById('cartTotalAmount').textContent = `$${total.toFixed(2)}`;
+  const totalUSD = Math.max(0, subtotalUSD - discountUSD);
+
+  document.getElementById('cartSubtotal').textContent    = `${currencySymbol}${toDisplay(subtotalUSD).toFixed(2)}`;
+  document.getElementById('cartTotalAmount').textContent = `${currencySymbol}${toDisplay(totalUSD).toFixed(2)}`;
   const discRow = document.getElementById('cartDiscountRow');
-  if (discount > 0) {
+  if (discountUSD > 0) {
     discRow.style.display = 'flex';
-    document.getElementById('cartDiscount').textContent = `-$${discount.toFixed(2)}`;
+    document.getElementById('cartDiscount').textContent = `-${currencySymbol}${toDisplay(discountUSD).toFixed(2)}`;
   } else {
     discRow.style.display = 'none';
   }
@@ -2170,7 +2240,7 @@ function addToCart(productId) {
 function _pushToCart(product) {
   if (cart.find(item => item.id === product._id)) { showNotification('⚠️ Already in cart!'); return; }
   const creator = product.isCreatorProduct && product.creatorId ? product.creatorId : null;
-  const resolvedId = product.productId || product._id; // prefer mirrored Product._id
+  const resolvedId = product.productId || product._id;
   cart.push({
     id:               resolvedId,
     productId:        resolvedId,
@@ -2184,20 +2254,7 @@ function _pushToCart(product) {
     storeSlug:        creator ? (creator.storeSlug || null) : null,
     storeName:        creator ? (creator.storeName || null) : null
   });
- 
-  cart.push({
-    id:               product._id,
-    title:            product.title,
-    category:         product.category,
-    price:            product.price || 0,
-    icon:             product.icon || '📦',
-    image:            product.image || null,
-    // ── Creator linkage — needed by checkout for commission routing ──────────
-    isCreatorProduct: product.isCreatorProduct || false,
-    creatorId:        creator ? (creator._id || null) : null,
-    storeSlug:        creator ? (creator.storeSlug || null) : null,
-    storeName:        creator ? (creator.storeName || null) : null
-  });
+
 
   saveCart();
   // Fire add_to_cart funnel event if visitor arrived via affiliate link
