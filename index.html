@@ -113,9 +113,6 @@
 }
 </script>
 
-        <!-- For newsletter Functionality -->
-<script src="https://f.convertkit.com/ckjs/ck.5.js"></script>
-
 <!-- Performance & Optimization -->
     <script src="search.js" defer></script>
 
@@ -3682,7 +3679,7 @@ input:disabled + .cookie-slider {
 
 <!-- ╔═══════════════════════════════════════════════════════════╗
      ║  BLOCK 1 — NEWSLETTER SECTION HTML                       ║
-     ║  Paste where your old <section class="newsletter-section"> was
+     ║  Newsletter — UYEH TECH backend (double-opt-in)
      ╚═══════════════════════════════════════════════════════════╝ -->
 <section class="newsletter-section" id="newsletter">
     <div class="newsletter-container">
@@ -3699,65 +3696,18 @@ input:disabled + .cookie-slider {
         </div>
 
         <div class="kit-card-wrapper">
-
-          
-
-            <form action="https://app.kit.com/forms/9112421/subscriptions"
-                  class="seva-form formkit-form"
-                  method="post"
-                  data-sv-form="9112421"
-                  data-uid="8f1bed1f19"
-                  data-format="inline"
-                  data-version="5"
-                  min-width="400 500 600 700 800">
-
-                <div data-style="minimal">
-
-                    <div class="formkit-header" data-element="header">
-                        <h2>Join the Newsletter</h2>
-                    </div>
-
-                    <div class="formkit-subheader" data-element="subheader">
-                        Weekly tips on web development, design &amp; tech.
-                    </div>
-
-                    <ul class="formkit-alert formkit-alert-error"
-                        data-element="errors"
-                        data-group="alert"></ul>
-
-                    <div data-element="fields"
-                         data-stacked="false"
-                         class="seva-fields formkit-fields">
-
-                        <div class="formkit-field">
-                            <input class="formkit-input"
-                                   name="email_address"
-                                   aria-label="Email Address"
-                                   placeholder="Your email address"
-                                   required=""
-                                   type="email">
-                        </div>
-
-                        <button data-element="submit"
-                                class="formkit-submit formkit-submit">
-                            <div class="formkit-spinner">
-                                <div></div><div></div><div></div>
-                            </div>
-                            <span>Subscribe Now →</span>
-                        </button>
-
-                    </div>
-
-                    <div class="formkit-guarantee" data-element="guarantee">
-                        🔒 No spam. Unsubscribe anytime.
-                        Contact: <strong>uyehtech@gmail.com</strong>
-                    </div>
-
-                   
-
+            <div class="uyeh-nl-card">
+                <h2>Join the Newsletter</h2>
+                <p class="uyeh-nl-sub">Weekly tips on web development, design &amp; tech.</p>
+                <div class="uyeh-nl-form" id="uyehNlForm1">
+                    <input class="uyeh-nl-input" id="uyehNlEmail1" type="email" placeholder="Your email address" required autocomplete="email">
+                    <button class="uyeh-nl-btn" id="uyehNlBtn1" onclick="uyehSubscribe('uyehNlEmail1','uyehNlBtn1','uyehNlMsg1','uyehNlForm1')">
+                        <span>Subscribe Now →</span>
+                    </button>
                 </div>
-            </form>
-
+                <div id="uyehNlMsg1" class="uyeh-nl-msg" style="display:none;"></div>
+                <p class="uyeh-nl-guarantee">🔒 No spam. Unsubscribe anytime. Contact: <strong>uyehtech@gmail.com</strong></p>
+            </div>
         </div>
 
     </div>
@@ -3779,52 +3729,16 @@ input:disabled + .cookie-slider {
                 and updates from UYEH TECH.
             </p>
 
-            <form action="https://app.kit.com/forms/9112421/subscriptions"
-                  class="seva-form formkit-form uyeh-popup-form"
-                  method="post"
-                  data-sv-form="9112421"
-                  data-uid="8f1bed1f19"
-                  data-format="inline"
-                  data-version="5"
-                  min-width="400 500 600 700 800">
-
-                <div data-style="minimal">
-
-                    <ul class="formkit-alert formkit-alert-error"
-                        data-element="errors"
-                        data-group="alert"></ul>
-
-                    <div data-element="fields"
-                         data-stacked="true"
-                         class="seva-fields formkit-fields">
-
-                        <div class="formkit-field">
-                            <input class="formkit-input"
-                                   name="email_address"
-                                   aria-label="Email Address"
-                                   placeholder="Enter your email address"
-                                   required=""
-                                   type="email">
-                        </div>
-
-                        <button data-element="submit"
-                                class="formkit-submit formkit-submit">
-                            <div class="formkit-spinner">
-                                <div></div><div></div><div></div>
-                            </div>
-                            <span>Subscribe Now</span>
-                        </button>
-
-                    </div>
-
-                    <div class="formkit-guarantee" data-element="guarantee">
-                        🔒 No spam. Unsubscribe anytime.
-                    </div>
-
-                    
-
+            <div class="uyeh-popup-form">
+                <div class="uyeh-nl-form" id="uyehNlForm2" style="flex-direction:column;gap:10px;">
+                    <input class="uyeh-nl-input" id="uyehNlEmail2" type="email" placeholder="Enter your email address" required autocomplete="email" style="width:100%;box-sizing:border-box;">
+                    <button class="uyeh-nl-btn" id="uyehNlBtn2" onclick="uyehSubscribe('uyehNlEmail2','uyehNlBtn2','uyehNlMsg2','uyehNlForm2')" style="width:100%;justify-content:center;">
+                        <span>Subscribe Now</span>
+                    </button>
                 </div>
-            </form>
+                <div id="uyehNlMsg2" class="uyeh-nl-msg" style="display:none;margin-top:10px;"></div>
+                <p style="font-size:12px;color:#aaa;text-align:center;margin-top:10px;">🔒 No spam. Unsubscribe anytime.</p>
+            </div>
 
         </div>
     </div>
@@ -4328,65 +4242,110 @@ input:disabled + .cookie-slider {
 }
 
 </style>
+<style>
+/* UYEH TECH Newsletter card (replaces ConvertKit styles) */
+.uyeh-nl-card { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:32px;text-align:center; }
+.uyeh-nl-card h2 { color:#fff;font-size:1.4rem;margin:0 0 8px; }
+.uyeh-nl-sub { color:rgba(255,255,255,.65);font-size:.95rem;margin:0 0 20px; }
+.uyeh-nl-form { display:flex;gap:10px;flex-wrap:wrap; }
+.uyeh-nl-input { flex:1;min-width:180px;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:.95rem;outline:none; }
+.uyeh-nl-input::placeholder { color:rgba(255,255,255,.4); }
+.uyeh-nl-btn { display:flex;align-items:center;gap:8px;background:#4f46e5;color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s; }
+.uyeh-nl-btn:hover { background:#4338ca; }
+.uyeh-nl-btn:disabled { opacity:.6;cursor:not-allowed; }
+.uyeh-nl-msg { font-size:.95rem;font-weight:600;padding:10px 0; }
+.uyeh-nl-guarantee { font-size:.8rem;color:rgba(255,255,255,.45);margin:14px 0 0; }
+</style>
 <script>
+/* ── UYEH TECH Newsletter (backend double opt-in) ── */
+var UYEH_NL_STORAGE = 'uyeh_nl_subscribed';
+var UYEH_API_BASE   = 'https://uyehtechbackend.onrender.com';
+
+async function uyehSubscribe(emailId, btnId, msgId, formId) {
+    var email  = document.getElementById(emailId)?.value.trim();
+    var btn    = document.getElementById(btnId);
+    var msgEl  = document.getElementById(msgId);
+    var formEl = document.getElementById(formId);
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        uyehNlMsg(msgEl, 'Please enter a valid email address.', '#ef4444'); return;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<span>Sending…</span>';
+    try {
+        var r = await fetch(UYEH_API_BASE + '/api/newsletter/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        });
+        var d = await r.json();
+        if (d.success) {
+            if (formEl) formEl.style.display = 'none';
+            uyehNlMsg(msgEl, '📬 Check your inbox! Confirmation email sent.', '#22c55e');
+            localStorage.setItem(UYEH_NL_STORAGE, 'pending');
+            // close popup if this is the popup form
+            if (formId === 'uyehNlForm2') { setTimeout(uyehHidePopup, 3000); }
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Subscribe Now →</span>';
+            uyehNlMsg(msgEl, d.message || 'Subscription failed. Please try again.', '#ef4444');
+        }
+    } catch(e) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Subscribe Now →</span>';
+        uyehNlMsg(msgEl, 'Connection error. Please try again.', '#ef4444');
+    }
+}
+
+function uyehNlMsg(el, text, color) {
+    if (!el) return;
+    el.style.display = 'block';
+    el.style.color   = color;
+    el.textContent   = text;
+}
+
+/* ── Popup logic ── */
 (function () {
     'use strict';
-
-    var STORAGE_KEY = 'uyeh_subscribed';
-    var POPUP_DELAY = 30000; // 30 seconds
-
     var overlay  = document.getElementById('uyehNewsletterPopup');
     var closeBtn = document.getElementById('uyehClosePopup');
-
     if (!overlay || !closeBtn) return;
-
     var shown = false;
 
-    /* ── Show Popup ── */
     function showPopup() {
         if (shown) return;
-        if (localStorage.getItem(STORAGE_KEY)) return;
+        if (localStorage.getItem(UYEH_NL_STORAGE)) return;
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
         shown = true;
     }
-
-    /* ── Hide Popup ── */
-    function hidePopup() {
+    window.uyehHidePopup = function () {
         overlay.classList.remove('active');
         document.body.style.overflow = '';
-    }
+    };
 
-    /* ── Trigger 1: Auto show after 30 seconds ── */
-    setTimeout(showPopup, POPUP_DELAY);
+    setTimeout(showPopup, 30000);
+    document.addEventListener('mouseleave', function (e) { if (e.clientY <= 0) showPopup(); });
+    closeBtn.addEventListener('click', window.uyehHidePopup);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) window.uyehHidePopup(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') window.uyehHidePopup(); });
 
-    /* ── Trigger 2: Exit intent (mouse leaves top of page) ── */
-    document.addEventListener('mouseleave', function (e) {
-        if (e.clientY <= 0) showPopup();
-    });
-
-    /* ── Close: Button click ── */
-    closeBtn.addEventListener('click', hidePopup);
-
-    /* ── Close: Click outside the popup box ── */
-    overlay.addEventListener('click', function (e) {
-        if (e.target === overlay) hidePopup();
-    });
-
-    /* ── Close: ESC key ── */
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') hidePopup();
-    });
-
-    /* ── Kit success event:
-          Fires when user successfully subscribes.
-          Saves to localStorage so popup never shows again.
-          Closes popup automatically after 3 seconds.        ── */
-    document.addEventListener('submitted_successfully', function () {
-        localStorage.setItem(STORAGE_KEY, 'true');
-        setTimeout(hidePopup, 3000);
-    });
-
+    /* Handle ?nl=confirmed redirect from server */
+    (function () {
+        var p = new URLSearchParams(location.search);
+        var nl = p.get('nl');
+        if (!nl) return;
+        var color = nl === 'confirmed' ? '#22c55e' : nl === 'unsubscribed' ? '#4f46e5' : '#ef4444';
+        var text  = { confirmed:'🎉 You\'re subscribed! Welcome.', unsubscribed:'👋 Unsubscribed successfully.', invalid:'⚠️ Link invalid or expired.', error:'❌ Something went wrong.' }[nl] || '';
+        if (!text) return;
+        setTimeout(function () {
+            var el = document.getElementById('uyehNlMsg1');
+            var f  = document.getElementById('uyehNlForm1');
+            if (el) { el.style.display='block'; el.style.color=color; el.textContent=text; }
+            if (nl==='confirmed' && f) f.style.display='none';
+            localStorage.setItem(UYEH_NL_STORAGE, nl==='confirmed' ? 'active' : 'pending');
+            var url = new URL(location.href); url.searchParams.delete('nl'); history.replaceState({}, '', url);
+        }, 500);
+    })();
 }());
 </script>
 
