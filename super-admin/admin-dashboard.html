@@ -3241,6 +3241,11 @@ tr:hover {
                         <i class="fas fa-bullhorn"></i>
                         <span>Broadcast</span>
                     </div>
+                    <div class="nav-item" data-page="newsletter">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <span>Newsletter</span>
+                        <span class="nav-badge" id="newsletterBadge" style="display:none;background:rgba(79,70,229,.2);color:#4f46e5;">0</span>
+                    </div>
                 </div>
             </div>
 
@@ -3353,6 +3358,7 @@ tr:hover {
             <div id="agent-applicationsPage" class="page-content hidden"></div>
             <div id="canned-responsesPage"   class="page-content hidden"></div>
             <div id="currencyPage"           class="page-content hidden"></div>
+            <div id="newsletterPage"           class="page-content hidden"></div>
         </div>
     </main>
 
@@ -4377,6 +4383,7 @@ function navigateTo(page) {
         case 'email-templates':       loadEmailTemplates();         break;
         case 'push-notifications':    loadPushNotifications();      break;
         case 'broadcast':             loadBroadcastPage();          break;
+        case 'newsletter':            loadNewsletterPage();         break;
         case 'status':                loadSystemStatus();           break;
         case 'media':                 loadMediaManager();              break;
         case 'agent-applications':    loadAgentApplications();         break;
@@ -15337,6 +15344,211 @@ async function loadPushNotifications() {
 function togglePushUserId() {
     const v = document.getElementById('pushAudience').value;
     document.getElementById('pushUserIdGroup').style.display = v === 'user' ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
+// NEWSLETTER ADMIN PAGE
+// ══════════════════════════════════════════════════════════════
+let nlCurrentFilter = 'all';
+let nlCurrentPage   = 1;
+
+async function loadNewsletterPage() {
+    const el = document.getElementById('newsletterPage') || (() => {
+        const d = document.createElement('div');
+        d.id = 'newsletterPage';
+        d.className = 'page-content';
+        document.getElementById('mainContent').appendChild(d);
+        return d;
+    })();
+
+    document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+    el.style.display = 'block';
+
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Newsletter</h1>
+            <p class="page-subtitle">Manage subscribers and send email campaigns</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px;" id="nlStatsRow">
+            <div class="stat-card" style="flex:1;min-width:140px;">
+                <div class="stat-value" id="nlStatActive">—</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card" style="flex:1;min-width:140px;">
+                <div class="stat-value" id="nlStatPending">—</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card" style="flex:1;min-width:140px;">
+                <div class="stat-value" id="nlStatUnsub">—</div>
+                <div class="stat-label">Unsubscribed</div>
+            </div>
+        </div>
+
+        <!-- Compose Panel -->
+        <div class="table-container" style="padding:28px;margin-bottom:28px;">
+            <h3 class="table-title" style="margin-bottom:20px;">📤 Send Newsletter</h3>
+            <div class="form-group">
+                <label class="form-label">Subject *</label>
+                <input type="text" class="form-input" id="nlSubject" placeholder="Your email subject line">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Body (HTML or plain text) *</label>
+                <textarea class="form-textarea" id="nlBody" rows="8" placeholder="Write your newsletter content here. HTML is supported."></textarea>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <button class="btn btn-primary" onclick="sendAdminNewsletter()">
+                    <i class="fas fa-paper-plane"></i> Send to All Active Subscribers
+                </button>
+                <button class="btn btn-secondary" onclick="previewNewsletter()">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div id="nlPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:12px;max-width:660px;width:95%;max-height:90vh;overflow:auto;padding:32px;position:relative;">
+                <button onclick="document.getElementById('nlPreviewModal').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+                <h3 style="margin:0 0 20px;">Preview</h3>
+                <div id="nlPreviewContent" style="border:1px solid #eee;border-radius:8px;padding:20px;"></div>
+            </div>
+        </div>
+
+        <!-- Subscribers Table -->
+        <div class="table-container">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:20px 20px 0;">
+                <h3 class="table-title" style="margin:0;flex:1;">Subscribers</h3>
+                <input type="text" class="form-input" id="nlSearch" placeholder="Search email…" style="max-width:220px;" oninput="nlDebounceSearch()">
+                <select class="form-select" id="nlFilter" style="max-width:160px;" onchange="nlCurrentFilter=this.value;nlCurrentPage=1;nlLoadSubscribers()">
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="unsubscribed">Unsubscribed</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" onclick="nlLoadSubscribers()"><i class="fas fa-sync"></i></button>
+            </div>
+            <div id="nlTableWrap" style="padding:20px;"></div>
+            <div id="nlPagination" style="padding:0 20px 20px;display:flex;gap:8px;justify-content:flex-end;"></div>
+        </div>
+    `;
+
+    await nlLoadSubscribers();
+}
+
+let _nlSearchTimeout;
+function nlDebounceSearch() {
+    clearTimeout(_nlSearchTimeout);
+    _nlSearchTimeout = setTimeout(() => { nlCurrentPage = 1; nlLoadSubscribers(); }, 400);
+}
+
+async function nlLoadSubscribers() {
+    const wrap = document.getElementById('nlTableWrap');
+    if (!wrap) return;
+    wrap.innerHTML = '<p style="color:var(--muted);">Loading…</p>';
+
+    const search = document.getElementById('nlSearch')?.value.trim() || '';
+    const params = new URLSearchParams({ status: nlCurrentFilter, page: nlCurrentPage, limit: 50 });
+    if (search) params.append('search', search);
+
+    try {
+        const r = await fetch(`${API_URL}/api/admin/newsletter/subscribers?${params}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+
+        // Update stat cards
+        if (d.stats) {
+            const a = document.getElementById('nlStatActive');
+            const p = document.getElementById('nlStatPending');
+            const u = document.getElementById('nlStatUnsub');
+            if (a) a.textContent = d.stats.active ?? 0;
+            if (p) p.textContent = d.stats.pending ?? 0;
+            if (u) u.textContent = d.stats.unsubscribed ?? 0;
+            const badge = document.getElementById('newsletterBadge');
+            if (badge) {
+                badge.textContent = d.stats.active ?? 0;
+                badge.style.display = (d.stats.active > 0) ? 'inline' : 'none';
+            }
+        }
+
+        if (!d.subscribers.length) {
+            wrap.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;">No subscribers found.</p>';
+            document.getElementById('nlPagination').innerHTML = '';
+            return;
+        }
+
+        const statusColor = { active: '#22c55e', pending: '#f59e0b', unsubscribed: '#ef4444' };
+        wrap.innerHTML = `
+            <table class="data-table">
+                <thead><tr>
+                    <th>Email</th><th>Status</th><th>Source</th><th>Subscribed</th><th>Actions</th>
+                </tr></thead>
+                <tbody>
+                    ${d.subscribers.map(s => `
+                    <tr>
+                        <td>${s.email}</td>
+                        <td><span style="color:${statusColor[s.status]||'#888'};font-weight:600;text-transform:capitalize;">${s.status}</span></td>
+                        <td>${s.source || 'website'}</td>
+                        <td>${s.confirmedAt ? new Date(s.confirmedAt).toLocaleDateString() : (s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—')}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="nlDeleteSubscriber('${s._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        `;
+
+        // Pagination
+        const totalPages = Math.ceil(d.total / 50);
+        const pg = document.getElementById('nlPagination');
+        pg.innerHTML = totalPages <= 1 ? '' : `
+            <button class="btn btn-secondary btn-sm" ${nlCurrentPage <= 1 ? 'disabled' : ''} onclick="nlCurrentPage--;nlLoadSubscribers()">‹ Prev</button>
+            <span style="align-self:center;font-size:13px;color:var(--muted);">Page ${nlCurrentPage} / ${totalPages}</span>
+            <button class="btn btn-secondary btn-sm" ${nlCurrentPage >= totalPages ? 'disabled' : ''} onclick="nlCurrentPage++;nlLoadSubscribers()">Next ›</button>
+        `;
+    } catch (e) {
+        wrap.innerHTML = `<p style="color:#ef4444;">Error: ${e.message}</p>`;
+    }
+}
+
+async function nlDeleteSubscriber(id) {
+    if (!confirm('Remove this subscriber permanently?')) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/newsletter/subscribers/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        showToast(d.success ? '✅ Subscriber removed' : d.message, d.success ? 'success' : 'error');
+        if (d.success) nlLoadSubscribers();
+    } catch (e) { showToast('Delete failed', 'error'); }
+}
+
+async function sendAdminNewsletter() {
+    const subject  = document.getElementById('nlSubject')?.value.trim();
+    const htmlBody = document.getElementById('nlBody')?.value.trim();
+    if (!subject || !htmlBody) return showToast('Subject and body are required.', 'error');
+    if (!confirm(`Send this newsletter to all active subscribers?`)) return;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/newsletter/send`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subject, htmlBody })
+        });
+        const d = await r.json();
+        showToast(d.success ? `✅ Sent to ${d.sent} subscriber(s)` : d.message, d.success ? 'success' : 'error');
+    } catch (e) { showToast('Send failed', 'error'); }
+}
+
+function previewNewsletter() {
+    const body = document.getElementById('nlBody')?.value || '';
+    document.getElementById('nlPreviewContent').innerHTML = body;
+    document.getElementById('nlPreviewModal').style.display = 'flex';
 }
 
 async function sendPushNotification() {
