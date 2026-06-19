@@ -1423,35 +1423,6 @@ body {
 .nl-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,255,136,.35); }
 .nl-privacy { font-size:.72rem; color:var(--muted); margin-top:12px; }
 
-/* ── FOOTER CTA ── */
-.footer-cta {
-  max-width:1200px; margin:0 auto; padding:72px 40px;
-  display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
-}
-.footer-cta h2 {
-  font-family:'Playfair Display',serif;
-  font-size:1.7rem; font-weight:700;
-}
-.footer-cta h2 span { color:var(--g); }
-.cta-btn {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:14px 28px;
-  background:linear-gradient(135deg,var(--g-dark),var(--g));
-  border-radius:10px; color:#000; font-weight:700;
-  text-decoration:none; font-size:.92rem; transition:all .3s;
-  white-space:nowrap;
-}
-.cta-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,255,136,.32); }
-.cta-btn-ghost {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:14px 28px;
-  background:transparent; border:1px solid var(--border);
-  border-radius:10px; color:var(--g);
-  font-weight:600; text-decoration:none; font-size:.92rem;
-  transition:all .3s;
-}
-.cta-btn-ghost:hover { border-color:var(--g); background:var(--g-dim); }
-
 /* ── RESPONSIVE ── */
 @media(max-width:960px) {
   .featured-card { grid-template-columns:1fr; }
@@ -1599,25 +1570,15 @@ a.read-more, .post-card { cursor:pointer; }
     <p>Get the latest articles, tutorials, and tech insights delivered straight to your inbox. No spam, ever.</p>
     <div class="nl-form" id="nlForm">
       <input type="email" class="nl-input" id="nlEmail" placeholder="your@email.com" autocomplete="email">
-      <button class="nl-btn" onclick="subscribeNewsletter()">
+      <button class="nl-btn" id="nlBtn" onclick="subscribeNewsletter()">
         Subscribe <i class="fas fa-arrow-right"></i>
       </button>
     </div>
+    <div id="nlMsg" style="display:none;"></div>
     <p class="nl-privacy">🔒 We respect your privacy. Unsubscribe at any time.</p>
   </div>
 </section>
 
-<!-- ──────────── FOOTER CTA ──────────── -->
-<div class="footer-cta">
-  <div>
-    <h2>Need a <span>tech partner</span>?</h2>
-    <p style="color:var(--muted);margin-top:6px;font-size:.9rem;">From idea to launch — UYEH TECH builds it.</p>
-  </div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;">
-    <a href="/contact"     class="cta-btn"><i class="fas fa-rocket"></i> Start a Project</a>
-    <a href="/marketplace/" class="cta-btn-ghost"><i class="fas fa-store"></i> Visit Store</a>
-  </div>
-</div>
 <!-- END HTML BLOCK ↑ -->
 
 
@@ -1910,26 +1871,70 @@ function buildPostCard(post) {
 /* ── Newsletter ── */
 async function subscribeNewsletter() {
   const email = $b('nlEmail').value.trim();
+  const msg   = $b('nlMsg');
+  const btn   = $b('nlBtn');
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert('Please enter a valid email address.');
-    return;
+    showNlMsg('Please enter a valid email address.', 'error'); return;
   }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
   try {
     const res  = await fetch(`${BLOG_API_URL}/api/newsletter/subscribe`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email})
+      body:JSON.stringify({ email })
     });
     const data = await res.json();
     if (data.success) {
-      $b('nlForm').innerHTML = '<p style="color:var(--g);font-size:1.05rem;font-weight:600;">🎉 Thank you for subscribing!</p>';
+      $b('nlForm').style.display = 'none';
+      showNlMsg('📬 Check your inbox! We sent you a confirmation email.', 'success');
     } else {
-      alert(data.message || 'Subscription failed. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = 'Subscribe <i class="fas fa-arrow-right"></i>';
+      showNlMsg(data.message || 'Subscription failed. Please try again.', 'error');
     }
   } catch(_) {
-    alert('Subscribed! (Server confirmation pending)');
-    $b('nlForm').innerHTML = '<p style="color:var(--g);">🎉 Thank you for subscribing!</p>';
+    btn.disabled = false;
+    btn.innerHTML = 'Subscribe <i class="fas fa-arrow-right"></i>';
+    showNlMsg('Connection error. Please try again.', 'error');
   }
 }
+
+function showNlMsg(text, type) {
+  const el = $b('nlMsg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.marginTop = '14px';
+  el.style.fontWeight = '600';
+  el.style.fontSize = '1rem';
+  el.style.color = type === 'success' ? 'var(--g, #22c55e)' : '#ef4444';
+  el.textContent = text;
+}
+
+/* ── Handle nl=confirmed / nl=unsubscribed query params from server redirects ── */
+(function handleNlRedirect() {
+  const p = new URLSearchParams(location.search);
+  const nl = p.get('nl');
+  if (!nl) return;
+  const msgs = {
+    confirmed:    { text: '🎉 You\'re subscribed! Welcome to UYEH TECH.', type: 'success' },
+    unsubscribed: { text: '👋 You\'ve been unsubscribed successfully.', type: 'info' },
+    invalid:      { text: '⚠️ That confirmation link is invalid or expired.', type: 'error' },
+    error:        { text: '❌ Something went wrong. Please try again.', type: 'error' },
+  };
+  const m = msgs[nl];
+  if (m) {
+    setTimeout(() => {
+      const el = $b('nlMsg');
+      const form = $b('nlForm');
+      if (el) { el.style.display='block'; el.style.fontWeight='600'; el.style.fontSize='1rem';
+        el.style.color = m.type === 'success' ? 'var(--g,#22c55e)' : m.type === 'info' ? 'var(--accent,#4f46e5)' : '#ef4444';
+        el.textContent = m.text; }
+      if (nl === 'confirmed' && form) form.style.display = 'none';
+      // Clean URL
+      const url = new URL(location.href); url.searchParams.delete('nl'); history.replaceState({}, '', url);
+    }, 500);
+  }
+})();
 
 /* ── Load posts (paginated, category-aware server fetch — audit 4.1 / 4.2) ── */
 async function loadBlogPosts(isAppending = false) {
