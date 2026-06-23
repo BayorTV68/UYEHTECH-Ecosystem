@@ -1496,18 +1496,29 @@ async function checkAuthentication() {
     currentUser = JSON.parse(user);
     showUserDropdown(currentUser);
     // Validate token with server in the background — refresh stale user data
-    fetch(`${API_URL}/api/user/profile`, {
+    // FIX: this used to call /api/user/profile, which doesn't exist on the
+    // server (the real route is /api/profile, no "/user" segment). That 404
+    // was being treated as "token invalid", so every single page load wiped
+    // the user's login — no matter how many times they logged back in.
+    fetch(`${API_URL}/api/profile`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      if (!data || !data.success) {
-        // Token rejected — clear and show guest state
+    .then(r => {
+      if (r.status === 401 || r.status === 403) {
+        // Token is genuinely invalid/expired — safe to clear
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         currentUser = null;
         showGuestButtons();
-      } else if (data.user) {
+        return null;
+      }
+      // Any other non-OK response (404, 500, rate limit, etc.) is a server-
+      // side problem, not proof the token is bad — don't log the user out
+      // over it. Just keep showing the cached state from localStorage.
+      return r.ok ? r.json() : null;
+    })
+    .then(data => {
+      if (data && data.success && data.user) {
         // Refresh cached user object
         currentUser = data.user;
         localStorage.setItem('user', JSON.stringify(data.user));
