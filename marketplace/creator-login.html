@@ -1194,8 +1194,7 @@ function creator_cancelTwoFA() {
   sessionStorage.removeItem('creator_preAuthToken');
   _creator2FABackup = false;
   document.getElementById('twofaWrap').style.display = 'none';
-  document.getElementById('mainPanel').classList.remove('hidden');
-  document.getElementById('mainPanel').classList.add('show');
+  show('mainPanel');
   _creator2FAClearDigits();
   document.getElementById('twofaErr').classList.remove('show');
   document.getElementById('twofaInfo').classList.remove('show');
@@ -1317,7 +1316,6 @@ async function creator_submitTwoFA() {
     const user = data.user;
     let creatorStatus = null;
 
-    let creatorStatus = null;
     try {
       const cRes  = await fetch(`${API_URL}/api/creator/me`, {
         headers: { 'Authorization': `Bearer ${data.token}` }
