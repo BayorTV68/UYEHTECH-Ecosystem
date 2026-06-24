@@ -1423,6 +1423,30 @@ body {
 .nl-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,255,136,.35); }
 .nl-privacy { font-size:.72rem; color:var(--muted); margin-top:12px; }
 
+/* ── STICKY BANNER (Option A) ── */
+.nl-sticky-banner {
+  position:fixed; top:0; left:0; right:0; z-index:9999;
+  background:linear-gradient(135deg,var(--g-dark),var(--g));
+  padding:16px 24px; color:#000; font-weight:600; font-size:.95rem;
+  display:flex; align-items:center; gap:16px; justify-content:space-between;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+  animation:slideDown .3s ease-out;
+}
+.nl-sticky-banner-content { display:flex; align-items:center; gap:12px; flex:1; }
+.nl-sticky-banner-actions { display:flex; align-items:center; gap:12px; }
+.nl-sticky-banner-cta {
+  background:#000; color:var(--g); border:none; padding:8px 16px;
+  border-radius:6px; font-weight:600; font-size:.85rem; cursor:pointer;
+  transition:all .2s;
+}
+.nl-sticky-banner-cta:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.3); }
+.nl-sticky-banner-close {
+  background:none; border:none; color:#000; font-size:1.3rem; cursor:pointer;
+  opacity:.7; transition:opacity .2s;
+}
+.nl-sticky-banner-close:hover { opacity:1; }
+@keyframes slideDown { from { transform:translateY(-100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
 /* ── RESPONSIVE ── */
 @media(max-width:960px) {
   .featured-card { grid-template-columns:1fr; }
@@ -1878,6 +1902,8 @@ async function subscribeNewsletter() {
   }
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+  // Clear any previous messages
+  document.querySelector('.nl-sticky-banner')?.remove();
   try {
     const res  = await fetch(`${BLOG_API_URL}/api/newsletter/subscribe`, {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1900,14 +1926,49 @@ async function subscribeNewsletter() {
 }
 
 function showNlMsg(text, type) {
-  const el = $b('nlMsg');
-  if (!el) return;
-  el.style.display = 'block';
-  el.style.marginTop = '14px';
-  el.style.fontWeight = '600';
-  el.style.fontSize = '1rem';
-  el.style.color = type === 'success' ? 'var(--g, #22c55e)' : '#ef4444';
-  el.textContent = text;
+  // Remove existing banner if any
+  const existing = document.querySelector('.nl-sticky-banner');
+  if (existing) existing.remove();
+  
+  // Create sticky banner
+  const banner = document.createElement('div');
+  banner.className = 'nl-sticky-banner';
+  
+  const content = document.createElement('div');
+  content.className = 'nl-sticky-banner-content';
+  
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  content.innerHTML = `<span>${icon}</span><span>${text}</span>`;
+  
+  const actions = document.createElement('div');
+  actions.className = 'nl-sticky-banner-actions';
+  
+  // Add CTA button for success only
+  if (type === 'success') {
+    const cta = document.createElement('button');
+    cta.className = 'nl-sticky-banner-cta';
+    cta.textContent = 'Explore Blog';
+    cta.onclick = () => { document.getElementById('postsGrid')?.scrollIntoView({ behavior: 'smooth' }); banner.remove(); };
+    actions.appendChild(cta);
+  }
+  
+  // Add close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'nl-sticky-banner-close';
+  closeBtn.innerHTML = '×';
+  closeBtn.onclick = () => banner.remove();
+  actions.appendChild(closeBtn);
+  
+  banner.appendChild(content);
+  banner.appendChild(actions);
+  document.body.insertBefore(banner, document.body.firstChild);
+  
+  // Auto-dismiss after 5 seconds (error 7 seconds)
+  const delay = type === 'error' ? 7000 : 5000;
+  const timeout = setTimeout(() => banner.remove(), delay);
+  
+  // Clear timeout on manual close
+  closeBtn.onclick = () => { clearTimeout(timeout); banner.remove(); };
 }
 
 /* ── Handle nl=confirmed / nl=unsubscribed query params from server redirects ── */
@@ -1916,19 +1977,17 @@ function showNlMsg(text, type) {
   const nl = p.get('nl');
   if (!nl) return;
   const msgs = {
-    confirmed:    { text: '🎉 You\'re subscribed! Welcome to UYEH TECH.', type: 'success' },
-    unsubscribed: { text: '👋 You\'ve been unsubscribed successfully.', type: 'info' },
-    invalid:      { text: '⚠️ That confirmation link is invalid or expired.', type: 'error' },
+    confirmed:    { text: '🎉 You\'re subscribed! Welcome to UYEH TECH. Check your email for updates.', type: 'success' },
+    unsubscribed: { text: '👋 You\'ve been unsubscribed successfully. See you again soon!', type: 'info' },
+    invalid:      { text: '⚠️ That confirmation link is invalid or expired. Please try again.', type: 'error' },
     error:        { text: '❌ Something went wrong. Please try again.', type: 'error' },
   };
   const m = msgs[nl];
   if (m) {
     setTimeout(() => {
-      const el = $b('nlMsg');
       const form = $b('nlForm');
-      if (el) { el.style.display='block'; el.style.fontWeight='600'; el.style.fontSize='1rem';
-        el.style.color = m.type === 'success' ? 'var(--g,#22c55e)' : m.type === 'info' ? 'var(--accent,#4f46e5)' : '#ef4444';
-        el.textContent = m.text; }
+      // Use sticky banner for all feedback
+      showNlMsg(m.text, m.type);
       if (nl === 'confirmed' && form) form.style.display = 'none';
       // Clean URL
       const url = new URL(location.href); url.searchParams.delete('nl'); history.replaceState({}, '', url);
