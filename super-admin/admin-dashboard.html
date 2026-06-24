@@ -3610,6 +3610,39 @@ tr:hover {
                         Create the product first, then use the <b>Course Builder</b> button in the products table to add sections and chapters.
                     </div>
                 </div>
+
+                <!-- ── STATUS ── -->
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-input" name="status">
+                        <option value="draft">📝 Draft</option>
+                        <option value="published" selected>🚀 Published</option>
+                        <option value="archived">📦 Archived</option>
+                    </select>
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Draft products are hidden from buyers</small>
+                </div>
+
+                <!-- ── TAGS ── -->
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <input type="text" class="form-input" name="tags" placeholder="web, design, tutorial (comma-separated)">
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Help customers discover your product</small>
+                </div>
+
+                <!-- ── SHORT DESCRIPTION ── -->
+                <div class="form-group">
+                    <label class="form-label">Short Description</label>
+                    <textarea class="form-textarea" name="shortDescription" placeholder="Brief summary for product cards (optional)" style="min-height:60px;"></textarea>
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Shown in listings if provided, otherwise uses main description</small>
+                </div>
+
+                <!-- ── PRODUCT IMAGE ── -->
+                <div class="form-group">
+                    <label class="form-label">Product Image / Thumbnail</label>
+                    <input type="text" class="form-input" name="image" placeholder="https://… (featured image URL)">
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Main image displayed on product page</small>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Price *</label>
                     <input type="number" class="form-input" name="price" required min="0" step="0.01" placeholder="0.00">
@@ -3617,6 +3650,22 @@ tr:hover {
                 <div class="form-group">
                     <label class="form-label">Compare Price</label>
                     <input type="number" class="form-input" name="comparePrice" min="0" step="0.01" placeholder="Original price">
+                </div>
+
+                <!-- ── REFUND POLICY ── -->
+                <div class="form-group">
+                    <label class="form-label">Refund Policy</label>
+                    <select class="form-input" name="refundPolicy" onchange="toggleRefundDays(this.value)">
+                        <option value="no_refund">❌ No Refund</option>
+                        <option value="7_day">7 Days</option>
+                        <option value="14_day">14 Days</option>
+                        <option value="30_day">30 Days</option>
+                        <option value="custom">Custom Days</option>
+                    </select>
+                </div>
+                <div class="form-group" id="createRefundDaysGroup" style="display:none;">
+                    <label class="form-label">Custom Refund Period (days)</label>
+                    <input type="number" class="form-input" name="refundDays" min="0" max="365" placeholder="e.g., 15">
                 </div>
                 
                 <div class="form-group download-link-section">
@@ -3638,6 +3687,23 @@ tr:hover {
                     <label class="form-label">Version</label>
                     <input type="text" class="form-input" name="version" placeholder="e.g., 1.0">
                 </div>
+
+                <!-- ── PREVIEW / DEMO ── -->
+                <div class="form-group">
+                    <label class="form-label">Preview URL</label>
+                    <input type="url" class="form-input" name="previewUrl" placeholder="https://demo.example.com">
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Link to demo, preview, or trial version</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Preview Type</label>
+                    <select class="form-input" name="previewType">
+                        <option value="none">None (no preview)</option>
+                        <option value="video">📹 Video</option>
+                        <option value="audio">🎵 Audio</option>
+                        <option value="image">🖼️ Image</option>
+                        <option value="iframe">🔗 iFrame/Website</option>
+                    </select>
+                </div>
                 
                 <div class="form-group">
                     <label class="form-label">Product Icon</label>
@@ -3652,6 +3718,64 @@ tr:hover {
                         <input type="checkbox" name="isFeatured"> Featured
                     </label>
                 </div>
+
+                <!-- ── SLUG ── -->
+                <div class="form-group">
+                    <label class="form-label">Product Slug (URL)</label>
+                    <input type="text" class="form-input" name="slug" placeholder="auto-generated-from-title">
+                    <small style="color:var(--gray);display:block;margin-top:4px;">Auto-generated if left empty. Must be unique.</small>
+                </div>
+
+                <!-- ── USAGE RIGHTS & LICENSE (collapsible) ── -->
+                <details style="margin-bottom:16px;border:1px solid rgba(0,255,136,0.12);border-radius:8px;padding:12px;background:rgba(0,255,136,0.02);">
+                    <summary style="cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;letter-spacing:0.5px;">
+                        ▸ USAGE RIGHTS & LICENSE (optional)
+                    </summary>
+                    <div style="padding-top:12px;border-top:1px solid rgba(0,255,136,0.12);">
+                        <div class="form-group">
+                            <label class="form-label">Usage Rights Summary</label>
+                            <textarea class="form-textarea" name="usageRights" placeholder="Plain English summary, e.g., 'Can be used commercially. Resale not allowed.'" style="min-height:70px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Full License Text</label>
+                            <textarea class="form-textarea" name="licenseText" placeholder="Complete license terms (shown on product page)…" style="min-height:100px;"></textarea>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- ── NOTES FOR BUYERS (collapsible) ── -->
+                <details style="margin-bottom:16px;border:1px solid rgba(0,255,136,0.12);border-radius:8px;padding:12px;background:rgba(0,255,136,0.02);">
+                    <summary style="cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;letter-spacing:0.5px;">
+                        ▸ NOTES FOR BUYERS (optional)
+                    </summary>
+                    <div style="padding-top:12px;border-top:1px solid rgba(0,255,136,0.12);">
+                        <div class="form-group">
+                            <label class="form-label">Creator Notes</label>
+                            <textarea class="form-textarea" name="notes" placeholder="Instructions, Discord link, support info, etc. Shown after purchase." style="min-height:90px;"></textarea>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- ── SEO FIELDS (collapsible) ── -->
+                <details style="margin-bottom:16px;border:1px solid rgba(0,255,136,0.12);border-radius:8px;padding:12px;background:rgba(0,255,136,0.02);">
+                    <summary style="cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;letter-spacing:0.5px;">
+                        ▸ SEO / META (optional)
+                    </summary>
+                    <div style="padding-top:12px;border-top:1px solid rgba(0,255,136,0.12);">
+                        <div class="form-group">
+                            <label class="form-label">Meta Title</label>
+                            <input type="text" class="form-input" name="metaTitle" placeholder="Override page title for SEO">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Meta Description</label>
+                            <textarea class="form-textarea" name="metaDescription" placeholder="SEO description (shown in search results)…" style="min-height:70px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Meta Keywords</label>
+                            <input type="text" class="form-input" name="metaKeywords" placeholder="keyword1, keyword2, keyword3">
+                        </div>
+                    </div>
+                </details>
                 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
                     <i class="fas fa-plus"></i> Create Product
@@ -3681,12 +3805,54 @@ tr:hover {
                     <textarea class="form-textarea" name="description" id="editProductDescription" required></textarea>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Short Description</label>
+                    <textarea class="form-textarea" name="shortDescription" id="editProductShortDescription" placeholder="Brief summary for product cards" style="min-height:60px;"></textarea>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Category *</label>
                     <input type="text" class="form-input" name="category" id="editProductCategory" required>
                 </div>
+
+                <!-- ── STATUS ── -->
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-input" name="status" id="editProductStatus">
+                        <option value="draft">📝 Draft</option>
+                        <option value="published">🚀 Published</option>
+                        <option value="archived">📦 Archived</option>
+                    </select>
+                </div>
+
+                <!-- ── TAGS ── -->
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <input type="text" class="form-input" name="tags" id="editProductTags" placeholder="web, design, tutorial (comma-separated)">
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Price *</label>
                     <input type="number" class="form-input" name="price" id="editProductPrice" required min="0" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Compare Price</label>
+                    <input type="number" class="form-input" name="comparePrice" id="editProductComparePrice" min="0" step="0.01">
+                </div>
+
+                <!-- ── REFUND POLICY ── -->
+                <div class="form-group">
+                    <label class="form-label">Refund Policy</label>
+                    <select class="form-input" name="refundPolicy" id="editProductRefundPolicy" onchange="toggleRefundDays(this.value)">
+                        <option value="no_refund">❌ No Refund</option>
+                        <option value="7_day">7 Days</option>
+                        <option value="14_day">14 Days</option>
+                        <option value="30_day">30 Days</option>
+                        <option value="custom">Custom Days</option>
+                    </select>
+                </div>
+                <div class="form-group" id="editRefundDaysGroup" style="display:none;">
+                    <label class="form-label">Custom Refund Period (days)</label>
+                    <input type="number" class="form-input" name="refundDays" id="editProductRefundDays" min="0" max="365">
                 </div>
                 
                 <div class="form-group download-link-section">
@@ -3694,6 +3860,28 @@ tr:hover {
                         <i class="fas fa-download"></i> Download Link *
                     </label>
                     <input type="url" class="form-input" name="downloadLink" id="editProductDownloadLink" required>
+                </div>
+
+                <!-- ── PRODUCT IMAGE ── -->
+                <div class="form-group">
+                    <label class="form-label">Product Image / Thumbnail</label>
+                    <input type="text" class="form-input" name="image" id="editProductImage" placeholder="https://… (featured image URL)">
+                </div>
+
+                <!-- ── PREVIEW / DEMO ── -->
+                <div class="form-group">
+                    <label class="form-label">Preview URL</label>
+                    <input type="url" class="form-input" name="previewUrl" id="editProductPreviewUrl" placeholder="https://demo.example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Preview Type</label>
+                    <select class="form-input" name="previewType" id="editProductPreviewType">
+                        <option value="none">None (no preview)</option>
+                        <option value="video">📹 Video</option>
+                        <option value="audio">🎵 Audio</option>
+                        <option value="image">🖼️ Image</option>
+                        <option value="iframe">🔗 iFrame/Website</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">
@@ -7665,24 +7853,47 @@ async function viewProductDetail(productId) {
     }
 }
  
+
+
 async function handleCreateProduct(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     
-    const productData = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        category: formData.get('category'),
-        price: parseFloat(formData.get('price')),
-        comparePrice: formData.get('comparePrice') ? parseFloat(formData.get('comparePrice')) : 0,
-        downloadLink: formData.get('downloadLink') || '',
-        fileSize: formData.get('fileSize') || '',
-        version: formData.get('version') || '',
-        icon: formData.get('icon') || '📦',
-        isActive: formData.get('isActive') === 'on',
-        isFeatured: formData.get('isFeatured') === 'on'
+    const dataObj = {
+      title:            productData.get('title'),
+      description:      productData.get('description'),
+      shortDescription: productData.get('shortDescription'),
+      category:         productData.get('category'),
+      price:            parseFloat(productData.get('price')) || 0,
+      comparePrice:     parseFloat(productData.get('comparePrice')) || 0,
+      productType:      document.getElementById('createProductType').value || 'download',
+      status:           productData.get('status') || 'published',
+      slug:             productData.get('slug') ? productData.get('slug').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') : '',
+      image:            productData.get('image'),
+      downloadLink:     productData.get('downloadLink'),
+      fileSize:         productData.get('fileSize'),
+      version:          productData.get('version'),
+      icon:             productData.get('icon'),
+      previewUrl:       productData.get('previewUrl'),
+      previewType:      productData.get('previewType') || 'none',
+      refundPolicy:     productData.get('refundPolicy') || 'no_refund',
+      refundDays:       parseInt(productData.get('refundDays')) || 0,
+      isActive:         productData.get('isActive') === 'on' ? true : productData.get('isActive') ? true : false,
+      isFeatured:       productData.get('isFeatured') === 'on' ? true : productData.get('isFeatured') ? true : false,
+      usageRights:      productData.get('usageRights'),
+      licenseText:      productData.get('licenseText'),
+      notes:            productData.get('notes'),
+      metaTitle:        productData.get('metaTitle'),
+      metaDescription:  productData.get('metaDescription'),
+      metaKeywords:     productData.get('metaKeywords') ? productData.get('metaKeywords').split(',').map(k => k.trim()).filter(Boolean) : [],
     };
     
+    // ── Handle tags (comma-separated string → array) ──
+    const tagsRaw = productData.get('tags');
+    if (tagsRaw) {
+      dataObj.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+    }
+
     // Upload hosted file if one was selected
     const hostedFileResult = await uploadProductFileIfSelected('create', adminToken);
     if (hostedFileResult) {
@@ -7695,30 +7906,39 @@ async function handleCreateProduct(event) {
 
     // Collect music/software extras
     const pType = productData.productType;
-    if (pType === 'music') {
-        productData.audioData = {
-            bpm:     parseInt(formData.get('audioBpm'))  || null,
-            key:     formData.get('audioKey')            || null,
-            genre:   formData.get('audioGenre')          || null,
-            license: formData.get('audioLicense')        || 'personal',
-            stems:   formData.get('audioStems') === 'on',
-        };
+     if (dataObj.productType === 'music') {
+      dataObj.audioData = {
+        bpm:        productData.get('audioBpm') ? parseInt(productData.get('audioBpm')) : undefined,
+        key:        productData.get('audioKey'),
+        genre:      productData.get('audioGenre'),
+        license:    productData.get('audioLicense'),
+        stems:      productData.get('audioStems') === 'on' ? true : false,
+      };
     }
-    if (pType === 'software') {
-        productData.softwareData = {
-            platform:      [...document.querySelectorAll('input[name="softwarePlatform"]:checked')].map(el => el.value),
-            licenseType:   formData.get('softwareLicenseType')   || 'single',
-            supportPeriod: formData.get('softwareSupportPeriod') || '',
-        };
+    if (dataObj.productType === 'software') {
+      const platforms = productData.getAll('softwarePlatform');
+      dataObj.softwareData = {
+        platform:       platforms || [],
+        licenseType:    productData.get('softwareLicenseType'),
+        supportPeriod:  productData.get('softwareSupportPeriod'),
+        maxDevices:     productData.get('softwareMaxDevices') ? parseInt(productData.get('softwareMaxDevices')) : 1,
+      };
     }
 
     try {
         showLoading();
-        const response = await fetch(`${API_URL}/api/admin/products`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(productData)
-        });
+        // Remove empty/undefined fields to keep payload clean
+    Object.keys(dataObj).forEach(key => {
+      if (dataObj[key] === undefined || dataObj[key] === null || dataObj[key] === '') {
+        delete dataObj[key];
+      }
+    });
+
+    const response = await fetch(`${API_URL}/api/admin/products`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataObj)
+    });
 
         const data = await response.json();
         if (data.success) {
@@ -7768,32 +7988,128 @@ async function editProduct(productId) {
     }
 }
 
-async function handleUpdateProduct(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const productId = formData.get('productId');
+/* Load product data and populate edit form */
+async function loadProductForEdit(productId) {
+  try {
+    const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     
-    const form = event.target;
-    const productData = {
-        title:        formData.get('title'),
-        description:  formData.get('description'),
-        category:     formData.get('category'),
-        price:        parseFloat(formData.get('price')),
-        downloadLink: formData.get('downloadLink') || '',
-        fileSize:     formData.get('fileSize')     || '',
-        isActive:     formData.get('isActive')     === 'on',
-        isFeatured:   formData.get('isFeatured')   === 'on',
-        // ✅ FIX: Preserve type-specific fields that were set on creation
-        productType:  form.dataset.productType  || 'download',
-        comparePrice: parseFloat(form.dataset.comparePrice) || 0,
-    };
+    if (!response.ok) {
+      showNotification('Failed to load product', 'error');
+      return;
+    }
+    
+    const data = await response.json();
+    const product = data.product || data;
+    
+    // Populate all fields
+    document.getElementById('editProductId').value = product._id;
+    document.getElementById('editProductTitle').value = product.title || '';
+    document.getElementById('editProductDescription').value = product.description || '';
+    document.getElementById('editProductShortDescription').value = product.shortDescription || '';
+    document.getElementById('editProductCategory').value = product.category || '';
+    document.getElementById('editProductStatus').value = product.status || 'published';
+    document.getElementById('editProductPrice').value = product.price || '0';
+    document.getElementById('editProductComparePrice').value = product.comparePrice || '0';
+    document.getElementById('editProductTags').value = Array.isArray(product.tags) ? product.tags.join(', ') : '';
+    document.getElementById('editProductDownloadLink').value = product.downloadLink || '';
+    document.getElementById('editProductFileSize').value = product.fileSize || '';
+    document.getElementById('editProductVersion').value = product.version || '';
+    document.getElementById('editProductImage').value = product.image || '';
+    document.getElementById('editProductPreviewUrl').value = product.previewUrl || '';
+    document.getElementById('editProductPreviewType').value = product.previewType || 'none';
+    document.getElementById('editProductRefundPolicy').value = product.refundPolicy || 'no_refund';
+    document.getElementById('editProductRefundDays').value = product.refundDays || '0';
+    toggleRefundDays(product.refundPolicy);
+    document.getElementById('editProductSlug').value = product.slug || '';
+    document.getElementById('editProductUsageRights').value = product.usageRights || '';
+    document.getElementById('editProductLicenseText').value = product.licenseText || '';
+    document.getElementById('editProductNotes').value = product.notes || '';
+    document.getElementById('editProductMetaTitle').value = product.metaTitle || '';
+    document.getElementById('editProductMetaDescription').value = product.metaDescription || '';
+    document.getElementById('editProductMetaKeywords').value = Array.isArray(product.metaKeywords) ? product.metaKeywords.join(', ') : '';
+    document.getElementById('editProductIsActive').checked = product.isActive !== false;
+    document.getElementById('editProductIsFeatured').checked = product.isFeatured === true;
+    
+    // Handle music metadata if present
+    if (product.audioData) {
+      if (document.getElementById('editAudioBpm')) document.getElementById('editAudioBpm').value = product.audioData.bpm || '';
+      if (document.getElementById('editAudioKey')) document.getElementById('editAudioKey').value = product.audioData.key || '';
+      if (document.getElementById('editAudioGenre')) document.getElementById('editAudioGenre').value = product.audioData.genre || '';
+      if (document.getElementById('editAudioLicense')) document.getElementById('editAudioLicense').value = product.audioData.license || 'personal';
+      if (document.getElementById('editAudioStems')) document.getElementById('editAudioStems').checked = product.audioData.stems === true;
+    }
+    
+    // Handle software metadata if present
+    if (product.softwareData) {
+      const platformCheckboxes = document.querySelectorAll('input[name="editSoftwarePlatform"]');
+      platformCheckboxes.forEach(cb => {
+        cb.checked = (product.softwareData.platform || []).includes(cb.value);
+      });
+      if (document.getElementById('editSoftwareLicenseType')) document.getElementById('editSoftwareLicenseType').value = product.softwareData.licenseType || 'single';
+      if (document.getElementById('editSoftwareSupportPeriod')) document.getElementById('editSoftwareSupportPeriod').value = product.softwareData.supportPeriod || '';
+    }
+    
+    openModal('editProductModal');
+  } catch (error) {
+    console.error('Error loading product:', error);
+    showNotification('Failed to load product', 'error');
+  }
+}
+
+async function handleUpdateProduct(event) {
+  event.preventDefault();
+  const form = document.getElementById('editProductForm');
+  const productData = new FormData(form);
+  
+  const productId = productData.get('productId');
+  const updateData = {
+    title:            productData.get('title'),
+    description:      productData.get('description'),
+    shortDescription: productData.get('shortDescription'),
+    category:         productData.get('category'),
+    price:            parseFloat(productData.get('price')) || 0,
+    comparePrice:     parseFloat(productData.get('comparePrice')) || 0,
+    status:           productData.get('status'),
+    slug:             productData.get('slug') ? productData.get('slug').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') : undefined,
+    image:            productData.get('image'),
+    downloadLink:     productData.get('downloadLink'),
+    fileSize:         productData.get('fileSize'),
+    version:          productData.get('version'),
+    previewUrl:       productData.get('previewUrl'),
+    previewType:      productData.get('previewType'),
+    refundPolicy:     productData.get('refundPolicy'),
+    refundDays:       productData.get('refundDays') ? parseInt(productData.get('refundDays')) : 0,
+    isActive:         productData.get('isActive') === 'on' ? true : productData.get('isActive') ? true : false,
+    isFeatured:       productData.get('isFeatured') === 'on' ? true : productData.get('isFeatured') ? true : false,
+    usageRights:      productData.get('usageRights'),
+    licenseText:      productData.get('licenseText'),
+    notes:            productData.get('notes'),
+    metaTitle:        productData.get('metaTitle'),
+    metaDescription:  productData.get('metaDescription'),
+    metaKeywords:     productData.get('metaKeywords') ? productData.get('metaKeywords').split(',').map(k => k.trim()).filter(Boolean) : undefined,
+  };
+
+  // ── Handle tags (comma-separated string → array) ──
+  const tagsRaw = productData.get('tags');
+  if (tagsRaw) {
+    updateData.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+  }
     try {
         showLoading();
-        const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(productData)
-        });
+        // Remove empty/undefined fields to keep payload clean
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] === undefined || updateData[key] === null || updateData[key] === '') {
+        delete updateData[key];
+      }
+    });
+
+    const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    });
 
         const data = await response.json();
         if (data.success) {
