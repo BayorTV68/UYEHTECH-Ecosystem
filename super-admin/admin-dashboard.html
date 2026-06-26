@@ -3508,402 +3508,741 @@ tr:hover {
         </div>
     </div>
 
-    <!-- CREATE PRODUCT MODAL -->
-    <div id="createProductModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Create New Product</h2>
-                <button class="close-modal" onclick="closeModal('createProductModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="createProductForm" onsubmit="handleCreateProduct(event)">
-                <div class="form-group">
-                    <label class="form-label">Product Title *</label>
-                    <input type="text" class="form-input" name="title" required placeholder="Enter product name">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Description *</label>
-                    <textarea class="form-textarea" name="description" required placeholder="Product description"></textarea>
-                </div>
-               <div class="form-group">
-    <label class="form-label">Category *</label>
-    <select class="form-input" name="category" required>
-                        <option value="">-- Select Category --</option>
-                        <option value="Templates">Templates</option>
-                        <option value="Components">Components</option>
-                        <option value="Courses">Courses</option>
-                        <option value="Scripts">Scripts</option>
-                        <option value="Software">Software</option>
-                        <option value="Music">Music</option>
-                        <option value="eBooks">eBooks</option>
-                        <option value="Graphics">Graphics</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Product Type *</label>
-                    <select class="form-input" name="productType" id="createProductType" onchange="toggleProductTypeFields('create', this.value)">
-                        <option value="download">📦 Download (File/Link)</option>
-                        <option value="course">🎓 Course (Structured Chapters)</option>
-                        <option value="software">💻 Software</option>
-                        <option value="music">🎵 Music / Audio</option>
-                        <option value="template">🎨 Template</option>
-                        <option value="script">⚙️ Script</option>
-                        <option value="component">🧩 Component</option>
-                        <option value="ebook">📖 eBook</option>
-                    </select>
-                </div>
-
-                <!-- Hosted file upload (shows for all types except course) -->
-                <div class="form-group" id="createHostedFileSection">
-                    <label class="form-label"><i class="fas fa-cloud-upload-alt"></i> Upload Product File <small style="color:var(--gray)">(replaces external link)</small></label>
-                    <input type="file" class="form-input" id="createProductFileInput" accept="*/*">
-                    <div id="createFileUploadStatus" style="margin-top:6px;font-size:0.82rem;color:var(--gray);"></div>
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Or use an external link below ↓</small>
-                </div>
-
-                <!-- Music extras -->
-                <div class="form-group" id="createMusicFields" style="display:none;">
-                    <label class="form-label">BPM</label>
-                    <input type="number" class="form-input" name="audioBpm" placeholder="e.g. 128">
-                    <label class="form-label" style="margin-top:10px;">Key</label>
-                    <input type="text" class="form-input" name="audioKey" placeholder="e.g. C minor">
-                    <label class="form-label" style="margin-top:10px;">Genre</label>
-                    <input type="text" class="form-input" name="audioGenre" placeholder="e.g. Hip-Hop">
-                    <label class="form-label" style="margin-top:10px;">License</label>
-                    <select class="form-input" name="audioLicense">
-                        <option value="personal">Personal Use</option>
-                        <option value="commercial">Commercial Use</option>
-                        <option value="exclusive">Exclusive</option>
-                    </select>
-                    <label class="form-label" style="margin-top:10px;"><input type="checkbox" name="audioStems"> Includes Stems/Tracks</label>
-                </div>
-
-                <!-- Software extras -->
-                <div class="form-group" id="createSoftwareFields" style="display:none;">
-                    <label class="form-label">Platform(s)</label>
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
-                        <label><input type="checkbox" name="softwarePlatform" value="windows"> Windows</label>
-                        <label><input type="checkbox" name="softwarePlatform" value="mac"> Mac</label>
-                        <label><input type="checkbox" name="softwarePlatform" value="linux"> Linux</label>
-                        <label><input type="checkbox" name="softwarePlatform" value="web"> Web</label>
-                        <label><input type="checkbox" name="softwarePlatform" value="android"> Android</label>
-                        <label><input type="checkbox" name="softwarePlatform" value="ios"> iOS</label>
-                    </div>
-                    <label class="form-label" style="margin-top:10px;">License Type</label>
-                    <select class="form-input" name="softwareLicenseType">
-                        <option value="single">Single Device</option>
-                        <option value="multi">Multi Device</option>
-                        <option value="lifetime">Lifetime</option>
-                        <option value="subscription">Subscription</option>
-                    </select>
-                    <label class="form-label" style="margin-top:10px;">Support Period</label>
-                    <input type="text" class="form-input" name="softwareSupportPeriod" placeholder="e.g. 6 months">
-                </div>
-
-                <!-- Course note -->
-                <div class="form-group" id="createCourseNote" style="display:none;">
-                    <div style="background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);padding:12px;border-radius:8px;font-size:0.85rem;color:var(--gray-light);">
-                        <b style="color:var(--primary);">📋 Course Mode</b><br>
-                        Create the product first, then use the <b>Course Builder</b> button in the products table to add sections and chapters.
-                    </div>
-                </div>
-
-                <!-- ── STATUS ── -->
-                <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <select class="form-input" name="status">
-                        <option value="draft">📝 Draft</option>
-                        <option value="published" selected>🚀 Published</option>
-                        <option value="archived">📦 Archived</option>
-                    </select>
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Draft products are hidden from buyers</small>
-                </div>
-
-                <!-- ── TAGS ── -->
-                <div class="form-group">
-                    <label class="form-label">Tags</label>
-                    <input type="text" class="form-input" name="tags" placeholder="web, design, tutorial (comma-separated)">
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Help customers discover your product</small>
-                </div>
-
-                <!-- ── SHORT DESCRIPTION ── -->
-                <div class="form-group">
-                    <label class="form-label">Short Description</label>
-                    <textarea class="form-textarea" name="shortDescription" placeholder="Brief summary for product cards (optional)" style="min-height:60px;"></textarea>
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Shown in listings if provided, otherwise uses main description</small>
-                </div>
-
-                <!-- ── PRODUCT IMAGE ── -->
-                <div class="form-group">
-                    <label class="form-label">Product Image / Thumbnail</label>
-                    <input type="text" class="form-input" name="image" placeholder="https://… (featured image URL)">
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Main image displayed on product page</small>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Price *</label>
-                    <input type="number" class="form-input" name="price" required min="0" step="0.01" placeholder="0.00">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Compare Price</label>
-                    <input type="number" class="form-input" name="comparePrice" min="0" step="0.01" placeholder="Original price">
-                </div>
-
-                <!-- ── REFUND POLICY ── -->
-                <div class="form-group">
-                    <label class="form-label">Refund Policy</label>
-                    <select class="form-input" name="refundPolicy" onchange="toggleRefundDays(this.value)">
-                        <option value="no_refund">❌ No Refund</option>
-                        <option value="7_day">7 Days</option>
-                        <option value="14_day">14 Days</option>
-                        <option value="30_day">30 Days</option>
-                        <option value="custom">Custom Days</option>
-                    </select>
-                </div>
-                <div class="form-group" id="createRefundDaysGroup" style="display:none;">
-                    <label class="form-label">Custom Refund Period (days)</label>
-                    <input type="number" class="form-input" name="refundDays" min="0" max="365" placeholder="e.g., 15">
-                </div>
-                
-                <div class="form-group download-link-section">
-                    <label class="form-label">
-                        <i class="fas fa-download"></i> Download Link *
-                    </label>
-                    <input type="url" class="form-input" name="downloadLink" required placeholder="https://drive.google.com/...">
-                    <small style="color: var(--gray); display: block; margin-top: 5px;">
-                        🔥 Accessible to customers after payment
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">File Size</label>
-                    <input type="text" class="form-input" name="fileSize" placeholder="e.g., 5.2 MB">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Version</label>
-                    <input type="text" class="form-input" name="version" placeholder="e.g., 1.0">
-                </div>
-
-                <!-- ── PREVIEW / DEMO ── -->
-                <div class="form-group">
-                    <label class="form-label">Preview URL</label>
-                    <input type="url" class="form-input" name="previewUrl" placeholder="https://demo.example.com">
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Link to demo, preview, or trial version</small>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Preview Type</label>
-                    <select class="form-input" name="previewType">
-                        <option value="none">None (no preview)</option>
-                        <option value="video">📹 Video</option>
-                        <option value="audio">🎵 Audio</option>
-                        <option value="image">🖼️ Image</option>
-                        <option value="iframe">🔗 iFrame/Website</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Product Icon</label>
-                    <input type="text" class="form-input" name="icon" placeholder="Icon emoji">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" name="isActive" checked> Active
-                    </label>
-                    <label class="form-label" style="margin-left: 20px;">
-                        <input type="checkbox" name="isFeatured"> Featured
-                    </label>
-                </div>
-
-                <!-- ── SLUG ── -->
-                <div class="form-group">
-                    <label class="form-label">Product Slug (URL)</label>
-                    <input type="text" class="form-input" name="slug" placeholder="auto-generated-from-title">
-                    <small style="color:var(--gray);display:block;margin-top:4px;">Auto-generated if left empty. Must be unique.</small>
-                </div>
-
-                <!-- ── USAGE RIGHTS & LICENSE (collapsible) ── -->
-                <details style="margin-bottom:16px;border:1px solid rgba(0,255,136,0.12);border-radius:8px;padding:12px;background:rgba(0,255,136,0.02);">
-                    <summary style="cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;letter-spacing:0.5px;">
-                        ▸ USAGE RIGHTS & LICENSE (optional)
-                    </summary>
-                    <div style="padding-top:12px;border-top:1px solid rgba(0,255,136,0.12);">
-                        <div class="form-group">
-                            <label class="form-label">Usage Rights Summary</label>
-                            <textarea class="form-textarea" name="usageRights" placeholder="Plain English summary, e.g., 'Can be used commercially. Resale not allowed.'" style="min-height:70px;"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Full License Text</label>
-                            <textarea class="form-textarea" name="licenseText" placeholder="Complete license terms (shown on product page)…" style="min-height:100px;"></textarea>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- ── NOTES FOR BUYERS (collapsible) ── -->
-                <details style="margin-bottom:16px;border:1px solid rgba(0,255,136,0.12);border-radius:8px;padding:12px;background:rgba(0,255,136,0.02);">
-                    <summary style="cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;letter-spacing:0.5px;">
-                        ▸ NOTES FOR BUYERS (optional)
-                    </summary>
-                    <div style="padding-top:12px;border-top:1px solid rgba(0,255,136,0.12);">
-                        <div class="form-group">
-                            <label class="form-label">Creator Notes</label>
-                            <textarea class="form-textarea" name="notes" placeholder="Instructions, Discord link, support info, etc. Shown after purchase." style="min-height:90px;"></textarea>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- ── SEO FIELDS (collapsible) ── -->
-                <details style="margin-bottom:16px;border:1px solid rgba(0,255,136,0.12);border-radius:8px;padding:12px;background:rgba(0,255,136,0.02);">
-                    <summary style="cursor:pointer;color:#00ff88;font-weight:700;font-size:.85rem;letter-spacing:0.5px;">
-                        ▸ SEO / META (optional)
-                    </summary>
-                    <div style="padding-top:12px;border-top:1px solid rgba(0,255,136,0.12);">
-                        <div class="form-group">
-                            <label class="form-label">Meta Title</label>
-                            <input type="text" class="form-input" name="metaTitle" placeholder="Override page title for SEO">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Meta Description</label>
-                            <textarea class="form-textarea" name="metaDescription" placeholder="SEO description (shown in search results)…" style="min-height:70px;"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Meta Keywords</label>
-                            <input type="text" class="form-input" name="metaKeywords" placeholder="keyword1, keyword2, keyword3">
-                        </div>
-                    </div>
-                </details>
-                
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-plus"></i> Create Product
-                </button>
-            </form>
-        </div>
+<!-- ══════════════════════════════════════════════════════
+     CREATE PRODUCT MODAL — full creator parity
+══════════════════════════════════════════════════════ -->
+<div id="createProductModal" class="modal">
+  <div class="modal-content" style="max-width:860px;width:96%;max-height:94vh;overflow-y:auto;">
+    <div class="modal-header" style="position:sticky;top:0;z-index:10;background:var(--dark,#111);border-bottom:1px solid rgba(0,255,136,.12);padding:16px 20px;">
+      <h2 class="modal-title"><i class="fas fa-plus" style="color:#00ff88;margin-right:8px;"></i>Create New Product</h2>
+      <button class="close-modal" onclick="closeModal('createProductModal')"><i class="fas fa-times"></i></button>
     </div>
 
-    <!-- EDIT PRODUCT MODAL -->
-    <div id="editProductModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Edit Product</h2>
-                <button class="close-modal" onclick="closeModal('editProductModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="editProductForm" onsubmit="handleUpdateProduct(event)">
-                <input type="hidden" name="productId" id="editProductId">
-                
-                <div class="form-group">
-                    <label class="form-label">Product Title *</label>
-                    <input type="text" class="form-input" name="title" id="editProductTitle" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Description *</label>
-                    <textarea class="form-textarea" name="description" id="editProductDescription" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Short Description</label>
-                    <textarea class="form-textarea" name="shortDescription" id="editProductShortDescription" placeholder="Brief summary for product cards" style="min-height:60px;"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Category *</label>
-                    <input type="text" class="form-input" name="category" id="editProductCategory" required>
-                </div>
-
-                <!-- ── STATUS ── -->
-                <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <select class="form-input" name="status" id="editProductStatus">
-                        <option value="draft">📝 Draft</option>
-                        <option value="published">🚀 Published</option>
-                        <option value="archived">📦 Archived</option>
-                    </select>
-                </div>
-
-                <!-- ── TAGS ── -->
-                <div class="form-group">
-                    <label class="form-label">Tags</label>
-                    <input type="text" class="form-input" name="tags" id="editProductTags" placeholder="web, design, tutorial (comma-separated)">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Price *</label>
-                    <input type="number" class="form-input" name="price" id="editProductPrice" required min="0" step="0.01">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Compare Price</label>
-                    <input type="number" class="form-input" name="comparePrice" id="editProductComparePrice" min="0" step="0.01">
-                </div>
-
-                <!-- ── REFUND POLICY ── -->
-                <div class="form-group">
-                    <label class="form-label">Refund Policy</label>
-                    <select class="form-input" name="refundPolicy" id="editProductRefundPolicy" onchange="toggleRefundDays(this.value)">
-                        <option value="no_refund">❌ No Refund</option>
-                        <option value="7_day">7 Days</option>
-                        <option value="14_day">14 Days</option>
-                        <option value="30_day">30 Days</option>
-                        <option value="custom">Custom Days</option>
-                    </select>
-                </div>
-                <div class="form-group" id="editRefundDaysGroup" style="display:none;">
-                    <label class="form-label">Custom Refund Period (days)</label>
-                    <input type="number" class="form-input" name="refundDays" id="editProductRefundDays" min="0" max="365">
-                </div>
-                
-                <div class="form-group download-link-section">
-                    <label class="form-label">
-                        <i class="fas fa-download"></i> Download Link *
-                    </label>
-                    <input type="url" class="form-input" name="downloadLink" id="editProductDownloadLink" required>
-                </div>
-
-                <!-- ── PRODUCT IMAGE ── -->
-                <div class="form-group">
-                    <label class="form-label">Product Image / Thumbnail</label>
-                    <input type="text" class="form-input" name="image" id="editProductImage" placeholder="https://… (featured image URL)">
-                </div>
-
-                <!-- ── PREVIEW / DEMO ── -->
-                <div class="form-group">
-                    <label class="form-label">Preview URL</label>
-                    <input type="url" class="form-input" name="previewUrl" id="editProductPreviewUrl" placeholder="https://demo.example.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Preview Type</label>
-                    <select class="form-input" name="previewType" id="editProductPreviewType">
-                        <option value="none">None (no preview)</option>
-                        <option value="video">📹 Video</option>
-                        <option value="audio">🎵 Audio</option>
-                        <option value="image">🖼️ Image</option>
-                        <option value="iframe">🔗 iFrame/Website</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">File Size</label>
-                    <input type="text" class="form-input" name="fileSize" id="editProductFileSize">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" name="isActive" id="editProductIsActive"> Active
-                    </label>
-                    <label class="form-label" style="margin-left: 20px;">
-                        <input type="checkbox" name="isFeatured" id="editProductIsFeatured"> Featured
-                    </label>
-                </div>
-                
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Update Product
-                </button>
-            </form>
-        </div>
+    <!-- TYPE TABS -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:14px 20px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+      <button class="adm-ptype-tab active" data-type="download"   onclick="admSwitchType('download',this)">📦 Download</button>
+      <button class="adm-ptype-tab"        data-type="course"     onclick="admSwitchType('course',this)">🎓 Course</button>
+      <button class="adm-ptype-tab"        data-type="template"   onclick="admSwitchType('template',this)">🎨 Template</button>
+      <button class="adm-ptype-tab"        data-type="component"  onclick="admSwitchType('component',this)">🧩 Component</button>
+      <button class="adm-ptype-tab"        data-type="script"     onclick="admSwitchType('script',this)">⚙️ Script</button>
+      <button class="adm-ptype-tab"        data-type="software"   onclick="admSwitchType('software',this)">💻 Software</button>
+      <button class="adm-ptype-tab"        data-type="music"      onclick="admSwitchType('music',this)">🎵 Music</button>
+      <button class="adm-ptype-tab"        data-type="ebook"      onclick="admSwitchType('ebook',this)">📖 eBook</button>
+      <button class="adm-ptype-tab"        data-type="video"      onclick="admSwitchType('video',this)">🎬 Video</button>
     </div>
+
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;padding:20px;">
+
+      <!-- ═══ LEFT COLUMN ═══ -->
+      <div>
+
+        <!-- CORE DETAILS -->
+        <div class="adm-prod-card">
+          <div class="adm-prod-card-title">Product Details <span class="adm-type-badge" id="cTypeBadge">📦 Download</span></div>
+          <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input type="text" class="form-input" id="cTitle" placeholder="Clear, descriptive product name" oninput="admUpdatePreview()">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select class="form-input" id="cCategory" onchange="admUpdatePreview()">
+                <option value="">Select category</option>
+                <option>Templates</option><option>Components</option><option>Courses</option>
+                <option>Scripts</option><option>Software</option><option>Music</option>
+                <option>Video</option><option>eBooks</option><option>Graphics</option>
+                <option>Tools</option><option>Assets</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price (USD) *</label>
+              <input type="number" class="form-input" id="cPrice" min="0" step="0.01" placeholder="0.00" oninput="admUpdatePreview()">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Compare Price</label>
+              <input type="number" class="form-input" id="cComparePrice" min="0" step="0.01" placeholder="Original price">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-input" id="cStatus">
+                <option value="draft">📝 Draft</option>
+                <option value="published" selected>🚀 Published</option>
+                <option value="archived">📦 Archived</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description *</label>
+            <textarea class="form-textarea" id="cDescription" rows="4" placeholder="What does it include? Who is it for? What problem does it solve?" oninput="admUpdatePreview()"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Short Description</label>
+            <textarea class="form-textarea" id="cShortDescription" rows="2" placeholder="Brief summary for product cards (optional)" style="min-height:52px;"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Tags</label>
+            <input type="text" class="form-input" id="cTags" placeholder="web, design, tutorial (comma-separated)">
+          </div>
+        </div>
+
+        <!-- COVER IMAGE -->
+        <div class="adm-prod-card" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Cover Image</div>
+          <input type="text" class="form-input" id="cImage" placeholder="https://… (image URL)" oninput="admUpdatePreview()">
+          <small style="color:var(--gray);display:block;margin-top:4px;">Main image shown on the product card and detail page</small>
+        </div>
+
+        <!-- PANEL: DOWNLOAD / TEMPLATE / COMPONENT / SCRIPT / EBOOK -->
+        <div class="adm-prod-card adm-panel active" id="cPanel-download" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Delivery File</div>
+          <div class="form-group">
+            <label class="form-label">Delivery Method</label>
+            <div style="display:flex;gap:10px;">
+              <div class="adm-delivery-opt selected" id="cDeliveryHosted" onclick="admSelectDelivery('hosted','c')">
+                <span>☁️</span><div>Host Here</div><small>Upload to UYEH</small>
+              </div>
+              <div class="adm-delivery-opt" id="cDeliveryLink" onclick="admSelectDelivery('link','c')">
+                <span>🔗</span><div>External Link</div><small>Google Drive, etc.</small>
+              </div>
+            </div>
+          </div>
+          <div id="cHostedSection">
+            <label class="form-label"><i class="fas fa-cloud-upload-alt"></i> Upload File</label>
+            <input type="file" class="form-input" id="cProductFileInput" accept="*/*">
+            <div id="cFileUploadStatus" style="margin-top:6px;font-size:.8rem;color:var(--gray);"></div>
+          </div>
+          <div id="cLinkSection" style="display:none;">
+            <div class="form-group" id="cDownloadLinkGroup">
+              <label class="form-label">Download / Access Link</label>
+              <input type="url" class="form-input" id="cDownloadLink" placeholder="https://drive.google.com/...">
+            </div>
+            <div class="form-group" id="cExternalVideoGroup" style="display:none;">
+              <label class="form-label">Video URL</label>
+              <input type="url" class="form-input" id="cExternalVideoUrl" placeholder="https://youtube.com/...">
+            </div>
+            <div class="form-group" id="cExternalAudioGroup" style="display:none;">
+              <label class="form-label">Audio URL</label>
+              <input type="url" class="form-input" id="cExternalAudioUrl" placeholder="https://soundcloud.com/...">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+            <div class="form-group"><label class="form-label">File Size</label><input type="text" class="form-input" id="cFileSize" placeholder="Auto-detected or e.g. 12 MB"></div>
+            <div class="form-group"><label class="form-label">Version</label><input type="text" class="form-input" id="cVersion" placeholder="e.g. 1.0.0"></div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:12px;padding-top:12px;">
+            <label class="form-label">Preview Type</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="cPreviewChips">
+              <span class="adm-preview-chip active" data-p="none"   onclick="admSelectPreview(this,'none','c')">No Preview</span>
+              <span class="adm-preview-chip" data-p="image"  onclick="admSelectPreview(this,'image','c')">🖼️ Image</span>
+              <span class="adm-preview-chip" data-p="video"  onclick="admSelectPreview(this,'video','c')">▶️ Video</span>
+              <span class="adm-preview-chip" data-p="audio"  onclick="admSelectPreview(this,'audio','c')">🎵 Audio</span>
+              <span class="adm-preview-chip" data-p="iframe" onclick="admSelectPreview(this,'iframe','c')">🌐 Demo URL</span>
+            </div>
+          </div>
+          <div class="form-group" id="cPreviewUrlSection" style="display:none;margin-top:10px;">
+            <label class="form-label">Preview / Demo URL</label>
+            <input type="url" class="form-input" id="cPreviewUrl" placeholder="https://demo.example.com">
+          </div>
+        </div>
+
+        <!-- PANEL: COURSE -->
+        <div class="adm-prod-card adm-panel" id="cPanel-course" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Course Curriculum</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Level</label>
+              <select class="form-input" id="cCourseLevel">
+                <option value="all">All Levels</option><option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option><option value="advanced">Advanced</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Language</label><input type="text" class="form-input" id="cCourseLanguage" value="English"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">What Students Will Learn</label>
+            <textarea class="form-textarea" id="cCourseOutcomes" rows="3" placeholder="• Master React hooks&#10;• Deploy to production with CI/CD"></textarea>
+            <small style="color:var(--gray);">One outcome per line.</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Audience</label>
+            <textarea class="form-textarea" id="cCourseAudience" rows="2" placeholder="• Developers who know basic JavaScript&#10;• Designers learning to code"></textarea>
+          </div>
+          <div class="form-group"><label class="form-label">Welcome Message</label><textarea class="form-textarea" id="cCourseWelcome" rows="2" placeholder="Welcome! In this course you'll learn…"></textarea></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Completion Message</label><textarea class="form-textarea" id="cCourseCompletion" rows="2" placeholder="Congratulations! Here's what to do next…"></textarea></div>
+          <div style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:8px;padding:10px 12px;font-size:.8rem;color:#9ca3af;margin-top:12px;">
+            🎓 <strong style="color:#00ff88;">Course Builder</strong> — Create the product first, then use the <strong>Course Builder</strong> button in the products table to add sections and chapters.
+          </div>
+        </div>
+
+        <!-- PANEL: MUSIC -->
+        <div class="adm-prod-card adm-panel" id="cPanel-music" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Music / Audio File</div>
+          <div class="form-group">
+            <label class="form-label">Audio File *</label>
+            <input type="file" class="form-input" id="cMusicFileInput" accept="audio/*">
+            <div id="cMusicFileStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">BPM</label><input type="number" class="form-input" id="cAudioBpm" placeholder="128"></div>
+            <div class="form-group"><label class="form-label">Key</label><input type="text" class="form-input" id="cAudioKey" placeholder="C minor"></div>
+            <div class="form-group"><label class="form-label">Genre</label><input type="text" class="form-input" id="cAudioGenre" placeholder="Hip-Hop"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Mood / Vibe</label><input type="text" class="form-input" id="cAudioMood" placeholder="Dark, Uplifting, Chill…"></div>
+          <div class="form-group">
+            <label class="form-label">License Type</label>
+            <div style="display:flex;gap:8px;">
+              <div class="adm-lic-btn active" id="cLic-personal"   onclick="admSelectMusicLic('personal','c')">Personal<br><small>Non-commercial</small></div>
+              <div class="adm-lic-btn"        id="cLic-commercial" onclick="admSelectMusicLic('commercial','c')">Commercial<br><small>Any project</small></div>
+              <div class="adm-lic-btn"        id="cLic-exclusive"  onclick="admSelectMusicLic('exclusive','c')">Exclusive<br><small>Sole ownership</small></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cAudioStems"> Includes Stems / Multi-tracks</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cAudioVocals"> Contains Vocals</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cAudioLoopable"> Loopable</label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Track Title</label><input type="text" class="form-input" id="cAudioTrackTitle" placeholder="Display title"></div>
+            <div class="form-group"><label class="form-label">Artist</label><input type="text" class="form-input" id="cAudioArtist" placeholder="Artist / producer"></div>
+            <div class="form-group"><label class="form-label">Album / EP</label><input type="text" class="form-input" id="cAudioAlbum" placeholder="Album or EP name"></div>
+            <div class="form-group"><label class="form-label">Release Year</label><input type="number" class="form-input" id="cAudioReleaseYear" placeholder="2024"></div>
+          </div>
+          <div class="form-group"><label class="form-label">ISRC Code</label><input type="text" class="form-input" id="cAudioIsrc" placeholder="e.g. USRC17607839"></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Allowed Uses</label><input type="text" class="form-input" id="cAudioAllowedUses" placeholder="YouTube, Podcasts, Ads… (comma-separated)"></div>
+        </div>
+
+        <!-- PANEL: SOFTWARE -->
+        <div class="adm-prod-card adm-panel" id="cPanel-software" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Software Details</div>
+          <div class="form-group">
+            <label class="form-label">Software File *</label>
+            <input type="file" class="form-input" id="cSoftwareFileInput">
+            <div id="cSoftwareFileStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supported Platforms</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="cPlatformGrid">
+              <div class="adm-platform-btn" data-platform="windows" onclick="this.classList.toggle('active')">🪟 Windows</div>
+              <div class="adm-platform-btn" data-platform="mac"     onclick="this.classList.toggle('active')">🍎 macOS</div>
+              <div class="adm-platform-btn" data-platform="linux"   onclick="this.classList.toggle('active')">🐧 Linux</div>
+              <div class="adm-platform-btn" data-platform="web"     onclick="this.classList.toggle('active')">🌐 Web</div>
+              <div class="adm-platform-btn" data-platform="android" onclick="this.classList.toggle('active')">🤖 Android</div>
+              <div class="adm-platform-btn" data-platform="ios"     onclick="this.classList.toggle('active')">📱 iOS</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">License Type</label><select class="form-input" id="cSoftwareLicenseType"><option value="single">Single Device</option><option value="multi">Multi-Device</option><option value="lifetime">Lifetime</option><option value="subscription">Subscription</option></select></div>
+            <div class="form-group"><label class="form-label">Max Devices</label><input type="number" class="form-input" id="cSoftwareMaxDevices" placeholder="1" min="1"></div>
+            <div class="form-group"><label class="form-label">Support Period</label><input type="text" class="form-input" id="cSoftwareSupport" placeholder="e.g. 12 months"></div>
+            <div class="form-group"><label class="form-label">Update Period</label><input type="text" class="form-input" id="cSoftwareUpdates" placeholder="e.g. Lifetime"></div>
+            <div class="form-group"><label class="form-label">Trial Days</label><input type="number" class="form-input" id="cSoftwareTrialDays" placeholder="0 = no trial" min="0"></div>
+            <div class="form-group"><label class="form-label">Min OS Version</label><input type="text" class="form-input" id="cSoftwareMinOs" placeholder="e.g. Windows 10"></div>
+            <div class="form-group"><label class="form-label">Activation URL</label><input type="url" class="form-input" id="cSoftwareActivationUrl" placeholder="https://…/activate"></div>
+            <div class="form-group"><label class="form-label">Demo URL</label><input type="url" class="form-input" id="cSoftwareDemoUrl" placeholder="https://demo…"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Repo URL</label><input type="url" class="form-input" id="cSoftwareRepoUrl" placeholder="https://github.com/…"></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Changelog</label><textarea class="form-textarea" id="cSoftwareChangelog" rows="2" placeholder="v1.0 — Initial release…"></textarea></div>
+        </div>
+
+        <!-- PANEL: VIDEO -->
+        <div class="adm-prod-card adm-panel" id="cPanel-video" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Video Details</div>
+          <div class="form-group">
+            <label class="form-label">Delivery</label>
+            <div style="display:flex;gap:10px;">
+              <div class="adm-delivery-opt selected" id="cVideoDeliveryHosted" onclick="admSelectVideoDelivery('hosted','c')"><span>☁️</span><div>Upload Video</div><small>Host on UYEH</small></div>
+              <div class="adm-delivery-opt" id="cVideoDeliveryLink" onclick="admSelectVideoDelivery('link','c')"><span>🔗</span><div>External URL</div><small>YouTube, Vimeo…</small></div>
+            </div>
+          </div>
+          <div id="cVideoHostedSection">
+            <div class="form-group"><label class="form-label">Video File *</label>
+              <input type="file" class="form-input" id="cVideoFileInput" accept="video/*">
+              <div id="cVideoFileStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div>
+            </div>
+          </div>
+          <div id="cVideoLinkSection" style="display:none;">
+            <div class="form-group"><label class="form-label">Video URL *</label><input type="url" class="form-input" id="cVideoExternalUrl" placeholder="https://youtube.com/... or https://vimeo.com/..."></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Genre</label><input type="text" class="form-input" id="cVideoGenre" placeholder="Tutorial, Documentary…"></div>
+            <div class="form-group"><label class="form-label">Language</label><input type="text" class="form-input" id="cVideoLanguage" value="English"></div>
+            <div class="form-group"><label class="form-label">Resolution</label><select class="form-input" id="cVideoResolution"><option value="">Not specified</option><option value="720p">720p HD</option><option value="1080p">1080p Full HD</option><option value="4K">4K Ultra HD</option></select></div>
+            <div class="form-group"><label class="form-label">Release Year</label><input type="number" class="form-input" id="cVideoReleaseYear" placeholder="2024"></div>
+          </div>
+          <div class="form-group"><label class="form-label">License</label><select class="form-input" id="cVideoLicense"><option value="personal">Personal</option><option value="commercial">Commercial</option><option value="exclusive">Exclusive</option></select></div>
+          <div style="display:flex;gap:14px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cVideoAllowDownload"> Allow Download</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cVideoCaptions"> Includes Captions</label>
+          </div>
+        </div>
+
+        <!-- PANEL: eBOOK -->
+        <div class="adm-prod-card adm-panel" id="cPanel-ebook" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">eBook Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Author</label><input type="text" class="form-input" id="cEbookAuthor" placeholder="Author name"></div>
+            <div class="form-group"><label class="form-label">Publisher</label><input type="text" class="form-input" id="cEbookPublisher" placeholder="Publisher or self-published"></div>
+            <div class="form-group"><label class="form-label">Page Count</label><input type="number" class="form-input" id="cEbookPageCount" placeholder="220" min="1"></div>
+            <div class="form-group"><label class="form-label">Publication Year</label><input type="number" class="form-input" id="cEbookPubYear" placeholder="2024"></div>
+            <div class="form-group"><label class="form-label">Edition</label><input type="text" class="form-input" id="cEbookEdition" placeholder="2nd Edition"></div>
+            <div class="form-group"><label class="form-label">Reading Time (mins)</label><input type="number" class="form-input" id="cEbookReadingTime" placeholder="180"></div>
+            <div class="form-group"><label class="form-label">Language</label><input type="text" class="form-input" id="cEbookLanguage" value="English"></div>
+            <div class="form-group"><label class="form-label">ISBN</label><input type="text" class="form-input" id="cEbookIsbn" placeholder="Optional"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Formats Included</label>
+            <div style="display:flex;gap:8px;" id="cEbookFormats">
+              <div class="adm-platform-btn" data-fmt="PDF"  onclick="this.classList.toggle('active')">📄 PDF</div>
+              <div class="adm-platform-btn" data-fmt="EPUB" onclick="this.classList.toggle('active')">📱 EPUB</div>
+              <div class="adm-platform-btn" data-fmt="MOBI" onclick="this.classList.toggle('active')">📚 MOBI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: DESIGN (template / component / script) -->
+        <div class="adm-prod-card adm-panel" id="cPanel-design" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Technical Details</div>
+          <div class="form-group">
+            <label class="form-label">Frameworks</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="cDesignFrameworks">
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">⚛️ React</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">💚 Vue</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">▲ Next.js</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🔴 Angular</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🌐 HTML</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🔥 Svelte</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CSS / Styling</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="cDesignStack">
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🌊 Tailwind</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🅱️ Bootstrap</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🎨 SCSS</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">💅 Styled</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Live Preview URL</label><input type="url" class="form-input" id="cDesignPreviewUrl" placeholder="https://demo.vercel.app"></div>
+            <div class="form-group"><label class="form-label">Repo URL</label><input type="url" class="form-input" id="cDesignRepoUrl" placeholder="https://github.com/…"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Figma URL</label><input type="url" class="form-input" id="cDesignFigmaUrl" placeholder="https://figma.com/file/…"></div>
+          <div style="display:flex;gap:14px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cDesignResponsive"> Responsive</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cDesignDarkMode"> Dark Mode</label>
+          </div>
+        </div>
+
+        <!-- FEATURES & REQUIREMENTS -->
+        <div class="adm-prod-card" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Features & Requirements</div>
+          <div class="form-group">
+            <label class="form-label">Key Features</label>
+            <textarea class="form-textarea" id="cFeatures" rows="3" placeholder="• Fully responsive design&#10;• Dark & Light modes&#10;• Free lifetime updates"></textarea>
+            <small style="color:var(--gray);">One per line. Start each with •</small>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Requirements / Prerequisites</label>
+            <textarea class="form-textarea" id="cRequirements" rows="2" placeholder="• Node.js 16+&#10;• React 18+"></textarea>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="adm-prod-card" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Settings</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group">
+              <label class="form-label">Refund Policy</label>
+              <select class="form-input" id="cRefundPolicy" onchange="document.getElementById('cRefundDaysGroup').style.display=this.value==='custom'?'block':'none'">
+                <option value="no_refund">❌ No Refund</option><option value="7_day">7 Days</option>
+                <option value="14_day">14 Days</option><option value="30_day">30 Days</option><option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="form-group" id="cRefundDaysGroup" style="display:none;">
+              <label class="form-label">Custom Days</label>
+              <input type="number" class="form-input" id="cRefundDays" min="0" max="365" placeholder="e.g. 15">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Slug (URL)</label>
+            <input type="text" class="form-input" id="cSlug" placeholder="auto-generated-from-title">
+            <small style="color:var(--gray);">Auto-generated if left empty. Must be unique.</small>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cIsActive" checked> Active</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="cIsFeatured"> Featured</label>
+          </div>
+          <details style="margin-bottom:10px;">
+            <summary style="cursor:pointer;color:#00ff88;font-size:.82rem;font-weight:700;letter-spacing:.5px;">▸ USAGE RIGHTS & LICENSE</summary>
+            <div style="padding-top:10px;">
+              <div class="form-group"><label class="form-label">Usage Rights Summary</label><textarea class="form-textarea" id="cUsageRights" rows="2" placeholder="Can be used commercially. Resale not allowed."></textarea></div>
+              <div class="form-group"><label class="form-label">Full License Text</label><textarea class="form-textarea" id="cLicenseText" rows="3" placeholder="Complete license terms…"></textarea></div>
+            </div>
+          </details>
+          <details style="margin-bottom:10px;">
+            <summary style="cursor:pointer;color:#00ff88;font-size:.82rem;font-weight:700;letter-spacing:.5px;">▸ NOTES FOR BUYERS</summary>
+            <div style="padding-top:10px;">
+              <div class="form-group"><label class="form-label">Admin Notes</label><textarea class="form-textarea" id="cNotes" rows="2" placeholder="Instructions, Discord link, support info… Shown after purchase."></textarea></div>
+            </div>
+          </details>
+          <details>
+            <summary style="cursor:pointer;color:#00ff88;font-size:.82rem;font-weight:700;letter-spacing:.5px;">▸ SEO / META</summary>
+            <div style="padding-top:10px;">
+              <div class="form-group"><label class="form-label">Meta Title</label><input type="text" class="form-input" id="cMetaTitle" placeholder="Override page title for SEO"></div>
+              <div class="form-group"><label class="form-label">Meta Description</label><textarea class="form-textarea" id="cMetaDescription" rows="2" placeholder="SEO description…"></textarea></div>
+              <div class="form-group"><label class="form-label">Meta Keywords</label><input type="text" class="form-input" id="cMetaKeywords" placeholder="keyword1, keyword2"></div>
+            </div>
+          </details>
+        </div>
+
+      </div><!-- END LEFT COLUMN -->
+
+      <!-- RIGHT COLUMN: LIVE PREVIEW + SUBMIT -->
+      <div style="position:sticky;top:72px;align-self:start;">
+        <div class="adm-prod-card" style="margin-bottom:14px;">
+          <div class="adm-prod-card-title">Live Preview</div>
+          <div style="height:100px;background:rgba(0,255,136,.04);display:flex;align-items:center;justify-content:center;font-size:2.5rem;border-bottom:1px solid rgba(255,255,255,.06);border-radius:8px 8px 0 0;overflow:hidden;" id="cPreviewIcon">📦</div>
+          <div style="padding:14px;">
+            <div style="font-size:.7rem;color:#00ff88;margin-bottom:4px;" id="cPreviewCategory">Category</div>
+            <div style="font-weight:700;color:#e5e7eb;margin-bottom:6px;line-height:1.3;font-size:.92rem;" id="cPreviewTitle">Product Title</div>
+            <div style="font-size:.78rem;color:#9ca3af;margin-bottom:10px;line-height:1.5;" id="cPreviewDesc">Description…</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);">
+              <div style="font-weight:700;color:#00ff88;font-size:1.2rem;" id="cPreviewPrice">$0.00</div>
+              <span style="font-size:.7rem;color:#6b7280;">Admin product</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" style="width:100%;padding:13px;justify-content:center;" onclick="handleCreateProduct()">
+          <i class="fas fa-plus"></i> Create Product
+        </button>
+        <div id="cCreateError" style="margin-top:10px;font-size:.82rem;color:#ff6b6b;display:none;padding:8px 12px;background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;"></div>
+      </div><!-- END RIGHT COLUMN -->
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     EDIT PRODUCT MODAL — full creator parity
+══════════════════════════════════════════════════════ -->
+<div id="editProductModal" class="modal">
+  <div class="modal-content" style="max-width:860px;width:96%;max-height:94vh;overflow-y:auto;">
+    <div class="modal-header" style="position:sticky;top:0;z-index:10;background:var(--dark,#111);border-bottom:1px solid rgba(0,255,136,.12);padding:16px 20px;">
+      <h2 class="modal-title"><i class="fas fa-edit" style="color:#00ff88;margin-right:8px;"></i>Edit Product</h2>
+      <button class="close-modal" onclick="closeModal('editProductModal')"><i class="fas fa-times"></i></button>
+    </div>
+
+    <input type="hidden" id="editProductId">
+
+    <!-- TYPE TABS -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:14px 20px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+      <button class="adm-ptype-tab active" data-type="download"  onclick="admSwitchTypeEdit('download',this)">📦 Download</button>
+      <button class="adm-ptype-tab"        data-type="course"    onclick="admSwitchTypeEdit('course',this)">🎓 Course</button>
+      <button class="adm-ptype-tab"        data-type="template"  onclick="admSwitchTypeEdit('template',this)">🎨 Template</button>
+      <button class="adm-ptype-tab"        data-type="component" onclick="admSwitchTypeEdit('component',this)">🧩 Component</button>
+      <button class="adm-ptype-tab"        data-type="script"    onclick="admSwitchTypeEdit('script',this)">⚙️ Script</button>
+      <button class="adm-ptype-tab"        data-type="software"  onclick="admSwitchTypeEdit('software',this)">💻 Software</button>
+      <button class="adm-ptype-tab"        data-type="music"     onclick="admSwitchTypeEdit('music',this)">🎵 Music</button>
+      <button class="adm-ptype-tab"        data-type="ebook"     onclick="admSwitchTypeEdit('ebook',this)">📖 eBook</button>
+      <button class="adm-ptype-tab"        data-type="video"     onclick="admSwitchTypeEdit('video',this)">🎬 Video</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;padding:20px;">
+      <div>
+
+        <!-- CORE DETAILS -->
+        <div class="adm-prod-card">
+          <div class="adm-prod-card-title">Product Details</div>
+          <div class="form-group"><label class="form-label">Title *</label><input type="text" class="form-input" id="eTitle" oninput="admUpdateEditPreview()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select class="form-input" id="eCategory" onchange="admUpdateEditPreview()">
+                <option value="">Select category</option>
+                <option>Templates</option><option>Components</option><option>Courses</option>
+                <option>Scripts</option><option>Software</option><option>Music</option>
+                <option>Video</option><option>eBooks</option><option>Graphics</option>
+                <option>Tools</option><option>Assets</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Price (USD) *</label><input type="number" class="form-input" id="ePrice" min="0" step="0.01" oninput="admUpdateEditPreview()"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group"><label class="form-label">Compare Price</label><input type="number" class="form-input" id="eComparePrice" min="0" step="0.01"></div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-input" id="eStatus" onchange="admUpdateEditPreview()">
+                <option value="draft">📝 Draft</option><option value="published">🚀 Published</option><option value="archived">📦 Archived</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Description *</label><textarea class="form-textarea" id="eDescription" rows="4" oninput="admUpdateEditPreview()"></textarea></div>
+          <div class="form-group"><label class="form-label">Short Description</label><textarea class="form-textarea" id="eShortDescription" rows="2" style="min-height:52px;"></textarea></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Tags</label><input type="text" class="form-input" id="eTags" placeholder="web, design, tutorial (comma-separated)"></div>
+        </div>
+
+        <!-- COVER IMAGE -->
+        <div class="adm-prod-card" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Cover Image</div>
+          <input type="text" class="form-input" id="eImage" placeholder="https://… (image URL)" oninput="admUpdateEditPreview()">
+        </div>
+
+        <!-- DELIVERY PANEL (edit) -->
+        <div class="adm-prod-card adm-edit-panel active" id="ePanel-download" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Delivery File</div>
+          <div class="form-group">
+            <label class="form-label">Delivery Method</label>
+            <div style="display:flex;gap:10px;">
+              <div class="adm-delivery-opt selected" id="eDeliveryHosted" onclick="admSelectDelivery('hosted','e')"><span>☁️</span><div>Host Here</div><small>Upload to UYEH</small></div>
+              <div class="adm-delivery-opt" id="eDeliveryLink" onclick="admSelectDelivery('link','e')"><span>🔗</span><div>External Link</div><small>Google Drive…</small></div>
+            </div>
+          </div>
+          <div id="eHostedSection">
+            <label class="form-label"><i class="fas fa-cloud-upload-alt"></i> Replace File (optional)</label>
+            <input type="file" class="form-input" id="eProductFileInput" accept="*/*">
+            <div id="eFileUploadStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div>
+            <div id="eCurrentFile" style="font-size:.8rem;color:#00ff88;margin-top:6px;"></div>
+          </div>
+          <div id="eLinkSection" style="display:none;">
+            <div class="form-group" id="eDownloadLinkGroup"><label class="form-label">Download / Access Link</label><input type="url" class="form-input" id="eDownloadLink"></div>
+            <div class="form-group" id="eExternalVideoGroup" style="display:none;"><label class="form-label">Video URL</label><input type="url" class="form-input" id="eExternalVideoUrl"></div>
+            <div class="form-group" id="eExternalAudioGroup" style="display:none;"><label class="form-label">Audio URL</label><input type="url" class="form-input" id="eExternalAudioUrl"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+            <div class="form-group"><label class="form-label">File Size</label><input type="text" class="form-input" id="eFileSize"></div>
+            <div class="form-group"><label class="form-label">Version</label><input type="text" class="form-input" id="eVersion"></div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:12px;padding-top:12px;">
+            <label class="form-label">Preview Type</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="ePreviewChips">
+              <span class="adm-preview-chip active" data-p="none"   onclick="admSelectPreview(this,'none','e')">No Preview</span>
+              <span class="adm-preview-chip" data-p="image"  onclick="admSelectPreview(this,'image','e')">🖼️ Image</span>
+              <span class="adm-preview-chip" data-p="video"  onclick="admSelectPreview(this,'video','e')">▶️ Video</span>
+              <span class="adm-preview-chip" data-p="audio"  onclick="admSelectPreview(this,'audio','e')">🎵 Audio</span>
+              <span class="adm-preview-chip" data-p="iframe" onclick="admSelectPreview(this,'iframe','e')">🌐 Demo URL</span>
+            </div>
+          </div>
+          <div class="form-group" id="ePreviewUrlSection" style="display:none;margin-top:10px;">
+            <label class="form-label">Preview / Demo URL</label><input type="url" class="form-input" id="ePreviewUrl">
+          </div>
+        </div>
+
+        <!-- COURSE panel (edit) -->
+        <div class="adm-prod-card adm-edit-panel" id="ePanel-course" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Course Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Level</label><select class="form-input" id="eCourseLevel"><option value="all">All Levels</option><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></div>
+            <div class="form-group"><label class="form-label">Language</label><input type="text" class="form-input" id="eCourseLanguage" value="English"></div>
+          </div>
+          <div class="form-group"><label class="form-label">What Students Will Learn</label><textarea class="form-textarea" id="eCourseOutcomes" rows="3"></textarea></div>
+          <div class="form-group"><label class="form-label">Target Audience</label><textarea class="form-textarea" id="eCourseAudience" rows="2"></textarea></div>
+          <div class="form-group"><label class="form-label">Welcome Message</label><textarea class="form-textarea" id="eCourseWelcome" rows="2"></textarea></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Completion Message</label><textarea class="form-textarea" id="eCourseCompletion" rows="2"></textarea></div>
+        </div>
+
+        <!-- MUSIC panel (edit) -->
+        <div class="adm-prod-card adm-edit-panel" id="ePanel-music" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Music Details</div>
+          <div class="form-group"><label class="form-label">Replace Audio File (optional)</label><input type="file" class="form-input" id="eMusicFileInput" accept="audio/*"><div id="eMusicFileStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">BPM</label><input type="number" class="form-input" id="eAudioBpm"></div>
+            <div class="form-group"><label class="form-label">Key</label><input type="text" class="form-input" id="eAudioKey"></div>
+            <div class="form-group"><label class="form-label">Genre</label><input type="text" class="form-input" id="eAudioGenre"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Mood</label><input type="text" class="form-input" id="eAudioMood"></div>
+          <div class="form-group">
+            <label class="form-label">License</label>
+            <div style="display:flex;gap:8px;">
+              <div class="adm-lic-btn active" id="eLic-personal"   onclick="admSelectMusicLic('personal','e')">Personal<br><small>Non-commercial</small></div>
+              <div class="adm-lic-btn"        id="eLic-commercial" onclick="admSelectMusicLic('commercial','e')">Commercial<br><small>Any project</small></div>
+              <div class="adm-lic-btn"        id="eLic-exclusive"  onclick="admSelectMusicLic('exclusive','e')">Exclusive<br><small>Sole ownership</small></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eAudioStems"> Includes Stems</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eAudioVocals"> Contains Vocals</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eAudioLoopable"> Loopable</label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Track Title</label><input type="text" class="form-input" id="eAudioTrackTitle"></div>
+            <div class="form-group"><label class="form-label">Artist</label><input type="text" class="form-input" id="eAudioArtist"></div>
+            <div class="form-group"><label class="form-label">Album / EP</label><input type="text" class="form-input" id="eAudioAlbum"></div>
+            <div class="form-group"><label class="form-label">Release Year</label><input type="number" class="form-input" id="eAudioReleaseYear"></div>
+          </div>
+          <div class="form-group"><label class="form-label">ISRC</label><input type="text" class="form-input" id="eAudioIsrc"></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Allowed Uses</label><input type="text" class="form-input" id="eAudioAllowedUses"></div>
+        </div>
+
+        <!-- SOFTWARE panel (edit) -->
+        <div class="adm-prod-card adm-edit-panel" id="ePanel-software" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Software Details</div>
+          <div class="form-group"><label class="form-label">Replace Software File (optional)</label><input type="file" class="form-input" id="eSoftwareFileInput"><div id="eSoftwareFileStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div></div>
+          <div class="form-group">
+            <label class="form-label">Platforms</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="ePlatformGrid">
+              <div class="adm-platform-btn" data-platform="windows" onclick="this.classList.toggle('active')">🪟 Windows</div>
+              <div class="adm-platform-btn" data-platform="mac"     onclick="this.classList.toggle('active')">🍎 macOS</div>
+              <div class="adm-platform-btn" data-platform="linux"   onclick="this.classList.toggle('active')">🐧 Linux</div>
+              <div class="adm-platform-btn" data-platform="web"     onclick="this.classList.toggle('active')">🌐 Web</div>
+              <div class="adm-platform-btn" data-platform="android" onclick="this.classList.toggle('active')">🤖 Android</div>
+              <div class="adm-platform-btn" data-platform="ios"     onclick="this.classList.toggle('active')">📱 iOS</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">License Type</label><select class="form-input" id="eSoftwareLicenseType"><option value="single">Single Device</option><option value="multi">Multi-Device</option><option value="lifetime">Lifetime</option><option value="subscription">Subscription</option></select></div>
+            <div class="form-group"><label class="form-label">Max Devices</label><input type="number" class="form-input" id="eSoftwareMaxDevices" min="1"></div>
+            <div class="form-group"><label class="form-label">Support Period</label><input type="text" class="form-input" id="eSoftwareSupport"></div>
+            <div class="form-group"><label class="form-label">Update Period</label><input type="text" class="form-input" id="eSoftwareUpdates"></div>
+            <div class="form-group"><label class="form-label">Activation URL</label><input type="url" class="form-input" id="eSoftwareActivationUrl"></div>
+            <div class="form-group"><label class="form-label">Demo URL</label><input type="url" class="form-input" id="eSoftwareDemoUrl"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Repo URL</label><input type="url" class="form-input" id="eSoftwareRepoUrl"></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Changelog</label><textarea class="form-textarea" id="eSoftwareChangelog" rows="2"></textarea></div>
+        </div>
+
+        <!-- VIDEO panel (edit) -->
+        <div class="adm-prod-card adm-edit-panel" id="ePanel-video" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Video Details</div>
+          <div class="form-group">
+            <label class="form-label">Delivery</label>
+            <div style="display:flex;gap:10px;">
+              <div class="adm-delivery-opt selected" id="eVideoDeliveryHosted" onclick="admSelectVideoDelivery('hosted','e')"><span>☁️</span><div>Upload Video</div><small>Host on UYEH</small></div>
+              <div class="adm-delivery-opt" id="eVideoDeliveryLink" onclick="admSelectVideoDelivery('link','e')"><span>🔗</span><div>External URL</div><small>YouTube, Vimeo…</small></div>
+            </div>
+          </div>
+          <div id="eVideoHostedSection"><div class="form-group"><label class="form-label">Replace Video File (optional)</label><input type="file" class="form-input" id="eVideoFileInput" accept="video/*"><div id="eVideoFileStatus" style="font-size:.8rem;color:var(--gray);margin-top:4px;"></div></div></div>
+          <div id="eVideoLinkSection" style="display:none;"><div class="form-group"><label class="form-label">Video URL</label><input type="url" class="form-input" id="eVideoExternalUrl"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Genre</label><input type="text" class="form-input" id="eVideoGenre"></div>
+            <div class="form-group"><label class="form-label">Language</label><input type="text" class="form-input" id="eVideoLanguage"></div>
+            <div class="form-group"><label class="form-label">Resolution</label><select class="form-input" id="eVideoResolution"><option value="">Not specified</option><option value="720p">720p HD</option><option value="1080p">1080p Full HD</option><option value="4K">4K Ultra HD</option></select></div>
+            <div class="form-group"><label class="form-label">Release Year</label><input type="number" class="form-input" id="eVideoReleaseYear"></div>
+          </div>
+          <div style="display:flex;gap:14px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eVideoAllowDownload"> Allow Download</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eVideoCaptions"> Includes Captions</label>
+          </div>
+        </div>
+
+        <!-- eBOOK panel (edit) -->
+        <div class="adm-prod-card adm-edit-panel" id="ePanel-ebook" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">eBook Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Author</label><input type="text" class="form-input" id="eEbookAuthor"></div>
+            <div class="form-group"><label class="form-label">Publisher</label><input type="text" class="form-input" id="eEbookPublisher"></div>
+            <div class="form-group"><label class="form-label">Page Count</label><input type="number" class="form-input" id="eEbookPageCount"></div>
+            <div class="form-group"><label class="form-label">Publication Year</label><input type="number" class="form-input" id="eEbookPubYear"></div>
+            <div class="form-group"><label class="form-label">Edition</label><input type="text" class="form-input" id="eEbookEdition"></div>
+            <div class="form-group"><label class="form-label">Reading Time (mins)</label><input type="number" class="form-input" id="eEbookReadingTime"></div>
+            <div class="form-group"><label class="form-label">Language</label><input type="text" class="form-input" id="eEbookLanguage"></div>
+            <div class="form-group"><label class="form-label">ISBN</label><input type="text" class="form-input" id="eEbookIsbn"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Formats</label>
+            <div style="display:flex;gap:8px;" id="eEbookFormats">
+              <div class="adm-platform-btn" data-fmt="PDF"  onclick="this.classList.toggle('active')">📄 PDF</div>
+              <div class="adm-platform-btn" data-fmt="EPUB" onclick="this.classList.toggle('active')">📱 EPUB</div>
+              <div class="adm-platform-btn" data-fmt="MOBI" onclick="this.classList.toggle('active')">📚 MOBI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESIGN panel (edit) -->
+        <div class="adm-prod-card adm-edit-panel" id="ePanel-design" style="margin-top:16px;display:none;">
+          <div class="adm-prod-card-title">Technical Details</div>
+          <div class="form-group">
+            <label class="form-label">Frameworks</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="eDesignFrameworks">
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">⚛️ React</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">💚 Vue</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">▲ Next.js</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🌐 HTML</div>
+              <div class="adm-platform-btn" onclick="this.classList.toggle('active')">🔥 Svelte</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label class="form-label">Live Preview URL</label><input type="url" class="form-input" id="eDesignPreviewUrl"></div>
+            <div class="form-group"><label class="form-label">Repo URL</label><input type="url" class="form-input" id="eDesignRepoUrl"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Figma URL</label><input type="url" class="form-input" id="eDesignFigmaUrl"></div>
+          <div style="display:flex;gap:14px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eDesignResponsive"> Responsive</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eDesignDarkMode"> Dark Mode</label>
+          </div>
+        </div>
+
+        <!-- FEATURES & REQUIREMENTS (edit) -->
+        <div class="adm-prod-card" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Features & Requirements</div>
+          <div class="form-group"><label class="form-label">Key Features</label><textarea class="form-textarea" id="eFeatures" rows="3" placeholder="• One per line…"></textarea></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Requirements</label><textarea class="form-textarea" id="eRequirements" rows="2"></textarea></div>
+        </div>
+
+        <!-- SETTINGS (edit) -->
+        <div class="adm-prod-card" style="margin-top:16px;">
+          <div class="adm-prod-card-title">Settings</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group">
+              <label class="form-label">Refund Policy</label>
+              <select class="form-input" id="eRefundPolicy" onchange="document.getElementById('eRefundDaysGroup').style.display=this.value==='custom'?'block':'none'">
+                <option value="no_refund">❌ No Refund</option><option value="7_day">7 Days</option><option value="14_day">14 Days</option><option value="30_day">30 Days</option><option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="form-group" id="eRefundDaysGroup" style="display:none;"><label class="form-label">Custom Days</label><input type="number" class="form-input" id="eRefundDays" min="0" max="365"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Slug</label><input type="text" class="form-input" id="eSlug"></div>
+          <div style="display:flex;gap:16px;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eIsActive"> Active</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;"><input type="checkbox" id="eIsFeatured"> Featured</label>
+          </div>
+          <details style="margin-bottom:10px;">
+            <summary style="cursor:pointer;color:#00ff88;font-size:.82rem;font-weight:700;">▸ USAGE RIGHTS & LICENSE</summary>
+            <div style="padding-top:10px;">
+              <div class="form-group"><label class="form-label">Usage Rights</label><textarea class="form-textarea" id="eUsageRights" rows="2"></textarea></div>
+              <div class="form-group"><label class="form-label">License Text</label><textarea class="form-textarea" id="eLicenseText" rows="3"></textarea></div>
+            </div>
+          </details>
+          <details style="margin-bottom:10px;">
+            <summary style="cursor:pointer;color:#00ff88;font-size:.82rem;font-weight:700;">▸ NOTES FOR BUYERS</summary>
+            <div style="padding-top:10px;"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="eNotes" rows="2"></textarea></div></div>
+          </details>
+          <details>
+            <summary style="cursor:pointer;color:#00ff88;font-size:.82rem;font-weight:700;">▸ SEO / META</summary>
+            <div style="padding-top:10px;">
+              <div class="form-group"><label class="form-label">Meta Title</label><input type="text" class="form-input" id="eMetaTitle"></div>
+              <div class="form-group"><label class="form-label">Meta Description</label><textarea class="form-textarea" id="eMetaDescription" rows="2"></textarea></div>
+              <div class="form-group"><label class="form-label">Meta Keywords</label><input type="text" class="form-input" id="eMetaKeywords"></div>
+            </div>
+          </details>
+        </div>
+
+      </div><!-- END LEFT COLUMN -->
+
+      <!-- RIGHT: PREVIEW + SUBMIT (edit) -->
+      <div style="position:sticky;top:72px;align-self:start;">
+        <div class="adm-prod-card" style="margin-bottom:14px;">
+          <div class="adm-prod-card-title">Preview</div>
+          <div style="height:100px;background:rgba(0,255,136,.04);display:flex;align-items:center;justify-content:center;font-size:2.5rem;border-bottom:1px solid rgba(255,255,255,.06);border-radius:8px 8px 0 0;overflow:hidden;" id="ePreviewIcon">📦</div>
+          <div style="padding:14px;">
+            <div style="font-size:.7rem;color:#00ff88;margin-bottom:4px;" id="ePreviewCategory">Category</div>
+            <div style="font-weight:700;color:#e5e7eb;margin-bottom:6px;line-height:1.3;font-size:.92rem;" id="ePreviewTitle">Product Title</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);">
+              <div style="font-weight:700;color:#00ff88;font-size:1.2rem;" id="ePreviewPrice">$0.00</div>
+              <span id="ePreviewStatus" style="font-size:.7rem;background:rgba(0,255,136,.1);color:#00ff88;padding:2px 8px;border-radius:20px;border:1px solid rgba(0,255,136,.25);">Published</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" style="width:100%;padding:13px;justify-content:center;" onclick="handleUpdateProduct()">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <div id="eUpdateError" style="margin-top:10px;font-size:.82rem;color:#ff6b6b;display:none;padding:8px 12px;background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;"></div>
+      </div><!-- END RIGHT COLUMN -->
+
+    </div>
+  </div>
+</div>
 
     <!-- CREATE COUPON MODAL -->
     <div id="createCouponModal" class="modal">
@@ -7618,535 +7957,946 @@ async function updateOrderStatus(orderId, currentStatus) {
     } catch(e) { showToast(e.message || 'Failed to update status', 'error'); }
 }
 
-// ========== PRODUCTS MANAGEMENT ==========
-async function loadProductsData(page = 1, search = '', status = 'all') {
-    const productsPage = document.getElementById('productsPage');
-    
-    productsPage.innerHTML = `
-        <div class="page-header">
-            <h1 class="page-title">Product Management</h1>
-            <p class="page-subtitle">Manage products with download links</p>
-        </div>
-        <div class="filter-section">
-            <div class="filter-grid">
-                <div class="filter-item">
-                    <label class="filter-label">Search</label>
-                    <input type="text" class="form-input" placeholder="Search..." id="productSearchInput" value="${search}">
-                </div>
-                <div class="filter-item">
-                    <label class="filter-label">Status</label>
-                    <select class="form-select" id="productStatusFilter">
-                        <option value="all" ${status === 'all' ? 'selected' : ''}>All</option>
-                        <option value="active" ${status === 'active' ? 'selected' : ''}>Active</option>
-                        <option value="inactive" ${status === 'inactive' ? 'selected' : ''}>Inactive</option>
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <button class="btn btn-primary" onclick="openModal('createProductModal')" style="margin-top: 24px;">
-                        <i class="fas fa-plus"></i> Add Product
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr><th>Product</th><th>Type</th><th>Price</th><th>File</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="productsTable">
-                    <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
-                </tbody>
-            </table>
-            <div class="pagination" id="productsPagination"></div>
-        </div>
-    `;
-    
-    document.getElementById('productSearchInput').addEventListener('input', (e) => {
-        loadProductsData(1, e.target.value, document.getElementById('productStatusFilter').value);
-    });
-    
-    document.getElementById('productStatusFilter').addEventListener('change', (e) => {
-        loadProductsData(1, document.getElementById('productSearchInput').value, e.target.value);
-    });
-    
-    try {
-        const response = await fetch(`${API_URL}/api/admin/products?page=${page}&limit=20&search=${search}&status=${status}`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
+// ════════════════════════════════════════════════════════════════════
+// ADMIN PRODUCT MANAGEMENT — full creator parity
+// ════════════════════════════════════════════════════════════════════
 
-        const data = await response.json();
+const _PTYPE_ICON = {
+  download:'📥', music:'🎵', software:'💻', video:'🎬',
+  course:'🎓', ebook:'📖', template:'🎨', script:'⚙️', component:'🧩'
+};
 
-        if (data.success) {
-            const tbody = document.getElementById('productsTable');
-            
-            if (!data.products || data.products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No products found</td></tr>';
-                return;
-            }
-            
-            const typeIcon = { download:'📥', music:'🎵', software:'💻', video:'🎬', course:'🎓', ebook:'📖' };
-            tbody.innerHTML = data.products.map(product => {
-                // ✅ FIX: check hostedFile OR legacy downloadLink
-                const hasFile = !!(product.hostedFile?.secureUrl || product.downloadLink);
-                const pType   = product.productType || 'download';
-                return `
-                <tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <span style="font-size:1.3rem;">${product.icon || typeIcon[pType] || '📦'}</span>
-                            <div>
-                                <div style="font-weight:600;">${product.title}</div>
-                                ${product.comparePrice > product.price
-                                    ? `<div style="font-size:.72rem;color:#6b7280;text-decoration:line-through;">$${product.comparePrice.toFixed(2)}</div>`
-                                    : ''}
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span style="font-size:.75rem;background:rgba(255,255,255,.06);
-                               padding:2px 8px;border-radius:4px;text-transform:capitalize;">
-                            ${typeIcon[pType] || ''} ${pType}
-                        </span>
-                    </td>
-                    <td style="font-weight:700;color:var(--primary);">$${product.price.toFixed(2)}</td>
-                    <td>
-                        ${hasFile
-                            ? `<span class="download-indicator"><i class="fas fa-check-circle"></i> Ready</span>`
-                            : `<span class="download-indicator no-download"><i class="fas fa-times-circle"></i> Missing</span>`
-                        }
-                    </td>
-                    <td><span class="status-badge ${product.isActive ? 'status-active' : 'status-inactive'}">${product.isActive ? 'Active' : 'Inactive'}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="action-btn" onclick="viewProductDetail('${product._id}')" title="View">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn" onclick="editProduct('${product._id}')" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn danger" onclick="deleteProduct('${product._id}')" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
-            
-            if (data.pagination) {
-                updatePagination('productsPagination', data.pagination, (p) => loadProductsData(p, search, status));
-            }
-        }
-    } catch (error) {
-        console.error('Products error:', error);
-        showNotification('Failed to load products', 'error');
-    }
+// ── State ─────────────────────────────────────────────────────────────
+let _admCurType      = 'download';
+let _admEditCurType  = 'download';
+let _admPreviewType  = 'none';
+let _admEditPreview  = 'none';
+let _admMusicLic     = 'personal';
+let _admEditMusicLic = 'personal';
+
+// ── One-time style injection ──────────────────────────────────────────
+(function _admStyles() {
+  if (document.getElementById('_admPS')) return;
+  const s = document.createElement('style');
+  s.id = '_admPS';
+  s.textContent = `
+    .adm-ptype-tab{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#9ca3af;
+      padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:600;transition:.15s;}
+    .adm-ptype-tab.active,.adm-ptype-tab:hover{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.3);color:#00ff88;}
+    .adm-prod-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px 18px;}
+    .adm-prod-card-title{font-size:.8rem;font-weight:700;color:#00ff88;text-transform:uppercase;
+      letter-spacing:.6px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+    .adm-type-badge{font-size:.7rem;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);
+      color:#00ff88;padding:2px 8px;border-radius:20px;text-transform:none;font-weight:600;}
+    .adm-delivery-opt{flex:1;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;
+      text-align:center;cursor:pointer;font-size:.78rem;color:#9ca3af;transition:.15s;}
+    .adm-delivery-opt.selected,.adm-delivery-opt:hover{border-color:rgba(0,255,136,.3);
+      background:rgba(0,255,136,.06);color:#00ff88;}
+    .adm-delivery-opt span{font-size:1.3rem;display:block;margin-bottom:4px;}
+    .adm-delivery-opt div{font-weight:600;color:#e5e7eb;margin-bottom:2px;}
+    .adm-delivery-opt small{font-size:.68rem;color:#6b7280;}
+    .adm-preview-chip{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+      color:#9ca3af;padding:4px 10px;border-radius:20px;font-size:.74rem;cursor:pointer;transition:.15s;}
+    .adm-preview-chip.active{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.3);color:#00ff88;}
+    .adm-platform-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+      color:#9ca3af;padding:5px 12px;border-radius:8px;font-size:.76rem;cursor:pointer;transition:.15s;}
+    .adm-platform-btn.active{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.3);color:#00ff88;}
+    .adm-lic-btn{flex:1;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px;
+      text-align:center;cursor:pointer;font-size:.76rem;font-weight:600;color:#9ca3af;
+      transition:.15s;line-height:1.4;}
+    .adm-lic-btn small{font-weight:400;color:#6b7280;font-size:.68rem;}
+    .adm-lic-btn.active{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.3);color:#00ff88;}
+    .adm-panel{display:none;} .adm-panel.active{display:block;}
+    .adm-edit-panel{display:none;} .adm-edit-panel.active{display:block;}
+    .adm-sbadge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;}
+    .adm-sb-draft{background:rgba(255,165,0,.1);color:#ffa500;border:1px solid rgba(255,165,0,.25);}
+    .adm-sb-pub{background:rgba(0,255,136,.1);color:#00ff88;border:1px solid rgba(0,255,136,.25);}
+    .adm-sb-arch{background:rgba(255,255,255,.06);color:#6b7280;border:1px solid rgba(255,255,255,.1);}
+  `;
+  document.head.appendChild(s);
+})();
+
+// ── Helper: get status badge class ────────────────────────────────────
+function _admSBClass(status, isActive) {
+  if (status === 'draft')    return 'adm-sbadge adm-sb-draft';
+  if (status === 'archived') return 'adm-sbadge adm-sb-arch';
+  if (!isActive)             return 'adm-sbadge adm-sb-arch';
+  return 'adm-sbadge adm-sb-pub';
 }
 
-async function viewProductDetail(productId) {
-    admOpenModal(`
-    <div class="adm-modal-overlay" onclick="if(event.target===this)admCloseModal()">
-        <div class="adm-modal wide">
-            <div class="adm-modal-header">
-                <div class="adm-modal-title"><i class="fas fa-box-open"></i> Product Detail</div>
-                <button class="adm-modal-close" onclick="admCloseModal()">✕</button>
-            </div>
-            <div class="adm-modal-body" id="prodDetailBody">
-                <div style="text-align:center;padding:40px;color:#6b7280;">
-                    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i>
-                    <div style="margin-top:12px;font-size:.85rem;">Loading product…</div>
-                </div>
-            </div>
+// ════════════════════════════════════════════════════════════════════
+// LIST PAGE
+// ════════════════════════════════════════════════════════════════════
+async function loadProductsData(page = 1, search = '', status = 'all', productType = 'all') {
+  const wrap = document.getElementById('productsPage');
+  wrap.innerHTML = `
+    <div class="page-header">
+      <h1 class="page-title">Product Management</h1>
+      <p class="page-subtitle">Admin-owned products — full creator parity</p>
+    </div>
+    <div class="filter-section">
+      <div class="filter-grid" style="grid-template-columns:1fr 1fr 1fr auto;">
+        <div class="filter-item">
+          <label class="filter-label">Search</label>
+          <input type="text" class="form-input" id="productSearchInput" placeholder="Title, slug…" value="${esc(search)}">
         </div>
-    </div>`);
+        <div class="filter-item">
+          <label class="filter-label">Status</label>
+          <select class="form-select" id="productStatusFilter">
+            <option value="all"      ${status==='all'     ?'selected':''}>All</option>
+            <option value="active"   ${status==='active'  ?'selected':''}>Active</option>
+            <option value="inactive" ${status==='inactive'?'selected':''}>Inactive</option>
+            <option value="draft"    ${status==='draft'   ?'selected':''}>Draft</option>
+            <option value="featured" ${status==='featured'?'selected':''}>Featured</option>
+            <option value="archived" ${status==='archived'?'selected':''}>Archived</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">Type</label>
+          <select class="form-select" id="productTypeFilter">
+            <option value="all"       ${productType==='all'      ?'selected':''}>All Types</option>
+            <option value="download"  ${productType==='download' ?'selected':''}>📦 Download</option>
+            <option value="course"    ${productType==='course'   ?'selected':''}>🎓 Course</option>
+            <option value="template"  ${productType==='template' ?'selected':''}>🎨 Template</option>
+            <option value="component" ${productType==='component'?'selected':''}>🧩 Component</option>
+            <option value="script"    ${productType==='script'   ?'selected':''}>⚙️ Script</option>
+            <option value="software"  ${productType==='software' ?'selected':''}>💻 Software</option>
+            <option value="music"     ${productType==='music'    ?'selected':''}>🎵 Music</option>
+            <option value="ebook"     ${productType==='ebook'    ?'selected':''}>📖 eBook</option>
+            <option value="video"     ${productType==='video'    ?'selected':''}>🎬 Video</option>
+          </select>
+        </div>
+        <div class="filter-item" style="display:flex;align-items:flex-end;">
+          <button class="btn btn-primary" onclick="openModal('createProductModal')">
+            <i class="fas fa-plus"></i> Add Product
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th><th>Type</th><th>Price</th>
+            <th>Delivery</th><th>Status</th><th>Sales</th><th>Rating</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productsTable">
+          <tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">
+            <i class="fas fa-spinner fa-spin"></i> Loading…
+          </td></tr>
+        </tbody>
+      </table>
+      <div class="pagination" id="productsPagination"></div>
+    </div>`;
 
-    try {
-        const r = await fetch(`${API_URL}/api/admin/products/${productId}`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const d = await r.json();
-        if (!d.success) throw new Error(d.message || 'Failed to load product');
-        const p = d.product || d;
-        const typeIcon = { download:'📥', music:'🎵', software:'💻', video:'🎬', course:'🎓', ebook:'📖', template:'🎨', script:'⚙️' };
-        const pType = p.productType || 'download';
-        const hasFile = !!(p.hostedFile?.secureUrl || p.downloadLink);
+  const g = id => document.getElementById(id);
+  const reload = () => loadProductsData(1,
+    g('productSearchInput').value,
+    g('productStatusFilter').value,
+    g('productTypeFilter').value);
+  g('productSearchInput').addEventListener('input', reload);
+  g('productStatusFilter').addEventListener('change', reload);
+  g('productTypeFilter').addEventListener('change', reload);
 
-        document.getElementById('prodDetailBody').innerHTML = `
-            ${p.image ? `<img src="${esc(p.image)}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:16px;border:1px solid rgba(255,255,255,.06);">` : ''}
-            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#e5e7eb;margin-bottom:14px;">
-                ${typeIcon[pType]||'📦'} ${esc(p.title||'—')}
-            </div>
-            <div class="adm-info-grid">
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Type</div>
-                    <div class="adm-cell-val" style="text-transform:capitalize;">${esc(pType)}</div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Category</div>
-                    <div class="adm-cell-val">${esc(p.category||'—')}</div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Price</div>
-                    <div class="adm-cell-val" style="color:var(--primary);font-weight:700;">$${Number(p.price||0).toFixed(2)}</div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Compare Price</div>
-                    <div class="adm-cell-val" style="text-decoration:${p.comparePrice>p.price?'line-through':'none'};color:#6b7280;">
-                        ${p.comparePrice ? '$'+Number(p.comparePrice).toFixed(2) : '—'}
-                    </div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Status</div>
-                    <div class="adm-cell-val">
-                        <span class="status-badge ${p.isActive?'status-active':'status-inactive'}">${p.isActive?'Active':'Inactive'}</span>
-                    </div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">File / Delivery</div>
-                    <div class="adm-cell-val">
-                        ${hasFile
-                            ? `<span style="color:var(--primary);"><i class="fas fa-check-circle"></i> Ready</span>`
-                            : `<span style="color:var(--error);"><i class="fas fa-times-circle"></i> Missing</span>`}
-                    </div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Downloads</div>
-                    <div class="adm-cell-val">${(p.downloadCount||p.downloads||0).toLocaleString()}</div>
-                </div>
-                <div class="adm-info-cell">
-                    <div class="adm-cell-lbl">Rating</div>
-                    <div class="adm-cell-val">⭐ ${p.rating ? Number(p.rating).toFixed(1) : '—'} ${p.reviewCount ? `(${p.reviewCount})` : ''}</div>
-                </div>
-            </div>
-            ${p.tags?.length ? `
-            <div class="adm-section-lbl">Tags</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
-                ${p.tags.map(t=>`<span style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:5px;padding:2px 8px;font-size:.72rem;color:#00ff88;">${esc(t)}</span>`).join('')}
-            </div>` : ''}
-            ${p.description ? `
-            <div class="adm-section-lbl">Description</div>
-            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:12px 14px;font-size:.83rem;color:#9ca3af;line-height:1.6;margin-bottom:14px;">
-                ${esc(p.description)}
-            </div>` : ''}
-            ${p.hostedFile?.secureUrl ? `
-            <div class="adm-section-lbl">Hosted File URL</div>
-            <div style="font-family:'DM Mono',monospace;font-size:.72rem;color:#6b7280;word-break:break-all;
-                 background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:8px 12px;">
-                ${esc(p.hostedFile.secureUrl)}
-            </div>` : ''}
-            <div class="adm-modal-footer" style="padding:14px 0 0;border-top:1px solid rgba(255,255,255,.06);margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-                <button class="btn btn-secondary btn-sm" onclick="editProduct('${productId}');admCloseModal()">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-sm" style="background:rgba(255,80,80,.1);color:#ff6b6b;border:1px solid rgba(255,80,80,.2);"
-                    onclick="deleteProduct('${productId}');admCloseModal()">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-                <button class="btn btn-secondary btn-sm" onclick="admCloseModal()">Close</button>
-            </div>
-        `;
-    } catch(e) {
-        document.getElementById('prodDetailBody').innerHTML = `
-            <div style="text-align:center;padding:30px;color:#ff6b6b;">
-                <i class="fas fa-exclamation-circle fa-2x" style="margin-bottom:10px;"></i>
-                <div>${esc(e.message)}</div>
-            </div>`;
-    }
-}
- 
-
-
-async function handleCreateProduct(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    
-    const dataObj = {
-      title:            productData.get('title'),
-      description:      productData.get('description'),
-      shortDescription: productData.get('shortDescription'),
-      category:         productData.get('category'),
-      price:            parseFloat(productData.get('price')) || 0,
-      comparePrice:     parseFloat(productData.get('comparePrice')) || 0,
-      productType:      document.getElementById('createProductType').value || 'download',
-      status:           productData.get('status') || 'published',
-      slug:             productData.get('slug') ? productData.get('slug').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') : '',
-      image:            productData.get('image'),
-      downloadLink:     productData.get('downloadLink'),
-      fileSize:         productData.get('fileSize'),
-      version:          productData.get('version'),
-      icon:             productData.get('icon'),
-      previewUrl:       productData.get('previewUrl'),
-      previewType:      productData.get('previewType') || 'none',
-      refundPolicy:     productData.get('refundPolicy') || 'no_refund',
-      refundDays:       parseInt(productData.get('refundDays')) || 0,
-      isActive:         productData.get('isActive') === 'on' ? true : productData.get('isActive') ? true : false,
-      isFeatured:       productData.get('isFeatured') === 'on' ? true : productData.get('isFeatured') ? true : false,
-      usageRights:      productData.get('usageRights'),
-      licenseText:      productData.get('licenseText'),
-      notes:            productData.get('notes'),
-      metaTitle:        productData.get('metaTitle'),
-      metaDescription:  productData.get('metaDescription'),
-      metaKeywords:     productData.get('metaKeywords') ? productData.get('metaKeywords').split(',').map(k => k.trim()).filter(Boolean) : [],
-    };
-    
-    // ── Handle tags (comma-separated string → array) ──
-    const tagsRaw = productData.get('tags');
-    if (tagsRaw) {
-      dataObj.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
-    }
-
-    // Upload hosted file if one was selected
-    const hostedFileResult = await uploadProductFileIfSelected('create', adminToken);
-    if (hostedFileResult) {
-        productData.hostedFile = hostedFileResult;
-        productData.fileSize   = hostedFileResult.fileSizeLabel;
-    }
-
-    // Collect productType
-    productData.productType = document.getElementById('createProductType').value || 'download';
-
-    // Collect music/software extras
-    const pType = productData.productType;
-     if (dataObj.productType === 'music') {
-      dataObj.audioData = {
-        bpm:        productData.get('audioBpm') ? parseInt(productData.get('audioBpm')) : undefined,
-        key:        productData.get('audioKey'),
-        genre:      productData.get('audioGenre'),
-        license:    productData.get('audioLicense'),
-        stems:      productData.get('audioStems') === 'on' ? true : false,
-      };
-    }
-    if (dataObj.productType === 'software') {
-      const platforms = productData.getAll('softwarePlatform');
-      dataObj.softwareData = {
-        platform:       platforms || [],
-        licenseType:    productData.get('softwareLicenseType'),
-        supportPeriod:  productData.get('softwareSupportPeriod'),
-        maxDevices:     productData.get('softwareMaxDevices') ? parseInt(productData.get('softwareMaxDevices')) : 1,
-      };
-    }
-
-    try {
-        showLoading();
-        // Remove empty/undefined fields to keep payload clean
-    Object.keys(dataObj).forEach(key => {
-      if (dataObj[key] === undefined || dataObj[key] === null || dataObj[key] === '') {
-        delete dataObj[key];
-      }
-    });
-
-    const response = await fetch(`${API_URL}/api/admin/products`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(dataObj)
-    });
-
-        const data = await response.json();
-        if (data.success) {
-            showNotification('✅ Product created!', 'success');
-            closeModal('createProductModal');
-            event.target.reset();
-            loadProductsData();
-        } else {
-            showNotification(data.message, 'error');
-        }
-        hideLoading();
-    } catch (error) {
-        showNotification('Failed to create product', 'error');
-        hideLoading();
-    }
-}
-
-async function editProduct(productId) {
-    try {
-        showLoading();
-        // ✅ FIX: Use admin route (returns full product including hostedFile, productType etc.)
-        const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            const product = data.product;
-            document.getElementById('editProductId').value         = product._id;
-            document.getElementById('editProductTitle').value      = product.title        || '';
-            document.getElementById('editProductDescription').value= product.description  || '';
-            document.getElementById('editProductCategory').value   = product.category     || '';
-            document.getElementById('editProductPrice').value      = product.price        || 0;
-            document.getElementById('editProductDownloadLink').value = product.downloadLink || '';
-            document.getElementById('editProductFileSize').value   = product.fileSize     || '';
-            document.getElementById('editProductIsActive').checked = !!product.isActive;
-            document.getElementById('editProductIsFeatured').checked = !!product.isFeatured;
-            // ✅ Store full product on the form for reference during save
-            document.getElementById('editProductForm').dataset.productType = product.productType || 'download';
-            document.getElementById('editProductForm').dataset.comparePrice = product.comparePrice || 0;
-            openModal('editProductModal');
-        }
-        hideLoading();
-    } catch (error) {
-        showNotification('Failed to load product', 'error');
-        hideLoading();
-    }
-}
-
-/* Load product data and populate edit form */
-async function loadProductForEdit(productId) {
   try {
-    const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
-      headers: { 'Authorization': `Bearer ${adminToken}` }
-    });
-    
-    if (!response.ok) {
-      showNotification('Failed to load product', 'error');
+    const res  = await fetch(
+      `${API_URL}/api/admin/products?page=${page}&limit=20` +
+      `&search=${encodeURIComponent(search)}&status=${status}&productType=${productType}`,
+      { headers: { 'Authorization': `Bearer ${adminToken}` } }
+    );
+    const data = await res.json();
+    const tbody = g('productsTable');
+
+    if (!data.success || !data.products?.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">No products found</td></tr>`;
       return;
     }
-    
-    const data = await response.json();
-    const product = data.product || data;
-    
-    // Populate all fields
-    document.getElementById('editProductId').value = product._id;
-    document.getElementById('editProductTitle').value = product.title || '';
-    document.getElementById('editProductDescription').value = product.description || '';
-    document.getElementById('editProductShortDescription').value = product.shortDescription || '';
-    document.getElementById('editProductCategory').value = product.category || '';
-    document.getElementById('editProductStatus').value = product.status || 'published';
-    document.getElementById('editProductPrice').value = product.price || '0';
-    document.getElementById('editProductComparePrice').value = product.comparePrice || '0';
-    document.getElementById('editProductTags').value = Array.isArray(product.tags) ? product.tags.join(', ') : '';
-    document.getElementById('editProductDownloadLink').value = product.downloadLink || '';
-    document.getElementById('editProductFileSize').value = product.fileSize || '';
-    document.getElementById('editProductVersion').value = product.version || '';
-    document.getElementById('editProductImage').value = product.image || '';
-    document.getElementById('editProductPreviewUrl').value = product.previewUrl || '';
-    document.getElementById('editProductPreviewType').value = product.previewType || 'none';
-    document.getElementById('editProductRefundPolicy').value = product.refundPolicy || 'no_refund';
-    document.getElementById('editProductRefundDays').value = product.refundDays || '0';
-    toggleRefundDays(product.refundPolicy);
-    document.getElementById('editProductSlug').value = product.slug || '';
-    document.getElementById('editProductUsageRights').value = product.usageRights || '';
-    document.getElementById('editProductLicenseText').value = product.licenseText || '';
-    document.getElementById('editProductNotes').value = product.notes || '';
-    document.getElementById('editProductMetaTitle').value = product.metaTitle || '';
-    document.getElementById('editProductMetaDescription').value = product.metaDescription || '';
-    document.getElementById('editProductMetaKeywords').value = Array.isArray(product.metaKeywords) ? product.metaKeywords.join(', ') : '';
-    document.getElementById('editProductIsActive').checked = product.isActive !== false;
-    document.getElementById('editProductIsFeatured').checked = product.isFeatured === true;
-    
-    // Handle music metadata if present
-    if (product.audioData) {
-      if (document.getElementById('editAudioBpm')) document.getElementById('editAudioBpm').value = product.audioData.bpm || '';
-      if (document.getElementById('editAudioKey')) document.getElementById('editAudioKey').value = product.audioData.key || '';
-      if (document.getElementById('editAudioGenre')) document.getElementById('editAudioGenre').value = product.audioData.genre || '';
-      if (document.getElementById('editAudioLicense')) document.getElementById('editAudioLicense').value = product.audioData.license || 'personal';
-      if (document.getElementById('editAudioStems')) document.getElementById('editAudioStems').checked = product.audioData.stems === true;
+
+    tbody.innerHTML = data.products.map(p => {
+      const pt    = p.productType || 'download';
+      const icon  = _PTYPE_ICON[pt] || '📦';
+      const hasF  = !!(p.hostedFile?.secureUrl || p.downloadLink || p.externalVideoUrl || p.externalAudioUrl || pt === 'course');
+      const price = p.displayPrice?.display || ('$' + Number(p.price||0).toFixed(2));
+      const sbc   = _admSBClass(p.status, p.isActive);
+      const slbl  = p.status || (p.isActive ? 'published' : 'inactive');
+      const cmpStr = p.comparePrice > p.price
+        ? `<div style="font-size:.7rem;color:#6b7280;text-decoration:line-through;">$${Number(p.comparePrice).toFixed(2)}</div>` : '';
+      const thumb = p.image
+        ? `<img src="${esc(p.image)}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,.08);" onerror="this.style.display='none'">`
+        : `<span style="font-size:1.5rem;">${icon}</span>`;
+
+      return `<tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            ${thumb}
+            <div>
+              <div style="font-weight:600;color:#e5e7eb;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(p.title)}">${esc(p.title)}</div>
+              <div style="font-size:.7rem;color:#6b7280;">${esc(p.category||'')}</div>
+            </div>
+          </div>
+        </td>
+        <td><span style="background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px;font-size:.74rem;">${icon} ${pt}</span></td>
+        <td><div style="font-weight:700;color:#00ff88;">${price}</div>${cmpStr}</td>
+        <td>${hasF
+          ? `<span style="color:#00ff88;font-size:.8rem;"><i class="fas fa-check-circle"></i> Ready</span>`
+          : `<span style="color:#ef4444;font-size:.8rem;"><i class="fas fa-times-circle"></i> Missing</span>`}</td>
+        <td>
+          <span class="${sbc}">${slbl}</span>
+          ${p.isFeatured ? `<span style="margin-left:4px;font-size:.68rem;color:#fbbf24;">⭐</span>` : ''}
+        </td>
+        <td style="color:#9ca3af;font-size:.85rem;">${(p.soldCount||0).toLocaleString()}</td>
+        <td style="color:#9ca3af;font-size:.85rem;">${p.rating ? '⭐ '+Number(p.rating).toFixed(1) : '—'}</td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn" onclick="viewProductDetail('${p._id}')" title="View"><i class="fas fa-eye"></i></button>
+            <button class="action-btn" onclick="loadProductForEdit('${p._id}')" title="Edit"><i class="fas fa-edit"></i></button>
+            <button class="action-btn" onclick="admToggle('${p._id}','${slbl}')" title="Toggle Active"><i class="fas fa-toggle-on"></i></button>
+            <button class="action-btn danger" onclick="deleteProduct('${p._id}')" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    if (data.pagination) {
+      updatePagination('productsPagination', data.pagination,
+        p2 => loadProductsData(p2, search, status, productType));
     }
-    
-    // Handle software metadata if present
-    if (product.softwareData) {
-      const platformCheckboxes = document.querySelectorAll('input[name="editSoftwarePlatform"]');
-      platformCheckboxes.forEach(cb => {
-        cb.checked = (product.softwareData.platform || []).includes(cb.value);
-      });
-      if (document.getElementById('editSoftwareLicenseType')) document.getElementById('editSoftwareLicenseType').value = product.softwareData.licenseType || 'single';
-      if (document.getElementById('editSoftwareSupportPeriod')) document.getElementById('editSoftwareSupportPeriod').value = product.softwareData.supportPeriod || '';
-    }
-    
-    openModal('editProductModal');
-  } catch (error) {
-    console.error('Error loading product:', error);
-    showNotification('Failed to load product', 'error');
+  } catch (err) {
+    console.error('Products error:', err);
+    showNotification('Failed to load products', 'error');
   }
 }
 
-async function handleUpdateProduct(event) {
-  event.preventDefault();
-  const form = document.getElementById('editProductForm');
-  const productData = new FormData(form);
-  
-  const productId = productData.get('productId');
-  const updateData = {
-    title:            productData.get('title'),
-    description:      productData.get('description'),
-    shortDescription: productData.get('shortDescription'),
-    category:         productData.get('category'),
-    price:            parseFloat(productData.get('price')) || 0,
-    comparePrice:     parseFloat(productData.get('comparePrice')) || 0,
-    status:           productData.get('status'),
-    slug:             productData.get('slug') ? productData.get('slug').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') : undefined,
-    image:            productData.get('image'),
-    downloadLink:     productData.get('downloadLink'),
-    fileSize:         productData.get('fileSize'),
-    version:          productData.get('version'),
-    previewUrl:       productData.get('previewUrl'),
-    previewType:      productData.get('previewType'),
-    refundPolicy:     productData.get('refundPolicy'),
-    refundDays:       productData.get('refundDays') ? parseInt(productData.get('refundDays')) : 0,
-    isActive:         productData.get('isActive') === 'on' ? true : productData.get('isActive') ? true : false,
-    isFeatured:       productData.get('isFeatured') === 'on' ? true : productData.get('isFeatured') ? true : false,
-    usageRights:      productData.get('usageRights'),
-    licenseText:      productData.get('licenseText'),
-    notes:            productData.get('notes'),
-    metaTitle:        productData.get('metaTitle'),
-    metaDescription:  productData.get('metaDescription'),
-    metaKeywords:     productData.get('metaKeywords') ? productData.get('metaKeywords').split(',').map(k => k.trim()).filter(Boolean) : undefined,
-  };
+// ════════════════════════════════════════════════════════════════════
+// DETAIL MODAL
+// ════════════════════════════════════════════════════════════════════
+async function viewProductDetail(productId) {
+  admOpenModal(`
+    <div class="adm-modal-overlay" onclick="if(event.target===this)admCloseModal()">
+      <div class="adm-modal wide" style="max-width:700px;">
+        <div class="adm-modal-header">
+          <div class="adm-modal-title"><i class="fas fa-box-open"></i> Product Detail</div>
+          <button class="adm-modal-close" onclick="admCloseModal()">✕</button>
+        </div>
+        <div class="adm-modal-body" id="prodDetailBody">
+          <div style="text-align:center;padding:40px;color:#6b7280;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color:#00ff88;"></i>
+          </div>
+        </div>
+      </div>
+    </div>`);
 
-  // ── Handle tags (comma-separated string → array) ──
-  const tagsRaw = productData.get('tags');
-  if (tagsRaw) {
-    updateData.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
-  }
-    try {
-        showLoading();
-        // Remove empty/undefined fields to keep payload clean
-    Object.keys(updateData).forEach(key => {
-      if (updateData[key] === undefined || updateData[key] === null || updateData[key] === '') {
-        delete updateData[key];
-      }
-    });
+  try {
+    const r = await fetch(`${API_URL}/api/admin/products/${productId}`,
+      { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message || 'Load failed');
+    const p     = d.product;
+    const pt    = p.productType || 'download';
+    const icon  = _PTYPE_ICON[pt] || '📦';
+    const hasF  = !!(p.hostedFile?.secureUrl || p.downloadLink || p.externalVideoUrl || p.externalAudioUrl || pt === 'course');
+    const price = p.displayPrice?.display || ('$' + Number(p.price||0).toFixed(2));
+    const sbc   = _admSBClass(p.status, p.isActive);
 
-    const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(updateData)
-    });
-
-        const data = await response.json();
-        if (data.success) {
-            showNotification('✅ Product updated!', 'success');
-            closeModal('editProductModal');
-            loadProductsData();
-        } else {
-            showNotification(data.message, 'error');
-        }
-        hideLoading();
-    } catch (error) {
-        showNotification('Failed to update product', 'error');
-        hideLoading();
+    // Type-specific section
+    let typeHtml = '';
+    if (pt === 'music' && p.audioData) {
+      const a = p.audioData;
+      typeHtml = `<div class="adm-section-lbl" style="margin-top:14px;">Music</div>
+        <div class="adm-info-grid">
+          ${a.bpm    ? `<div class="adm-info-cell"><div class="adm-cell-lbl">BPM</div><div class="adm-cell-val">${a.bpm}</div></div>` : ''}
+          ${a.key    ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Key</div><div class="adm-cell-val">${esc(a.key)}</div></div>` : ''}
+          ${a.genre  ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Genre</div><div class="adm-cell-val">${esc(a.genre)}</div></div>` : ''}
+          ${a.license? `<div class="adm-info-cell"><div class="adm-cell-lbl">License</div><div class="adm-cell-val" style="text-transform:capitalize;">${esc(a.license)}</div></div>` : ''}
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Stems</div><div class="adm-cell-val">${a.stems?'✅':'—'}</div></div>
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Vocals</div><div class="adm-cell-val">${a.hasVocals?'✅':'—'}</div></div>
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Loopable</div><div class="adm-cell-val">${a.loopable?'✅':'—'}</div></div>
+          ${a.artist ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Artist</div><div class="adm-cell-val">${esc(a.artist)}</div></div>` : ''}
+          ${a.isrc   ? `<div class="adm-info-cell"><div class="adm-cell-lbl">ISRC</div><div class="adm-cell-val" style="font-family:monospace;font-size:.75rem;">${esc(a.isrc)}</div></div>` : ''}
+        </div>`;
+    } else if (pt === 'software' && p.softwareData) {
+      const s = p.softwareData;
+      typeHtml = `<div class="adm-section-lbl" style="margin-top:14px;">Software</div>
+        <div class="adm-info-grid">
+          ${s.platform?.length ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Platforms</div><div class="adm-cell-val">${s.platform.join(', ')}</div></div>` : ''}
+          ${s.licenseType ? `<div class="adm-info-cell"><div class="adm-cell-lbl">License</div><div class="adm-cell-val" style="text-transform:capitalize;">${esc(s.licenseType)}</div></div>` : ''}
+          ${s.maxDevices  ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Max Devices</div><div class="adm-cell-val">${s.maxDevices}</div></div>` : ''}
+          ${s.supportPeriod ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Support</div><div class="adm-cell-val">${esc(s.supportPeriod)}</div></div>` : ''}
+          ${s.updatePeriod  ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Updates</div><div class="adm-cell-val">${esc(s.updatePeriod)}</div></div>` : ''}
+          ${s.activationUrl ? `<div class="adm-info-cell" style="grid-column:span 2;"><div class="adm-cell-lbl">Activation URL</div><div class="adm-cell-val" style="font-family:monospace;font-size:.72rem;word-break:break-all;">${esc(s.activationUrl)}</div></div>` : ''}
+        </div>`;
+    } else if (pt === 'course' && p.courseData) {
+      const c = p.courseData;
+      typeHtml = `<div class="adm-section-lbl" style="margin-top:14px;">Course</div>
+        <div class="adm-info-grid">
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Sections</div><div class="adm-cell-val">${c.totalSections||0}</div></div>
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Chapters</div><div class="adm-cell-val">${c.totalChapters||0}</div></div>
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Duration</div><div class="adm-cell-val">${c.totalDuration ? Math.round(c.totalDuration/60)+'m' : '—'}</div></div>
+          ${c.level ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Level</div><div class="adm-cell-val" style="text-transform:capitalize;">${esc(c.level)}</div></div>` : ''}
+          ${c.language ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Language</div><div class="adm-cell-val">${esc(c.language)}</div></div>` : ''}
+        </div>`;
+    } else if (pt === 'ebook' && p.ebookData) {
+      const e = p.ebookData;
+      typeHtml = `<div class="adm-section-lbl" style="margin-top:14px;">eBook</div>
+        <div class="adm-info-grid">
+          ${e.author    ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Author</div><div class="adm-cell-val">${esc(e.author)}</div></div>` : ''}
+          ${e.pageCount ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Pages</div><div class="adm-cell-val">${e.pageCount}</div></div>` : ''}
+          ${e.formats?.length ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Formats</div><div class="adm-cell-val">${e.formats.join(', ')}</div></div>` : ''}
+          ${e.language  ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Language</div><div class="adm-cell-val">${esc(e.language)}</div></div>` : ''}
+          ${e.isbn      ? `<div class="adm-info-cell"><div class="adm-cell-lbl">ISBN</div><div class="adm-cell-val">${esc(e.isbn)}</div></div>` : ''}
+        </div>`;
+    } else if (pt === 'video' && p.videoData) {
+      const v = p.videoData;
+      typeHtml = `<div class="adm-section-lbl" style="margin-top:14px;">Video</div>
+        <div class="adm-info-grid">
+          ${v.genre      ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Genre</div><div class="adm-cell-val">${esc(v.genre)}</div></div>` : ''}
+          ${v.resolution ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Resolution</div><div class="adm-cell-val">${esc(v.resolution)}</div></div>` : ''}
+          ${v.language   ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Language</div><div class="adm-cell-val">${esc(v.language)}</div></div>` : ''}
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Download</div><div class="adm-cell-val">${v.allowDownload?'✅':'—'}</div></div>
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Captions</div><div class="adm-cell-val">${v.hasCaptions?'✅':'—'}</div></div>
+        </div>`;
+    } else if (['template','component','script'].includes(pt) && p.designData) {
+      const dd = p.designData;
+      typeHtml = `<div class="adm-section-lbl" style="margin-top:14px;">Technical</div>
+        <div class="adm-info-grid">
+          ${dd.frameworks?.length ? `<div class="adm-info-cell"><div class="adm-cell-lbl">Frameworks</div><div class="adm-cell-val">${dd.frameworks.join(', ')}</div></div>` : ''}
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Responsive</div><div class="adm-cell-val">${dd.responsive?'✅':'—'}</div></div>
+          <div class="adm-info-cell"><div class="adm-cell-lbl">Dark Mode</div><div class="adm-cell-val">${dd.darkMode?'✅':'—'}</div></div>
+          ${dd.livePreviewUrl ? `<div class="adm-info-cell" style="grid-column:span 2;"><div class="adm-cell-lbl">Live Preview</div><div class="adm-cell-val"><a href="${esc(dd.livePreviewUrl)}" target="_blank" style="color:#00ff88;">${esc(dd.livePreviewUrl)}</a></div></div>` : ''}
+        </div>`;
     }
+
+    const row = (lbl, val) => `<div class="adm-info-cell"><div class="adm-cell-lbl">${lbl}</div><div class="adm-cell-val">${val}</div></div>`;
+    const mono = (lbl, val) => `<div class="adm-section-lbl" style="margin-top:14px;">${lbl}</div>
+      <div style="font-family:monospace;font-size:.72rem;color:#6b7280;word-break:break-all;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:8px 12px;margin-bottom:10px;">${esc(val)}</div>`;
+    const para = (lbl, val, style='') => `<div class="adm-section-lbl" style="margin-top:14px;">${lbl}</div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:12px 14px;font-size:.83rem;color:#9ca3af;line-height:1.6;margin-bottom:10px;${style}">${esc(val)}</div>`;
+
+    document.getElementById('prodDetailBody').innerHTML = `
+      ${p.image ? `<img src="${esc(p.image)}" alt="" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:16px;border:1px solid rgba(255,255,255,.06);">` : ''}
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <span style="font-size:1.8rem;">${icon}</span>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#e5e7eb;">${esc(p.title||'—')}</div>
+          <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">${esc(p.category||'')} · ${pt}</div>
+        </div>
+      </div>
+      <div class="adm-info-grid">
+        ${row('Price', `<span style="color:#00ff88;font-weight:700;">${price}</span>`)}
+        ${p.comparePrice > p.price ? row('Compare', `<span style="text-decoration:line-through;color:#6b7280;">$${Number(p.comparePrice).toFixed(2)}</span>`) : ''}
+        ${row('Status', `<span class="${sbc}">${p.status||'published'}</span>`)}
+        ${row('Active', p.isActive ? '✅ Yes' : '❌ No')}
+        ${row('Featured', p.isFeatured ? '⭐ Yes' : '—')}
+        ${row('Delivery', hasF ? '<span style="color:#00ff88;"><i class="fas fa-check-circle"></i> Ready</span>' : '<span style="color:#ef4444;"><i class="fas fa-times-circle"></i> Missing</span>')}
+        ${row('Sales', (p.soldCount||0).toLocaleString())}
+        ${row('Downloads', (p.downloadCount||0).toLocaleString())}
+        ${row('Rating', p.rating ? '⭐ '+Number(p.rating).toFixed(1)+(p.reviewCount?' ('+p.reviewCount+')':'') : '—')}
+        ${p.version      ? row('Version', esc(p.version)) : ''}
+        ${p.fileSize     ? row('File Size', esc(p.fileSize)) : ''}
+        ${p.refundPolicy ? row('Refund', esc(p.refundPolicy.replace(/_/g,' '))) : ''}
+        ${p.embedType    ? row('Embed', esc(p.embedType)) : ''}
+        ${p.mediaType    ? row('Media', esc(p.mediaType)) : ''}
+        ${p.slug         ? row('Slug', `<span style="font-family:monospace;font-size:.75rem;">${esc(p.slug)}</span>`) : ''}
+        ${p.createdAt    ? row('Created', new Date(p.createdAt).toLocaleDateString()) : ''}
+      </div>
+
+      ${p.tags?.length ? `
+        <div class="adm-section-lbl" style="margin-top:14px;">Tags</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          ${p.tags.map(t=>`<span style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:5px;padding:2px 8px;font-size:.72rem;color:#00ff88;">${esc(t)}</span>`).join('')}
+        </div>` : ''}
+
+      ${p.shortDescription ? para('Short Description', p.shortDescription) : ''}
+      ${p.description      ? para('Description',       p.description, 'max-height:140px;overflow-y:auto;') : ''}
+
+      ${typeHtml}
+
+      ${p.features?.length ? `
+        <div class="adm-section-lbl" style="margin-top:14px;">Features</div>
+        <div style="font-size:.82rem;color:#9ca3af;line-height:1.9;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+          ${p.features.map(f=>'• '+esc(f)).join('<br>')}
+        </div>` : ''}
+
+      ${p.requirements?.length ? `
+        <div class="adm-section-lbl">Requirements</div>
+        <div style="font-size:.82rem;color:#9ca3af;line-height:1.9;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+          ${p.requirements.map(r=>'• '+esc(r)).join('<br>')}
+        </div>` : ''}
+
+      ${p.notes        ? `<div class="adm-section-lbl" style="margin-top:14px;">Notes for Buyers</div><div style="background:rgba(255,165,0,.05);border:1px solid rgba(255,165,0,.2);border-radius:8px;padding:10px 12px;font-size:.82rem;color:#fcd34d;margin-bottom:10px;">${esc(p.notes)}</div>` : ''}
+      ${p.usageRights  ? para('Usage Rights', p.usageRights) : ''}
+      ${p.licenseText  ? para('License Text', p.licenseText) : ''}
+
+      ${(p.metaTitle||p.metaDescription) ? `
+        <div class="adm-section-lbl" style="margin-top:14px;">SEO</div>
+        <div class="adm-info-grid">
+          ${p.metaTitle       ? row('Meta Title', esc(p.metaTitle)) : ''}
+          ${p.metaDescription ? row('Meta Desc',  esc(p.metaDescription)) : ''}
+          ${p.metaKeywords?.length ? row('Keywords', p.metaKeywords.join(', ')) : ''}
+        </div>` : ''}
+
+      ${p.hostedFile?.secureUrl ? mono('Hosted File URL', p.hostedFile.secureUrl) : ''}
+      ${p.externalVideoUrl      ? mono('External Video URL', p.externalVideoUrl) : ''}
+      ${p.externalAudioUrl      ? mono('External Audio URL', p.externalAudioUrl) : ''}
+      ${p.downloadLink          ? mono('Download Link', p.downloadLink) : ''}
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);margin-top:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="loadProductForEdit('${productId}');admCloseModal()"><i class="fas fa-edit"></i> Edit</button>
+        <button class="btn btn-sm" style="background:rgba(255,80,80,.1);color:#ff6b6b;border:1px solid rgba(255,80,80,.2);"
+          onclick="deleteProduct('${productId}');admCloseModal()"><i class="fas fa-trash"></i> Delete</button>
+        <button class="btn btn-secondary btn-sm" onclick="admCloseModal()">Close</button>
+      </div>`;
+  } catch(e) {
+    document.getElementById('prodDetailBody').innerHTML =
+      `<div style="text-align:center;padding:30px;color:#ff6b6b;">
+        <i class="fas fa-exclamation-circle fa-2x" style="margin-bottom:10px;"></i>
+        <div>${esc(e.message)}</div>
+       </div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TYPE SWITCHING
+// ════════════════════════════════════════════════════════════════════
+const _ADM_DL_TYPES  = ['download','template','component','script','ebook'];
+const _ADM_DES_TYPES = ['template','component','script'];
+
+function _admActivatePanels(modalSel, panelClass, type) {
+  const show = new Set();
+  if (_ADM_DL_TYPES.includes(type))  show.add('download');
+  if (type === 'course')   show.add('course');
+  if (type === 'music')    show.add('music');
+  if (type === 'software') show.add('software');
+  if (type === 'video')    show.add('video');
+  if (type === 'ebook')    { show.add('download'); show.add('ebook'); }
+  if (_ADM_DES_TYPES.includes(type)) { show.add('download'); show.add('design'); }
+
+  document.querySelectorAll(`${modalSel} .${panelClass}`).forEach(el => {
+    const pid = el.id.replace(/^[ce]Panel-/, '');
+    el.style.display = show.has(pid) ? 'block' : 'none';
+    el.classList.toggle('active', show.has(pid));
+  });
+}
+
+function admSwitchType(type, btn) {
+  _admCurType = type;
+  document.querySelectorAll('#createProductModal .adm-ptype-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const badge = document.getElementById('cTypeBadge');
+  if (badge) badge.textContent = (_PTYPE_ICON[type]||'📦') + ' ' + type.charAt(0).toUpperCase() + type.slice(1);
+  _admActivatePanels('#createProductModal', 'adm-panel', type);
+  const pi = document.getElementById('cPreviewIcon');
+  if (pi) pi.textContent = _PTYPE_ICON[type]||'📦';
+}
+
+function admSwitchTypeEdit(type, btn) {
+  _admEditCurType = type;
+  document.querySelectorAll('#editProductModal .adm-ptype-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _admActivatePanels('#editProductModal', 'adm-edit-panel', type);
+}
+
+function admSelectDelivery(mode, prefix) {
+  const g = id => document.getElementById(id);
+  g(`${prefix}DeliveryHosted`)?.classList.toggle('selected', mode==='hosted');
+  g(`${prefix}DeliveryLink`)?.classList.toggle('selected',   mode==='link');
+  const hs = g(`${prefix}HostedSection`);
+  const ls = g(`${prefix}LinkSection`);
+  if (hs) hs.style.display = mode==='hosted' ? 'block' : 'none';
+  if (ls) ls.style.display = mode==='link'   ? 'block' : 'none';
+}
+
+function admSelectVideoDelivery(mode, prefix) {
+  const g = id => document.getElementById(id);
+  g(`${prefix}VideoDeliveryHosted`)?.classList.toggle('selected', mode==='hosted');
+  g(`${prefix}VideoDeliveryLink`)?.classList.toggle('selected',   mode==='link');
+  const hs = g(`${prefix}VideoHostedSection`);
+  const ls = g(`${prefix}VideoLinkSection`);
+  if (hs) hs.style.display = mode==='hosted' ? 'block' : 'none';
+  if (ls) ls.style.display = mode==='link'   ? 'block' : 'none';
+}
+
+function admSelectPreview(el, type, prefix) {
+  const modalSel = prefix === 'c' ? '#createProductModal' : '#editProductModal';
+  document.querySelectorAll(`${modalSel} .adm-preview-chip`).forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const sec = document.getElementById(`${prefix}PreviewUrlSection`);
+  if (sec) sec.style.display = type !== 'none' ? 'block' : 'none';
+  if (prefix === 'c') _admPreviewType = type;
+  else _admEditPreview = type;
+}
+
+function admSelectMusicLic(lic, prefix) {
+  ['personal','commercial','exclusive'].forEach(l => {
+    document.getElementById(`${prefix}Lic-${l}`)?.classList.toggle('active', l === lic);
+  });
+  if (prefix === 'c') _admMusicLic = lic;
+  else _admEditMusicLic = lic;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// LIVE PREVIEW
+// ════════════════════════════════════════════════════════════════════
+function admUpdatePreview() {
+  const g = id => document.getElementById(id);
+  const t   = g('cTitle')?.value || 'Product Title';
+  const d   = g('cDescription')?.value || 'Description…';
+  const p   = parseFloat(g('cPrice')?.value||'0');
+  const c   = g('cCategory')?.value || 'Category';
+  const img = g('cImage')?.value;
+  const ico = _PTYPE_ICON[_admCurType]||'📦';
+  const pi  = g('cPreviewIcon');
+  if (pi) pi.innerHTML = img
+    ? `<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:8px 8px 0 0;" onerror="this.parentElement.textContent='${ico}'">`
+    : ico;
+  const el = (id, v) => { const e = g(id); if (e) e.textContent = v; };
+  el('cPreviewTitle',    t);
+  el('cPreviewDesc',     d.slice(0,100) + (d.length>100?'…':''));
+  el('cPreviewPrice',    '$' + p.toFixed(2));
+  el('cPreviewCategory', c);
+}
+
+function admUpdateEditPreview() {
+  const g  = id => document.getElementById(id);
+  const t  = g('eTitle')?.value || 'Product Title';
+  const p  = parseFloat(g('ePrice')?.value||'0');
+  const c  = g('eCategory')?.value || 'Category';
+  const st = g('eStatus')?.value || 'published';
+  const img = g('eImage')?.value;
+  const ico = _PTYPE_ICON[_admEditCurType]||'📦';
+  const pi  = g('ePreviewIcon');
+  if (pi) pi.innerHTML = img
+    ? `<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:8px 8px 0 0;" onerror="this.parentElement.textContent='${ico}'">`
+    : ico;
+  const el = (id, v) => { const e = g(id); if (e) e.textContent = v; };
+  el('ePreviewTitle',    t);
+  el('ePreviewPrice',    '$' + p.toFixed(2));
+  el('ePreviewCategory', c);
+  const ps = g('ePreviewStatus');
+  if (ps) {
+    ps.className = st==='draft' ? 'adm-sbadge adm-sb-draft' : st==='archived' ? 'adm-sbadge adm-sb-arch' : 'adm-sbadge adm-sb-pub';
+    ps.textContent = st;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// COLLECT TYPE-SPECIFIC DATA
+// ════════════════════════════════════════════════════════════════════
+function _admCollect(prefix, type) {
+  const g = id => document.getElementById(id);
+  const v = id => g(id)?.value?.trim() || undefined;
+  const n = id => { const el = g(id); return el?.value ? parseInt(el.value) : undefined; };
+  const f = id => g(id)?.value ? parseFloat(g(id).value) : undefined;
+  const ck = id => g(id)?.checked || false;
+
+  if (type === 'music') {
+    return { audioData: {
+      bpm: n(`${prefix}AudioBpm`), key: v(`${prefix}AudioKey`), genre: v(`${prefix}AudioGenre`),
+      mood: v(`${prefix}AudioMood`), license: prefix==='c' ? _admMusicLic : _admEditMusicLic,
+      stems: ck(`${prefix}AudioStems`), hasVocals: ck(`${prefix}AudioVocals`), loopable: ck(`${prefix}AudioLoopable`),
+      trackTitle: v(`${prefix}AudioTrackTitle`), artist: v(`${prefix}AudioArtist`),
+      album: v(`${prefix}AudioAlbum`), releaseYear: n(`${prefix}AudioReleaseYear`),
+      isrc: v(`${prefix}AudioIsrc`),
+      allowedUses: g(`${prefix}AudioAllowedUses`)?.value
+        ? g(`${prefix}AudioAllowedUses`).value.split(',').map(s=>s.trim()).filter(Boolean) : undefined,
+    }};
+  }
+  if (type === 'software') {
+    const pg = g(`${prefix}PlatformGrid`);
+    const platforms = [...(pg?.querySelectorAll('.adm-platform-btn.active')||[])].map(b => b.dataset.platform || b.textContent.replace(/\W/g,'').toLowerCase()).filter(Boolean);
+    return { softwareData: {
+      platform: platforms, licenseType: g(`${prefix}SoftwareLicenseType`)?.value||'single',
+      maxDevices: n(`${prefix}SoftwareMaxDevices`)||1, supportPeriod: v(`${prefix}SoftwareSupport`),
+      updatePeriod: v(`${prefix}SoftwareUpdates`), trialDays: n(`${prefix}SoftwareTrialDays`)||0,
+      minOsVersion: v(`${prefix}SoftwareMinOs`), activationUrl: v(`${prefix}SoftwareActivationUrl`),
+      demoUrl: v(`${prefix}SoftwareDemoUrl`), repoUrl: v(`${prefix}SoftwareRepoUrl`),
+      changelog: g(`${prefix}SoftwareChangelog`)?.value?.trim()||undefined,
+    }};
+  }
+  if (type === 'course') {
+    const outcomes = g(`${prefix}CourseOutcomes`)?.value?.split('\n').map(s=>s.trim()).filter(Boolean)||[];
+    const audience = g(`${prefix}CourseAudience`)?.value?.split('\n').map(s=>s.trim()).filter(Boolean)||[];
+    return { courseData: {
+      level: g(`${prefix}CourseLevel`)?.value||'all', language: v(`${prefix}CourseLanguage`)||'English',
+      outcomes, targetAudience: audience, welcomeMessage: v(`${prefix}CourseWelcome`),
+      completionMessage: v(`${prefix}CourseCompletion`),
+      sections:[], totalSections:0, totalChapters:0, totalDuration:0,
+    }};
+  }
+  if (type === 'ebook') {
+    const fmts = [...(g(`${prefix}EbookFormats`)?.querySelectorAll('.adm-platform-btn.active')||[])].map(b=>b.dataset.fmt).filter(Boolean);
+    return { ebookData: {
+      author: v(`${prefix}EbookAuthor`), publisher: v(`${prefix}EbookPublisher`),
+      pageCount: n(`${prefix}EbookPageCount`), publicationYear: n(`${prefix}EbookPubYear`),
+      edition: v(`${prefix}EbookEdition`), readingTime: n(`${prefix}EbookReadingTime`),
+      language: v(`${prefix}EbookLanguage`)||'English', isbn: v(`${prefix}EbookIsbn`), formats: fmts,
+    }};
+  }
+  if (type === 'video') {
+    return {
+      videoData: {
+        genre: v(`${prefix}VideoGenre`), language: v(`${prefix}VideoLanguage`)||'English',
+        resolution: g(`${prefix}VideoResolution`)?.value||undefined,
+        releaseYear: n(`${prefix}VideoReleaseYear`),
+        licenseType: g(`${prefix}VideoLicense`)?.value||'personal',
+        allowDownload: ck(`${prefix}VideoAllowDownload`), hasCaptions: ck(`${prefix}VideoCaptions`),
+      },
+      externalVideoUrl: v(`${prefix}VideoExternalUrl`),
+    };
+  }
+  if (_ADM_DES_TYPES.includes(type)) {
+    const ff = g(`${prefix}DesignFrameworks`);
+    const frameworks = [...(ff?.querySelectorAll('.adm-platform-btn.active')||[])].map(b=>b.textContent.trim().replace(/^\W+/,'').trim()).filter(Boolean);
+    return { designData: {
+      frameworks, livePreviewUrl: v(`${prefix}DesignPreviewUrl`),
+      repoUrl: v(`${prefix}DesignRepoUrl`), figmaUrl: v(`${prefix}DesignFigmaUrl`),
+      responsive: ck(`${prefix}DesignResponsive`), darkMode: ck(`${prefix}DesignDarkMode`),
+    }};
+  }
+  return {};
+}
+
+// ════════════════════════════════════════════════════════════════════
+// FILE UPLOAD HELPER
+// ════════════════════════════════════════════════════════════════════
+async function _admUploadFile(inputId, statusId) {
+  const fi = document.getElementById(inputId);
+  const se = document.getElementById(statusId);
+  if (!fi?.files?.[0]) return null;
+  const file = fi.files[0];
+  if (se) se.textContent = `⏳ Uploading ${file.name}…`;
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch(`${API_URL}/api/upload/product-file`,
+      { method:'POST', headers:{ 'Authorization':`Bearer ${adminToken}` }, body: fd });
+    const data = await r.json();
+    if (data.success) { if (se) se.textContent = `✅ ${data.file?.fileSizeLabel||'Uploaded'}`; return data.file; }
+    if (se) se.textContent = `❌ ${data.message||'Upload failed'}`;
+    return null;
+  } catch(e) {
+    if (se) se.textContent = `❌ ${e.message}`;
+    return null;
+  }
+}
+
+function _admGetFile(type, prefix) {
+  const map = {
+    music: [`${prefix}MusicFileInput`,   `${prefix}MusicFileStatus`],
+    software:[`${prefix}SoftwareFileInput`,`${prefix}SoftwareFileStatus`],
+    video:  [`${prefix}VideoFileInput`,  `${prefix}VideoFileStatus`],
+  };
+  const pair = map[type] || [`${prefix}ProductFileInput`, `${prefix}FileUploadStatus`];
+  return _admUploadFile(pair[0], pair[1]);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// BUILD PAYLOAD (shared between create and update)
+// ════════════════════════════════════════════════════════════════════
+function _admBuildPayload(prefix, type, hostedFile) {
+  const g  = id => document.getElementById(id);
+  const v  = id => g(id)?.value?.trim() || undefined;
+  const n  = id => g(id)?.value ? parseInt(g(id).value) : undefined;
+  const ck = id => g(id)?.checked !== false;
+
+  const tagsRaw = g(`${prefix === 'c' ? 'cTags' : 'eTags'}`)?.value || '';
+  const featRaw = g(`${prefix === 'c' ? 'cFeatures' : 'eFeatures'}`)?.value || '';
+  const reqRaw  = g(`${prefix === 'c' ? 'cRequirements' : 'eRequirements'}`)?.value || '';
+
+  const p = {
+    title:            v(`${prefix}Title`) || v(`${prefix === 'c' ? 'cTitle' : 'eTitle'}`),
+    description:      v(`${prefix}Description`) || v(`${prefix === 'c' ? 'cDescription' : 'eDescription'}`),
+    shortDescription: v(`${prefix === 'c' ? 'cShortDescription' : 'eShortDescription'}`),
+    category:         g(`${prefix === 'c' ? 'cCategory' : 'eCategory'}`)?.value?.trim(),
+    price:            parseFloat(g(`${prefix === 'c' ? 'cPrice' : 'ePrice'}`)?.value||'0'),
+    comparePrice:     parseFloat(g(`${prefix === 'c' ? 'cComparePrice' : 'eComparePrice'}`)?.value||'') || undefined,
+    tags:             tagsRaw ? tagsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [],
+    features:         featRaw ? featRaw.split('\n').map(s=>s.trim().replace(/^•\s*/,'')).filter(Boolean) : [],
+    requirements:     reqRaw  ? reqRaw.split('\n').map(s=>s.trim().replace(/^•\s*/,'')).filter(Boolean) : [],
+    image:            v(`${prefix === 'c' ? 'cImage' : 'eImage'}`),
+    productType:      type,
+    status:           g(`${prefix === 'c' ? 'cStatus' : 'eStatus'}`)?.value || 'published',
+    slug:             v(`${prefix === 'c' ? 'cSlug' : 'eSlug'}`),
+    isActive:         g(`${prefix === 'c' ? 'cIsActive' : 'eIsActive'}`)?.checked !== false,
+    isFeatured:       g(`${prefix === 'c' ? 'cIsFeatured' : 'eIsFeatured'}`)?.checked || false,
+    refundPolicy:     g(`${prefix === 'c' ? 'cRefundPolicy' : 'eRefundPolicy'}`)?.value || 'no_refund',
+    refundDays:       n(`${prefix === 'c' ? 'cRefundDays' : 'eRefundDays'}`) || 0,
+    previewUrl:       v(`${prefix === 'c' ? 'cPreviewUrl' : 'ePreviewUrl'}`),
+    previewType:      prefix === 'c' ? _admPreviewType : _admEditPreview,
+    usageRights:      v(`${prefix === 'c' ? 'cUsageRights' : 'eUsageRights'}`),
+    licenseText:      v(`${prefix === 'c' ? 'cLicenseText' : 'eLicenseText'}`),
+    notes:            v(`${prefix === 'c' ? 'cNotes' : 'eNotes'}`),
+    metaTitle:        v(`${prefix === 'c' ? 'cMetaTitle' : 'eMetaTitle'}`),
+    metaDescription:  v(`${prefix === 'c' ? 'cMetaDescription' : 'eMetaDescription'}`),
+    metaKeywords:     g(`${prefix === 'c' ? 'cMetaKeywords' : 'eMetaKeywords'}`)?.value
+      ? g(`${prefix === 'c' ? 'cMetaKeywords' : 'eMetaKeywords'}`).value.split(',').map(s=>s.trim()).filter(Boolean) : [],
+    downloadLink:     v(`${prefix === 'c' ? 'cDownloadLink' : 'eDownloadLink'}`),
+    externalVideoUrl: v(`${prefix === 'c' ? 'cExternalVideoUrl' : 'eExternalVideoUrl'}`),
+    externalAudioUrl: v(`${prefix === 'c' ? 'cExternalAudioUrl' : 'eExternalAudioUrl'}`),
+    fileSize:         v(`${prefix === 'c' ? 'cFileSize' : 'eFileSize'}`) || hostedFile?.fileSizeLabel,
+    version:          v(`${prefix === 'c' ? 'cVersion' : 'eVersion'}`),
+    ...(hostedFile ? { hostedFile } : {}),
+    ..._admCollect(prefix, type),
+  };
+  // Remove empty fields
+  Object.keys(p).forEach(k => {
+    if (p[k] === undefined || p[k] === null || p[k] === '') delete p[k];
+  });
+  return p;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CREATE
+// ════════════════════════════════════════════════════════════════════
+async function handleCreateProduct() {
+  const g = id => document.getElementById(id);
+  const errEl = g('cCreateError');
+  const showErr = msg => { if (errEl) { errEl.textContent = msg; errEl.style.display='block'; } showNotification(msg,'error'); };
+  if (!g('cTitle')?.value?.trim())       return showErr('Title is required');
+  if (!g('cDescription')?.value?.trim()) return showErr('Description is required');
+  if (!g('cCategory')?.value?.trim())    return showErr('Category is required');
+  const price = parseFloat(g('cPrice')?.value||'');
+  if (isNaN(price)||price<0)             return showErr('A valid price (0 or above) is required');
+  if (errEl) errEl.style.display = 'none';
+  showLoading();
+  const hostedFile = await _admGetFile(_admCurType, 'c');
+  const payload = _admBuildPayload('c', _admCurType, hostedFile);
+  try {
+    const r = await fetch(`${API_URL}/api/admin/products`, {
+      method:'POST',
+      headers:{ 'Authorization':`Bearer ${adminToken}`, 'Content-Type':'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if (data.success) {
+      showNotification('✅ Product created!','success');
+      closeModal('createProductModal');
+      loadProductsData();
+    } else { showErr(data.message||'Creation failed'); }
+  } catch(e) { showErr('Failed: '+e.message); }
+  hideLoading();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// LOAD INTO EDIT FORM
+// ════════════════════════════════════════════════════════════════════
+async function loadProductForEdit(productId) {
+  try {
+    showLoading();
+    const r    = await fetch(`${API_URL}/api/admin/products/${productId}`,
+      { headers:{ 'Authorization':`Bearer ${adminToken}` } });
+    const data = await r.json();
+    if (!data.success) { showNotification(data.message||'Load failed','error'); hideLoading(); return; }
+    const p    = data.product;
+    const type = p.productType || 'download';
+    _admEditCurType = type;
+
+    const g  = id => document.getElementById(id);
+    const sv = (id, val) => { const el = g(id); if (el) el.value = val ?? ''; };
+
+    // Switch tab
+    const tab = document.querySelector(`#editProductModal .adm-ptype-tab[data-type="${type}"]`);
+    if (tab) admSwitchTypeEdit(type, tab);
+
+    sv('editProductId', p._id);
+    sv('eTitle',            p.title);
+    sv('eDescription',      p.description);
+    sv('eShortDescription', p.shortDescription);
+    sv('eCategory',         p.category);
+    sv('ePrice',            p.price);
+    sv('eComparePrice',     p.comparePrice||'');
+    if (g('eStatus')) g('eStatus').value = p.status||'published';
+    sv('eTags',             Array.isArray(p.tags) ? p.tags.join(', ') : '');
+    sv('eImage',            p.image||'');
+    sv('eFileSize',         p.fileSize||'');
+    sv('eVersion',          p.version||'');
+    sv('ePreviewUrl',       p.previewUrl||'');
+    if (g('eRefundPolicy')) g('eRefundPolicy').value = p.refundPolicy||'no_refund';
+    sv('eRefundDays',       p.refundDays||'');
+    const rdg = g('eRefundDaysGroup');
+    if (rdg) rdg.style.display = p.refundPolicy==='custom' ? 'block' : 'none';
+    sv('eSlug',             p.slug||'');
+    sv('eUsageRights',      p.usageRights||'');
+    sv('eLicenseText',      p.licenseText||'');
+    sv('eNotes',            p.notes||'');
+    sv('eMetaTitle',        p.metaTitle||'');
+    sv('eMetaDescription',  p.metaDescription||'');
+    sv('eMetaKeywords',     Array.isArray(p.metaKeywords) ? p.metaKeywords.join(', ') : '');
+    sv('eFeatures',         Array.isArray(p.features) ? p.features.map(f=>'• '+f).join('\n') : '');
+    sv('eRequirements',     Array.isArray(p.requirements) ? p.requirements.map(r=>'• '+r).join('\n') : '');
+    sv('eDownloadLink',     p.downloadLink||'');
+    sv('eExternalVideoUrl', p.externalVideoUrl||'');
+    sv('eExternalAudioUrl', p.externalAudioUrl||'');
+    if (g('eIsActive'))   g('eIsActive').checked   = p.isActive !== false;
+    if (g('eIsFeatured')) g('eIsFeatured').checked = p.isFeatured === true;
+
+    // Delivery mode
+    const cf = g('eCurrentFile');
+    if (p.hostedFile?.secureUrl) {
+      admSelectDelivery('hosted','e');
+      if (cf) cf.textContent = '📎 Current: ' + (p.fileSize||'hosted file');
+    } else if (p.downloadLink||p.externalVideoUrl||p.externalAudioUrl) {
+      admSelectDelivery('link','e');
+    }
+
+    // Preview chip
+    _admEditPreview = p.previewType||'none';
+    const chip = document.querySelector(`#editProductModal .adm-preview-chip[data-p="${_admEditPreview}"]`);
+    if (chip) admSelectPreview(chip, _admEditPreview, 'e');
+
+    // Music
+    if (type==='music' && p.audioData) {
+      const a = p.audioData;
+      sv('eAudioBpm', a.bpm||''); sv('eAudioKey', a.key||''); sv('eAudioGenre', a.genre||'');
+      sv('eAudioMood', a.mood||''); sv('eAudioTrackTitle', a.trackTitle||'');
+      sv('eAudioArtist', a.artist||''); sv('eAudioAlbum', a.album||'');
+      sv('eAudioReleaseYear', a.releaseYear||''); sv('eAudioIsrc', a.isrc||'');
+      sv('eAudioAllowedUses', Array.isArray(a.allowedUses) ? a.allowedUses.join(', ') : '');
+      if (g('eAudioStems'))   g('eAudioStems').checked   = a.stems||false;
+      if (g('eAudioVocals'))  g('eAudioVocals').checked  = a.hasVocals||false;
+      if (g('eAudioLoopable'))g('eAudioLoopable').checked = a.loopable||false;
+      _admEditMusicLic = a.license||'personal';
+      admSelectMusicLic(a.license||'personal','e');
+    }
+    // Software
+    if (type==='software' && p.softwareData) {
+      const s = p.softwareData;
+      if (g('eSoftwareLicenseType')) g('eSoftwareLicenseType').value = s.licenseType||'single';
+      sv('eSoftwareMaxDevices', s.maxDevices||''); sv('eSoftwareSupport', s.supportPeriod||'');
+      sv('eSoftwareUpdates', s.updatePeriod||''); sv('eSoftwareActivationUrl', s.activationUrl||'');
+      sv('eSoftwareDemoUrl', s.demoUrl||''); sv('eSoftwareRepoUrl', s.repoUrl||'');
+      sv('eSoftwareChangelog', s.changelog||'');
+      const pg = g('ePlatformGrid');
+      if (pg && Array.isArray(s.platform)) {
+        pg.querySelectorAll('.adm-platform-btn').forEach(btn => {
+          btn.classList.toggle('active', s.platform.includes(btn.dataset.platform));
+        });
+      }
+    }
+    // Course
+    if (type==='course' && p.courseData) {
+      const c = p.courseData;
+      if (g('eCourseLevel')) g('eCourseLevel').value = c.level||'all';
+      sv('eCourseLanguage', c.language||'English');
+      sv('eCourseOutcomes',   Array.isArray(c.outcomes) ? c.outcomes.join('\n') : '');
+      sv('eCourseAudience',   Array.isArray(c.targetAudience) ? c.targetAudience.join('\n') : '');
+      sv('eCourseWelcome',    c.welcomeMessage||'');
+      sv('eCourseCompletion', c.completionMessage||'');
+    }
+    // eBook
+    if (type==='ebook' && p.ebookData) {
+      const e = p.ebookData;
+      sv('eEbookAuthor', e.author||''); sv('eEbookPublisher', e.publisher||'');
+      sv('eEbookPageCount', e.pageCount||''); sv('eEbookPubYear', e.publicationYear||'');
+      sv('eEbookEdition', e.edition||''); sv('eEbookReadingTime', e.readingTime||'');
+      sv('eEbookLanguage', e.language||'English'); sv('eEbookIsbn', e.isbn||'');
+      const ef = g('eEbookFormats');
+      if (ef && Array.isArray(e.formats)) {
+        ef.querySelectorAll('.adm-platform-btn').forEach(b => b.classList.toggle('active', e.formats.includes(b.dataset.fmt)));
+      }
+    }
+    // Video
+    if (type==='video' && p.videoData) {
+      const vd = p.videoData;
+      sv('eVideoGenre', vd.genre||''); sv('eVideoLanguage', vd.language||'English');
+      if (g('eVideoResolution')) g('eVideoResolution').value = vd.resolution||'';
+      sv('eVideoReleaseYear', vd.releaseYear||'');
+      if (g('eVideoAllowDownload')) g('eVideoAllowDownload').checked = vd.allowDownload||false;
+      if (g('eVideoCaptions'))      g('eVideoCaptions').checked      = vd.hasCaptions||false;
+      if (p.externalVideoUrl) admSelectVideoDelivery('link','e');
+    }
+    // Design
+    if (_ADM_DES_TYPES.includes(type) && p.designData) {
+      const dd = p.designData;
+      sv('eDesignPreviewUrl', dd.livePreviewUrl||'');
+      sv('eDesignRepoUrl',    dd.repoUrl||'');
+      sv('eDesignFigmaUrl',   dd.figmaUrl||'');
+      if (g('eDesignResponsive')) g('eDesignResponsive').checked = dd.responsive||false;
+      if (g('eDesignDarkMode'))   g('eDesignDarkMode').checked   = dd.darkMode||false;
+      const ef = g('eDesignFrameworks');
+      if (ef && Array.isArray(dd.frameworks)) {
+        ef.querySelectorAll('.adm-platform-btn').forEach(b =>
+          b.classList.toggle('active', dd.frameworks.some(f => b.textContent.includes(f))));
+      }
+    }
+
+    admUpdateEditPreview();
+    openModal('editProductModal');
+    hideLoading();
+  } catch(e) {
+    showNotification('Failed to load product: '+e.message,'error');
+    hideLoading();
+  }
+}
+
+// Backward compat alias
+function editProduct(productId) { return loadProductForEdit(productId); }
+
+// ════════════════════════════════════════════════════════════════════
+// UPDATE
+// ════════════════════════════════════════════════════════════════════
+async function handleUpdateProduct() {
+  const g = id => document.getElementById(id);
+  const pid   = g('editProductId')?.value;
+  const errEl = g('eUpdateError');
+  const showErr = msg => { if (errEl) { errEl.textContent=msg; errEl.style.display='block'; } showNotification(msg,'error'); };
+  if (!pid) return showErr('No product ID');
+  const price = parseFloat(g('ePrice')?.value||'');
+  if (isNaN(price)||price<0) return showErr('A valid price (0 or above) is required');
+  if (errEl) errEl.style.display = 'none';
+  showLoading();
+  const hostedFile = await _admGetFile(_admEditCurType, 'e');
+  const payload = _admBuildPayload('e', _admEditCurType, hostedFile);
+  try {
+    const r = await fetch(`${API_URL}/api/admin/products/${pid}`, {
+      method:'PUT',
+      headers:{ 'Authorization':`Bearer ${adminToken}`, 'Content-Type':'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if (data.success) {
+      showNotification('✅ Product updated!','success');
+      closeModal('editProductModal');
+      loadProductsData();
+    } else { showErr(data.message||'Update failed'); }
+  } catch(e) { showErr('Failed: '+e.message); }
+  hideLoading();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TOGGLE + DELETE
+// ════════════════════════════════════════════════════════════════════
+async function admToggle(productId, currentStatus) {
+  const newActive = (currentStatus === 'inactive' || currentStatus === 'draft' || currentStatus === 'archived');
+  try {
+    const r = await fetch(`${API_URL}/api/admin/products/${productId}/toggle`, {
+      method:'PATCH',
+      headers:{ 'Authorization':`Bearer ${adminToken}`, 'Content-Type':'application/json' },
+      body: JSON.stringify({ field:'isActive', value: newActive })
+    });
+    const data = await r.json();
+    if (data.success) {
+      showNotification(`Product ${newActive?'activated':'deactivated'}`,'success');
+      loadProductsData();
+    } else { showNotification(data.message||'Toggle failed','error'); }
+  } catch(e) { showNotification('Toggle failed','error'); }
 }
 
 async function deleteProduct(productId) {
-    if (!confirm('Delete this product?')) return;
-    
-    try {
-        const response = await fetch(`${API_URL}/api/admin/products/${productId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            showNotification('Product deleted', 'success');
-            loadProductsData();
-        } else {
-            showNotification(data.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Failed to delete product', 'error');
-    }
+  if (!confirm('Delete this product? This cannot be undone.')) return;
+  try {
+    const r = await fetch(`${API_URL}/api/admin/products/${productId}`, {
+      method:'DELETE',
+      headers:{ 'Authorization':`Bearer ${adminToken}` }
+    });
+    const data = await r.json();
+    if (data.success) {
+      showNotification('Product deleted','success');
+      loadProductsData();
+    } else { showNotification(data.message,'error'); }
+  } catch(e) { showNotification('Failed to delete','error'); }
 }
-
 // ========== DOWNLOADS ==========
 async function loadDownloadsData() {
     const downloadsPage = document.getElementById('downloadsPage');
