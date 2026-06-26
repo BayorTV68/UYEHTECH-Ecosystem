@@ -1102,7 +1102,7 @@ function displayOrderSummary() {
                 <div class="order-item-title">${item.title || 'Product'}</div>
                 <div class="order-item-category">${item.category || 'Digital Product'}</div>
             </div>
-            <div class="order-item-price">$${parseFloat(item.price || 0).toFixed(2)}</div>
+            <div class="order-item-price">${currencySymbol}${toDisplay(item.price || 0).toFixed(2)}</div>
         </div>
     `).join('');
 

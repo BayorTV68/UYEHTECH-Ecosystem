@@ -358,6 +358,30 @@ a{text-decoration:none;color:inherit}
    CONFIG
 ═══════════════════════════════════════ */
 const API         = 'https://uyehtechbackend.onrender.com';
+
+// ── CURRENCY ─────────────────────────────────────────────────────────────────
+let currencySymbol = '$';
+let currencyRate   = 1;
+
+async function fetchUserCurrency() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res  = await fetch(`${API}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (data.success) {
+      currencySymbol = data.symbol || '$';
+      currencyRate   = data.rate   || 1;
+    }
+  } catch (_) {}
+}
+
+function toDisplay(usd) { return (Number(usd) || 0) * currencyRate; }
+function fmtMoney(usd, dispPrice) {
+  const sym = dispPrice?.symbol ?? currencySymbol;
+  const amt = dispPrice?.converted != null ? dispPrice.converted : toDisplay(usd);
+  return `${sym}${parseFloat(amt).toFixed(2)}`;
+}
 const DETAIL_PAGE = '/marketplace/product-detail'; // all product types route here
 
 /* ═══════════════════════════════════════
@@ -373,7 +397,7 @@ let _token       = null;
 /* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   _token = localStorage.getItem('token');
   if (!_token) { location.href = '/marketplace/login'; return; }
 
@@ -383,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (u) seedSidebar(u);
   } catch {}
 
+  await fetchUserCurrency(); // resolve currency BEFORE first render
   bindUI();
   loadProducts();
 });
@@ -497,7 +522,7 @@ function updateStats() {
   const media   = allProducts.filter(p => ['video','audio'].includes(resolveType(p))).length;
 
   animNum('stTotal', total, '');
-  animNum('stSpent', spent, '$');
+  animNum('stSpent', toDisplay(spent), currencySymbol);
   animNum('stCourses', courses.length, '');
   animNum('stMedia', media, '');
 
@@ -740,7 +765,7 @@ function cardHTML(p) {
       ${courseStatsHTML(p)}
       <div class="card-desc">${esc(p.description || '')}</div>
       <div class="card-footer">
-        <span class="card-price">$${Number(p.price || 0).toFixed(2)}</span>
+        <span class="card-price">${fmtMoney(p.price || 0, p.displayPrice)}</span>
         ${actionBtn(p)}
       </div>
       ${certBtn(p)}
@@ -778,7 +803,7 @@ function rowHTML(p) {
       </div>
     </div>
     <div class="row-right">
-      <span class="card-price">$${Number(p.price || 0).toFixed(2)}</span>
+      <span class="card-price">${fmtMoney(p.price || 0, p.displayPrice)}</span>
       ${actionBtn(p)}
       ${certBtn(p)}
     </div>

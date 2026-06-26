@@ -838,6 +838,17 @@ const API  = 'https://uyehtechbackend.onrender.com';
 const SITE = window.location.origin;
 let D = null, _token = null, _allProds = [], _allLedger = [], _currentPeriod = '30d';
 
+// ── CURRENCY ─────────────────────────────────────────────────────────────────
+let currencySymbol = '$';
+let currencyRate   = 1;
+
+function toDisplay(usd) { return (Number(usd) || 0) * currencyRate; }
+function fmtMoney(usd, dispPrice) {
+  const sym = dispPrice?.symbol ?? currencySymbol;
+  const amt = dispPrice?.converted != null ? dispPrice.converted : toDisplay(usd);
+  return `${sym}${parseFloat(amt).toFixed(2)}`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   _token = localStorage.getItem('token');
   if (!_token) { location.href = '/marketplace/login'; return; }
@@ -883,6 +894,9 @@ async function loadAll(manual=false) {
     D = { ...dd, ledger: ed.ledger||[], payouts: pd.payouts||[], myLinks: ld.links||dd.myLinks||[], campaigns: cd.campaigns||[] };
     localStorage.setItem('uyeh_aff', JSON.stringify({affiliateCode:D.affiliate.affiliateCode,status:D.affiliate.status,totalEarnings:D.affiliate.totalEarnings}));
     _allLedger = D.ledger;
+    // Resolve display currency from server response
+    if (D.symbol) { currencySymbol = D.symbol; currencyRate = 1; } // server already converted
+    _allProds = D.availableProducts || [];
     renderAll(); showDash();
     if (manual) toast('Dashboard refreshed','ok');
   } catch(e) { console.error(e); if(!getCache()) showJoin(); if(manual) toast('Network error','info'); }
@@ -927,14 +941,17 @@ function renderKPIs() {
   const confirmed=+(e.confirmed||0),total=+(a.totalEarnings||0),paid=+(e.paid||0),pending=+(e.pending||0);
   setText('kClicks',a.totalClicks||0); setText('kUniqueClicks',(a.uniqueClicks||0)+' unique');
   setText('kConv',a.totalConversions||0); setText('kRate',a.conversionRate||'0%');
-  setText('kTotal','$'+total.toFixed(2)); setText('kAvail','$'+confirmed.toFixed(2)); setText('kPaid','$'+paid.toFixed(2));
+  setText('kTotal', currencySymbol+total.toFixed(2)); setText('kAvail', currencySymbol+confirmed.toFixed(2)); setText('kPaid', currencySymbol+paid.toFixed(2));
   renderBalance(confirmed,total,pending,paid,a.payoutThreshold||20);
 }
 function renderBalance(confirmed,total,pending,paid,threshold) {
   confirmed=confirmed??+(D?.earnings?.confirmed||0); total=total??+(D?.affiliate?.totalEarnings||0);
   pending=pending??+(D?.earnings?.pending||0); paid=paid??+(D?.earnings?.paid||0); threshold=threshold??(D?.affiliate?.payoutThreshold||20);
-  setText('balDisplay',confirmed.toFixed(2)); setText('bkPending','$'+pending.toFixed(2));
-  setText('bkConfirmed','$'+confirmed.toFixed(2)); setText('bkTotal','$'+total.toFixed(2));
+  setText('balDisplay',confirmed.toFixed(2)); setText('bkPending', currencySymbol+pending.toFixed(2));
+  setText('bkConfirmed', currencySymbol+confirmed.toFixed(2)); setText('bkTotal', currencySymbol+total.toFixed(2));
+  const balCurEl = document.querySelector('.bal-currency');
+  if (balCurEl) balCurEl.textContent = currencySymbol;
+
   // Replace sub-affiliate earnings with referrals-to-unlock counter
   const refsToUnlock = D?.affiliate?.referralsToUnlock ?? 0;
   const isLocked     = D?.affiliate?.earningsLocked ?? false;
@@ -955,7 +972,7 @@ function renderBalance(confirmed,total,pending,paid,threshold) {
   const pct=Math.min(100,(confirmed/threshold)*100);
   document.getElementById('progFill').style.width=pct+'%'; setText('progPct',pct.toFixed(0)+'%');
   const canPay=confirmed>=threshold; document.getElementById('payoutBtn').disabled=!canPay;
-  document.getElementById('threshMsg').innerHTML=canPay?`<span style="color:var(--g);font-weight:700">✅ Ready to withdraw!</span> You have <strong>$${confirmed.toFixed(2)}</strong> available.`:`Minimum payout is <strong style="color:var(--t1)">$${threshold}</strong>. You need <strong style="color:var(--t1)">$${(threshold-confirmed).toFixed(2)}</strong> more.`;
+  document.getElementById('threshMsg').innerHTML=canPay?`<span style=\"color:var(--g);font-weight:700\">✅ Ready to withdraw!</span> You have <strong>${currencySymbol}${confirmed.toFixed(2)}</strong> available.`:`Minimum payout is <strong style=\"color:var(--t1)\">${currencySymbol}${threshold}</strong>. You need <strong style=\"color:var(--t1)\">${currencySymbol}${(threshold-confirmed).toFixed(2)}</strong> more.`;
   if(canPay) document.getElementById('progWrap').style.display='none';
 }
 function renderTier() {
@@ -1179,9 +1196,9 @@ function filterProducts() {
     const url  = buildProductLink(p, code);
     const eff  = p.effectiveRate || p.commissionRate || p.commission || 0;
     const earn = p.commissionAmount
-      ? `$${Number(p.commissionAmount).toFixed(2)} / sale`
+      ? `${currencySymbol}${toDisplay(Number(p.commissionAmount)).toFixed(2)} / sale`
       : `${eff}%`;
-    const price    = p.price ? `$${Number(p.price).toFixed(2)}` : 'Free';
+    const price    = p.price ? fmtMoney(p.price, p.displayPrice) : 'Free';
     const storeUrl = p.storeSlug ? `${SITE}/marketplace/${p.storeSlug}` : '#';
     const thumb    = p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy">` : (p.icon || '📦');
     // tierBonus removed — commission rate shown directly in the bdg-comm badge

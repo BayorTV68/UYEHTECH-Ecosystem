@@ -6,6 +6,7 @@
   <title>Order History — UYEH TECH</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <script src="/site-controller.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════
    UYEH TECH — ORDERS PAGE
@@ -467,6 +468,33 @@ html,body{background:var(--ink);color:var(--t1);font-family:'Syne',sans-serif;mi
 'use strict';
 const API_URL = 'https://uyehtechbackend.onrender.com';
 
+// ── CURRENCY (resolved once on load from /api/profile) ───────────────────────
+let currencySymbol = '$';
+let currencyRate   = 1; // USD → user's display currency
+
+async function fetchUserCurrency() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res  = await fetch(`${API_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (data.success) {
+      currencySymbol = data.symbol || '$';
+      currencyRate   = data.rate   || 1;
+    }
+  } catch (_) {}
+}
+
+// Convert a USD amount to user currency for display
+function toDisplay(usd) { return (Number(usd) || 0) * currencyRate; }
+
+// Format money — prefers server-sent displayPrice over client conversion
+function fmtMoney(usd, dispPrice) {
+  const sym = dispPrice?.symbol ?? currencySymbol;
+  const amt = dispPrice?.converted != null ? dispPrice.converted : toDisplay(usd);
+  return `${sym}${parseFloat(amt).toFixed(2)}`;
+}
+
 /* ══════════════════════════════════
    STATE
 ══════════════════════════════════ */
@@ -483,6 +511,7 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
   if (!checkAuth()) return;
   setupSidebar();
+  await fetchUserCurrency(); // resolve display currency BEFORE rendering prices
   await fetchOrders();
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
@@ -571,11 +600,11 @@ function buildSummary(orders) {
 
   document.getElementById('sumTotal').textContent     = orders.length;
   document.getElementById('sumCompleted').textContent = completed.length;
-  document.getElementById('sumSpent').textContent     = '$' + spent.toFixed(2);
+  document.getElementById('sumSpent').textContent     = currencySymbol + toDisplay(spent).toFixed(2);
   document.getElementById('sumPending').textContent   = pending.length;
 
   const sub = document.getElementById('pageSubtitle');
-  if (sub) sub.textContent = `${orders.length} order${orders.length!==1?'s':''} · $${spent.toFixed(2)} total spent`;
+  if (sub) sub.textContent = `${orders.length} order${orders.length!==1?'s':''} · ${currencySymbol}${toDisplay(spent).toFixed(2)} total spent`;
 }
 
 /* ══════════════════════════════════
@@ -656,9 +685,13 @@ function buildOrderCard(order, idx) {
   const date       = new Date(order.createdAt);
   const dateStr    = date.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
   const timeStr    = date.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
-  const total      = parseFloat(order.total || 0).toFixed(2);
-  const subtotal   = parseFloat(order.subtotal || order.total || 0).toFixed(2);
-  const discount   = parseFloat(order.discount || 0).toFixed(2);
+  const _dispTotal   = order.displayTotal    || null;
+  const _dispSub     = order.displaySubtotal || null;
+  const _dispDisc    = order.displayDiscount || null;
+  const _sym         = _dispTotal?.symbol ?? currencySymbol;
+  const total        = fmtMoney(order.total                      || 0, _dispTotal);
+  const subtotal     = fmtMoney(order.subtotal || order.total    || 0, _dispSub);
+  const discount     = fmtMoney(order.discount                   || 0, _dispDisc);
   const itemCount  = (order.items || []).length;
   const status     = order.status || 'pending';
   const pStatus    = order.paymentInfo?.status || 'pending';
@@ -697,7 +730,7 @@ function buildOrderCard(order, idx) {
         <div class="item-title">${esc(item.title || 'Untitled Product')}</div>
         <div class="item-meta">${esc(item.category || 'Digital Product')}${item.productType ? ' · ' + item.productType : ''} · Qty: ${item.quantity || 1}${canDl ? ` <span class="dl-count">· <span>${dlLeft}</span>/${dlMax} downloads left</span>` : ''}</div>
       </div>
-      <div class="item-price">$${price}</div>
+      <div class="item-price">${fmtMoney(item.price || 0, item.displayPrice)}</div>
       <div class="item-actions">${dlBtn}</div>
     </div>`;
   }).join('');
@@ -726,8 +759,8 @@ function buildOrderCard(order, idx) {
     </div>
     <span class="status-badge ${statusCls}">${statusIcon} ${status}</span>
     <div style="text-align:right;flex-shrink:0;">
-      <div class="order-total">$${total}</div>
-      <div class="order-total-sub">${currency}</div>
+      <div class="order-total">${total}</div>
+      <div class="order-total-sub">${_dispTotal?.currency || order.paymentInfo?.currency || _sym}</div>
     </div>
     <i class="fas fa-chevron-down order-chevron"></i>
   </div>
@@ -768,9 +801,9 @@ function buildOrderCard(order, idx) {
       </div>
       <div class="order-footer-right">
         <div style="font-size:.72rem;color:var(--t3);">
-          Subtotal: <strong style="color:var(--t1);">$${subtotal}</strong>
-          ${parseFloat(discount) > 0 ? ` · Discount: <strong style="color:var(--g);">−$${discount}</strong>` : ''}
-          · Total: <strong style="color:var(--g);">$${total}</strong>
+          Subtotal: <strong style="color:var(--t1);">${subtotal}</strong>
+          ${parseFloat(order.discount || 0) > 0 ? ` · Discount: <strong style="color:var(--g);">−${discount}</strong>` : ''}
+          · Total: <strong style="color:var(--g);">${total}</strong>
         </div>
       </div>
     </div>
@@ -883,7 +916,9 @@ function openOrderModal(orderId) {
   const status  = order.status || 'pending';
   const pStatus = order.paymentInfo?.status || 'pending';
   const pValCls = { successful:'green', pending:'warn', failed:'red' }[pStatus] || 'warn';
-  const currency = order.paymentInfo?.currency || 'USD';
+  const _mSym    = order.displayTotal?.symbol ?? currencySymbol;
+  const _mCur    = order.displayTotal?.currency || order.paymentInfo?.currency || 'USD';
+  const currency = _mCur;
 
   document.getElementById('modalTitle').textContent = `Order #${ref}`;
 
@@ -896,9 +931,9 @@ function openOrderModal(orderId) {
     <div class="modal-row"><span class="modal-label">Transaction Ref</span><span class="modal-value" style="font-family:monospace;font-size:.75rem;">${esc(order.paymentInfo?.transactionRef || order.paymentInfo?.transactionId || '—')}</span></div>
     <div class="modal-row"><span class="modal-label">Currency</span><span class="modal-value">${esc(currency)}</span></div>
     <div class="modal-row"><span class="modal-label">Items</span><span class="modal-value">${(order.items||[]).length}</span></div>
-    <div class="modal-row"><span class="modal-label">Subtotal</span><span class="modal-value">$${sub}</span></div>
-    ${parseFloat(disc) > 0 ? `<div class="modal-row"><span class="modal-label">Discount${order.couponCode?' ('+esc(order.couponCode)+')':''}</span><span class="modal-value green">−$${disc}</span></div>` : ''}
-    <div class="modal-row"><span class="modal-label">Total</span><span class="modal-value green" style="font-size:1rem;font-family:'Playfair Display',serif;font-weight:900;">$${total}</span></div>
+    <div class="modal-row"><span class="modal-label">Subtotal</span><span class="modal-value">${fmtMoney(order.subtotal || order.total || 0, order.displaySubtotal)}</span></div>
+    ${parseFloat(order.discount || 0) > 0 ? `<div class="modal-row"><span class="modal-label">Discount${order.couponCode?' ('+esc(order.couponCode)+')':''}</span><span class="modal-value green">−${fmtMoney(order.discount || 0, order.displayDiscount)}</span></div>` : ''}
+    <div class="modal-row"><span class="modal-label">Total</span><span class="modal-value green" style="font-size:1rem;font-family:'Playfair Display',serif;font-weight:900;">${fmtMoney(order.total || 0, order.displayTotal)}</span></div>
     ${order.customerInfo?.name ? `<div class="modal-row"><span class="modal-label">Customer Name</span><span class="modal-value">${esc(order.customerInfo.name)}</span></div>` : ''}
     ${order.customerInfo?.email ? `<div class="modal-row"><span class="modal-label">Customer Email</span><span class="modal-value">${esc(order.customerInfo.email)}</span></div>` : ''}
     ${order.affiliateCode ? `<div class="modal-row"><span class="modal-label">Affiliate Code</span><span class="modal-value purple">${esc(order.affiliateCode)}</span></div>` : ''}

@@ -1474,13 +1474,14 @@ function buildProductUrl(product) {
 }
 
 
+
 // ── INITIALIZE ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ Store initializing...');
   await checkAuthentication();
   loadCart();
+  await fetchUserCurrency(); // resolve BEFORE loadProducts so admin displayPrice uses correct rate
   await loadProducts();
-  fetchUserCurrency();
   setupBackToTop();
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
   console.log('✅ Store loaded');

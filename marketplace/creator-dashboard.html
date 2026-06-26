@@ -5178,6 +5178,17 @@ select.form-control option { background: var(--ink-3); }
 
 const API_URL = 'https://uyehtechbackend.onrender.com';
 
+// ── CURRENCY ─────────────────────────────────────────────────────────────────
+let currencySymbol = '$';
+let currencyRate   = 1;
+
+function toDisplay(usd) { return (Number(usd) || 0) * currencyRate; }
+function fmtMoney(usd, dispPrice) {
+  const sym = dispPrice?.symbol ?? currencySymbol;
+  const amt = dispPrice?.converted != null ? dispPrice.converted : toDisplay(usd);
+  return `${sym}${parseFloat(amt).toFixed(2)}`;
+}
+
 let creatorData   = null;
 let productsData  = [];
 let earningsData  = {};
@@ -5212,6 +5223,12 @@ let pendingBannerFile  = null;
 // ── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   if (!checkAuth()) return;
+  // Resolve display currency before rendering any prices
+  try {
+    const _cp = await fetch(`${API_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+    const _cd = await _cp.json();
+    if (_cd.success) { currencySymbol = _cd.symbol || '$'; currencyRate = _cd.rate || 1; }
+  } catch (_) {}
   await loadCreatorData();
   initUploadPreview();
   initTagsInput();
@@ -5260,6 +5277,11 @@ async function loadCreatorData() {
     const meData = await meRes.json();
     if (meData.success) {
       creatorData = meData.creator;
+      // Resolve display currency from server (meData includes currency/symbol via /api/profile chain)
+      if (meData.currency && meData.symbol) {
+        currencySymbol = meData.symbol;
+        currencyRate   = meData.rate || 1;
+      }
       populateSidebar(creatorData);
       populateStats(creatorData);
       populateProfile(creatorData);
@@ -5563,7 +5585,7 @@ function renderProducts(products) {
           <div class="product-item-title">${escHtml(p.title)}</div>
           ${chCount > 0 ? `<div class="product-item-chapter-count"><i class="fas fa-layer-group" style="font-size:0.65rem;"></i> ${chCount} chapters · ${p.courseData?.level || 'All levels'}</div>` : ''}
           <div class="product-item-meta">
-            <span class="product-item-price">$${p.approvedPrice || p.suggestedPrice}</span>
+            <span class="product-item-price">${fmtMoney(p.approvedPrice || p.suggestedPrice || 0, p.displayPrice)}</span>
             <span class="product-item-sales">${p.totalSales || 0} sales</span>
           </div>
           <div class="product-item-actions">
@@ -6266,7 +6288,7 @@ function renderTopProductsOverview() {
     <div style="display:flex;align-items:center;gap:12px;padding:12px 22px;border-bottom:1px solid var(--line);">
       <div style="width:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);">#${i+1}</div>
       <div style="flex:1;font-size:0.86rem;font-weight:500;color:var(--bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--green);">$${p.approvedPrice || p.suggestedPrice}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--green);">${fmtMoney(p.approvedPrice || p.suggestedPrice || 0, p.displayPrice)}</div>
       <div style="font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${p.totalSales||0} sold</div>
     </div>`).join('');
 }
@@ -6283,23 +6305,23 @@ function populateEarnings(data) {
   const pct       = Math.min((available / threshold) * 100, 100);
 
   // Overview
-  document.getElementById('overviewAvailable').textContent    = '$' + available.toFixed(2);
-  document.getElementById('overviewPending').textContent      = '$' + pending.toFixed(2);
-  document.getElementById('overviewPaid').textContent         = '$' + paid.toFixed(2);
+  document.getElementById('overviewAvailable').textContent    = currencySymbol + toDisplay(available).toFixed(2);
+  document.getElementById('overviewPending').textContent      = currencySymbol + toDisplay(pending).toFixed(2);
+  document.getElementById('overviewPaid').textContent         = currencySymbol + toDisplay(paid).toFixed(2);
   document.getElementById('overviewThreshold').textContent    = '$' + threshold.toFixed(2);
   document.getElementById('overviewThresholdBar').style.width = pct + '%';
-  document.getElementById('overviewThresholdHint').textContent= `$${available.toFixed(2)} of $${threshold.toFixed(2)} earned`;
+  document.getElementById('overviewThresholdHint').textContent= `${currencySymbol}${toDisplay(available).toFixed(2)} of ${currencySymbol}${toDisplay(threshold).toFixed(2)}`;
 
   // Earnings page
-  document.getElementById('earningsTotal').textContent         = '$' + total.toFixed(2);
-  document.getElementById('earningsAvailable').textContent     = '$' + available.toFixed(2);
-  document.getElementById('earningsPending').textContent       = '$' + pending.toFixed(2);
-  document.getElementById('earningsPaid').textContent          = '$' + paid.toFixed(2);
-  document.getElementById('earningsThresholdLabel').textContent= `$${available.toFixed(2)} / $${threshold}`;
+  document.getElementById('earningsTotal').textContent         = currencySymbol + toDisplay(total).toFixed(2);
+  document.getElementById('earningsAvailable').textContent     = currencySymbol + toDisplay(available).toFixed(2);
+  document.getElementById('earningsPending').textContent       = currencySymbol + toDisplay(pending).toFixed(2);
+  document.getElementById('earningsPaid').textContent          = currencySymbol + toDisplay(paid).toFixed(2);
+  document.getElementById('earningsThresholdLabel').textContent= `${currencySymbol}${toDisplay(available).toFixed(2)} / ${currencySymbol}${toDisplay(threshold).toFixed(2)}`;
   document.getElementById('earningsThresholdBar').style.width  = pct + '%';
   document.getElementById('earningsThresholdMsg').innerHTML    = available >= threshold
     ? '<strong style="color:var(--green)">✅ Payout available!</strong> You can request a withdrawal.'
-    : `Earn <strong style="color:var(--white)">$${(threshold - available).toFixed(2)}</strong> more to unlock payout.`;
+    : `Earn <strong style="color:var(--white)">${currencySymbol}${toDisplay(threshold - available).toFixed(2)}</strong> more to unlock payout.`;
 
   // Commission rates
   if (e.platformCommissionRate !== undefined) {
@@ -6313,7 +6335,7 @@ function populateEarnings(data) {
 
   // Wallet
   document.getElementById('walletBalance').textContent       = available.toFixed(2);
-  document.getElementById('modalAvailableBalance').textContent= '$' + available.toFixed(2);
+  document.getElementById('modalAvailableBalance').textContent= currencySymbol + toDisplay(available).toFixed(2);
   document.getElementById('modalPayoutAmount').max           = available;
 
   // Ledger
@@ -6494,14 +6516,14 @@ function updatePreview() {
   document.getElementById('previewTitle').textContent    = title;
   document.getElementById('previewCategory').textContent = cat;
   document.getElementById('previewDesc').textContent     = desc.slice(0, 100) + (desc.length > 100 ? '...' : '');
-  document.getElementById('previewPrice').textContent    = '$' + price.toFixed(2);
+  document.getElementById('previewPrice').textContent    = currencySymbol + toDisplay(price).toFixed(2);
 
-  // Commission calc
+  // Commission calc (always in USD on server — show converted)
   const platform = price * 0.20;
   const creator  = price * 0.80;
-  document.getElementById('commSuggestedPrice').textContent = '$' + price.toFixed(2);
-  document.getElementById('commPlatformCut').textContent    = '-$' + platform.toFixed(2);
-  document.getElementById('commYouEarn').textContent        = '$' + creator.toFixed(2);
+  document.getElementById('commSuggestedPrice').textContent = currencySymbol + toDisplay(price).toFixed(2);
+  document.getElementById('commPlatformCut').textContent    = '-' + currencySymbol + toDisplay(platform).toFixed(2);
+  document.getElementById('commYouEarn').textContent        = currencySymbol + toDisplay(creator).toFixed(2);
 
   // Emoji by category
   const emojiMap = { Templates:'🎨', Components:'🧩', Courses:'📚', Tools:'🔧', Assets:'🖼️', Scripts:'⚙️' };
@@ -6695,7 +6717,7 @@ function openPayoutModal() {
     amountInput.placeholder = `Min: $${threshold.toFixed(2)}`;
   }
   const hint = document.getElementById('modalPayoutHint');
-  if (hint) hint.textContent = `Min: $${threshold.toFixed(2)} · Max: $${available.toFixed(2)}`;
+  if (hint) hint.textContent =`Min: ${currencySymbol}${toDisplay(threshold).toFixed(2)} · Max: ${currencySymbol}${toDisplay(available).toFixed(2)}`;
   document.getElementById('payoutModal').classList.add('open');
 }
 
@@ -6721,7 +6743,7 @@ async function submitPayout() {
     return;
   }
   if (amount > maxAvailable) {
-    showToast(`⚠️ Amount exceeds available balance ($${maxAvailable.toFixed(2)})`, 'amber');
+    showToast(`⚠️ Amount exceeds available balance (${currencySymbol}${toDisplay(maxAvailable).toFixed(2)})`, 'amber');
     return;
   }
 
