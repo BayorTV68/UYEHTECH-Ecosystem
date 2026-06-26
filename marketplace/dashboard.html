@@ -489,7 +489,7 @@ function render(d) {
     animCount('sOrders',   s.totalOrders || 0);
     animCount('sProducts', s.productsOwned || s.completedOrders || 0);   // ✅ FIX — was showing order count
     animCount('sCourses',  s.activeCourses || 0);
-    setEl('sSpent', '$' + (s.totalSpent || 0).toFixed(2));
+    setEl('sSpent', d.displayTotalSpent?.display || ('$' + (s.totalSpent || 0).toFixed(2)));
     setEl('sOrdersMeta',  `${s.pendingOrders || 0} pending`);
     setEl('sCoursesMeta', `${s.completedCourses || 0} completed · ${s.enrolledCourses || 0} enrolled`);   // ✅ FIX
   }
@@ -503,7 +503,7 @@ function render(d) {
       const cls  = a.type === 'order' ? 'o' : a.type === 'download' ? 'd' : 'c';
       const icon = a.type === 'order' ? 'fa-bag-shopping' : a.type === 'download' ? 'fa-download' : 'fa-graduation-cap';
      const badge = a.amount
-        ? `<span class="act-badge badge-ok">$${a.amount.toFixed(2)}</span>`
+        ? `<span class="act-badge badge-ok">${(d.symbol||'$')}${a.amount.toFixed(2)}</span>`
         : (a.completionPct ?? a.meta?.completionPct)
           ? `<span class="act-badge badge-ok">${Math.round(a.completionPct ?? a.meta.completionPct)}%</span>`
           : '';                          // ✅ FIX — reads top-level completionPct, also keeps meta fallback
@@ -543,14 +543,14 @@ function render(d) {
     setEl('affLabel', aff.affiliateCode || '');
     const payoutReady = aff.canRequestPayout;
     const thresholdNote = aff.payoutThreshold
-      ? `$${(aff.pendingEarnings||0).toFixed(2)} / $${aff.payoutThreshold} threshold` : '';
+      ? `${(d.symbol||'$')}${(aff.pendingEarnings||0).toFixed(2)} / ${(d.symbol||'$')}${aff.payoutThreshold} threshold` : '';
     aEl.innerHTML = `
       <div class="aff-code-box"><span class="aff-code" id="affLink">${esc(aff.affiliateLink||'')}</span><button class="copy-btn" onclick="copyAff()"><i class="fas fa-copy"></i></button></div>
       <div class="aff-row"><span class="aff-key">Total Clicks</span><span class="aff-val">${aff.totalClicks||0}</span></div>
       <div class="aff-row"><span class="aff-key">Conversions</span><span class="aff-val">${aff.totalConversions||0} (${aff.conversionRate||'0.0'}%)</span></div>
-      <div class="aff-row"><span class="aff-key">Total Earned</span><span class="aff-val">$${(aff.totalEarnings||0).toFixed(2)}</span></div>
-      <div class="aff-row"><span class="aff-key">Pending Payout</span><span class="aff-val" style="color:var(--amber)">$${(aff.pendingEarnings||0).toFixed(2)}</span></div>
-      <div class="aff-row"><span class="aff-key">Already Paid</span><span class="aff-val" style="color:var(--g)">$${(aff.paidEarnings||0).toFixed(2)}</span></div>
+      <div class="aff-row"><span class="aff-key">Total Earned</span><span class="aff-val">${(d.symbol||'$')}${(aff.totalEarnings||0).toFixed(2)}</span></div>
+      <div class="aff-row"><span class="aff-key">Pending Payout</span><span class="aff-val" style="color:var(--amber)">${(d.symbol||'$')}${(aff.pendingEarnings||0).toFixed(2)}</span></div>
+      <div class="aff-row"><span class="aff-key">Already Paid</span><span class="aff-val" style="color:var(--g)">${(d.symbol||'$')}${(aff.paidEarnings||0).toFixed(2)}</span></div>
       ${thresholdNote ? `<div style="font-size:.65rem;color:var(--t3);text-align:center;padding:6px 0;font-family:'JetBrains Mono',monospace;">${thresholdNote}</div>` : ''}
       ${payoutReady ? `
       <div style="margin-top:10px">
@@ -565,7 +565,7 @@ function render(d) {
     const max = Math.max(...d.spendingChart.map(c => c.spent), 1);
     document.getElementById('spendChart').innerHTML = d.spendingChart.map(c => {
       const pct = (c.spent / max) * 100;
-      return `<div class="chart-col" title="${c.label}: $${c.spent.toFixed(2)}">
+      return `<div class="chart-col" title="${c.label}: ${(d.symbol||'$')}${c.spent.toFixed(2)}">
         <div class="chart-bar${pct===100?' peak':''}" style="height:${Math.max(pct,4)}%"></div>
         <div class="chart-lbl">${c.label.split(' ')[0]}</div></div>`;
     }).join('');
@@ -579,14 +579,17 @@ function render(d) {
       const socialPrf = p.soldCount > 0
         ? `<div style="font-size:.6rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:1px;">${stars} ${p.soldCount} sold</div>`
         : '';
+      const _sym = p.displayPrice?.symbol || (d.symbol||'$');
+      const _px  = p.displayPrice?.converted ?? p.price;
+      const _cpx = p.displayPrice ? (p.comparePrice ? p.comparePrice * ((d.rates?.toRate)||1) : 0) : p.comparePrice;
       const comparePrice = p.comparePrice && p.comparePrice > p.price
-        ? `<span style="text-decoration:line-through;color:var(--t3);font-size:.65rem;margin-left:4px;">$${p.comparePrice.toFixed(2)}</span>` : '';
+        ? `<span style="text-decoration:line-through;color:var(--t3);font-size:.65rem;margin-left:4px;">${_sym}${parseFloat(_cpx||0).toFixed(2)}</span>` : '';
       return `
       <a href="/marketplace/product/${esc(p.slug||p.id)}" class="rec-card">
         <div class="rec-thumb">${p.image ? `<img src="${esc(p.image)}" alt="">` : (p.icon || '📦')}</div>
         <div style="flex:1;min-width:0">
           <div class="rec-t">${esc(p.title)}</div>
-          <div class="rec-p">$${(p.price||0).toFixed(2)}${comparePrice}</div>
+          <div class="rec-p">${_sym}${parseFloat(_px||0).toFixed(2)}${comparePrice}</div>
           ${socialPrf}
         </div>
       </a>`;                             // ✅ FIX — now shows rating stars, sold count, compare price
@@ -612,7 +615,7 @@ function render(d) {
         ? ` · ${d.creator.pendingProducts} pending review` : '';
       const verifiedMark = d.creator.isVerified ? ' ✓' : '';                       // ✅ ADD — verified badge
       setEl('cbTitle', `Creator Studio — ${d.creator.storeName}${verifiedMark}`);
-      setEl('cbSub',   `${d.creator.totalSales} sales · $${(d.creator.totalEarnings||0).toFixed(2)} earned · ${d.creator.totalProducts} products${pendingNote}`);
+      setEl('cbSub',   `${d.creator.totalSales} sales · ${(d.symbol||'$')}${(d.creator.totalEarnings||0).toFixed(2)} earned · ${d.creator.totalProducts} products${pendingNote}`);
       banner.onclick = () => location.href = '/marketplace/creator-dashboard';
 
     } else if (d.creator.applicationStatus === 'pending') {

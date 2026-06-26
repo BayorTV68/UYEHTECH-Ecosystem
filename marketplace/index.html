@@ -1616,7 +1616,25 @@ async function loadProducts() {
     });
 
     const rawAdminProducts  = (adminData.success && adminData.products) ? adminData.products : [];
-    const pureAdminProducts = rawAdminProducts.filter(p => !p.isCreatorProduct);
+    // Normalise admin products to the same shape as creator products
+    // so displayPrice / symbol is always present and consistent
+    const pureAdminProducts = rawAdminProducts
+      .filter(p => !p.isCreatorProduct)
+      .map(p => ({
+        ...p,
+        // If server returned displayPrice use it; otherwise build a client-side fallback
+        displayPrice: p.displayPrice || {
+          raw:       parseFloat((p.price || 0).toFixed(2)),
+          converted: parseFloat(((p.price || 0) * currencyRate).toFixed(2)),
+          currency:  adminData.currency || 'USD',
+          symbol:    adminData.symbol   || currencySymbol,
+        },
+      }));
+
+    // Sync global currencySymbol from server response if available
+    if (adminData.currency && adminData.symbol) {
+      currencySymbol = adminData.symbol;
+    }
 
     allProducts      = [...pureAdminProducts, ...normalisedCreatorProducts];
     filteredProducts = [...allProducts];
