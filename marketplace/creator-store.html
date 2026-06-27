@@ -1424,13 +1424,18 @@
     let currencyRate   = 1;
 
     async function fetchUserCurrency() {
+      // Primary: pull currency from /api/profile (works for logged-in users)
       const token = localStorage.getItem('token');
-      if (!token) return;
-      try {
-        const res  = await fetch(`${API_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const data = await res.json();
-        if (data.success) { currencySymbol = data.symbol || '$'; currencyRate = data.rate || 1; }
-      } catch (_) {}
+      if (token) {
+        try {
+          const res  = await fetch(`${API_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+          const data = await res.json();
+          if (data.success) { currencySymbol = data.symbol || '$'; currencyRate = data.rate || 1; }
+        } catch (_) {}
+      }
+      // Note: /api/stores/:slug now always returns displayPrice on each product
+      // (server patch 1C), so even for anonymous visitors fmtMoney() will use
+      // dispPrice.symbol + dispPrice.converted without needing currencyRate at all.
     }
 
     function toDisplay(usd) { return (Number(usd) || 0) * currencyRate; }
@@ -1528,6 +1533,13 @@
         creatorData = data.creator;
         allProducts = data.products || [];
         filteredProds = [...allProducts];
+        // Seed symbol from store response so anonymous visitors and fast renders
+        // get the right currency even before fetchUserCurrency resolves.
+        // Seed symbol and rate from store response.
+        // Overwrite only if profile fetch didn't already resolve a real currency
+        // (profile sets currencySymbol away from '$', so the guard below is reliable).
+        if (data.symbol && currencySymbol === '$') currencySymbol = data.symbol;
+        if (data.rate   && currencyRate   === 1)   currencyRate   = data.rate;
 
         renderStoreHeader(creatorData);
         renderStats(creatorData);
@@ -1636,6 +1648,7 @@
                     style="font-size:.76rem;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:5px;">
                     <i class="fas fa-external-link-alt" style="font-size:.65rem;"></i>${esc(pl.label||pl.url)}</a>`).join('')}
                 </div>` : ''}
+            </div>
             </div>`;
           aboutEl.style.display = 'block';
         }
@@ -1753,9 +1766,20 @@
       const discount  = origPrice && p.approvedPrice && p.approvedPrice < origPrice
         ? Math.round(((origPrice - p.approvedPrice) / origPrice) * 100) : 0;
 
+      // Build a displayPrice-like object for the original/compare price so it
+      // converts using the same symbol + rate as the main price.
+      const origDisplayPrice = p.displayPrice
+        ? {
+            symbol:    p.displayPrice.symbol,
+            converted: p.displayPrice.raw > 0
+              ? origPrice * (p.displayPrice.converted / p.displayPrice.raw)
+              : toDisplay(origPrice),
+          }
+        : null;
+
       const priceHTML = price === 0
         ? `<span class="price-free">Free</span>`
-        : `<span class="price-main">${fmtMoney(price, p.displayPrice)}</span>${discount > 0 ? `<span class="price-old">${fmtMoney(origPrice, null)}</span>` : ''}`;
+        : `<span class="price-main">${fmtMoney(price, p.displayPrice)}</span>${discount > 0 ? `<span class="price-old">${fmtMoney(origPrice, origDisplayPrice)}</span>` : ''}`;
 
       const daysAgo = p.approvedAt
         ? Math.floor((Date.now() - new Date(p.approvedAt)) / 86400000) : 999;
@@ -1834,8 +1858,16 @@
       if (price === 0) {
         priceDiv.innerHTML = `<span class="modal-price-free">Free</span>`;
       } else {
+        const _modalOrigDisp = p.displayPrice
+          ? {
+              symbol:    p.displayPrice.symbol,
+              converted: p.displayPrice.raw > 0
+                ? origPrice * (p.displayPrice.converted / p.displayPrice.raw)
+                : toDisplay(origPrice),
+            }
+          : null;
         priceDiv.innerHTML = `<span class="modal-price-main">${fmtMoney(price, p.displayPrice)}</span>
-          ${origPrice > price ? `<span class="modal-price-old">${fmtMoney(origPrice, null)}</span>` : ''}`;
+          ${origPrice > price ? `<span class="modal-price-old">${fmtMoney(origPrice, _modalOrigDisp)}</span>` : ''}`;
       }
 
       document.getElementById('modalAddBtn').innerHTML = price === 0
@@ -2089,7 +2121,7 @@
           if (msgEl) {
             msgEl.style.display = 'block';
             msgEl.style.color   = 'var(--primary)';
-            msgEl.textContent   = `✅ Coupon applied — $${d.coupon.discountAmount?.toFixed(2) || d.coupon.discount} off`;
+            msgEl.textContent   = `✅ Coupon applied — ${currencySymbol}${(d.coupon.discountAmount != null ? toDisplay(d.coupon.discountAmount).toFixed(2) : d.coupon.discount)} off`;
           }
           showToast('✅', `Coupon "${code}" applied!`);
         } else {

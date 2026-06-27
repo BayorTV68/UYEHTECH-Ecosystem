@@ -421,6 +421,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const d = await r.json();
     if (!d.success) throw new Error(d.message || 'Failed');
     _dash = d.dashboard;
+    // Inject top-level currency fields into the dashboard object so render(d)
+    // can access d.symbol and d.displayTotalSpent without a separate key.
+    // The server now also embeds these inside dashboard.*  (server patch 1A),
+    // but this belt-and-suspenders merge keeps old server responses working too.
+    _dash.currency          = _dash.currency          || d.currency          || 'USD';
+    _dash.symbol            = _dash.symbol            || d.symbol            || '$';
+    _dash.displayTotalSpent = _dash.displayTotalSpent || d.displayTotalSpent || null;
     _user = _dash.user;
     localStorage.setItem('user', JSON.stringify(_user));
     render(_dash);
@@ -489,7 +496,8 @@ function render(d) {
     animCount('sOrders',   s.totalOrders || 0);
     animCount('sProducts', s.productsOwned || s.completedOrders || 0);   // ✅ FIX — was showing order count
     animCount('sCourses',  s.activeCourses || 0);
-    setEl('sSpent', d.displayTotalSpent?.display || ('$' + (s.totalSpent || 0).toFixed(2)));
+    const _sym = d.symbol || '$';
+    setEl('sSpent', d.displayTotalSpent?.display || (`${_sym}${Number(s.totalSpent || 0).toFixed(2)}`));
     setEl('sOrdersMeta',  `${s.pendingOrders || 0} pending`);
     setEl('sCoursesMeta', `${s.completedCourses || 0} completed · ${s.enrolledCourses || 0} enrolled`);   // ✅ FIX
   }
@@ -543,7 +551,7 @@ function render(d) {
     setEl('affLabel', aff.affiliateCode || '');
     const payoutReady = aff.canRequestPayout;
     const thresholdNote = aff.payoutThreshold
-      ? `${(d.symbol||'$')}${(aff.pendingEarnings||0).toFixed(2)} / ${(d.symbol||'$')}${aff.payoutThreshold} threshold` : '';
+      ? `${(d.symbol||'$')}${Number(aff.pendingEarnings||0).toFixed(2)} / ${(d.symbol||'$')}${Number(aff.payoutThreshold||0).toFixed(2)} threshold` : '';
     aEl.innerHTML = `
       <div class="aff-code-box"><span class="aff-code" id="affLink">${esc(aff.affiliateLink||'')}</span><button class="copy-btn" onclick="copyAff()"><i class="fas fa-copy"></i></button></div>
       <div class="aff-row"><span class="aff-key">Total Clicks</span><span class="aff-val">${aff.totalClicks||0}</span></div>

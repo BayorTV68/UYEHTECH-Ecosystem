@@ -21,6 +21,7 @@
   <meta name="robots" content="index, follow">
   <meta name="author" content="UYEH TECH">
   <meta name="theme-color" content="#00ff88">
+   <script src="/site-controller.js" defer></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -558,6 +559,28 @@ function ls(k)   { return localStorage.getItem(k); }
 function token() { return ls('token'); }
 function authH() { return {'Authorization':`Bearer ${token()}`,'Content-Type':'application/json'}; }
 
+// Currency helpers — use displayPrice from the cached my-products entry when available,
+// otherwise fall back to raw price with the user's stored currency symbol.
+function _curSym() {
+  return STATE.product?.displayPrice?.symbol
+    || (()=>{ try { return JSON.parse(ls('user') || '{}')._symbol || '₦'; } catch { return '₦'; } })();
+}
+function _curRate() {
+  // If we have a displayPrice, prefer its converted/raw ratio to avoid double-converting
+  const dp = STATE.product?.displayPrice;
+  if (dp && dp.raw > 0) return dp.converted / dp.raw;
+  try { return JSON.parse(ls('user') || '{}')._rate || 1; } catch { return 1; }
+}
+function fmtPrice(usdAmount) {
+  const dp = STATE.product?.displayPrice;
+  if (dp) {
+    // Prices other than the main purchase price (e.g. comparePrice) need scaling
+    const rate = dp.raw > 0 ? dp.converted / dp.raw : 1;
+    return `${dp.symbol}${Number(usdAmount * rate).toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  }
+  return `${_curSym()}${Number(usdAmount * _curRate()).toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+}
+
 // Appends the JWT as ?token= so iframe.src requests can authenticate.
 // Browsers cannot send Authorization headers from iframe.src — query param is the only way.
 function _withToken(url) {
@@ -576,7 +599,18 @@ async function fetchAccess() {
       { headers: authH() }
     );
     const d = await r.json();
-    if (!d.success) { showFatal(d.message || 'Access denied.'); return null; }
+    if (!d.success) {
+      // If the server says the product isn't in the order, show a clear message
+      // with a library link rather than a blank crash.
+      const msg = d.message || 'Access denied.';
+      const isOrderMismatch = msg.toLowerCase().includes('not part') || msg.toLowerCase().includes('not found');
+      showFatal(
+        isOrderMismatch
+          ? `${msg} — This sometimes happens when a product was recently updated. <a href="/marketplace/my-products" style="color:var(--g);text-decoration:underline">Return to your library</a> and re-open the product.`
+          : msg
+      );
+      return null;
+    }
     return d;
   } catch { showFatal('Could not reach server. Check your connection.'); return null; }
 }
@@ -1048,7 +1082,7 @@ function buildVideoSidebar(p, data, vd) {
   } else if (vd.allowDownload) {
     rows += sbRow('Download', '<span style="color:var(--g)">✓ Allowed</span>');
   }
-  if (p.price)          rows += sbRow('Paid',        `₦${Number(p.price).toLocaleString()}`);
+  if (p.price)          rows += sbRow('Paid',        fmtPrice(p.price));
   if (p.purchaseDate)   rows += sbRow('Purchased',   fmtDate(p.purchaseDate));
 
   const vGalleryImgs = (data?.images?.length > 1) ? data.images : [];
@@ -1110,7 +1144,7 @@ function buildAudioSidebar(p, ad) {
   if (ad.hasVocals !== undefined) rows += sbRow('Vocals', ad.hasVocals ? '<span style="color:var(--g)">✓ Yes</span>' : 'Instrumental');
   if (ad.loopable)    rows += sbRow('Loopable',     '<span style="color:var(--g)">✓ Yes</span>');
   if (ad.isrc)        rows += sbRow('ISRC',         ad.isrc);
-  if (p.price)        rows += sbRow('Paid',         `₦${Number(p.price).toLocaleString()}`);
+  if (p.price)        rows += sbRow('Paid',         fmtPrice(p.price));
   if (p.purchaseDate) rows += sbRow('Purchased',    fmtDate(p.purchaseDate));
 
   ge('sidebarInner').innerHTML = `
@@ -1976,7 +2010,7 @@ function buildSimpleSidebar(p, type, data) {
 
   let rows = '';
   if (p.category)                           rows += sbRow('Category',     p.category);
-  if (p.price)                              rows += sbRow('Paid',         `₦${Number(p.price).toLocaleString()}`);
+  if (p.price)                              rows += sbRow('Paid',         fmtPrice(p.price));
   if (p.purchaseDate)                       rows += sbRow('Purchased',    fmtDate(p.purchaseDate));
   if (data?.ebookData?.language)            rows += sbRow('Language',     data.ebookData.language);
   if (data?.ebookData?.author)              rows += sbRow('Author',       data.ebookData.author);
@@ -2063,7 +2097,7 @@ function buildOverviewPanel(data, p, type) {
       ${cd.language      ? tile('Language',   cd.language, '')                       : ''}
       ${cd.totalSections ? tile('Sections',   cd.totalSections, 'modules')           : ''}
       ${cd.certificate   ? tile('Certificate','✓ Included','on completion')          : ''}
-      ${origPrice ? tile('Was', `<span style="text-decoration:line-through;color:var(--t3)">₦${Number(origPrice).toLocaleString()}</span>`, 'original price') : ''}
+      ${origPrice ? tile('Was', `<span style="text-decoration:line-through;color:var(--t3)">${fmtPrice(origPrice)}</span>`, 'original price') : ''}
       ${(data.soldCount||0) > 0 ? tile('Sold', data.soldCount||0, 'students') : ''}
       ${(data.rating||0)   > 0 ? tile('Rating', `${Number(data.rating||0).toFixed(1)} ★`, `${data.reviewCount||0} reviews`) : ''}
     </div>`;
@@ -2102,7 +2136,7 @@ function buildOverviewPanel(data, p, type) {
     const hasTiles  = origPrice || (data.soldCount||0) > 0 || (data.rating||0) > 0;
     if (hasTiles) {
       html += `<div class="info-grid" style="margin-bottom:20px">
-        ${origPrice        ? tile('Was',    `<span style="text-decoration:line-through;color:var(--t3)">₦${Number(origPrice).toLocaleString()}</span>`, 'original price') : ''}
+        ${origPrice        ? tile('Was',    `<span style="text-decoration:line-through;color:var(--t3)">${fmtPrice(origPrice)}</span>`, 'original price') : ''}
         ${(data.soldCount||0) > 0 ? tile('Sold',   data.soldCount||0, 'copies') : ''}
         ${(data.rating||0)   > 0 ? tile('Rating', `${Number(data.rating||0).toFixed(1)} ★`, `${data.reviewCount||0} reviews`) : ''}
         ${data.publishedAt     ? tile('Published', fmtDate(data.publishedAt), '') : ''}
@@ -2358,7 +2392,7 @@ function buildReceiptPanel(data, p) {
       ${rRow('Product',    esc(data.title || p.title || '—'))}
       ${rRow('Type',       esc(capitalise(data.productType || p.productType || '—')))}
       ${rRow('Category',   esc(p.category || '—'))}
-      ${rRow('Price Paid', `₦${Number(p.price||0).toLocaleString()}`)}
+      ${rRow('Price Paid', fmtPrice(p.price || 0))}
       ${rRow('Purchased',  fmtDate(p.purchaseDate))}
       ${rRow('Order Ref',  `<span style="font-family:'DM Mono',monospace;font-size:.75rem">${esc(p.orderReference||'—')}</span>`)}
       ${p.downloadLimit ? rRow('Downloads Used', `${p.downloadCount||0} of ${p.downloadLimit}`) : ''}

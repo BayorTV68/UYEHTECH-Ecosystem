@@ -4113,7 +4113,7 @@ select.form-control option { background: var(--ink-3); }
             <div style="margin-top:16px;padding:12px;background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);">
               <div style="font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:6px;">Payout Info</div>
               <div style="font-size:0.82rem;color:var(--soft);line-height:1.6;">
-                Minimum payout: <strong style="color:var(--white);" id="payoutInfoMinimum">$50.00</strong><br>
+                Minimum payout: <strong style="color:var(--white);" id="payoutInfoMinimum">—</strong><br>
                 Processing time: <strong style="color:var(--white);">3–5 business days</strong><br>
                 No transfer fees from UYEH TECH.
               </div>
@@ -5359,18 +5359,34 @@ function populateStats(c) {
   const salesChange = document.getElementById('statSalesChange');
   const productsInfo = document.getElementById('statProductsInfo');
 
-  if (revChange)    revChange.textContent   = c.totalEarnings > 0 ? `$${(c.totalEarnings||0).toFixed(2)} earned` : 'No earnings yet';
+  if (revChange)    revChange.textContent   = c.totalEarnings > 0 ? `${compactMoney(c.totalEarnings||0)} earned` : 'No earnings yet';
   if (salesChange)  salesChange.textContent = c.totalSales > 0 ? `${c.totalSales} total sales` : 'No sales yet';
   if (productsInfo) productsInfo.textContent = `${c.products?.pending||0} pending · ${c.products?.rejected||0} rejected`;
   // statFollowers is updated by loadFollowers() after it resolves
 }
 
 // ── ANIMATE COUNT ───────────────────────────────────────────────
+// Compact number: 1500 → "1.5K", 1200000 → "1.2M"
+function compactNum(n) {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1) + 'M';
+  if (n >= 1_000)     return (n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1) + 'K';
+  return Math.floor(n).toString();
+}
+
+// Compact money: uses user currency symbol + compact suffix
+function compactMoney(n) {
+  const sym = currencySymbol || '$';
+  const converted = toDisplay(n);
+  if (converted >= 1_000_000) return sym + (converted / 1_000_000).toFixed(1) + 'M';
+  if (converted >= 1_000)     return sym + (converted / 1_000).toFixed(1) + 'K';
+  return sym + converted.toFixed(2);
+}
+
 function animateCount(id, target, isMoney = false) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (target === 0) { // ✅ short-circuit — no point animating 0 → 0
-    el.textContent = isMoney ? '$0.00' : '0';
+  if (target === 0) {
+    el.textContent = isMoney ? (currencySymbol || '$') + '0.00' : '0';
     return;
   }
   let start = 0;
@@ -5378,7 +5394,7 @@ function animateCount(id, target, isMoney = false) {
   const step = target / (duration / 16);
   const timer = setInterval(() => {
     start = Math.min(start + step, target);
-    el.textContent = isMoney ? '$' + start.toFixed(2) : Math.floor(start).toLocaleString();
+    el.textContent = isMoney ? compactMoney(start) : compactNum(start);
     if (start >= target) clearInterval(timer);
   }, 16);
 }
@@ -5461,13 +5477,13 @@ async function loadOrders() {
       recentBody.innerHTML = orders.slice(0, 5).map(order => {
         const item        = order.items?.[0];
         const productName = item?.title || '—';
-        const amount      = (order.total || 0).toFixed(2);
+        const amount      = toDisplay(order.total || 0).toFixed(2);
         const stMap       = { completed:'badge-green', pending:'badge-amber', failed:'badge-red', refunded:'badge-blue' };
         return `
           <tr>
             <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${order.orderReference}</td>
             <td class="td-primary">${productName}</td>
-            <td style="font-family:'JetBrains Mono',monospace;">$${amount}</td>
+            <td style="font-family:'JetBrains Mono',monospace;">${currencySymbol}${amount}</td>
             <td><span class="badge ${stMap[order.status]||'badge-muted'}">${order.status}</span></td>
           </tr>`;
       }).join('');
@@ -5519,8 +5535,8 @@ function renderOrdersTable(orders) {
         <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${order.orderReference}</td>
         <td>${order.customerInfo?.name || order.customerInfo?.email || '—'}</td>
         <td class="td-primary">${item?.title || '—'}${order.items?.length > 1 ? ` +${order.items.length-1} more` : ''}</td>
-        <td style="font-family:'JetBrains Mono',monospace;">$${(order.total || 0).toFixed(2)}</td>
-        <td style="color:var(--green);font-weight:600;">+$${commission}</td>
+        <td style="font-family:'JetBrains Mono',monospace;">${currencySymbol}${toDisplay(order.total || 0).toFixed(2)}</td>
+        <td style="color:var(--green);font-weight:600;">+${currencySymbol}${toDisplay(itemPrice * rate).toFixed(2)}</td>
         <td><span class="badge ${stMap[order.status]||'badge-muted'}">${order.status}</span></td>
         <td style="color:var(--muted);font-size:0.78rem;">${new Date(order.createdAt).toLocaleDateString()}</td>
       </tr>`;
@@ -6308,7 +6324,7 @@ function populateEarnings(data) {
   document.getElementById('overviewAvailable').textContent    = currencySymbol + toDisplay(available).toFixed(2);
   document.getElementById('overviewPending').textContent      = currencySymbol + toDisplay(pending).toFixed(2);
   document.getElementById('overviewPaid').textContent         = currencySymbol + toDisplay(paid).toFixed(2);
-  document.getElementById('overviewThreshold').textContent    = '$' + threshold.toFixed(2);
+  document.getElementById('overviewThreshold').textContent    = currencySymbol + toDisplay(threshold).toFixed(2);
   document.getElementById('overviewThresholdBar').style.width = pct + '%';
   document.getElementById('overviewThresholdHint').textContent= `${currencySymbol}${toDisplay(available).toFixed(2)} of ${currencySymbol}${toDisplay(threshold).toFixed(2)}`;
 
@@ -6706,7 +6722,7 @@ function openPayoutModal() {
   const available  = parseFloat(document.getElementById('walletBalance').textContent) || 0;
   const threshold  = creatorData?.payoutThreshold || 50;
   if (available < threshold) {
-    showToast(`⚠️ You need at least $${threshold.toFixed(2)} available to request a payout`, 'amber');
+    showToast(`⚠️ You need at least ${currencySymbol}${toDisplay(threshold).toFixed(2)} available to request a payout`, 'amber');
     return;
   }
   // Sync input constraints to real threshold and balance
@@ -6909,7 +6925,7 @@ function updatePayoutCards(c) {
 
   // Update the payout info box threshold from real data
   const minPayoutEl = document.getElementById('payoutInfoMinimum');
-  if (minPayoutEl) minPayoutEl.textContent = '$' + (c.payoutThreshold || 50).toFixed(2);
+  if (minPayoutEl) minPayoutEl.textContent = currencySymbol + toDisplay(c.payoutThreshold || 50).toFixed(2);
 }
 
 // ── SAVE PAYOUT DETAILS ──────────────────────────────────────────

@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Profile — UYEH TECH</title>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uyehtech.com/marketplace/">
+  <meta property="og:title" content="UYEH TECH Marketplace — Premium Digital Products">
+  <meta property="og:description" content="Browse premium digital products from verified creators. Templates, courses, components, and more.">
+  <meta property="og:image" content="uyehtech.com/images/uyehtech-logo.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="UYEH TECH Marketplace">
+  <meta name="twitter:description" content="Premium digital products from verified creators.">
+  <meta name="twitter:image" content="/images/uyehtech-logo.jpg">
+  <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+  <link rel="canonical" href="https://uyehtech.com/marketplace/">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="UYEH TECH">
+  <meta name="theme-color" content="#00ff88">
+  <script src="/site-controller.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -678,7 +693,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const d = await r.json();
     if (!d.success) throw new Error(d.message || 'Failed to load profile');
     _profile = d.profile || d.user;
+    // Attach currency metadata so renderProfile can display converted values
+    _profile._currency = d.currency || 'USD';
+    _profile._symbol   = d.symbol   || '$';
+    _profile._rate     = d.rate     || 1;
     localStorage.setItem('user', JSON.stringify(_profile));
+    // Page-level currency helpers — used by renderOrders / renderAffiliate / renderCreator
+    window._pSym  = _profile._symbol;
+    window._pRate = _profile._rate;
     renderProfile(_profile);
   } catch (e) {
     toast('Failed to load profile: ' + e.message, 'err');
@@ -777,7 +799,11 @@ function renderProfile(p) {
     setEl('stOrders',    p.stats.totalOrders ?? '—');
     const _pending = Math.max(0, (p.stats.totalOrders||0) - (p.stats.completedOrders||0));
     setEl('stOrdersSub', `${_pending} pending`);
-    setEl('stSpent',     '$' + Number(p.stats.totalSpent || 0).toFixed(2));
+    const _pSym  = p._symbol || '$';
+    const _pRate = p._rate   || 1;
+    const _pSpentDisplay = p.stats.displayTotalSpent?.display
+      || `${_pSym}${Number((p.stats.totalSpent || 0) * _pRate).toFixed(2)}`;
+    setEl('stSpent', _pSpentDisplay);
     setEl('stDownloads', p.stats.totalDownloads ?? '—');
     const _totalC = (p.stats.activeCourses||0) + (p.stats.completedCourses||0);
     setEl('stCourses',   _totalC || '—');
@@ -850,7 +876,7 @@ function renderOrders(orders) {
         <div class="order-meta">${timeAgo(new Date(o.paidAt || o.createdAt))} · ${o.itemCount || 0} item${(o.itemCount||0)!==1?'s':''}</div>
       </div>
       <div class="order-right">
-        <div class="order-amount">$${(o.total||0).toFixed(2)}</div>
+        <div class="order-amount">${fmtMoney(o.total||0)}</div>
         <span class="order-status ${o.status==='completed'?'st-ok':'st-pend'}">${o.status?.toUpperCase()}</span>
       </div>
     </div>`).join('');
@@ -878,11 +904,11 @@ function renderAffiliate(aff) {
     </div>
     <a href="/marketplace/affiliate" class="btn btn-ghost btn-full btn-sm"><i class="fas fa-arrow-right"></i>Manage Affiliate Dashboard</a>`;
   earn.innerHTML = `
-    <div class="pref-row"><span class="pref-key">Total Earned</span><span class="pref-val" style="color:var(--g)">$${(aff.totalEarnings||0).toFixed(2)}</span></div>
-    <div class="pref-row"><span class="pref-key">Pending</span><span class="pref-val" style="color:var(--amber)">$${(aff.pendingEarnings||0).toFixed(2)}</span></div>
-    <div class="pref-row"><span class="pref-key">Paid Out</span><span class="pref-val">$${(aff.paidEarnings||0).toFixed(2)}</span></div>
+    <div class="pref-row"><span class="pref-key">Total Earned</span><span class="pref-val" style="color:var(--g)">${fmtMoney(aff.totalEarnings||0)}</span></div>
+    <div class="pref-row"><span class="pref-key">Pending</span><span class="pref-val" style="color:var(--amber)">${fmtMoney(aff.pendingEarnings||0)}</span></div>
+    <div class="pref-row"><span class="pref-key">Paid Out</span><span class="pref-val">${fmtMoney(aff.paidEarnings||0)}</span></div>
     <div class="pref-row"><span class="pref-key">Conversion Rate</span><span class="pref-val">${aff.conversionRate ?? (aff.totalClicks > 0 ? ((aff.totalConversions / aff.totalClicks) * 100).toFixed(1) : '0.0')}%</span></div>
-    <div class="pref-row"><span class="pref-key">Payout Threshold</span><span class="pref-val">$${aff.payoutThreshold||50}</span></div>
+    <div class="pref-row"><span class="pref-key">Payout Threshold</span><span class="pref-val">${fmtMoney(aff.payoutThreshold||50)}</span></div>
     <div class="pref-row"><span class="pref-key">Member Since</span><span class="pref-val">${aff.joinedAt ? new Date(aff.joinedAt).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—'}</span></div>`;
 }
 
@@ -904,18 +930,18 @@ function renderCreator(cr) {
         <div class="creator-stat-grid">
           <div class="cr-stat"><div class="cr-stat-val">${cr.totalProducts||0}</div><div class="cr-stat-lbl">Products</div></div>
           <div class="cr-stat"><div class="cr-stat-val">${cr.totalSales||0}</div><div class="cr-stat-lbl">Sales</div></div>
-          <div class="cr-stat"><div class="cr-stat-val" style="color:var(--g)">$${(cr.totalEarnings||0).toFixed(0)}</div><div class="cr-stat-lbl">Earned</div></div>
-          <div class="cr-stat"><div class="cr-stat-val" style="color:var(--amber)">$${(cr.pendingPayout||0).toFixed(0)}</div><div class="cr-stat-lbl">Pending</div></div>
+          <div class="cr-stat"><div class="cr-stat-val" style="color:var(--g)">${fmtMoney(cr.totalEarnings||0)}</div><div class="cr-stat-lbl">Earned</div></div>
+          <div class="cr-stat"><div class="cr-stat-val" style="color:var(--amber)">${fmtMoney(cr.pendingPayout||0)}</div><div class="cr-stat-lbl">Pending</div></div>
         </div>
       </div>
       <div class="pref-row"><span class="pref-key">Platform Commission</span><span class="pref-val">${cr.platformCommissionRate||20}% platform · ${100-(cr.platformCommissionRate||20)}% you</span></div>
-      <div class="pref-row"><span class="pref-key">Payout Threshold</span><span class="pref-val">$${cr.payoutThreshold||50}</span></div>
+      <div class="pref-row"><span class="pref-key">Payout Threshold</span><span class="pref-val">${fmtMoney(cr.payoutThreshold||50)}</span></div>
       <div class="pref-row"><span class="pref-key">Rating</span><span class="pref-val">${cr.rating ? `⭐ ${cr.rating.toFixed(1)}` : '—'}</span></div>
       <div class="pref-row"><span class="pref-key">Business Type</span><span class="pref-val" style="text-transform:capitalize">${cr.businessType||'Individual'}</span></div>
       <div class="pref-row"><span class="pref-key">Creator Since</span><span class="pref-val">${cr.joinedAt ? new Date(cr.joinedAt).toLocaleDateString('en-US',{month:'long',year:'numeric'}) : '—'}</span></div>
       <div style="margin-top:16px;display:flex;gap:10px">
         <a href="/marketplace/creator-dashboard" class="btn btn-primary btn-sm"><i class="fas fa-gauge-high"></i>Creator Dashboard</a>
-        <a href="/marketplace/creator-dashboard/products" class="btn btn-ghost btn-sm"><i class="fas fa-box-open"></i>My Products</a>
+        <a href="/marketplace/creator-dashboard" class="btn btn-ghost btn-sm"><i class="fas fa-box-open"></i>My Products</a>
       </div>
     </div>`;
 }
@@ -1370,6 +1396,14 @@ async function deleteAccount() {
 /* ── MODAL HELPERS ── */
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Convert a raw USD amount to user-currency display string
+// Uses page-level _pSym / _pRate set during init; falls back to ₦ / 1
+function fmtMoney(usd) {
+  const sym  = window._pSym  || '₦';
+  const rate = window._pRate || 1;
+  return `${sym}${Number((usd || 0) * rate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
 
 /* ── UTILS ── */
 function setEl(id, v)  { const e = document.getElementById(id); if (e) e.textContent = v; }
