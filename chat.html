@@ -1027,7 +1027,10 @@ const Chat = {
     const form = new FormData();
     pendingFiles.forEach(f => form.append('files', f));
     try {
-      const r = await fetch(`${API}/api/chat/upload-file`, { method:'POST', body:form });
+      const _uploadHeaders = {};
+      const _tok = localStorage.getItem('token') || localStorage.getItem('authToken') || null;
+      if (_tok) _uploadHeaders['Authorization'] = 'Bearer ' + _tok;
+      const r = await fetch(`${API}/api/chat/upload-file`, { method:'POST', headers: _uploadHeaders, body:form });
       const d = await r.json();
       if (!r.ok || !d.success) { this._toast('Upload failed: '+(d.message||'Error'),'err'); return null; }
       return d.files || [];
