@@ -1066,6 +1066,194 @@
 }
 
 
+  /* ══════════════════════════════════════════════════
+     PREMIUM CREATOR PROFILE CARD
+     ══════════════════════════════════════════════════ */
+
+  /* ── Stat "Since" box ── */
+  .stat-box .stat-since {
+    font-size: .72rem; color: var(--t3);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px; text-transform: none;
+  }
+
+  /* ── Rating stat: colour-coded ── */
+  .stat-rating-val { color: var(--primary); }
+  .stat-rating-new {
+    font-size: .75rem; color: var(--t2);
+    font-style: italic; line-height: 1.35;
+    font-family: 'Montserrat', sans-serif;
+    display: block; margin-top: 2px;
+  }
+
+  /* ── Full-width creator profile card ── */
+  .creator-profile-card {
+    max-width: 1200px; margin: 28px auto 0;
+    padding: 0 30px;
+  }
+  .creator-profile-inner {
+    background: var(--ink3);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  /* Top strip — avatar + identity + social + quick stats */
+  .cpc-hero {
+    display: flex; align-items: flex-start; gap: 24px;
+    padding: 28px 32px 22px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .cpc-avatar {
+    flex-shrink: 0;
+    width: 80px; height: 80px; border-radius: 16px;
+    border: 2px solid var(--line2);
+    box-shadow: 0 0 24px rgba(0,255,136,.18);
+    background: var(--ink4);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-size: 2rem; color: var(--g);
+  }
+  .cpc-avatar img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 14px;
+  }
+  .cpc-identity { flex: 1; min-width: 0; }
+  .cpc-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700; color: var(--t1);
+    margin-bottom: 3px;
+  }
+  .cpc-role-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .cpc-role-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; color: var(--g);
+    background: var(--g3); border: 1px solid var(--line2);
+    padding: 2px 9px; border-radius: 20px;
+  }
+  .cpc-meta-chips {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+  }
+  .cpc-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 20px; padding: 3px 10px;
+    font-size: .75rem; color: var(--t2);
+  }
+  .cpc-chip i { color: var(--g); font-size: .7rem; }
+  .cpc-social-row {
+    display: flex; gap: 7px; flex-wrap: wrap; margin-top: 2px;
+  }
+  .cpc-social-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+    color: var(--t2); text-decoration: none; font-size: .82rem;
+    transition: all .25s;
+  }
+  .cpc-social-btn:hover {
+    background: var(--g3); color: var(--g);
+    border-color: var(--line2); transform: translateY(-2px);
+  }
+
+  /* Body — bio, skills, portfolio in columns */
+  .cpc-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  @media(max-width: 680px) { .cpc-body { grid-template-columns: 1fr; } }
+
+  .cpc-col {
+    padding: 22px 32px;
+    border-right: 1px solid var(--line);
+  }
+  .cpc-col:last-child { border-right: none; }
+
+  .cpc-section-label {
+    font-size: .65rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--g);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .cpc-section-label i { font-size: .72rem; }
+
+  .cpc-bio {
+    font-size: .87rem; color: var(--t2); line-height: 1.75;
+  }
+
+  .cpc-skills {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .cpc-skill-tag {
+    background: var(--g3); border: 1px solid var(--line2);
+    color: var(--g); font-size: .72rem; padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cpc-languages {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px;
+  }
+  .cpc-lang-tag {
+    background: rgba(91,156,246,.08); border: 1px solid rgba(91,156,246,.2);
+    color: var(--blue); font-size: .72rem; padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .cpc-portfolio-links {
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .cpc-portfolio-link {
+    display: flex; align-items: center; gap: 9px;
+    color: var(--blue); text-decoration: none; font-size: .83rem;
+    padding: 7px 10px; border-radius: 8px;
+    background: rgba(91,156,246,.05); border: 1px solid rgba(91,156,246,.12);
+    transition: background .2s;
+  }
+  .cpc-portfolio-link:hover { background: rgba(91,156,246,.12); }
+  .cpc-portfolio-link i { font-size: .72rem; flex-shrink: 0; }
+
+  .cpc-website-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--g); text-decoration: none; font-size: .82rem;
+    padding: 6px 12px; border-radius: 8px;
+    background: var(--g3); border: 1px solid var(--line2);
+    margin-top: 10px; transition: background .2s;
+  }
+  .cpc-website-link:hover { background: var(--g4); }
+
+  /* ── Empty profile card (nothing to show) ── */
+  .cpc-empty { display: none; }
+
+  /* ── Responsive tweaks for profile hero ── */
+  @media (max-width: 680px) {
+    .cpc-hero { padding: 20px; }
+    .cpc-col  { padding: 18px 20px; border-right: none; border-bottom: 1px solid var(--line); }
+    .cpc-col:last-child { border-bottom: none; }
+    .creator-profile-card { padding: 0 16px; }
+  }
+
+  #sortSelect {
+    padding: 8px 14px;
+    background: var(--g3);
+    border: 1px solid var(--line2);
+    border-radius: 9px;
+    color: var(--t1);
+    font-family: 'Montserrat', sans-serif;
+    font-size: .82rem;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%2300ff88' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 10px) center;
+  }
   </style>
 </head>
 <body>
@@ -1193,8 +1381,32 @@
         <a href="/marketplace/login"  class="btn-login">Login</a>
         <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
       </div>
-      <div id="userDropdown" style="display:none;">
-        <span id="navUserName" style="color:var(--primary);font-weight:600;font-size:0.9rem;"></span>
+      <div id="userDropdown" style="display:none;position:relative;">
+        <button onclick="document.getElementById('navDropMenu').classList.toggle('open')"
+          style="display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0;">
+          <div id="navAvatarCircle"
+            style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00c866,#00ff88);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#0a0a0a;overflow:hidden;flex-shrink:0;">
+            <img id="navAvatarImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;" />
+            <span id="navAvatarInitial"></span>
+          </div>
+          <span id="navUserName" style="color:var(--primary);font-weight:600;font-size:0.9rem;"></span>
+          <i class="fas fa-chevron-down" style="font-size:.7rem;color:var(--t2);"></i>
+        </button>
+        <div id="navDropMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--g3);border:1px solid var(--line2);border-radius:12px;min-width:180px;padding:6px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.5);">
+          <a href="/marketplace/dashboard" style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;color:var(--t1);text-decoration:none;font-size:.85rem;transition:background .15s;"
+            onmouseover="this.style.background='rgba(0,255,136,.08)'" onmouseout="this.style.background='none'">
+            <i class="fas fa-th-large" style="color:var(--primary);width:14px;text-align:center;"></i> Dashboard
+          </a>
+          <a href="/marketplace/my-products" style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;color:var(--t1);text-decoration:none;font-size:.85rem;transition:background .15s;"
+            onmouseover="this.style.background='rgba(0,255,136,.08)'" onmouseout="this.style.background='none'">
+            <i class="fas fa-box-open" style="color:var(--primary);width:14px;text-align:center;"></i> My Purchases
+          </a>
+          <hr style="border:none;border-top:1px solid var(--line2);margin:4px 8px;" />
+          <button onclick="logoutUser()" style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:8px;background:none;border:none;color:#ff6b6b;font-size:.85rem;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s;"
+            onmouseover="this.style.background='rgba(255,77,77,.08)'" onmouseout="this.style.background='none'">
+            <i class="fas fa-sign-out-alt" style="width:14px;text-align:center;"></i> Logout
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1254,8 +1466,55 @@
       </div>
     </div>
 
-    <!-- About the Creator — populated by renderStoreHeader if bio/skills/portfolio exist -->
-    <div id="aboutCreator" style="display:none;padding:0 24px;max-width:960px;margin:0 auto;"></div>
+    <!-- ══ PREMIUM CREATOR PROFILE CARD ══ -->
+    <div class="creator-profile-card" id="creatorProfileCard" style="display:none;">
+      <div class="creator-profile-inner">
+
+        <!-- Hero row: avatar · name · meta chips · socials -->
+        <div class="cpc-hero">
+          <div class="cpc-avatar" id="cpcAvatar"></div>
+          <div class="cpc-identity">
+            <div class="cpc-name" id="cpcName"></div>
+            <div class="cpc-role-row">
+              <span class="cpc-role-tag" id="cpcBusinessType" style="display:none;"></span>
+              <span class="cpc-role-tag" style="background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.25);color:var(--amber);" id="cpcExpTag" style="display:none;"></span>
+            </div>
+            <div class="cpc-meta-chips" id="cpcMetaChips"></div>
+            <div class="cpc-social-row" id="cpcSocials"></div>
+          </div>
+        </div>
+
+        <!-- Body: bio column + skills/portfolio column -->
+        <div class="cpc-body" id="cpcBody">
+
+          <!-- Left: bio + website -->
+          <div class="cpc-col" id="cpcColBio">
+            <div class="cpc-section-label"><i class="fas fa-user"></i> About</div>
+            <p class="cpc-bio" id="cpcBio"></p>
+            <a class="cpc-website-link" id="cpcWebsite" href="#" target="_blank" rel="noopener" style="display:none;">
+              <i class="fas fa-globe"></i> <span id="cpcWebsiteLabel"></span>
+            </a>
+          </div>
+
+          <!-- Right: skills + languages + portfolio -->
+          <div class="cpc-col" id="cpcColSkills">
+            <div id="cpcSkillsWrap" style="display:none;">
+              <div class="cpc-section-label"><i class="fas fa-tools"></i> Skills</div>
+              <div class="cpc-skills" id="cpcSkills"></div>
+            </div>
+            <div id="cpcLangsWrap" style="margin-top:16px;display:none;">
+              <div class="cpc-section-label"><i class="fas fa-language"></i> Languages</div>
+              <div class="cpc-languages" id="cpcLangs"></div>
+            </div>
+            <div id="cpcPortfolioWrap" style="margin-top:16px;display:none;">
+              <div class="cpc-section-label"><i class="fas fa-external-link-alt"></i> Portfolio</div>
+              <div class="cpc-portfolio-links" id="cpcPortfolio"></div>
+            </div>
+          </div>
+
+        </div><!-- /cpc-body -->
+      </div><!-- /creator-profile-inner -->
+    </div><!-- /creator-profile-card -->
 
     <!-- Stats -->
     <div class="stats-bar">
@@ -1273,8 +1532,12 @@
           <div class="stat-label">Followers</div>
         </div>
         <div class="stat-box">
-          <div class="stat-number" id="statRating">—</div>
+          <div class="stat-number stat-rating-val" id="statRating">—</div>
           <div class="stat-label">Rating</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="statSince">—</div>
+          <div class="stat-label">Member Since</div>
         </div>
       </div>
     </div>
@@ -1289,8 +1552,7 @@
             <input type="text" id="searchInput" placeholder="Search products…" oninput="filterProducts()" />
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <select id="sortSelect" onchange="applyFilters()"
-              style="padding:8px 14px;background:var(--g3);border:1px solid var(--line2);border-radius:9px;color:var(--t1);font-family:'Montserrat',sans-serif;font-size:.82rem;cursor:pointer;outline:none;appearance:none;padding-right:28px;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%2300ff88' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:calc(100% - 10px) center;">
+            <select id="sortSelect" onchange="applyFilters()">
               <option value="newest">Newest</option>
               <option value="popular">Most Popular</option>
               <option value="price-asc">Price: Low → High</option>
@@ -1500,8 +1762,39 @@
       if (token && user) {
         document.getElementById('guestButtons').style.display  = 'none';
         document.getElementById('userDropdown').style.display  = 'block';
-        document.getElementById('navUserName').textContent = user.fullName?.split(' ')[0] || user.name || 'Account';
+        const firstName = user.fullName?.split(' ')[0] || user.name || 'Account';
+        document.getElementById('navUserName').textContent = firstName;
+
+        // Avatar: use profileImage if available, else initials
+        const avatarImg     = document.getElementById('navAvatarImg');
+        const avatarInitial = document.getElementById('navAvatarInitial');
+        if (user.profileImage) {
+          avatarImg.src = user.profileImage;
+          avatarImg.style.display = 'block';
+          avatarInitial.style.display = 'none';
+        } else {
+          avatarInitial.textContent = firstName.charAt(0).toUpperCase();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', e => {
+          const dd = document.getElementById('navDropMenu');
+          const ud = document.getElementById('userDropdown');
+          if (dd && !ud.contains(e.target)) dd.style.display = 'none';
+        });
+
+        // Toggle open class → display
+        const menu = document.getElementById('navDropMenu');
+        const observer = new MutationObserver(() => {
+          menu.style.display = menu.classList.contains('open') ? 'block' : 'none';
+        });
+        observer.observe(menu, { attributes: true, attributeFilter: ['class'] });
       }
+    }
+
+    function logoutUser() {
+      ['token','user','user_orders','uyehtech_cart','checkout_coupon'].forEach(k => localStorage.removeItem(k));
+      window.location.href = '/marketplace/login';
     }
 
     /* ══════════════════════════════════════════════════
@@ -1520,7 +1813,13 @@
 
       try {
         const controller = new AbortController();
-        const res  = await fetch(`${API_URL}/api/stores/${encodeURIComponent(slug)}`, { signal: controller.signal });
+        const _storeHeaders = {};
+        const _storeTok = localStorage.getItem('token');
+        if (_storeTok) _storeHeaders['Authorization'] = 'Bearer ' + _storeTok;
+        const res  = await fetch(`${API_URL}/api/stores/${encodeURIComponent(slug)}`, {
+          signal: controller.signal,
+          headers: _storeHeaders
+        });
         const data = await res.json();
         clearTimeout(timeoutWarning);
         clearTimeout(timeoutKill);
@@ -1533,14 +1832,8 @@
         creatorData = data.creator;
         allProducts = data.products || [];
         filteredProds = [...allProducts];
-        // Seed symbol from store response so anonymous visitors and fast renders
-        // get the right currency even before fetchUserCurrency resolves.
-        // Seed symbol and rate from store response.
-        // Overwrite only if profile fetch didn't already resolve a real currency
-        // (profile sets currencySymbol away from '$', so the guard below is reliable).
         if (data.symbol && currencySymbol === '$') currencySymbol = data.symbol;
-        if (data.rate   && currencyRate   === 1)   currencyRate   = data.rate;
-
+    
         renderStoreHeader(creatorData);
         renderStats(creatorData);
         renderProducts(filteredProds);
@@ -1563,95 +1856,169 @@
        5. RENDER STORE HEADER
        ══════════════════════════════════════════════════ */
     function renderStoreHeader(c) {
-      // Banner
-      // Banner — always use official platform banner regardless of creator upload
-      const img = document.getElementById('bannerImg');
-      img.src = '/images/official-banner.png';
-      img.style.display = 'block';
+      /* ── Banner — always official platform image ── */
+      const bannerImg = document.getElementById('bannerImg');
+      bannerImg.src = '/images/official-banner.png';
+      bannerImg.style.display = 'block';
 
-      // Logo
+      /* ── Store logo ── */
       if (c.storeLogo) {
         const logo = document.getElementById('storeLogo');
-        logo.src = c.storeLogo; logo.style.display = 'block';
+        logo.src = c.storeLogo;
+        logo.style.display = 'block';
         document.getElementById('storeLogoPlaceholder').style.display = 'none';
       }
 
-      // Name & badges
+      /* ── Store name + verified/featured badges ── */
       document.getElementById('storeName').textContent = c.storeName;
       if (c.isVerified) document.getElementById('verifiedBadge').style.display = 'inline-flex';
       if (c.isFeatured) document.getElementById('featuredBadge').style.display = 'inline-flex';
 
-      // Meta row — full set of creator fields
-      const metaItems = [];
-      if (c.country)          metaItems.push(`<div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${esc(c.country)}</div>`);
-      if (c.businessType)     metaItems.push(`<div class="meta-item"><i class="fas fa-briefcase"></i> ${capitalize(c.businessType)}</div>`);
-      if (c.yearsExperience)  metaItems.push(`<div class="meta-item"><i class="fas fa-star"></i> ${c.yearsExperience} yrs experience</div>`);
-      if (c.languages?.length)metaItems.push(`<div class="meta-item"><i class="fas fa-language"></i> ${c.languages.slice(0,3).join(', ')}</div>`);
-      if (c.approvedAt)       metaItems.push(`<div class="meta-item"><i class="fas fa-calendar"></i> Since ${new Date(c.approvedAt).getFullYear()}</div>`);
-      if (c.categories?.length) metaItems.push(`<div class="meta-item"><i class="fas fa-tag"></i> ${c.categories.slice(0,3).join(', ')}</div>`);
-      document.getElementById('storeMeta').innerHTML = metaItems.join('');
-
-      // Description
+      /* ── Store description (headline under logo) ── */
       if (c.storeDescription) {
         document.getElementById('storeDesc').textContent = c.storeDescription;
       }
 
-     // Social links — full set including TikTok
-      const socials = c.socialLinks || {};
-      const socialMap = {
-        twitter:   { icon: 'fab fa-twitter',      url: u => `https://twitter.com/${u}`    },
-        instagram: { icon: 'fab fa-instagram',     url: u => `https://instagram.com/${u}`  },
-        linkedin:  { icon: 'fab fa-linkedin-in',   url: u => `https://linkedin.com/in/${u}`},
-        youtube:   { icon: 'fab fa-youtube',       url: u => `https://youtube.com/@${u}`  },
-        tiktok:    { icon: 'fab fa-tiktok',        url: u => `https://tiktok.com/@${u}`   },
-        website:   { icon: 'fas fa-globe',         url: u => u                             }
+      /* ── Meta row (categories, business type, location) ── */
+      const metaItems = [];
+      if (c.country)            metaItems.push(`<div class="meta-item"><i class="fas fa-map-marker-alt"></i>${esc(c.country)}</div>`);
+      if (c.businessType)       metaItems.push(`<div class="meta-item"><i class="fas fa-briefcase"></i>${capitalize(c.businessType)}</div>`);
+      if (c.categories?.length) metaItems.push(`<div class="meta-item"><i class="fas fa-tag"></i>${c.categories.slice(0,3).join(', ')}</div>`);
+      document.getElementById('storeMeta').innerHTML = metaItems.join('');
+
+      /* ── Social links on the store header row ── */
+      const socialDefs = {
+        twitter:   { icon: 'fab fa-x-twitter',    build: u => `https://x.com/${u}`             },
+        instagram: { icon: 'fab fa-instagram',     build: u => `https://instagram.com/${u}`     },
+        linkedin:  { icon: 'fab fa-linkedin-in',   build: u => `https://linkedin.com/in/${u}`   },
+        youtube:   { icon: 'fab fa-youtube',       build: u => `https://youtube.com/@${u}`      },
+        tiktok:    { icon: 'fab fa-tiktok',        build: u => `https://tiktok.com/@${u}`       },
+        website:   { icon: 'fas fa-globe',         build: u => u.startsWith('http') ? u : 'https://' + u },
       };
+      const socials = { ...(c.socialLinks || {}) };
       if (c.website) socials.website = c.website;
 
-      const socialHTML = Object.entries(socialMap)
+      const socialHTML = Object.entries(socialDefs)
         .filter(([k]) => socials[k])
-        .map(([k, v]) => `<a href="${v.url(socials[k])}" target="_blank" rel="noopener" class="social-link"><i class="${v.icon}"></i></a>`)
-        .join('');
+        .map(([k, v]) =>
+          `<a href="${esc(v.build(socials[k]))}" target="_blank" rel="noopener" class="social-link" title="${capitalize(k)}">
+             <i class="${v.icon}"></i>
+           </a>`
+        ).join('');
       document.getElementById('socialLinks').innerHTML = socialHTML;
 
-      // ── About the Creator section (bio, skills, portfolio, name/avatar) ──
-      const aboutEl = document.getElementById('aboutCreator');
-      if (aboutEl) {
-        const hasBio        = !!c.bio;
-        const hasSkills     = c.skills?.length > 0;
-        const hasPortfolio  = c.portfolioLinks?.length > 0;
-        const creatorName   = c.userId?.fullName || c.storeName;
-        const creatorAvatar = c.userId?.profileImage || c.storeLogo || null;
+      /* ══════════════════════════════════════════════
+         PREMIUM CREATOR PROFILE CARD
+         All server fields — no hardcodes
+         ══════════════════════════════════════════════ */
+      const creatorName   = c.userId?.fullName || c.storeName;
+      const creatorAvatar = c.userId?.profileImage || c.storeLogo || null;
+      const hasBio        = !!c.bio;
+      const hasSkills     = c.skills?.length > 0;
+      const hasLanguages  = c.languages?.length > 0;
+      const hasPortfolio  = c.portfolioLinks?.length > 0;
+      const hasWebsite    = !!c.website;
+      const hasSocials    = Object.values(socials).some(Boolean);
+      const hasAnyContent = hasBio || hasSkills || hasLanguages || hasPortfolio || hasWebsite || hasSocials || c.yearsExperience || c.businessType;
 
-        if (hasBio || hasSkills || hasPortfolio) {
-          const avatarHTML = creatorAvatar
-            ? `<img src="${esc(creatorAvatar)}" alt="${esc(creatorName)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--line2);">`
-            : `<div style="width:46px;height:46px;border-radius:50%;background:var(--g4);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:1.1rem;color:var(--g);border:2px solid var(--line2);">${creatorName.charAt(0).toUpperCase()}</div>`;
-
-          aboutEl.innerHTML = `
-            <div style="background:var(--ink3);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:22px;">
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:${hasBio?'14px':'0'};">
-                ${avatarHTML}
-                <div>
-                  <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;color:var(--t1);">${esc(creatorName)}</div>
-                  <div style="font-size:.72rem;color:var(--g);font-family:'JetBrains Mono',monospace;margin-top:2px;">Creator</div>
-                </div>
-              </div>
-              ${hasBio ? `<p style="font-size:.84rem;color:var(--t2);line-height:1.65;margin-bottom:${hasSkills||hasPortfolio?'14px':'0'};">${esc(c.bio)}</p>` : ''}
-              ${hasSkills ? `
-                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:${hasPortfolio?'14px':'0'};">
-                  ${c.skills.map(s=>`<span style="background:var(--g3);border:1px solid var(--line2);color:var(--g);font-size:.72rem;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;">${esc(s)}</span>`).join('')}
-                </div>` : ''}
-              ${hasPortfolio ? `
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                  ${c.portfolioLinks.map(pl=>`<a href="${esc(pl.url)}" target="_blank" rel="noopener"
-                    style="font-size:.76rem;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:5px;">
-                    <i class="fas fa-external-link-alt" style="font-size:.65rem;"></i>${esc(pl.label||pl.url)}</a>`).join('')}
-                </div>` : ''}
-            </div>
-            </div>`;
-          aboutEl.style.display = 'block';
+      if (hasAnyContent) {
+        /* ── Avatar ── */
+        const avatarEl = document.getElementById('cpcAvatar');
+        if (creatorAvatar) {
+          avatarEl.innerHTML = `<img src="${esc(creatorAvatar)}" alt="${esc(creatorName)}" />`;
+        } else {
+          avatarEl.textContent = creatorName.charAt(0).toUpperCase();
         }
+
+        /* ── Name ── */
+        document.getElementById('cpcName').textContent = creatorName;
+
+        /* ── Business type tag ── */
+        if (c.businessType) {
+          const btTag = document.getElementById('cpcBusinessType');
+          btTag.textContent = capitalize(c.businessType);
+          btTag.style.display = 'inline-flex';
+        }
+
+        /* ── Experience tag ── */
+        if (c.yearsExperience) {
+          const expTag = document.getElementById('cpcExpTag');
+          expTag.textContent = `${c.yearsExperience} yrs experience`;
+          expTag.style.display = 'inline-flex';
+        }
+
+        /* ── Meta chips: country, categories, joined year ── */
+        const chips = [];
+        if (c.country)
+          chips.push(`<span class="cpc-chip"><i class="fas fa-map-marker-alt"></i>${esc(c.country)}</span>`);
+        if (c.categories?.length)
+          c.categories.slice(0, 4).forEach(cat =>
+            chips.push(`<span class="cpc-chip"><i class="fas fa-tag"></i>${esc(cat)}</span>`)
+          );
+        if (c.approvedAt)
+          chips.push(`<span class="cpc-chip"><i class="fas fa-calendar-check"></i>Since ${new Date(c.approvedAt).getFullYear()}</span>`);
+        document.getElementById('cpcMetaChips').innerHTML = chips.join('');
+
+        /* ── Social buttons in profile card ── */
+        const socialBtns = Object.entries(socialDefs)
+          .filter(([k]) => socials[k])
+          .map(([k, v]) =>
+            `<a href="${esc(v.build(socials[k]))}" target="_blank" rel="noopener" class="cpc-social-btn" title="${capitalize(k)}">
+               <i class="${v.icon}"></i>
+             </a>`
+          ).join('');
+        document.getElementById('cpcSocials').innerHTML = socialBtns;
+
+        /* ── Bio column ── */
+        if (hasBio) {
+          document.getElementById('cpcBio').textContent = c.bio;
+        } else {
+          document.getElementById('cpcColBio').style.display = 'none';
+        }
+
+        /* ── Website link inside bio column ── */
+        if (hasWebsite) {
+          const wsEl = document.getElementById('cpcWebsite');
+          wsEl.href = socials.website || c.website;
+          let wsLabel = c.website || socials.website || '';
+          wsLabel = wsLabel.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+          document.getElementById('cpcWebsiteLabel').textContent = wsLabel;
+          wsEl.style.display = 'inline-flex';
+        }
+
+        /* ── Skills ── */
+        if (hasSkills) {
+          document.getElementById('cpcSkillsWrap').style.display = 'block';
+          document.getElementById('cpcSkills').innerHTML =
+            c.skills.map(s => `<span class="cpc-skill-tag">${esc(s)}</span>`).join('');
+        }
+
+        /* ── Languages ── */
+        if (hasLanguages) {
+          document.getElementById('cpcLangsWrap').style.display = 'block';
+          document.getElementById('cpcLangs').innerHTML =
+            c.languages.map(l => `<span class="cpc-lang-tag">${esc(l)}</span>`).join('');
+        }
+
+        /* ── Portfolio links ── */
+        if (hasPortfolio) {
+          document.getElementById('cpcPortfolioWrap').style.display = 'block';
+          document.getElementById('cpcPortfolio').innerHTML =
+            c.portfolioLinks.map(pl =>
+              `<a href="${esc(pl.url)}" target="_blank" rel="noopener" class="cpc-portfolio-link">
+                 <i class="fas fa-external-link-alt"></i>${esc(pl.label || pl.url)}
+               </a>`
+            ).join('');
+        }
+
+        /* ── If right column has nothing to show, hide it ── */
+        if (!hasSkills && !hasLanguages && !hasPortfolio) {
+          document.getElementById('cpcColSkills').style.display = 'none';
+          /* Single-column layout — remove grid */
+          document.getElementById('cpcBody').style.gridTemplateColumns = '1fr';
+        }
+
+        document.getElementById('creatorProfileCard').style.display = 'block';
       }
     }
 
@@ -1662,12 +2029,32 @@
       document.getElementById('statProducts').textContent  = (c.totalProducts || allProducts.length).toLocaleString();
       document.getElementById('statSales').textContent     = (c.totalSales    || 0).toLocaleString();
       document.getElementById('statFollowers').textContent = (c.followerCount  || 0).toLocaleString();
+
+      /* ── Rating: fully dynamic, no hardcoded strings ── */
       const ratingEl = document.getElementById('statRating');
       if (c.rating && c.totalRatings) {
-        ratingEl.innerHTML = `${c.rating.toFixed(1)} <span style="color:var(--amber)">★</span>
-          <span style="font-size:.65rem;color:var(--t3);display:block;">(${c.totalRatings})</span>`;
+        /* Has ratings — show value + star + count */
+        ratingEl.innerHTML =
+          `${c.rating.toFixed(1)}&thinsp;<span style="color:var(--amber);">★</span>` +
+          `<span style="font-size:.62rem;color:var(--t3);display:block;margin-top:2px;">(${c.totalRatings.toLocaleString()} review${c.totalRatings !== 1 ? 's' : ''})</span>`;
+      } else if (c.rating) {
+        /* Rating stored but no review count yet */
+        ratingEl.innerHTML = `${c.rating.toFixed(1)}&thinsp;<span style="color:var(--amber);">★</span>`;
       } else {
-        ratingEl.textContent = c.rating ? `${c.rating.toFixed(1)} ★` : 'New';
+        /* No ratings yet — invite instead of hardcoding "New" */
+        ratingEl.innerHTML =
+          `<span style="font-size:1rem;color:var(--amber);">★</span>` +
+          `<span class="stat-rating-new">Be the first<br>to review</span>`;
+      }
+
+      /* ── Member Since: derived from approvedAt ── */
+      const sinceEl = document.getElementById('statSince');
+      if (c.approvedAt) {
+        const d = new Date(c.approvedAt);
+        sinceEl.textContent = d.getFullYear();
+        sinceEl.title = d.toLocaleDateString([], { month: 'long', year: 'numeric' });
+      } else {
+        sinceEl.textContent = '—';
       }
     }
 
