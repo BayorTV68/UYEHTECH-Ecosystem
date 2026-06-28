@@ -33,12 +33,12 @@
   const _CW_WS  = 'wss://uyehtechbackend.onrender.com/wss';
 
   /* Pages where the widget should NOT appear */
-  const _CW_EXCLUDE = ['/agent-login', '/agent-dashboard', '/admin'];
+  const _CW_EXCLUDE = ['/agent-login', '/agent-dashboard', '/chat'];
 
   /* ── Guard: skip excluded pages ── */
   if (_CW_EXCLUDE.some(p => location.pathname.startsWith(p))) return;
 
-  /* ── Guard: only inject once ── */
+  /* ── Guard: only inject once ── *
   if (document.getElementById('uyeh-cw-root')) return;
 
   /* ═══════════════════════════════════════════════════════════
@@ -60,7 +60,7 @@
 /* ── tokens ── */
 #uyeh-cw-root{--cw-g:#00ff88;--cw-g2:#00c866;--cw-ink:#0a0a0a;--cw-surface:#111;--cw-panel:#181818;--cw-card:#1e1e1e;--cw-rim:rgba(0,255,136,.18);--cw-rim2:rgba(255,255,255,.07);--cw-text:#f0f0f0;--cw-muted:#888;--cw-danger:#ff4d4d;--cw-warn:#ffaa00;--cw-r:14px;--cw-r2:20px;--cw-ease:cubic-bezier(.4,0,.2,1);font-family:'Montserrat',sans-serif}
 /* toggle button */
-#uyeh-cw-btn{position:fixed;bottom:24px;right:24px;z-index:99999;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--cw-g2),var(--cw-g));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,255,136,.35);transition:transform .2s var(--cw-ease),box-shadow .2s var(--cw-ease)}
+#uyeh-cw-btn{position:fixed;bottom:90px;right:24px;z-index:99999;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--cw-g2),var(--cw-g));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,255,136,.35);transition:transform .2s var(--cw-ease),box-shadow .2s var(--cw-ease)}
 #uyeh-cw-btn:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(0,255,136,.45)}
 #uyeh-cw-btn .cw-ico{font-size:22px;color:var(--cw-ink);transition:all .25s;position:absolute}
 #uyeh-cw-btn .cw-ico-open{opacity:1;transform:scale(1)}
@@ -70,9 +70,9 @@
 #uyeh-cw-notif{position:absolute;top:-2px;right:-2px;width:20px;height:20px;background:var(--cw-danger);border:2px solid var(--cw-ink);border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:none;align-items:center;justify-content:center}
 #uyeh-cw-notif.show{display:flex}
 /* window */
-#uyeh-cw-win{position:fixed;bottom:94px;right:24px;z-index:99998;width:380px;max-height:620px;background:var(--cw-surface);border:1px solid var(--cw-rim);border-radius:var(--cw-r2);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7);transform-origin:bottom right;transform:scale(.92) translateY(12px);opacity:0;pointer-events:none;transition:transform .28s var(--cw-ease),opacity .28s var(--cw-ease)}
+#uyeh-cw-win{position:fixed;bottom:160px;right:24px;z-index:99998;width:380px;max-height:620px;background:var(--cw-surface);border:1px solid var(--cw-rim);border-radius:var(--cw-r2);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7);transform-origin:bottom right;transform:scale(.92) translateY(12px);opacity:0;pointer-events:none;transition:transform .28s var(--cw-ease),opacity .28s var(--cw-ease)}
 #uyeh-cw-root.cw-open #uyeh-cw-win{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
-@media(max-width:440px){#uyeh-cw-win{width:calc(100vw - 32px);right:16px;bottom:88px;max-height:80vh}}
+@media(max-width:440px){#uyeh-cw-btn{bottom:80px;right:16px}#uyeh-cw-win{width:calc(100vw - 32px);right:16px;bottom:150px;max-height:75vh}}
 /* header */
 #uyeh-cw-hdr{background:linear-gradient(135deg,var(--cw-g2),var(--cw-g));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .cw-hdr-l{display:flex;align-items:center;gap:10px}
@@ -1092,8 +1092,14 @@
     _custEmail = localStorage.getItem('uyeh_customerEmail');
 
     if (_chatId && _custId) {
-      // Restore previous chat across page navigation
-      fetch(`${_CW_API}/api/chat/${_chatId}`)
+      // Restore previous chat across page navigation / refresh
+      // Pass token if present so logged-in users are recognised;
+      // optionalAuth on the server means guests (no token) also get through.
+      const _restoreHeaders = { 'Content-Type': 'application/json' };
+      const _restoreTok = _tok();
+      if (_restoreTok) _restoreHeaders['Authorization'] = 'Bearer ' + _restoreTok;
+
+      fetch(`${_CW_API}/api/chat/${_chatId}`, { headers: _restoreHeaders })
         .then(r => r.json())
         .then(d => {
           if (d.success && d.chat && !['closed','resolved'].includes(d.chat.status)) {
@@ -1107,12 +1113,24 @@
             }
             _connectWS();
           } else {
-            _clearSession();
-            _showWelcome();
-            _setupWelcomeForm();
+            // Chat closed/resolved server-side — clean up gracefully, don't wipe on network errors
+            if (d.success === false && !d.message?.includes('not found')) {
+              // Network/auth hiccup — keep session, try again next open
+              _showPanel();
+            } else {
+              _clearSession();
+              _showWelcome();
+              _setupWelcomeForm();
+            }
           }
         })
-        .catch(() => { _clearSession(); _showWelcome(); _setupWelcomeForm(); });
+        .catch(() => {
+          // Network error (Render cold start, offline) — keep localStorage session intact,
+          // show panel with a reconnect banner rather than wiping everything
+          _showPanel();
+          _banner('Reconnecting to your chat…', 'warn');
+          setTimeout(_boot, 5000); // retry once after 5 s
+        });
     } else {
       _showWelcome();
       _setupWelcomeForm();
