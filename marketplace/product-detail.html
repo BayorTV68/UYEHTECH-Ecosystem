@@ -529,6 +529,24 @@ async function boot() {
   STATE.product = cached.find(p => String(p.productId) === String(STATE.productId)) || null;
   if (STATE.product) applyCardData(STATE.product);
 
+  // If the cache entry is missing (direct URL, refresh, first visit, post-upgrade cache bust),
+  // fetch my-products now so displayPrice (with user currency) is available before rendering.
+  // This is the fix for the currency crash: STATE.product must never be null when renderAll() runs.
+  if (!STATE.product) {
+    try {
+      const mpRes = await fetch(`${API}/api/orders/my-products`, { headers: authH() });
+      const mpData = await mpRes.json();
+      if (mpData.success && mpData.products?.length) {
+        // Refresh the cache and find this product
+        localStorage.setItem('_lib_cache', JSON.stringify(mpData.products));
+        STATE.product = mpData.products.find(p => String(p.productId) === String(STATE.productId)) || null;
+        if (STATE.product) applyCardData(STATE.product);
+      }
+    } catch (_) {
+      // Non-fatal — media-access will still load; prices may show in USD fallback
+    }
+  }
+
   const isCourse = STATE.product?.productType === 'course';
   const [access] = await Promise.all([
     fetchAccess(),
@@ -559,25 +577,33 @@ function ls(k)   { return localStorage.getItem(k); }
 function token() { return ls('token'); }
 function authH() { return {'Authorization':`Bearer ${token()}`,'Content-Type':'application/json'}; }
 
-// Currency helpers — use displayPrice from the cached my-products entry when available,
-// otherwise fall back to raw price with the user's stored currency symbol.
+// Currency helpers — derive symbol and rate entirely from the server's
+// resolved displayPrice (set by my-products using req.userCurrency).
+// Fallback reads the correct field names the login endpoint actually sends:
+//   user.currencySymbol (e.g. '₦') and user.currency (e.g. 'NGN').
+// _rate fallback is 1 — safe because the fallback is only hit when
+// STATE.product is null AND there is no displayPrice, i.e. we have no
+// conversion context at all. The boot() fix (PATCH 2) prevents this path
+// from being reached under normal conditions.
 function _curSym() {
   return STATE.product?.displayPrice?.symbol
-    || (()=>{ try { return JSON.parse(ls('user') || '{}')._symbol || '₦'; } catch { return '₦'; } })();
+    || (()=>{ try { return JSON.parse(ls('user') || '{}').currencySymbol || '$'; } catch { return '$'; } })();
 }
 function _curRate() {
-  // If we have a displayPrice, prefer its converted/raw ratio to avoid double-converting
+  // Always use displayPrice ratio — it was already converted server-side
   const dp = STATE.product?.displayPrice;
   if (dp && dp.raw > 0) return dp.converted / dp.raw;
-  try { return JSON.parse(ls('user') || '{}')._rate || 1; } catch { return 1; }
+  // No displayPrice available — rate unknown, show raw USD value with correct symbol
+  return 1;
 }
 function fmtPrice(usdAmount) {
   const dp = STATE.product?.displayPrice;
   if (dp) {
-    // Prices other than the main purchase price (e.g. comparePrice) need scaling
+    // Scale any price (comparePrice, etc.) using the same conversion ratio
     const rate = dp.raw > 0 ? dp.converted / dp.raw : 1;
     return `${dp.symbol}${Number(usdAmount * rate).toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2})}`;
   }
+  // Fallback: user object in localStorage has currencySymbol from login response
   return `${_curSym()}${Number(usdAmount * _curRate()).toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2})}`;
 }
 
@@ -1585,6 +1611,9 @@ function renderPlayer(ch) {
 
   // Always prefer the dedicated split audio field.
   // embedType (collapsed) may point to video type — use ch.embedAudioType for audio lookups.
+  // Declare audioEmbedType FIRST so the SoundCloud block below can reference it safely.
+  const audioEmbedType = ch.embedAudioType || (AUDIO_EMBED_TYPES.includes(embedType || '') ? embedType : null) || '';
+
   let embedSrc = ch.embedAudioUrl || (AUDIO_EMBED_TYPES.includes(ch.embedAudioType || '') ? embedUrl : null) || embedUrl;
 
   // SoundCloud page URLs must be converted to the widget player URL.
@@ -1597,7 +1626,6 @@ function renderPlayer(ch) {
         + '&color=%2300ff88&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false';
     }
   }
-  const audioEmbedType = ch.embedAudioType || (AUDIO_EMBED_TYPES.includes(embedType || '') ? embedType : null) || '';
 
   if (playerType === 'soundcloud_widget' || AUDIO_EMBED_TYPES.includes(audioEmbedType)) {
     if (!embedSrc) { setPlayerEmpty('No audio URL for this chapter.'); return; }
