@@ -116,11 +116,21 @@
    <!-- Performance & Optimization -->
     <link rel="preload" href="styles.css" as="style">
     <link rel="stylesheet" href="styles.css">
-    <script src="search.js" defer></script>
+    <script src="/search.js" defer></script>
 
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+         <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
      <script src="/site-controller.js" defer></script>
     <style>
 
@@ -3899,7 +3909,9 @@ console.log('✅ Cookie System v2.0 Loaded');
 console.log('💡 Commands: cookieSystem.getStatus(), cookieSystem.reset()');
 </script>
 
-     
+<script src="/pwa-install.js"></script>
+<script src="/chat-widget.js"></script>
+    
 </body>
 </html>
 
