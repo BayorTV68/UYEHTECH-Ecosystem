@@ -6,7 +6,17 @@
     <title>404 - Page Not Found | UYEH TECH</title>
     <meta name="description" content="Sorry, the page you're looking for doesn't exist.">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+         <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
 
+     <script src="/site-controller.js" defer></script>
     <style>
 /* ========== RESET & BASE ========== */
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -721,5 +731,9 @@ if (typeof gtag !== 'undefined') {
   });
 }
 </script>
+
+<script src="/pwa-install.js"></script>
+<script src="/chat-widget.js"></script>
+
 </body>
 </html>

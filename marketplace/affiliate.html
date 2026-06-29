@@ -20,8 +20,19 @@
   <meta name="robots" content="index, follow">
   <meta name="author" content="UYEH TECH">
   <meta name="theme-color" content="#00ff88">
-  <script src="/site-controller.js" defer></script>
-<style>
+      
+         <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+
+     <script src="/site-controller.js" defer></script>
+     <style>
 :root{
   --g:#00ff88;--g2:#00c96a;--g3:rgba(0,255,136,.08);--g4:rgba(0,255,136,.14);--g5:rgba(0,255,136,.22);
   --ink:#07090c;--ink2:#0c0f14;--ink3:#111620;--ink4:#18202e;--card:#0e1318;
@@ -1298,5 +1309,9 @@ function fmtDate(d){if(!d)return'—';const dt=new Date(d);return dt.toLocaleDat
 function emptyRow(msg,cols,icon='fas fa-inbox'){return `<tr class="empty-row"><td colspan="${cols}"><i class="${icon}"></i>${msg}</td></tr>`;}
 function toast(msg,type='ok'){const c=document.getElementById('toast'),d=document.createElement('div');d.className=`t-item ${type}`;const icon=type==='ok'?'fa-circle-check':type==='err'?'fa-circle-xmark':'fa-circle-info';d.innerHTML=`<i class="fas ${icon}"></i>${esc(msg)}`;c.appendChild(d);setTimeout(()=>d.remove(),4000);}
 </script>
+
+<script src="/pwa-install.js"></script>
+<script src="/chat-widget.js"></script>
+
 </body>
 </html>

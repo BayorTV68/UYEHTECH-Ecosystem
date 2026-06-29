@@ -7,6 +7,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <script src="/site-controller.js" defer></script>
+        <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+
 <style>
 :root {
   --ink:        #060810;
@@ -1009,5 +1020,9 @@ function hideAlert() { document.getElementById('applyAlert').classList.remove('s
 function togglePw(id, btn) { const f=document.getElementById(id); const i=btn.querySelector('i'); f.type=f.type==='password'?'text':'password'; i.className=f.type==='password'?'fas fa-eye':'fas fa-eye-slash'; }
 function toggleFaq(el) { const item=el.closest('.faq-item'); const isOpen=item.classList.contains('open'); document.querySelectorAll('.faq-item').forEach(f=>f.classList.remove('open')); if(!isOpen) item.classList.add('open'); }
 </script>
+
+<script src="/pwa-install.js"></script>
+<script src="/chat-widget.js"></script>
+
 </body>
 </html>

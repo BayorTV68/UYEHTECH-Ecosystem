@@ -6,10 +6,20 @@
   <title>Sign Up — UYEH TECH</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <script src="/site-controller.js" defer></script>
+          <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+
+     <script src="/site-controller.js" defer></script>
 <style>
 :root{
-  --g:#00ff88;--g2:#00c96a;--g3:rgba(0,255,136,.08);--g4:rgba(0,255,136,.14);
+  --g:#00ff88;--g2:#00c96a;--g3:rgba(36, 71, 55, 0.08);--g4:rgba(0,255,136,.14);
   --ink:#080a0c;--ink2:#0d1018;--line:rgba(255,255,255,.07);--line2:rgba(0,255,136,.2);
   --t1:#e8edf2;--t2:#8a96a8;--t3:#4a5568;
   --red:#ff4d4d;--warn:#ffaa00;--ease:cubic-bezier(.4,0,.2,1);
@@ -778,5 +788,7 @@ window.addEventListener('pageshow', e => {
   if (e.persisted && localStorage.getItem('token')) window.location.replace('/marketplace/dashboard');
 });
 </script>
+<script src="/pwa-install.js"></script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>
