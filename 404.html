@@ -115,8 +115,17 @@
 
 <!-- Performance & Optimization -->
     <script src="search.js" defer></script>
-    <script src="/site-controller.js" defer></script>
-       
+              <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+
+     <script src="/site-controller.js" defer></script>      
 <style>
 /* ========== RESET ========== */
 * {
@@ -7447,5 +7456,6 @@ window.addEventListener('load', function() {
     setTimeout(initAOS, 5000);
 }());
 </script>
+<script src="/pwa-install.js"></script>
 </body>
 </html>

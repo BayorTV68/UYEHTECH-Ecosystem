@@ -2763,7 +2763,7 @@ input:disabled + .cookie-slider {
      <nav data-aos="fade-down" data-aos-duration="800">
         <!-- Logo -->
         <a href="/index.html" data-aos="zoom-in" data-aos-delay="200">
-            <img src="/images/uyehtech logo.png" width="50px" height="50px" alt="UYEH TECH">
+            <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH">
         </a>
         
            <!-- Navigation Links -->
@@ -2942,7 +2942,7 @@ input:disabled + .cookie-slider {
 
     <!-- Subheadline -->
     <p class="hero-sub"><em>
-     ...Explore the UYEH TECH Ecosystem - shop, create, earn, connect, learn, and share in one automated platofrm
+     ...Explore the UYEH TECH Ecosystem :- shop, create, earn, connect, learn, and share in one automated platform.
       Every role matters.
     </em> </p>
 
@@ -4255,6 +4255,30 @@ input:disabled + .cookie-slider {
 .uyeh-nl-btn:disabled { opacity:.6;cursor:not-allowed; }
 .uyeh-nl-msg { font-size:.95rem;font-weight:600;padding:10px 0; }
 .uyeh-nl-guarantee { font-size:.8rem;color:rgba(255,255,255,.45);margin:14px 0 0; }
+
+/* ── STICKY BANNER (Option A) ── */
+.uyeh-nl-sticky-banner {
+  position:fixed; top:0; left:0; right:0; z-index:9999;
+  background:linear-gradient(135deg,#6366f1,#4f46e5);
+  padding:14px 24px; color:#fff; font-weight:600; font-size:.95rem;
+  display:flex; align-items:center; gap:16px; justify-content:space-between;
+  box-shadow:0 4px 16px rgba(79,70,229,.4);
+  animation:uyehSlideDown .3s ease-out;
+}
+.uyeh-nl-sticky-content { display:flex; align-items:center; gap:12px; flex:1; }
+.uyeh-nl-sticky-actions { display:flex; align-items:center; gap:12px; }
+.uyeh-nl-sticky-cta {
+  background:#fff; color:#4f46e5; border:none; padding:8px 16px;
+  border-radius:6px; font-weight:600; font-size:.85rem; cursor:pointer;
+  transition:all .2s;
+}
+.uyeh-nl-sticky-cta:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(79,70,229,.4); }
+.uyeh-nl-sticky-close {
+  background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;
+  opacity:.8; transition:opacity .2s;
+}
+.uyeh-nl-sticky-close:hover { opacity:1; }
+@keyframes uyehSlideDown { from { transform:translateY(-100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
 </style>
 <script>
 /* ── UYEH TECH Newsletter (backend double opt-in) ── */
@@ -4271,6 +4295,8 @@ async function uyehSubscribe(emailId, btnId, msgId, formId) {
     }
     btn.disabled = true;
     btn.innerHTML = '<span>Sending…</span>';
+    // Clear any previous messages
+    document.querySelector('.uyeh-nl-sticky-banner')?.remove();
     try {
         var r = await fetch(UYEH_API_BASE + '/api/newsletter/subscribe', {
             method: 'POST',
@@ -4280,10 +4306,10 @@ async function uyehSubscribe(emailId, btnId, msgId, formId) {
         var d = await r.json();
         if (d.success) {
             if (formEl) formEl.style.display = 'none';
-            uyehNlMsg(msgEl, '📬 Check your inbox! Confirmation email sent.', '#22c55e');
+            uyehNlMsg(msgEl, '📬 Check your inbox! We sent you a confirmation email.', '#22c55e');
             localStorage.setItem(UYEH_NL_STORAGE, 'pending');
             // close popup if this is the popup form
-            if (formId === 'uyehNlForm2') { setTimeout(uyehHidePopup, 3000); }
+            if (formId === 'uyehNlForm2') { setTimeout(uyehHidePopup, 5000); }
         } else {
             btn.disabled = false;
             btn.innerHTML = '<span>Subscribe Now →</span>';
@@ -4297,10 +4323,53 @@ async function uyehSubscribe(emailId, btnId, msgId, formId) {
 }
 
 function uyehNlMsg(el, text, color) {
-    if (!el) return;
-    el.style.display = 'block';
-    el.style.color   = color;
-    el.textContent   = text;
+    // Remove existing banner if any
+    const existing = document.querySelector('.uyeh-nl-sticky-banner');
+    if (existing) existing.remove();
+    
+    // Create sticky banner
+    const banner = document.createElement('div');
+    banner.className = 'uyeh-nl-sticky-banner';
+    
+    const content = document.createElement('div');
+    content.className = 'uyeh-nl-sticky-content';
+    
+    // Determine icon based on color
+    let icon = 'ℹ️';
+    if (color === '#22c55e') icon = '✅';
+    else if (color === '#ef4444') icon = '❌';
+    
+    content.innerHTML = `<span>${icon}</span><span>${text}</span>`;
+    
+    const actions = document.createElement('div');
+    actions.className = 'uyeh-nl-sticky-actions';
+    
+    // Add CTA button for success only
+    if (color === '#22c55e') {
+        const cta = document.createElement('button');
+        cta.className = 'uyeh-nl-sticky-cta';
+        cta.textContent = 'Start Reading';
+        cta.onclick = () => { window.location.href = '/blog'; };
+        actions.appendChild(cta);
+    }
+    
+    // Add close button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'uyeh-nl-sticky-close';
+    closeBtn.innerHTML = '×';
+    closeBtn.onclick = () => banner.remove();
+    actions.appendChild(closeBtn);
+    
+    banner.appendChild(content);
+    banner.appendChild(actions);
+    document.body.insertBefore(banner, document.body.firstChild);
+    
+    // Auto-dismiss after 5 seconds (errors 7 seconds)
+    const delay = (color === '#ef4444') ? 7000 : 5000;
+    const timeout = setTimeout(() => banner.remove(), delay);
+    
+    // Clear timeout on manual close
+    closeBtn.onclick = () => { clearTimeout(timeout); banner.remove(); };
 }
 
 /* ── Popup logic ── */
@@ -4335,12 +4404,13 @@ function uyehNlMsg(el, text, color) {
         var nl = p.get('nl');
         if (!nl) return;
         var color = nl === 'confirmed' ? '#22c55e' : nl === 'unsubscribed' ? '#4f46e5' : '#ef4444';
-        var text  = { confirmed:'🎉 You\'re subscribed! Welcome.', unsubscribed:'👋 Unsubscribed successfully.', invalid:'⚠️ Link invalid or expired.', error:'❌ Something went wrong.' }[nl] || '';
+        var text  = { confirmed:'🎉 You\'re subscribed! Welcome to UYEH TECH.', unsubscribed:'👋 You\'ve been unsubscribed successfully.', invalid:'⚠️ That confirmation link is invalid or expired.', error:'❌ Something went wrong. Please try again.' }[nl] || '';
         if (!text) return;
         setTimeout(function () {
             var el = document.getElementById('uyehNlMsg1');
             var f  = document.getElementById('uyehNlForm1');
-            if (el) { el.style.display='block'; el.style.color=color; el.textContent=text; }
+            // Use sticky banner for all feedback
+            uyehNlMsg(el, text, color);
             if (nl==='confirmed' && f) f.style.display='none';
             localStorage.setItem(UYEH_NL_STORAGE, nl==='confirmed' ? 'active' : 'pending');
             var url = new URL(location.href); url.searchParams.delete('nl'); history.replaceState({}, '', url);
@@ -6558,7 +6628,7 @@ if (window.matchMedia('(display-mode: standalone)').matches || navigator.standal
   if (btn) btn.style.display = 'none';
 }
 </script>
-  <script src="/chat-widget.js"></script>
 <script src="/pwa-install.js"></script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>
