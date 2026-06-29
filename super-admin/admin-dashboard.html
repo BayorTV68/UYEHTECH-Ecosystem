@@ -19,7 +19,15 @@
   <meta name="theme-color" content="#00ff88">
    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+                 <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#00ff88">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UYEH TECH">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
     <!-- Link to external CSS files -->
 <style>
 
@@ -10859,6 +10867,64 @@ function renderSettingsTab(tab, s) {
         // ── PAYMENTS ──────────────────────────────────────────────────────
         payments: `
             <div class="st-panel">
+
+                ${sectionHd('💱', 'Currency Display', 'Control how prices are shown across the platform')}
+
+                <div style="display:flex;flex-direction:column;gap:0;margin-bottom:28px;">
+
+                    <!-- Enable Currency Display toggle -->
+                    <div class="st-toggle-row" id="enableCurrencyDisplayRow">
+                        <div>
+                            <div class="st-toggle-label">
+                                <i class="fas fa-globe" style="color:var(--primary);margin-right:6px;"></i>
+                                Multi-Currency Display
+                            </div>
+                            <div class="st-toggle-desc">
+                                When ON — prices are shown in each visitor's local currency (NGN, USD, GBP, etc.).<br>
+                                When OFF — all prices are forced to USD for everyone, no conversion.
+                            </div>
+                        </div>
+                        <label class="uyeh-toggle">
+                            <input type="checkbox" name="enableCurrencyDisplay" id="enableCurrencyDisplayToggle"
+                                   ${s.enableCurrencyDisplay !== false ? 'checked' : ''}>
+                            <span class="uyeh-toggle-track"></span>
+                        </label>
+                    </div>
+
+                    <!-- Base Currency selector -->
+                    <div class="st-toggle-row" id="baseCurrencyRow">
+                        <div>
+                            <div class="st-toggle-label">
+                                <i class="fas fa-coins" style="color:var(--primary);margin-right:6px;"></i>
+                                Base / Fallback Currency
+                            </div>
+                            <div class="st-toggle-desc">
+                                The currency used when visitor location cannot be determined,
+                                or when multi-currency display is disabled above.
+                            </div>
+                        </div>
+                        <select name="baseCurrency" id="baseCurrencySelect"
+                            style="padding:9px 14px;border-radius:9px;background:var(--dark-mid);
+                                   border:1px solid rgba(0,255,136,.25);color:var(--gray-light);
+                                   font-family:inherit;font-size:.85rem;outline:none;min-width:120px;cursor:pointer;">
+                            ${[
+                                ['USD','$ USD — US Dollar'],
+                                ['NGN','₦ NGN — Nigerian Naira'],
+                                ['GBP','£ GBP — British Pound'],
+                                ['EUR','€ EUR — Euro'],
+                                ['GHS','₵ GHS — Ghana Cedi'],
+                                ['KES','KSh KES — Kenyan Shilling'],
+                                ['ZAR','R ZAR — South African Rand'],
+                                ['CAD','CA$ CAD — Canadian Dollar'],
+                                ['AUD','A$ AUD — Australian Dollar'],
+                            ].map(([code, label]) =>
+                                `<option value="${code}" ${(s.baseCurrency || 'USD') === code ? 'selected' : ''}>${label}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+
+                </div>
+
                 ${sectionHd('💳', 'Payment Gateways', 'Enable or disable payment processors')}
                 ${alertBox('warning', 'fas fa-exclamation-triangle',
                     'Disabling a gateway here blocks it at the API level — the frontend checkout will not offer it as an option. Make sure at least one gateway is active.')}
@@ -11283,6 +11349,7 @@ async function saveSettings() {
         'allowRegistration', 'requireEmailVerification', 'allowGuestCheckout',
         'storeEnabled', 'blogEnabled', 'chatEnabled', 'creatorEnabled', 'affiliatesEnabled',
         'bannerEnabled', 'bannerDismissible',
+        'enableCurrencyDisplay',   // ← top-level field, not nested under paymentSettings
     ];
     boolFields.forEach(f => {
         payload[f] = payload[f] === 'on' || payload[f] === 'true' || payload[f] === true;
@@ -18185,6 +18252,6 @@ if (!document.getElementById('logsFadeKeyframe')) {
  
 
 </script>
-   
+<script src="/pwa-install.js"></script>
 </body>
 </html>
