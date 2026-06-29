@@ -641,7 +641,7 @@ async function fetchAccess() {
       const isOrderMismatch = msg.toLowerCase().includes('not part') || msg.toLowerCase().includes('not found');
       showFatal(
         isOrderMismatch
-          ? `${msg} — This sometimes happens when a product was recently updated. <a href="/marketplace/my-products" style="color:var(--g);text-decoration:underline">Return to your library</a> and re-open the product.`
+          ? { html: `${esc(msg)} — This sometimes happens when a product was recently updated. <a href="/marketplace/my-products" style="color:var(--g);text-decoration:underline">Return to your library</a> and re-open the product.` }
           : msg
       );
       return null;
@@ -2748,12 +2748,16 @@ function toast(msg, type='info') {
     setTimeout(()=>el.remove(),300);
   }, 3500);
 }
+// msg can be a plain string (HTML-encoded) or { html: '...' } for trusted markup.
 function showFatal(msg) {
+  const display = (msg && typeof msg === 'object' && msg.html)
+    ? msg.html
+    : esc(typeof msg === 'string' ? msg : String(msg || ''));
   ge('playerZone').innerHTML = `
     <div class="player-empty" style="min-height:260px">
       <div class="pe-icon" style="color:var(--red);opacity:.6"><i class="fas fa-triangle-exclamation"></i></div>
       <div style="font-weight:600;margin-bottom:4px">Access Error</div>
-      <div style="font-size:.8rem;color:var(--t3);max-width:320px;text-align:center">${esc(msg)}</div>
+      <div style="font-size:.8rem;color:var(--t3);max-width:320px;text-align:center">${display}</div>
       <a href="/marketplace/my-products" class="btn btn-ghost btn-sm" style="margin-top:12px">← Back to Library</a>
     </div>`;
   ge('tbTitle').textContent = 'Error';
