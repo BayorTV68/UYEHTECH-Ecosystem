@@ -643,8 +643,14 @@
         $('uyeh-cw-aname').textContent = a.fullName || 'Support Agent';
         _sysMsg((a.fullName || 'An agent') + ' has joined the chat 👋');
       }
-      if (d.type === 'chat_ended') {
+      if (d.type === 'chat_ended' || d.type === 'chat_closed' || d.type === 'chat_resolved') {
         _status('Chat ended', 'offline');
+        // The chat record itself is untouched server-side — it stays in
+        // MongoDB permanently for the agent/admin to reference. We only
+        // clear what belongs to the customer: their local cache and the
+        // ability for "active chat" lookups to find this conversation again.
+        ['uyeh_chatId','uyeh_customerId','uyeh_customerName','uyeh_customerEmail']
+          .forEach(k => localStorage.removeItem(k));
         $('uyeh-cw-rating').classList.add('show');
       }
       if (d.type === 'message_reaction' && d.messageId) {
@@ -1054,7 +1060,8 @@
         headers: { 'Content-Type': 'application/json', ..._authHdr() },
         body: '{}'
       });
-    } catch (_) {}
+    } catch (_) {
+        }
     _resetToWelcome();
     $('uyeh-cw-rating').classList.add('show');
   }
@@ -1085,56 +1092,113 @@
   function _boot() {
     _bindEvents();
 
-    // Restore active session
-    _chatId    = localStorage.getItem('uyeh_chatId');
-    _custId    = localStorage.getItem('uyeh_customerId');
-    _custName  = localStorage.getItem('uyeh_customerName');
-    _custEmail = localStorage.getItem('uyeh_customerEmail');
+    const loggedInUser = _getUser();
 
-    if (_chatId && _custId) {
-      // Restore previous chat across page navigation / refresh
-      // Pass token if present so logged-in users are recognised;
-      // optionalAuth on the server means guests (no token) also get through.
-      const _restoreHeaders = { 'Content-Type': 'application/json' };
-      const _restoreTok = _tok();
-      if (_restoreTok) _restoreHeaders['Authorization'] = 'Bearer ' + _restoreTok;
+    if (loggedInUser) {
+      // ── Account-bound restore — works across every device ──────────────
+      // Server is the source of truth. We don't trust localStorage here,
+      // because the user may be opening this chat on a brand-new device
+      // that has never had a chatId saved locally.
+      _restoreAccountChat();
+    } else {
+      // ── Guest restore — device-bound via localStorage only ─────────────
+      // A guest has no account for the chat to "belong" to, so the chat
+      // can only follow the browser it was started in. This is correct
+      // and unchanged behaviour.
+      _chatId    = localStorage.getItem('uyeh_chatId');
+      _custId    = localStorage.getItem('uyeh_customerId');
+      _custName  = localStorage.getItem('uyeh_customerName');
+      _custEmail = localStorage.getItem('uyeh_customerEmail');
 
-      fetch(`${_CW_API}/api/chat/${_chatId}`, { headers: _restoreHeaders })
-        .then(r => r.json())
-        .then(d => {
-          if (d.success && d.chat && !['closed','resolved'].includes(d.chat.status)) {
-            _showPanel();
-            _renderAll(d.chat.messages || []);
-            if (d.chat.assignedAgent) {
-              const a = d.chat.assignedAgent;
-              $('uyeh-cw-aname').textContent = a.fullName || 'Support Agent';
-              $('uyeh-cw-avi').src = a.avatarUrl ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(a.fullName||'Agent')}&background=0a0a0a&color=00ff88&size=80`;
-            }
-            _connectWS();
-          } else {
-            // Chat closed/resolved server-side — clean up gracefully, don't wipe on network errors
-            if (d.success === false && !d.message?.includes('not found')) {
-              // Network/auth hiccup — keep session, try again next open
-              _showPanel();
-            } else {
-              _clearSession();
-              _showWelcome();
-              _setupWelcomeForm();
-            }
+      if (_chatId && _custId) {
+        _restoreGuestChat();
+      } else {
+        _showWelcome();
+        _setupWelcomeForm();
+      }
+    }
+  }
+
+  /* ── Account-bound restore (logged-in users) ──────────────────────────── */
+  function _restoreAccountChat() {
+    fetch(`${_CW_API}/api/chat/my-active`, { headers: _authHdr() })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.chat) {
+          // Found an active chat tied to this account — could be from
+          // this device or any other device the user has used.
+          _chatId    = d.chat.chatId;
+          _custId    = d.chat.customerId;
+          _custName  = d.chat.customerName;
+          _custEmail = d.chat.customerEmail;
+          _saveSession(); // cache locally too, for fast-path on next load
+          _showPanel();
+          _renderAll(d.chat.messages || []);
+          if (d.chat.assignedAgent) {
+            const a = d.chat.assignedAgent;
+            $('uyeh-cw-aname').textContent = a.fullName || 'Support Agent';
+            $('uyeh-cw-avi').src = a.avatarUrl ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(a.fullName||'Agent')}&background=0a0a0a&color=00ff88&size=80`;
           }
-        })
-        .catch(() => {
-          // Network error (Render cold start, offline) — keep localStorage session intact,
-          // show panel with a reconnect banner rather than wiping everything
+          _connectWS();
+        } else {
+          // No active chat on this account anywhere — fresh welcome form.
+          // Also clear any stale local cache from a previous (now-deleted) chat.
+          _clearSession();
+          _showWelcome();
+          _setupWelcomeForm();
+        }
+      })
+      .catch(() => {
+        // Network error — fall back to local cache if we have one, so the
+        // user isn't dropped into a blank form just because of a blip.
+        const cachedId = localStorage.getItem('uyeh_chatId');
+        if (cachedId) {
+          _chatId    = cachedId;
+          _custId    = localStorage.getItem('uyeh_customerId');
+          _custName  = localStorage.getItem('uyeh_customerName');
+          _custEmail = localStorage.getItem('uyeh_customerEmail');
           _showPanel();
           _banner('Reconnecting to your chat…', 'warn');
-          setTimeout(_boot, 5000); // retry once after 5 s
-        });
-    } else {
-      _showWelcome();
-      _setupWelcomeForm();
-    }
+          setTimeout(_boot, 5000);
+        } else {
+          _showWelcome();
+          _setupWelcomeForm();
+        }
+      });
+  }
+
+  /* ── Guest restore (device-bound, localStorage only) ──────────────────── */
+  function _restoreGuestChat() {
+    fetch(`${_CW_API}/api/chat/${_chatId}`, { headers: _authHdr() })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.chat && !['closed','resolved'].includes(d.chat.status)) {
+          _showPanel();
+          _renderAll(d.chat.messages || []);
+          if (d.chat.assignedAgent) {
+            const a = d.chat.assignedAgent;
+            $('uyeh-cw-aname').textContent = a.fullName || 'Support Agent';
+            $('uyeh-cw-avi').src = a.avatarUrl ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(a.fullName||'Agent')}&background=0a0a0a&color=00ff88&size=80`;
+          }
+          _connectWS();
+        } else {
+          if (d.success === false && !d.message?.includes('not found')) {
+            _showPanel();
+          } else {
+            // Chat was closed/resolved (and now auto-deleted server-side) — fresh start
+            _clearSession();
+            _showWelcome();
+            _setupWelcomeForm();
+          }
+        }
+      })
+      .catch(() => {
+        _showPanel();
+        _banner('Reconnecting to your chat…', 'warn');
+        setTimeout(_boot, 5000);
+      });
   }
 
   // Boot when DOM is ready
