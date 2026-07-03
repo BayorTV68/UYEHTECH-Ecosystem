@@ -1,0 +1,218 @@
+# ═══════════════════════════════════════════════════════════
+# UYEH TECH — netlify.toml
+# Replaces _redirects and _headers entirely. Delete both of those
+# files once this is deployed and confirmed working, so there's
+# only one source of truth going forward.
+# ═══════════════════════════════════════════════════════════
+
+[build]
+  # ⚠️ FILL IN: whatever your current build settings actually are.
+  # If you leave [build] out entirely, Netlify just uses whatever's
+  # already configured in the dashboard (Site settings → Build & deploy)
+  # — safe default if you're not sure what to put here.
+  publish = "."
+  # command = "npm run build"   # uncomment + fill in if you have a build step
+
+# ═══════════════════════════════════════════════════════════
+# REDIRECTS
+# Order matters — first match wins, same as the old _redirects file.
+# Real files (index.html, dashboard.html, etc.) are always served
+# automatically before any rule below is even checked, so there's no
+# need to list them defensively the way the old file did.
+# ═══════════════════════════════════════════════════════════
+
+# ── Clean URLs for /marketplace/ pages (no .html in the address bar) ──
+
+[[redirects]]
+  from = "/marketplace/"
+  to = "/marketplace/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/login"
+  to = "/marketplace/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/signup"
+  to = "/marketplace/signup.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/dashboard"
+  to = "/marketplace/dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/checkout"
+  to = "/marketplace/checkout.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/orders"
+  to = "/marketplace/orders.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/profile"
+  to = "/marketplace/profile.html"
+  status = 200
+
+[[redirects]]
+  # ⚠️ keep this only if settings.html still exists as its own page —
+  # remove it if it was folded into profile.html as previously discussed
+  from = "/marketplace/settings"
+  to = "/marketplace/settings.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/my-products"
+  to = "/marketplace/my-products.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/support"
+  to = "/marketplace/support.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/affiliate"
+  to = "/marketplace/affiliate.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/creator-apply"
+  to = "/marketplace/creator-apply.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/creator-login"
+  to = "/marketplace/creator-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/creator-dashboard"
+  to = "/marketplace/creator-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/creators"
+  to = "/marketplace/creators.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/creator-store"
+  to = "/marketplace/creator-store.html"
+  status = 200
+
+# ── Affiliate vanity links — proxy to the Render backend ──
+# /ref/:slug is an Express route on Render, not a Netlify page.
+# force = true makes this apply even though nothing local exists at /ref/*.
+# Render's own res.redirect() then bounces the browser again to
+# /marketplace/?ref=CODE on uyehtech.com — two hops, simple and reliable.
+
+[[redirects]]
+  from = "/ref/*"
+  to = "https://uyehtechbackend.onrender.com/ref/:splat"
+  status = 301
+  force = true
+
+# ═══════════════════════════════════════════════════════════
+# LEGACY /store/ REDIRECTS
+# The site used to run entirely under /store/ (see the original
+# _redirects file). Those URLs may be bookmarked, shared in old
+# affiliate links, or indexed by Google. Rather than let them 404,
+# forward them permanently to their /marketplace/ equivalents.
+# ═══════════════════════════════════════════════════════════
+
+# ── Real pages that used to live under /store/ ──
+
+[[redirects]]
+  from = "/store/index.html"
+  to = "/marketplace/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/login.html"
+  to = "/marketplace/login"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/signup.html"
+  to = "/marketplace/signup"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/dashboard.html"
+  to = "/marketplace/dashboard"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/checkout.html"
+  to = "/marketplace/checkout"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/orders.html"
+  to = "/marketplace/orders"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/settings.html"
+  to = "/marketplace/settings"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/my-products.html"
+  to = "/marketplace/my-products"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/creator-apply.html"
+  to = "/marketplace/creator-apply"
+  status = 301
+  force = true
+
+# ── The old dynamic store-slug catch-all ──
+# Old live URLs looked like /store/uyeh-store (slug in the path, no
+# query param) or /store/creator-store.html?store=uyeh-store. Both
+# need to become /marketplace/creator-store?store=uyeh-store.
+#
+# The ":storeSlug" placeholder gets injected into the query string of
+# "to" — any query params already on the incoming request (like an
+# affiliate ?ref= or ?product=) are preserved and appended automatically,
+# so a shared affiliate link like /store/uyeh-store?ref=CODE still works
+# and correctly carries the ref code through to the new URL.
+
+[[redirects]]
+  from = "/store/creator-store.html"
+  to = "/marketplace/creator-store"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/store/:storeSlug"
+  to = "/marketplace/creator-store?store=:storeSlug"
+  status = 301
+  force = true
+
+# ═══════════════════════════════════════════════════════════
+# HEADERS
+# ⚠️ PLACEHOLDER — paste the contents of your headers.txt here in the
+# same [[headers]] block format so nothing from that file gets lost.
+# Example shape, delete/replace once you send me the real content:
+# ═══════════════════════════════════════════════════════════
+
+# [[headers]]
+#   for = "/*"
+#   [headers.values]
+#     X-Frame-Options = "DENY"
+#     X-Content-Type-Options = "nosniff"
