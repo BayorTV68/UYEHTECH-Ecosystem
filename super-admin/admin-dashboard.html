@@ -11343,7 +11343,11 @@ async function saveSettings() {
         }
     });
 
-    // Boolean fields — FormData omits unchecked checkboxes so we force false
+    // Boolean fields — FormData omits unchecked checkboxes, so we must force those
+    // to false. BUT: only if the checkbox actually exists on the currently-rendered
+    // tab. Fields belonging to OTHER tabs aren't in the DOM at all right now, so we
+    // must leave them out of the payload entirely (undefined) rather than forcing
+    // them false, or we'll silently wipe out every toggle not on the active tab.
     const boolFields = [
         'maintenanceMode',
         'allowRegistration', 'requireEmailVerification', 'allowGuestCheckout',
@@ -11352,16 +11356,34 @@ async function saveSettings() {
         'enableCurrencyDisplay',   // ← top-level field, not nested under paymentSettings
     ];
     boolFields.forEach(f => {
-        payload[f] = payload[f] === 'on' || payload[f] === 'true' || payload[f] === true;
+        const el = form.querySelector(`[name="${f}"]`);
+        if (el) {
+            payload[f] = payload[f] === 'on' || payload[f] === 'true' || payload[f] === true;
+        } else {
+            delete payload[f]; // not on this tab — don't touch the saved value
+        }
     });
 
-    // Nested payment booleans
-    if (!payload.paymentSettings) payload.paymentSettings = {};
-    ['flutterwaveEnabled', 'paystackEnabled', 'stripeEnabled'].forEach(f => {
-        payload.paymentSettings[f] = payload.paymentSettings[f] === 'on'
-            || payload.paymentSettings[f] === 'true'
-            || payload.paymentSettings[f] === true;
-    });
+    // Nested payment booleans — same "only if present on this tab" guard
+    const paymentBoolFields = ['flutterwaveEnabled', 'paystackEnabled', 'stripeEnabled'];
+    const anyPaymentFieldPresent = paymentBoolFields.some(
+        f => form.querySelector(`[name="paymentSettings.${f}"]`)
+    );
+    if (anyPaymentFieldPresent) {
+        if (!payload.paymentSettings) payload.paymentSettings = {};
+        paymentBoolFields.forEach(f => {
+            const el = form.querySelector(`[name="paymentSettings.${f}"]`);
+            if (el) {
+                payload.paymentSettings[f] = payload.paymentSettings[f] === 'on'
+                    || payload.paymentSettings[f] === 'true'
+                    || payload.paymentSettings[f] === true;
+            } else {
+                delete payload.paymentSettings[f];
+            }
+        });
+    } else {
+        delete payload.paymentSettings; // payments tab isn't open — don't touch it
+    }
 
     // Maintenance pages — prefer custom input if filled
     const customPages = (payload.maintenancePagesCustom || '').trim();
