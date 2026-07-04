@@ -1590,13 +1590,14 @@ function handleLogout() {
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
   try {
+    const _authHeaders = localStorage.getItem('token')
+      ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      : {};
     const [adminRes, creatorRes] = await Promise.all([
-      fetch(`${API_URL}/api/products?limit=200`),
+      fetch(`${API_URL}/api/products?limit=200`, { headers: _authHeaders }),
       fetch(`${API_URL}/api/marketplace/products?status=approved&limit=200`, {
-  headers: localStorage.getItem('token')
-    ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    : {}
-})
+        headers: _authHeaders
+      })
     ]);
     const adminData  = await adminRes.json();
     const creatorData = await creatorRes.json();
