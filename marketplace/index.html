@@ -1845,9 +1845,16 @@ function displayProducts(products) {
   }
 
   grid.innerHTML = products.map(p => {
-    const rawUSD       = p.price ?? p.approvedPrice ?? p.suggestedPrice ?? 0;
-    const price         = p.displayPrice?.converted ?? toDisplay(rawUSD);
-    const priceSymbol   = p.displayPrice?.symbol ?? currencySymbol;
+    const rawUSD = p.price ?? p.approvedPrice ?? p.suggestedPrice ?? 0;
+    // Use server displayPrice only when it carries a real converted currency.
+    // If displayPrice.currency is USD but the user's currencySymbol is something
+    // else (e.g. ₦), the server resolved to a USD default — ignore it and let
+    // the client-side rate apply instead.
+    const serverPriceIsReal = p.displayPrice
+        && p.displayPrice.converted != null
+        && !(p.displayPrice.currency === 'USD' && currencySymbol !== '$');
+    const price       = serverPriceIsReal ? p.displayPrice.converted : toDisplay(rawUSD);
+    const priceSymbol = serverPriceIsReal ? p.displayPrice.symbol    : currencySymbol;
     const comparePrice  = p.comparePrice ? (toDisplay(p.comparePrice)) : 0;
     // Discount % is currency-independent — compute it from USD values before conversion
     const discount = (comparePrice > 0 && rawUSD > 0)
@@ -2287,7 +2294,8 @@ function _pushToCart(product) {
     productId:        resolvedId,
     title:            product.title,
     category:         product.category,
-    price:            product.price || 0,
+    price:            product.price || 0,          // raw USD — server uses this as the source of truth at checkout
+    displayPrice:     product.displayPrice || null, // converted display price — checkout uses this for rendering only
     icon:             product.icon || '📦',
     image:            product.image || null,
     isCreatorProduct: product.isCreatorProduct || false,

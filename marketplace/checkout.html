@@ -934,7 +934,8 @@ async function fetchUserCurrency() {
         if (data.success) {
             currencySymbol = data.symbol || '$';
             currencyRate   = data.rate   || 1;
-            calculateTotals(); // re-render with the real symbol + converted amounts
+            displayOrderSummary(); // re-render item prices now that rate is loaded
+            calculateTotals();
         }
     } catch (_) { /* keep $/1:1 fallback */ }
 }
@@ -1012,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (authResult.symbol && authResult.rate) {
         currencySymbol = authResult.symbol;
         currencyRate   = authResult.rate;
+        displayOrderSummary(); // re-render item prices with correct currency
         calculateTotals();
     } else {
         fetchUserCurrency();
@@ -1191,16 +1193,24 @@ function prefillUserInfo() {
 function displayOrderSummary() {
     const orderItems = document.getElementById('orderItems');
     
-    orderItems.innerHTML = cart.map(item => `
+    orderItems.innerHTML = cart.map(item => {
+        // Prefer the server-converted displayPrice saved at cart-add time.
+        // Fall back to client-side conversion via toDisplay() for any legacy
+        // cart items that pre-date the displayPrice-in-cart fix.
+        const sym   = (item.displayPrice && item.displayPrice.symbol)    || currencySymbol;
+        const price = (item.displayPrice && item.displayPrice.converted != null)
+                        ? item.displayPrice.converted
+                        : toDisplay(item.price || 0);
+        return `
         <div class="order-item">
             <div class="order-item-icon">${item.icon || '📦'}</div>
             <div class="order-item-info">
                 <div class="order-item-title">${item.title || 'Product'}</div>
                 <div class="order-item-category">${item.category || 'Digital Product'}</div>
             </div>
-            <div class="order-item-price">${currencySymbol}${toDisplay(item.price || 0).toFixed(2)}</div>
-        </div>
-    `).join('');
+            <div class="order-item-price">${sym}${parseFloat(price).toFixed(2)}</div>
+        </div>`;
+    }).join('');
 
     calculateTotals();
 }
