@@ -2379,7 +2379,9 @@ function goToCheckout() {
   }
 
   showNotification('🚀 Redirecting to checkout...');
-  setTimeout(() => window.location.href = '/marketplace/checkout', 1000);
+  // Navigate quickly — localStorage write above is synchronous and already done.
+  // 300ms is enough to show the notification without leaving a mutation window.
+  setTimeout(() => window.location.href = '/marketplace/checkout', 300);
 }
 
 // ── BACK TO TOP ────────────────────────────────────────────────────────────────

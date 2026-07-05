@@ -921,6 +921,10 @@ const API_URL = 'https://uyehtechbackend.onrender.com';
 let currencySymbol = '$'; // updated from /api/profile once the page loads, see fetchUserCurrency()
 let currencyRate    = 1;  // USD → buyer's currency, for live preview only — server is still the source of truth
 
+// Convert a USD amount to the buyer's display currency
+function toDisplay(usdAmount) {
+    return parseFloat(usdAmount || 0) * currencyRate;
+}
 async function fetchUserCurrency() {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -934,7 +938,7 @@ async function fetchUserCurrency() {
         }
     } catch (_) { /* keep $/1:1 fallback */ }
 }
-const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK-294aea05665facf0aa5a4128bb6bd68c-X';
+let FLUTTERWAVE_PUBLIC_KEY = ''; // populated from /api/settings/public on page load — do not hardcode
 
 let cart = [];
 let currentUser = null;
@@ -977,30 +981,57 @@ function getAffiliateRef() {
 // ========== INITIALIZE PAGE ==========
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Initializing checkout page...');
-    
+
+    // ── Step 1: Load Flutterwave public key from server (never hardcode) ──
+    try {
+        const settingsRes = await fetch(`${API_URL}/api/settings/public`);
+        const settings    = await settingsRes.json();
+        if (settings.flutterwavePublicKey) {
+            FLUTTERWAVE_PUBLIC_KEY = settings.flutterwavePublicKey;
+        }
+    } catch (_) {
+        console.warn('⚠️ Could not load public settings — Flutterwave key unavailable');
+    }
+
+    // ── Step 2: Render cart immediately from localStorage ─────────────────
+    // Cart is local — no server needed. User sees their items right away
+    // even while Render is cold-starting.
+    loadCart();
+    initializeEventListeners();
+    showAffiliateBanner();
+
+    // ── Step 3: Auth runs after cart is already visible ───────────────────
     const authResult = await checkAuthentication();
     if (!authResult) return;
-    
+
     currentUser = authResult;
     console.log('✅ User authenticated:', currentUser.email);
-    
-    loadCart();
-    fetchUserCurrency();
-    initializeEventListeners();
-    showAffiliateBanner(); // ✅ NEW
+
+    // Reuse currency data already returned by the profile fetch in checkAuthentication
+    // so we do not make a second /api/profile call via fetchUserCurrency
+    if (authResult.symbol && authResult.rate) {
+        currencySymbol = authResult.symbol;
+        currencyRate   = authResult.rate;
+        calculateTotals();
+    } else {
+        fetchUserCurrency();
+    }
+
+    // Prefill form fields now that we know the user
+    prefillUserInfo();
 });
 
 // ========== CHECK AUTHENTICATION ==========
 async function checkAuthentication() {
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
         showNotification('Please login to complete your purchase', 'error');
         sessionStorage.setItem('redirect_after_login', '/marketplace/checkout');
         setTimeout(() => window.location.href = '/marketplace/login', 2000);
         return null;
     }
-    
+
     try {
         const response = await fetch(`${API_URL}/api/profile`, {
             method: 'GET',
@@ -1009,25 +1040,39 @@ async function checkAuthentication() {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success && data.user) {
             return {
-                id: data.user.id,
-                name: data.user.name,
-                email: data.user.email,
-                phone: data.user.phone || '',
-                country: data.user.country || ''
+                id:      data.user.id,
+                name:    data.user.name,
+                email:   data.user.email,
+                phone:   data.user.phone   || '',
+                country: data.user.country || '',
+                symbol:  data.symbol       || '$',
+                rate:    data.rate         || 1
             };
+        } else if (response.status === 401 || response.status === 403) {
+            // Server explicitly rejected the token — genuinely expired or invalid
+            showNotification('Session expired. Please login again.', 'error');
+            localStorage.removeItem('token');
+            setTimeout(() => window.location.href = '/marketplace/login', 2000);
+            return null;
         } else {
             throw new Error('Failed to fetch user profile');
         }
     } catch (error) {
         console.error('❌ Auth check failed:', error);
-        showNotification('Session expired. Please login again.', 'error');
-        localStorage.removeItem('token');
-        setTimeout(() => window.location.href = '/marketplace/login', 2000);
+        if (error instanceof TypeError) {
+            // TypeError = network failure (Render cold-start, no connection, etc.)
+            // Do NOT remove the token — it is still valid, the server just was not ready.
+            showNotification('⚠️ Connection problem. Please refresh and try again.', 'error');
+        } else {
+            showNotification('Session expired. Please login again.', 'error');
+            localStorage.removeItem('token');
+            setTimeout(() => window.location.href = '/marketplace/login', 2000);
+        }
         return null;
     }
 }
@@ -1038,12 +1083,12 @@ function initializeEventListeners() {
     if (form) {
         form.addEventListener('submit', handleCheckout);
     }
-    
+
     const applyCouponBtn = document.getElementById('applyCouponBtn');
     if (applyCouponBtn) {
         applyCouponBtn.addEventListener('click', applyCoupon);
     }
-    
+
     const couponInput = document.getElementById('couponCode');
     if (couponInput) {
         couponInput.addEventListener('keypress', (e) => {
@@ -1053,6 +1098,39 @@ function initializeEventListeners() {
             }
         });
     }
+
+    // ── Gateway radio change: swap the payment info box ───────────────────
+    document.querySelectorAll('input[name="gateway"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            var infoBox = document.querySelector('.payment-info-box');
+            if (!infoBox) return;
+
+            if (this.value === 'paystack') {
+                infoBox.innerHTML =
+                    '<div class="payment-provider">' +
+                        '<img src="https://website-v3-assets.s3.amazonaws.com/assets/img/hero/Paystack-Logo.png" alt="Paystack" style="height:30px;">' +
+                    '</div>' +
+                    '<p>Secure payment powered by Paystack</p>' +
+                    '<div class="payment-methods-accepted">' +
+                        '<span>💳 Card</span>' +
+                        '<span>🏦 Bank Transfer</span>' +
+                        '<span>📱 USSD</span>' +
+                    '</div>';
+            } else {
+                infoBox.innerHTML =
+                    '<div class="payment-provider">' +
+                        '<img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" style="height:30px;">' +
+                    '</div>' +
+                    '<p>Secure payment powered by Flutterwave</p>' +
+                    '<div class="payment-methods-accepted">' +
+                        '<span>💳 Card</span>' +
+                        '<span>🏦 Bank Transfer</span>' +
+                        '<span>📱 Mobile Money</span>' +
+                        '<span>💰 USSD</span>' +
+                    '</div>';
+            }
+        });
+    });
 }
 
 
@@ -1068,13 +1146,13 @@ function showAffiliateBanner() {
 // ========== LOAD CART ==========
 function loadCart() {
     console.log('📦 Loading cart...');
-    
+
     try {
-       // Canonical cart key used by all pages: 'uyehtech_cart'
+        // Canonical cart key used by all pages: 'uyehtech_cart'
         const stored = localStorage.getItem('uyehtech_cart');
         cart = stored ? JSON.parse(stored) : [];
         console.log('✅ Cart loaded:', cart.length, 'items');
-        
+
         if (cart.length === 0) {
             document.getElementById('emptyCart').style.display = 'block';
             document.getElementById('checkoutContent').style.display = 'none';
@@ -1082,7 +1160,9 @@ function loadCart() {
             document.getElementById('emptyCart').style.display = 'none';
             document.getElementById('checkoutContent').style.display = 'block';
             displayOrderSummary();
-            prefillUserInfo();
+            // NOTE: prefillUserInfo() is intentionally NOT called here.
+            // loadCart() now runs before auth completes (currentUser is still null).
+            // prefillUserInfo() is called in DOMContentLoaded once auth resolves.
         }
     } catch (error) {
         console.error('❌ Error loading cart:', error);
@@ -1404,7 +1484,16 @@ async function handleCheckout(e) {
             } catch (initErr) {
                 console.error('❌ Error initializing payment:', initErr);
                 hideLoading();
-                showNotification('❌ Could not start payment: ' + initErr.message, 'error');
+                var errMsg    = initErr.message || '';
+                var isDisabled = errMsg.toLowerCase().indexOf('disabled') !== -1;
+                var altGateway = chosenGateway === 'paystack' ? 'Flutterwave' : 'Paystack';
+                var chosenLabel = chosenGateway.charAt(0).toUpperCase() + chosenGateway.slice(1);
+                showNotification(
+                    isDisabled
+                        ? '❌ ' + chosenLabel + ' is currently unavailable. Please switch to ' + altGateway + ' and try again.'
+                        : '❌ Could not start payment: ' + errMsg,
+                    'error'
+                );
             }
         }
         
@@ -1467,6 +1556,12 @@ function makePaystackPayment(paymentData) {
         return;
     }
 
+    if (!paymentData.publicKey) {
+        console.error('❌ Paystack public key missing — check PAYSTACK_PUBLIC_KEY env var on Render');
+        showNotification('❌ Paystack is not configured on this server. Please use Flutterwave or contact support.', 'error');
+        return;
+    }
+
     const handler = PaystackPop.setup({
         key:      paymentData.publicKey,
         email:    paymentData.email,
@@ -1499,7 +1594,11 @@ async function verifyPaystackPayment(reference, orderId) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ reference: reference, orderId: orderId })
+            body: JSON.stringify({
+                reference:     reference,
+                orderId:       orderId,
+                affiliateCode: getAffiliateRef() || undefined
+            })
         });
 
         if (!response.ok) {
@@ -1563,17 +1662,16 @@ async function verifyPayment(transactionId, orderId) {
         
         if (result.success) {
             console.log('✅ Payment verified');
-            
-           localStorage.removeItem('uyehtech_cart');
-            // Clear all affiliate attribution keys on free-order completion
+
+            localStorage.removeItem('uyehtech_cart');
             localStorage.removeItem('uyeh_ref');
             localStorage.removeItem('uyeh_ref_expiry');
             localStorage.removeItem('uyeh_ref_product');
             localStorage.removeItem('checkout_affiliate_code');
             localStorage.setItem('last_order', JSON.stringify(result.order));
-            
+
+            hideLoading();
             showNotification('✅ Payment successful! Redirecting...', 'success');
-            
 
             setTimeout(() => {
                 window.location.href = '/marketplace/success';
@@ -1581,7 +1679,7 @@ async function verifyPayment(transactionId, orderId) {
         } else {
             throw new Error(result.message || 'Payment verification failed');
         }
-        
+
     } catch (error) {
         console.error('❌ Error verifying payment:', error);
         hideLoading();
