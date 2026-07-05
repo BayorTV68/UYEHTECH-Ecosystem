@@ -121,6 +121,18 @@
 # in the bar throughout) â€” test this option before relying on it, proxy
 # behavior with upstream redirects can be inconsistent across Netlify plans.
 
+#   /marketplace/STORE_SLUG/
+#     ↑ storeUrl from GET /api/creator/me (trailing slash always present)
+#
+#   /marketplace/STORE_SLUG/?product=PRODUCT_ID&ref=AFFILIATE_CODE
+#     ↑ affiliateLink for product-specific links (lines 17430, 17469)
+#
+#   /marketplace/STORE_SLUG/?product=ID&ref=CODE&utm_campaign=X
+#     ↑ same + campaign UTM (line 17474 generate route)
+#
+#   /marketplace/STORE_SLUG/?product=ID&ref=CODE&utm_source=X&utm_medium=Y
+#     ↑ same + source/medium UTM params
+#
 /ref/*            https://uyehtechbackend.onrender.com/ref/:splat   301
 
 # â”€â”€ STEP 5: Passthrough all other real folders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
