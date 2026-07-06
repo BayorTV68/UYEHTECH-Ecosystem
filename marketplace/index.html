@@ -423,31 +423,6 @@
     @media (max-width: 768px) { .creators-section{padding:40px 20px;} .creators-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));} }
 
     /* ════════════════════════════════════════════════
-       NEWSLETTER CTA SECTION
-       ════════════════════════════════════════════════ */
-    .newsletter-section {
-      padding: 70px 40px;
-      background: linear-gradient(135deg, rgba(0,255,136,0.06) 0%, rgba(0,0,0,0.8) 100%);
-      border-top: 1px solid rgba(0,255,136,0.1);
-      border-bottom: 1px solid rgba(0,255,136,0.1);
-      text-align: center;
-      position: relative; overflow:hidden;
-    }
-    .newsletter-section::before { content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:400px; height:400px; background:radial-gradient(circle,rgba(0,255,136,0.08),transparent 70%); pointer-events:none; }
-    .newsletter-inner { max-width:600px; margin:0 auto; position:relative; z-index:1; }
-    .newsletter-icon { font-size:2.5rem; margin-bottom:16px; display:block; }
-    .newsletter-title { font-family:'Playfair Display',serif; font-size:2rem; color:#fff; margin-bottom:12px; }
-    .newsletter-title span { color:var(--primary); }
-    .newsletter-sub { color:var(--gray); font-size:0.95rem; margin-bottom:32px; line-height:1.7; }
-    .newsletter-form { display:flex; gap:12px; max-width:460px; margin:0 auto; }
-    .newsletter-input { flex:1; padding:14px 18px; background:rgba(0,255,136,0.06); border:1px solid rgba(0,255,136,0.3); border-radius:12px; color:#fff; font-size:0.95rem; font-family:'Montserrat',sans-serif; transition:border-color 0.3s; }
-    .newsletter-input:focus { outline:none; border-color:var(--primary); }
-    .newsletter-input::placeholder { color:var(--gray); }
-    .newsletter-btn { padding:14px 26px; background:linear-gradient(135deg,var(--primary-dark),var(--primary)); border:none; border-radius:12px; color:white; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; font-size:0.9rem; transition:all 0.3s; white-space:nowrap; }
-    .newsletter-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,255,136,0.4); }
-    @media (max-width: 600px) { .newsletter-section{padding:50px 20px;} .newsletter-form{flex-direction:column;} .newsletter-title{font-size:1.5rem;} }
-
-    /* ════════════════════════════════════════════════
        CART SIDEBAR
        ════════════════════════════════════════════════ */
     .cart-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:1999; display:none; }
@@ -515,12 +490,6 @@
 
     @media (max-width: 768px) { .modal-body{grid-template-columns:1fr;} .modal-content{padding:24px;} }
 
-    /* ════════════════════════════════════════════════
-       BACK TO TOP
-       ════════════════════════════════════════════════ */
-    #backToTop { position:fixed; bottom:30px; right:30px; width:48px; height:48px; background:linear-gradient(135deg,var(--primary-dark),var(--primary)); border:none; border-radius:50%; color:var(--dark); font-size:1.2rem; cursor:pointer; z-index:999; display:none; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(0,255,136,0.4); transition:all 0.3s; }
-    #backToTop.visible { display:flex; }
-    #backToTop:hover { transform:translateY(-4px) scale(1.1); box-shadow:0 10px 30px rgba(0,255,136,0.5); }
 
     /* ════════════════════════════════════════════════
        COOKIE CONSENT
@@ -787,7 +756,253 @@
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   UYEH TECH — Shared Navbar Stylesheet
+   /css/navbar.css
 
+   Self-contained: every value the nav needs is defined right here,
+   so this file never depends on a page having its own matching
+   --primary / --dark variables already set up correctly. Link it
+   on every page that has the navbar:
+
+     <link rel="stylesheet" href="/css/navbar.css">
+
+   Also requires Font Awesome (for the cart + menu icons), already
+   used site-wide:
+
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --nav-primary:      #00ff88;
+  --nav-primary-dark: #00c96a;
+  --nav-dark:         #07090c;
+  --nav-gray:         #8a96a8;
+  --nav-gray-light:   #edf2f7;
+  --nav-error:        #ff4d4d;
+}
+
+/* Push page content below the fixed nav. If your page already sets
+   body padding-top, this rule is harmless — the more specific one
+   defined later in the page will win. */
+body { padding-top: 80px; }
+
+/* ════════════════════════════════════════════════
+   NAV CONTAINER + LOGO
+   ════════════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(10,10,10,0.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,255,136,0.2);
+  padding: 15px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 1000;
+  box-shadow: 0 5px 30px rgba(0,255,136,0.1);
+  animation: navSlideIn 0.5s ease-out;
+}
+@keyframes navSlideIn { from{transform:translateY(-100%);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+nav > a { flex-shrink: 0; }
+nav > a img { display: block; transition: all 0.3s ease; }
+nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
+
+/* ════════════════════════════════════════════════
+   NAV LINKS
+   ════════════════════════════════════════════════ */
+.nav-links { display:flex; list-style:none; gap:5px; align-items:center; margin:0; padding:0; }
+.nav-link { display:block; padding:12px 20px; color:#d1d5db; text-decoration:none; font-weight:500; font-size:0.95em; border-radius:8px; transition:all 0.3s; }
+.nav-link:hover { color:var(--nav-primary); background:rgba(0,255,136,0.1); }
+.nav-link.active { color:var(--nav-primary); position:relative; }
+.nav-link.active::after { content:''; position:absolute; bottom:5px; left:20px; right:20px; height:2px; background:var(--nav-primary); }
+
+.nav-actions { display:flex; align-items:center; gap:20px; }
+
+/* ════════════════════════════════════════════════
+   DROPDOWN (Marketplace / Creators' Hub, etc.)
+   ════════════════════════════════════════════════ */
+.nav-item--dropdown { position: relative; }
+
+.nav-link--dropdown {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Montserrat', sans-serif; font-size: 0.95em;
+  display: flex; align-items: center; gap: 5px;
+  padding: 12px 20px; color: #d1d5db; font-weight: 500;
+  border-radius: 8px; transition: all 0.3s ease; white-space: nowrap;
+}
+.nav-link--dropdown:hover,
+.nav-item--dropdown.open .nav-link--dropdown {
+  color: var(--nav-primary);
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.nav-chevron { transition: transform 0.25s ease; flex-shrink: 0; color: currentColor; opacity: 0.7; }
+.nav-item--dropdown.open .nav-chevron { transform: rotate(180deg); opacity: 1; }
+
+.nav-dropdown {
+  position: absolute; top: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  min-width: 260px;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 14px; padding: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 255, 136, 0.05);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 1100;
+}
+.nav-dropdown::before {
+  content: ''; position: absolute; top: -1px; left: 20%; right: 20%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--nav-primary), transparent);
+  border-radius: 2px;
+}
+.nav-item--dropdown.open .nav-dropdown {
+  opacity: 1; visibility: visible; pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+
+.nav-dropdown__item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 12px; border-radius: 9px;
+  text-decoration: none; color: inherit;
+  transition: background 0.2s ease; cursor: pointer;
+}
+.nav-dropdown__item:hover { background: rgba(0, 255, 136, 0.08); }
+.nav-dropdown__icon {
+  font-size: 18px; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 255, 136, 0.07);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 8px; flex-shrink: 0;
+}
+.nav-dropdown__label { display: block; color: #ffffff; font-size: 0.88rem; font-weight: 600; margin-bottom: 2px; font-family: 'Montserrat', sans-serif; }
+.nav-dropdown__desc  { display: block; color: rgba(255, 255, 255, 0.4); font-size: 0.75rem; font-family: 'Montserrat', sans-serif; font-weight: 400; }
+.nav-dropdown__divider { border: none; border-top: 1px solid rgba(0, 255, 136, 0.1); margin: 6px 12px; }
+
+/* ════════════════════════════════════════════════
+   CART BUTTON
+   ════════════════════════════════════════════════ */
+.cart-btn {
+  position:relative; background:rgba(0,255,136,0.1);
+  border:1px solid rgba(0,255,136,0.3); padding:12px 20px;
+  border-radius:12px; color:var(--nav-primary); cursor:pointer;
+  font-weight:600; transition:all 0.3s; display:flex; align-items:center;
+  gap:8px; font-family:'Montserrat',sans-serif;
+}
+.cart-btn:hover { background:rgba(0,255,136,0.2); transform:translateY(-2px); box-shadow:0 5px 20px rgba(0,255,136,0.3); }
+.cart-count {
+  position:absolute; top:-8px; right:-8px;
+  background:linear-gradient(135deg,#ff4444,#ff6666); color:white;
+  width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; font-weight:700; box-shadow:0 2px 10px rgba(255,68,68,0.4);
+}
+
+/* ════════════════════════════════════════════════
+   AUTH: guest buttons vs. logged-in user dropdown
+   ════════════════════════════════════════════════ */
+.auth-buttons { display:flex; gap:12px; }
+.btn-login, .btn-signup { padding:12px 25px; border-radius:12px; font-weight:600; text-decoration:none; transition:all 0.3s; font-family:'Montserrat',sans-serif; }
+.btn-login  { background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.3); color:var(--nav-primary); }
+.btn-login:hover { background:rgba(0,255,136,0.2); transform:translateY(-2px); }
+.btn-signup { background:linear-gradient(135deg,var(--nav-primary-dark),var(--nav-primary)); color:white; border:none; }
+.btn-signup:hover { transform:translateY(-2px); box-shadow:0 5px 20px rgba(0,255,136,0.4); }
+
+.user-dropdown { position:relative; }
+.user-avatar-btn {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.3);
+  padding:8px 15px; border-radius:12px; color:var(--nav-primary); cursor:pointer;
+  font-weight:600; transition:all 0.3s; font-family:'Montserrat',sans-serif;
+}
+.user-avatar-btn:hover { background:rgba(0,255,136,0.2); transform:translateY(-2px); }
+.user-avatar-btn img { width:35px; height:35px; border-radius:50%; border:2px solid var(--nav-primary); }
+.dropdown-arrow { font-size:0.7rem; transition:transform 0.3s; }
+.user-dropdown.active .dropdown-arrow { transform:rotate(180deg); }
+
+.user-menu {
+  position:absolute; top:calc(100% + 10px); right:0;
+  background:rgba(15,15,15,0.98); border:1px solid rgba(0,255,136,0.3);
+  border-radius:15px; width:280px; padding:10px;
+  display:none; flex-direction:column; gap:5px;
+  box-shadow:0 10px 40px rgba(0,255,136,0.2); backdrop-filter:blur(20px);
+  animation:navSlideDown 0.3s ease;
+}
+.user-menu.active { display:flex; }
+@keyframes navSlideDown { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
+
+.user-menu-header { display:flex; align-items:center; gap:12px; padding:15px; background:rgba(0,255,136,0.05); border-radius:10px; margin-bottom:5px; }
+.user-menu-header img { width:50px; height:50px; border-radius:50%; border:2px solid var(--nav-primary); }
+.menu-user-name  { font-weight:700; color:var(--nav-primary); font-size:1rem; }
+.menu-user-email { font-size:0.85rem; color:var(--nav-gray); }
+.user-menu-divider { height:1px; background:rgba(0,255,136,0.2); margin:5px 0; }
+.user-menu-item {
+  display:flex; align-items:center; gap:12px; padding:12px 15px;
+  color:var(--nav-gray-light); text-decoration:none; border-radius:10px;
+  transition:all 0.3s; font-weight:500; cursor:pointer; border:none;
+  background:transparent; width:100%; text-align:left; font-family:'Montserrat',sans-serif;
+}
+.user-menu-item:hover { background:rgba(0,255,136,0.1); color:var(--nav-primary); transform:translateX(5px); }
+.user-menu-item i { font-size:1.1rem; width:20px; }
+.logout-item { color:var(--nav-error); }
+.logout-item:hover { background:rgba(255,68,68,0.1); color:var(--nav-error); }
+
+/* ════════════════════════════════════════════════
+   MOBILE HAMBURGER
+   ════════════════════════════════════════════════ */
+.menu-toggle { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:5px; flex-shrink:0; }
+.menu-toggle span { width:28px; height:3px; background:var(--nav-primary); border-radius:3px; transition:all 0.3s ease; }
+.menu-toggle:hover span { background:var(--nav-primary-dark); }
+.menu-toggle.active span:nth-child(1) { transform:rotate(45deg) translate(8px,8px); }
+.menu-toggle.active span:nth-child(2) { opacity:0; }
+.menu-toggle.active span:nth-child(3) { transform:rotate(-45deg) translate(7px,-7px); }
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
+@media (max-width: 968px) {
+  nav { padding:15px 25px; }
+  body { padding-top: 70px; }
+  .nav-links {
+    position:fixed; top:70px; left:-100%; flex-direction:column;
+    background:rgba(10,10,10,0.98); backdrop-filter:blur(20px);
+    width:100%; height:calc(100vh - 70px); padding:40px 30px; gap:0;
+    transition:left 0.3s ease; border-top:1px solid rgba(0,255,136,0.2);
+    overflow-y:auto;
+  }
+  .nav-links.active { left:0; }
+  .nav-links li { width:100%; border-bottom:1px solid rgba(0,255,136,0.1); }
+  .nav-link { width:100%; padding:18px 0; font-size:1.1em; }
+  .menu-toggle { display:flex; order:3; }
+
+  .nav-link--dropdown { width: 100%; padding: 18px 0; font-size: 1.1em; justify-content: space-between; border-radius: 0; }
+  .nav-item--dropdown { position: static; width: 100%; }
+  .nav-dropdown {
+    position: static; transform: none !important; min-width: 100%;
+    background: rgba(0, 255, 136, 0.04); border: none;
+    border-left: 2px solid rgba(0, 255, 136, 0.3); border-radius: 0;
+    box-shadow: none; padding: 4px 0 4px 16px; margin-bottom: 4px;
+    backdrop-filter: none; max-height: 0; overflow: hidden;
+    opacity: 1; visibility: visible; pointer-events: none;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+  .nav-dropdown::before { display: none; }
+  .nav-item--dropdown.open .nav-dropdown { max-height: 400px; pointer-events: all; padding: 8px 0 8px 16px; }
+  .nav-dropdown__item { padding: 10px 8px; border-radius: 6px; }
+  .nav-dropdown__icon { width: 30px; height: 30px; font-size: 15px; }
+  .nav-dropdown__label { font-size: 0.92rem; }
+  .nav-dropdown__desc  { font-size: 0.78rem; }
+}
+@media (max-width: 600px) {
+  nav { padding:15px 20px; }
+  body { padding-top:65px; }
+  .nav-actions { gap:10px; }
+  .cart-text { display:none; }
+  .btn-login, .btn-signup { padding:10px 18px; font-size:0.9rem; }
+  .user-avatar-btn span:not(.dropdown-arrow) { display:none; }
+  .nav-links { top:65px; height:calc(100vh - 65px); padding:30px 20px; }
+}
   
   </style>
 </head>
@@ -796,116 +1011,115 @@
 <!-- ════════════════════════════════════════
      NAVIGATION
      ════════════════════════════════════════ -->
+
 <nav>
-  <a href="/index.html">
-    <img src="uyehtech logo.png" width="50px" height="50px" alt="UYEH TECH">
+  <a href="/index.html" id="siteLogo">
+    <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH">
   </a>
- <!-- Navigation Links -->
-        <ul class="nav-links" id="navLinks">
- 
-  <!-- Home -->
-  <li>
-    <a href="/index.html" class="nav-link">Home</a>
-  </li>
- 
-  <!-- Marketplace (dropdown) -->
-  <li class="nav-item--dropdown" id="dropMarketplace">
-    <button class="nav-link active nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-      Marketplace
-      <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <div class="nav-dropdown" role="menu">
-      <div class="nav-dropdown__section">
-        <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🛍️</span>
-          <div>
-            <span class="nav-dropdown__label">Shop</span>
-            <span class="nav-dropdown__desc">Browse digital products</span>
-          </div>
-        </a>
-        <a href="/marketplace/login" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🔐</span>
-          <div>
-            <span class="nav-dropdown__label">Login</span>
-            <span class="nav-dropdown__desc">Access your account</span>
-          </div>
-        </a>
-        <a href="/marketplace/signup" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🔗</span>
-          <div>
-            <span class="nav-dropdown__label">Sign Up</span>
-            <span class="nav-dropdown__desc">Create account today</span>
-          </div>
-        </a>
+
+  <ul class="nav-links" id="navLinks">
+
+    <!-- Home -->
+    <li>
+      <a href="/index.html" class="nav-link">Home</a>
+      <!-- CHANGE PER PAGE: add class="nav-link active" to whichever
+           link matches the current page, remove "active" from Home -->
+    </li>
+
+    <!-- Marketplace (dropdown) -->
+    <li class="nav-item--dropdown" id="dropMarketplace">
+      <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+        Marketplace
+        <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="nav-dropdown" role="menu">
+        <div class="nav-dropdown__section">
+          <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">🛍️</span>
+            <div>
+              <span class="nav-dropdown__label">Shop</span>
+              <span class="nav-dropdown__desc">Browse digital products</span>
+            </div>
+          </a>
+          <!-- Login / Sign Up removed on purpose — that's handled by the
+               guestButtons / userDropdown widget in .nav-actions below,
+               which actually reflects login state. Keeping both was the
+               original bug: this dropdown never updated when a member
+               logged in. Don't add Login/Signup links back here. -->
+        </div>
       </div>
-    </div>
-  </li>
- 
-  <!-- Creators' Hub (dropdown) -->
-  <li class="nav-item--dropdown" id="dropCreators">
-    <button class="nav-link  nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-      Creators' Hub
-      <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <div class="nav-dropdown" role="menu">
-      <div class="nav-dropdown__section">
-        <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">👤</span>
-          <div>
-            <span class="nav-dropdown__label">About Me</span>
-            <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
-          </div>
-        </a>
-        <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">⚙️</span>
-          <div>
-            <span class="nav-dropdown__label">Services</span>
-            <span class="nav-dropdown__desc">What I build for clients</span>
-          </div>
-        </a>
-        <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🗂️</span>
-          <div>
-            <span class="nav-dropdown__label">Portfolio</span>
-            <span class="nav-dropdown__desc">Projects I have delivered</span>
-          </div>
-        </a>
-        <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">💬</span>
-          <div>
-            <span class="nav-dropdown__label">Meet Me</span>
-            <span class="nav-dropdown__desc">Personal contact page</span>
-          </div>
-        </a>
+    </li>
+
+    <!-- Creators' Hub (dropdown) -->
+    <li class="nav-item--dropdown" id="dropCreators">
+      <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+        Creators' Hub
+        <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="nav-dropdown" role="menu">
+        <div class="nav-dropdown__section">
+          <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">👤</span>
+            <div>
+              <span class="nav-dropdown__label">About Me</span>
+              <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
+            </div>
+          </a>
+          <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">⚙️</span>
+            <div>
+              <span class="nav-dropdown__label">Services</span>
+              <span class="nav-dropdown__desc">What I build for clients</span>
+            </div>
+          </a>
+          <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">🗂️</span>
+            <div>
+              <span class="nav-dropdown__label">Portfolio</span>
+              <span class="nav-dropdown__desc">Projects I have delivered</span>
+            </div>
+          </a>
+          <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">💬</span>
+            <div>
+              <span class="nav-dropdown__label">Meet Me</span>
+              <span class="nav-dropdown__desc">Personal contact page</span>
+            </div>
+          </a>
+        </div>
       </div>
-    </div>
-  </li>
- 
-  <!-- Blog -->
-  <li>
-    <a href="/blog/" class="nav-link">Blog</a>
-  </li>
- 
-  <!-- Contact -->
-  <li>
-    <a href="/contact" class="nav-link">Contact</a>
-  </li>
- 
-        </ul>
- <div class="nav-actions">
+    </li>
+
+    <!-- Blog -->
+    <li><a href="/blog/" class="nav-link">Blog</a></li>
+
+    <!-- Contact -->
+    <li><a href="/contact" class="nav-link">Contact</a></li>
+
+  </ul>
+
+  <div class="nav-actions">
+    <!-- CHANGE PER PAGE: remove this cart button entirely on pages that
+         don't sell anything (e.g. blog posts, the founder's portfolio
+         pages) — it calls openCart(), which must exist on the page. -->
     <button class="cart-btn" onclick="openCart()">
       <i class="fas fa-shopping-cart cart-icon"></i>
       <span class="cart-text">Cart</span>
       <span class="cart-count">0</span>
     </button>
+
+    <!-- Guest state: shown when logged out -->
     <div id="guestButtons" class="auth-buttons">
       <a href="/marketplace/login" class="btn-login">Login</a>
       <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
     </div>
+
+    <!-- Logged-in state: shown when a valid token/user exists.
+         navbar.js toggles which of these two blocks is visible. -->
     <div id="userDropdown" class="user-dropdown" style="display:none;">
       <button class="user-avatar-btn" onclick="toggleUserMenu()">
         <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
@@ -930,9 +1144,9 @@
       </div>
     </div>
   </div>
+
   <div class="menu-toggle" id="menuToggle"><span></span><span></span><span></span></div>
 </nav>
-
 <!-- ════════════════════════════════════════
      HERO
      ════════════════════════════════════════ -->
@@ -1058,20 +1272,6 @@
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     NEWSLETTER CTA
-     ════════════════════════════════════════ -->
-<section class="newsletter-section">
-  <div class="newsletter-inner">
-    <span class="newsletter-icon">📬</span>
-    <h2 class="newsletter-title">Stay <span>Updated</span></h2>
-    <p class="newsletter-sub">Get notified about new products, exclusive deals, and creator spotlights delivered straight to your inbox.</p>
-    <form class="newsletter-form" id="newsletterForm" onsubmit="handleNewsletterSubmit(event)">
-      <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
-      <button type="submit" class="newsletter-btn">Subscribe</button>
-    </form>
-  </div>
-</section>
 
 <!-- ════════════════════════════════════════
      CART SIDEBAR
@@ -1245,108 +1445,206 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 window.cookieSystem = cookieSystem;
 </script>
 
-
 <script>
-  (function () {
-    'use strict';
- 
-    /* ── Element references ── */
-    var menuToggle  = document.getElementById('menuToggle');
-    var navLinks    = document.getElementById('navLinks');
-    var dropItems   = document.querySelectorAll('.nav-item--dropdown');
- 
-    /* ── Helper: close all dropdowns ── */
-    function closeAllDropdowns() {
-        dropItems.forEach(function (item) {
-            item.classList.remove('open');
-            var btn = item.querySelector('.nav-link--dropdown');
-            if (btn) btn.setAttribute('aria-expanded', 'false');
-        });
-    }
- 
-    /* ── Toggle a single dropdown ── */
-    function toggleDropdown(item) {
-        var isOpen  = item.classList.contains('open');
-        var btn     = item.querySelector('.nav-link--dropdown');
- 
-        closeAllDropdowns();            /* always close others first */
- 
-        if (!isOpen) {
-            item.classList.add('open');
-            if (btn) btn.setAttribute('aria-expanded', 'true');
-        }
-    }
- 
-    /* ── Attach click listeners to each dropdown trigger ── */
-    dropItems.forEach(function (item) {
-        var btn = item.querySelector('.nav-link--dropdown');
-        if (!btn) return;
- 
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleDropdown(item);
-        });
-    });
- 
-    /* ── Close on outside click ── */
-    document.addEventListener('click', function (e) {
-        var insideNav = navLinks && navLinks.contains(e.target);
-        if (!insideNav) {
-            closeAllDropdowns();
-        }
- 
-        /* Also close mobile menu if click is outside nav */
-        if (navLinks && menuToggle) {
-            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
-                menuToggle.classList.remove('active');
-                navLinks.classList.remove('active');
-            }
-        }
-    });
- 
-    /* ── Close on Escape key ── */
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            closeAllDropdowns();
-            if (menuToggle) menuToggle.classList.remove('active');
-            if (navLinks)   navLinks.classList.remove('active');
-        }
-    });
- 
-    /* ── Close dropdowns when a dropdown link is clicked (navigation) ── */
-    document.querySelectorAll('.nav-dropdown__item').forEach(function (link) {
-        link.addEventListener('click', function () {
-            closeAllDropdowns();
-            if (menuToggle) menuToggle.classList.remove('active');
-            if (navLinks)   navLinks.classList.remove('active');
-        });
-    });
- 
-    /* ── Hamburger toggle (mobile) ── */
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            this.classList.toggle('active');
-            navLinks.classList.toggle('active');
-            /* Close any open dropdown when closing mobile menu */
-            if (!navLinks.classList.contains('active')) {
-                closeAllDropdowns();
-            }
-        });
-    }
- 
-    /* ── Close mobile menu when a plain nav-link is clicked ── */
-    document.querySelectorAll('.nav-links .nav-link:not(.nav-link--dropdown)').forEach(function (link) {
-        link.addEventListener('click', function () {
-            if (menuToggle) menuToggle.classList.remove('active');
-            if (navLinks)   navLinks.classList.remove('active');
-            closeAllDropdowns();
-        });
-    });
- 
-}());
 
-    
+(function () {
+  'use strict';
+
+  /* ═══════════════════════════════════════════
+     PART 1: Mobile menu + dropdown toggles
+     ═══════════════════════════════════════════ */
+  var menuToggle = document.getElementById('menuToggle');
+  var navLinks   = document.getElementById('navLinks');
+  var dropItems  = document.querySelectorAll('.nav-item--dropdown');
+
+  function closeAllDropdowns() {
+    dropItems.forEach(function (item) {
+      item.classList.remove('open');
+      var btn = item.querySelector('.nav-link--dropdown');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function toggleDropdown(item) {
+    var isOpen = item.classList.contains('open');
+    var btn    = item.querySelector('.nav-link--dropdown');
+    closeAllDropdowns();
+    if (!isOpen) {
+      item.classList.add('open');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  dropItems.forEach(function (item) {
+    var btn = item.querySelector('.nav-link--dropdown');
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleDropdown(item);
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    var insideNav = navLinks && navLinks.contains(e.target);
+    if (!insideNav) closeAllDropdowns();
+
+    if (navLinks && menuToggle) {
+      if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+        menuToggle.classList.remove('active');
+        navLinks.classList.remove('active');
+      }
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeAllDropdowns();
+      if (menuToggle) menuToggle.classList.remove('active');
+      if (navLinks)   navLinks.classList.remove('active');
+    }
+  });
+
+  document.querySelectorAll('.nav-dropdown__item').forEach(function (link) {
+    link.addEventListener('click', function () {
+      closeAllDropdowns();
+      if (menuToggle) menuToggle.classList.remove('active');
+      if (navLinks)   navLinks.classList.remove('active');
+    });
+  });
+
+  if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      this.classList.toggle('active');
+      navLinks.classList.toggle('active');
+      if (!navLinks.classList.contains('active')) closeAllDropdowns();
+    });
+  }
+
+  document.querySelectorAll('.nav-links .nav-link:not(.nav-link--dropdown)').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (menuToggle) menuToggle.classList.remove('active');
+      if (navLinks)   navLinks.classList.remove('active');
+      closeAllDropdowns();
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+     PART 2: Auth state — guest buttons vs user dropdown
+     ═══════════════════════════════════════════ */
+  var API_URL = window.API_URL || 'https://uyehtechbackend.onrender.com';
+  var currentUser = null;
+
+  function checkAuthentication() {
+    var token = localStorage.getItem('token');
+    var user  = localStorage.getItem('user');
+    if (!token || !user) { showGuestButtons(); return; }
+
+    try {
+      currentUser = JSON.parse(user);
+      showUserDropdown(currentUser);
+
+      // Background validation — route is /api/profile (no "/user" segment).
+      fetch(API_URL + '/api/profile', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          currentUser = null;
+          showGuestButtons();
+          return null;
+        }
+        // Any other non-OK status (404, 500, rate limit, offline) is a
+        // server-side problem, not proof the token is bad. Don't log out.
+        return r.ok ? r.json() : null;
+      })
+      .then(function (data) {
+        if (data && data.success && data.user) {
+          currentUser = data.user;
+          localStorage.setItem('user', JSON.stringify(data.user));
+          showUserDropdown(data.user);
+        }
+      })
+      .catch(function () {}); // network error — keep showing cached state
+    } catch (e) {
+      showGuestButtons();
+    }
+  }
+
+  function showUserDropdown(user) {
+    var guestEl = document.getElementById('guestButtons');
+    var userEl  = document.getElementById('userDropdown');
+    if (!guestEl || !userEl) return; // page has no auth widget — skip silently
+
+    guestEl.style.display = 'none';
+    userEl.style.display  = 'block';
+
+    var name   = user.name || user.fullName || 'User';
+    var email  = user.email || '';
+    var avatar = user.profilePic || user.profileImage || user.avatar ||
+      ('https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00ff88&color=0a0a0a');
+
+    function set(id, val, attr) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (attr) { el[attr] = val; } else { el.textContent = val; }
+    }
+    set('userAvatar', avatar, 'src');
+    set('userName', name.split(' ')[0]);
+    set('menuAvatar', avatar, 'src');
+    set('menuUserName', name);
+    set('menuUserEmail', email);
+  }
+
+  function showGuestButtons() {
+    var guestEl = document.getElementById('guestButtons');
+    var userEl  = document.getElementById('userDropdown');
+    if (!guestEl || !userEl) return;
+    guestEl.style.display = 'flex';
+    userEl.style.display  = 'none';
+  }
+
+  function toggleUserMenu() {
+    var menu = document.getElementById('userMenu');
+    var drop = document.getElementById('userDropdown');
+    if (menu) menu.classList.toggle('active');
+    if (drop) drop.classList.toggle('active');
+  }
+
+  function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      currentUser = null;
+      showGuestButtons();
+      if (typeof showNotification === 'function') {
+        showNotification('👋 Logged out successfully');
+      }
+      setTimeout(function () { window.location.reload(); }, 1000);
+    }
+  }
+
+  // Close the user menu when clicking outside it
+  document.addEventListener('click', function (e) {
+    var dropdown = document.getElementById('userDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      var menu = document.getElementById('userMenu');
+      if (menu) menu.classList.remove('active');
+      dropdown.classList.remove('active');
+    }
+  });
+
+  // Expose functions the navbar's inline onclick="" handlers call
+  window.toggleUserMenu      = toggleUserMenu;
+  window.handleLogout        = handleLogout;
+  window.checkAuthentication = checkAuthentication;
+
+  // Run auth check automatically — no per-page call needed
+  checkAuthentication();
+
+}());    
         // Smooth scroll for all links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1492,8 +1790,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadCart();
   await fetchUserCurrency(); // resolve BEFORE loadProducts so admin displayPrice uses correct rate
   await loadProducts();
-  setupBackToTop();
-  document.getElementById('copyrightYear').textContent = new Date().getFullYear();
   console.log('✅ Store loaded');
 });
 
@@ -2392,14 +2688,6 @@ function goToCheckout() {
   setTimeout(() => window.location.href = '/marketplace/checkout', 300);
 }
 
-// ── BACK TO TOP ────────────────────────────────────────────────────────────────
-function setupBackToTop() {
-  const btn = document.getElementById('backToTop');
-  window.addEventListener('scroll', () => {
-    btn.classList.toggle('visible', window.scrollY > 400);
-  });
-}
-
 
 // ── NOTIFICATION ───────────────────────────────────────────────────────────────
 (function() {
@@ -2474,35 +2762,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Copyright year
-  const yr = document.getElementById('copyrightYear');
-  if (yr) yr.textContent = new Date().getFullYear();
+
 });
 
-// Footer time display — SINGLE instance (deduplicated)
-(function() {
-  'use strict';
-  const cfg = { format12Hour:true, showSeconds:true, dateFormat:'long' };
-
-  function formatTime(d) {
-    let h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
-    let ap = '';
-    if (cfg.format12Hour) { ap = h >= 12 ? ' PM' : ' AM'; h = h % 12 || 12; }
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}${ap}`;
-  }
-  function formatDate(d) {
-    return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
-  }
-  function updateTime() {
-    const now = new Date();
-    const t = formatTime(now), dt = formatDate(now);
-    const fe = { date: document.getElementById('footerDate'), timeDate: document.getElementById('footerTimeDate') };
-    if (fe.date) fe.date.textContent = dt;
-    if (fe.timeDate) fe.timeDate.textContent = t;
-  }
-  updateTime();
-  setInterval(updateTime, 1000);
-})();
 
 </script>
    <!-- FOOTER PREVIEW -->
@@ -2812,9 +3074,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 max-width: 100%;
             }
             
-            .footer-newsletter {
-                grid-column: span 2;
-            }
+            
         }
 
         @media (max-width: 480px) {
@@ -2916,7 +3176,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 UYEH TECH Footer initialized');
     
     // Initialize all footer functionalities
-    initNewsletterForm();
+  
     initSocialLinks();
     initFooterAnimations();
     initBackToTop();
@@ -2925,88 +3185,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Footer components loaded successfully');
 });
 
-// ========================================
-// NEWSLETTER FORM HANDLING
-// ========================================
-
-function initNewsletterForm() {
-    const newsletterForm = document.getElementById('newsletterForm');
-    const newsletterForms = document.querySelectorAll('.newsletter-form');
-    
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', handleNewsletterSubmit);
-    }
-    
-    // Handle multiple newsletter forms if present
-    newsletterForms.forEach(form => {
-        if (!form.id) { // Only add listener if not already handled by ID
-            form.addEventListener('submit', handleNewsletterSubmit);
-        }
-    });
-}
-
-function handleNewsletterSubmit(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const emailInput = form.querySelector('input[type="email"]');
-    const submitBtn = form.querySelector('.newsletter-btn');
-    const email = emailInput.value.trim();
-    
-    // Validate email
-    if (!isValidEmail(email)) {
-        showNotification('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    // Show loading state
-    const originalBtnText = submitBtn.textContent;
-    submitBtn.textContent = 'Subscribing...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call (replace with actual API endpoint)
-    setTimeout(() => {
-        // Success
-        showNotification('Thank you for subscribing! 🎉', 'success');
-        
-        // Reset form
-        form.reset();
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
-        
-        // Log subscription (replace with actual API call)
-        console.log('Newsletter subscription:', email);
-        
-        // Optional: Send to backend
-        // sendNewsletterSubscription(email);
-        
-    }, 1500);
-}
-
-// Validate email format
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// Send newsletter subscription to backend (example)
-function sendNewsletterSubscription(email) {
-    fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Subscription successful:', data);
-    })
-    .catch(error => {
-        console.error('Subscription error:', error);
-        showNotification('Something went wrong. Please try again.', 'error');
-    });
-}
 
 // ========================================
 // SOCIAL LINKS TRACKING
@@ -3064,7 +3242,7 @@ function initFooterAnimations() {
     }, observerOptions);
     
     // Observe footer columns
-    const footerColumns = document.querySelectorAll('.footer-column, .footer-brand, .footer-newsletter');
+    const footerColumns = document.querySelectorAll('.footer-column, .footer-brand');
     footerColumns.forEach((column, index) => {
         column.style.opacity = '0';
         column.style.transform = 'translateY(30px)';
@@ -3245,25 +3423,6 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// ========================================
-// CONTACT INFO COPY FUNCTIONALITY
-// ========================================
-
-function initContactCopy() {
-    const contactItems = document.querySelectorAll('.contact-item');
-    
-    contactItems.forEach(item => {
-        item.style.cursor = 'pointer';
-        item.setAttribute('title', 'Click to copy');
-        
-        item.addEventListener('click', function() {
-            const text = this.textContent.trim().split('\n').pop().trim();
-            copyToClipboard(text);
-            showNotification(`Copied: ${text}`, 'success');
-        });
-    });
-}
-
 function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text)
@@ -3440,7 +3599,7 @@ window.uyehFooter = {
     trackFooterLink,
     trackSocialClick,
     updateCopyrightYear,
-    subscribe: handleNewsletterSubmit
+  
 };
 
 console.log('💡 Footer API available at window.uyehFooter');
