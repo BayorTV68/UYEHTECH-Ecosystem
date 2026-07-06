@@ -1023,7 +1023,9 @@ function renderTier() {
   const tp = a.tierProgress || null;
   const tierThresholds = { regular:10, pro:50, elite:150 };
   const nextTierMap    = { starter:'regular', regular:'pro', pro:'elite', elite:null };
-  const nextTierName   = (tp && tp.nextTier) ? tp.nextTier : nextTierMap[tier];
+  const nextTierName   = (typeof tp?.nextTier === 'string' ? tp.nextTier
+                            : (tp?.nextTier && (tp.nextTier.name || tp.nextTier.tier)))
+                          || nextTierMap[tier];
 
   if (nextTierName) {
     const thresh    = (tp && tp.thresholdReferrals) ? tp.thresholdReferrals : (tierThresholds[nextTierName] || 1);
@@ -1060,17 +1062,22 @@ function renderTier() {
 function renderCode() {
   const code = D.affiliate.affiliateCode;
   setText('myCode', code);
-  setInput('generalLink', `${SITE}/marketplace?ref=${code}`);
+  // Main share link now goes straight to signup — instant ref capture +
+  // immediate registration flow, per the preferred format.
+  setInput('generalLink', `${SITE}/marketplace/signup?ref=${code}`);
   // Keep the shop link in the referral panel in sync
   const shopEl = document.getElementById('refShopLink');
-  if (shopEl && !shopEl.value) setInput('refShopLink', `${SITE}/marketplace?ref=${code}`);
+  if (shopEl && !shopEl.value) setInput('refShopLink', `${SITE}/marketplace/?ref=${code}`);
 }
 
 function buildProductLink(p,code) {
-  if(p.storeSlug&&p.productId) return `${SITE}/marketplace/${p.storeSlug}/${p.productId}?ref=${code}`;
+  // Fixed: the old two-segment path (/marketplace/:slug/:productId) has no
+  // matching route anywhere — this now matches the same pattern the
+  // marketplace homepage itself uses for creator product deep-links.
+  if(p.storeSlug&&p.productId) return `${SITE}/marketplace/creator-store?store=${encodeURIComponent(p.storeSlug)}&product=${encodeURIComponent(p.productId)}&ref=${code}`;
   if(p.storeSlug) return `${SITE}/marketplace/${p.storeSlug}?ref=${code}`;
   if(p.affiliateLink) return p.affiliateLink;
-  return `${SITE}/marketplace?ref=${code}`;
+  return `${SITE}/marketplace/signup?ref=${code}`;
 }
 function renderSubAffiliate() {
   const aff      = D.affiliate;
@@ -1082,11 +1089,15 @@ function renderSubAffiliate() {
   // ── Invite Link (for getting users to sign up — counts toward tier) ──────
   // Prefer the inviteLink field returned by the backend (added in affiliate-referral-signup-patch).
   // Fallback: point directly to the signup page with the ref code embedded.
+  // Fixed: removed the .html extension — every other link on the site uses
+  // the clean-URL form, and this now matches the preferred format exactly.
   const inviteLink = aff.inviteLink
-    || `${SITE}/marketplace/signup.html?ref=${code}`;
+    || `${SITE}/marketplace/signup?ref=${code}`;
   setInput('refInviteLink', inviteLink);
 
   // ── Shop Link (for earning commissions on purchases) ─────────────────────
+  // Fixed: added the trailing slash so this actually matches the
+  // netlify.toml rule for "/marketplace/" exactly.
   const shopLink = aff.affiliateLink
     || `${SITE}/marketplace/?ref=${code}`;
   setInput('refShopLink', shopLink);
@@ -1303,14 +1314,17 @@ function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;
 function setInput(id,v){const e=document.getElementById(id);if(e)e.value=v;}
 function v(id){return document.getElementById(id)?.value.trim()||'';}
 function setAvatar(id,img,name){const e=document.getElementById(id);if(!e)return;if(img)e.innerHTML=`<img src="${esc(img)}" alt="avatar">`;else e.textContent=(name||'U')[0].toUpperCase();}
-function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
+function cap(s){
+  if (s === null || s === undefined) return '';
+  if (typeof s !== 'string') s = String(s);
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
 function fmtDate(d){if(!d)return'—';const dt=new Date(d);return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
 function emptyRow(msg,cols,icon='fas fa-inbox'){return `<tr class="empty-row"><td colspan="${cols}"><i class="${icon}"></i>${msg}</td></tr>`;}
 function toast(msg,type='ok'){const c=document.getElementById('toast'),d=document.createElement('div');d.className=`t-item ${type}`;const icon=type==='ok'?'fa-circle-check':type==='err'?'fa-circle-xmark':'fa-circle-info';d.innerHTML=`<i class="fas ${icon}"></i>${esc(msg)}`;c.appendChild(d);setTimeout(()=>d.remove(),4000);}
 </script>
 
-<script src="/pwa-install.js"></script>
 <script src="/chat-widget.js"></script>
 
 </body>
