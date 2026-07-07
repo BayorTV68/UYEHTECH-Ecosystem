@@ -4043,7 +4043,7 @@ select.form-control option { background: var(--ink-3); }
       <div>
         <div class="wallet-card" style="margin-bottom:20px;">
           <div class="wallet-balance-label">Available Balance</div>
-          <div class="wallet-balance-value"><span>$</span><span id="walletBalance">0.00</span></div>
+          <div class="wallet-balance-value"><span id="walletBalanceSymbol">$</span><span id="walletBalance">0.00</span></div>
           <div class="wallet-actions">
             <button class="wallet-btn wallet-btn-primary" onclick="openPayoutModal()">
               <i class="fas fa-money-bill-transfer"></i> Request Payout
@@ -4512,7 +4512,7 @@ select.form-control option { background: var(--ink-3); }
           <div id="couponPayCode" style="font-family:'JetBrains Mono',monospace;font-size:1.05rem;color:var(--accent);font-weight:700;"></div>
         </div>
         <button class="btn btn-primary" style="width:100%;font-size:1rem;padding:13px;" onclick="payCouponFee()" id="payCouponFeeBtn">
-          <i class="fas fa-credit-card"></i> Pay with Flutterwave
+          <i class="fas fa-credit-card"></i> Pay with Paystack
         </button>
         <div style="margin-top:14px;">
           <button class="btn btn-ghost btn-sm" onclick="closeCouponPayModal()" style="color:var(--muted);font-size:0.78rem;">
@@ -6328,32 +6328,50 @@ function renderTopProductsOverview() {
 // ── POPULATE EARNINGS ────────────────────────────────────────────
 function populateEarnings(data) {
   const e = data.earnings;
+
+  // The earnings endpoint resolves and returns the creator's own currency
+  // directly — prefer it over whatever /api/profile or /api/creator/me
+  // may have set, so this section is never left showing the wrong symbol
+  // even if those other calls are stale, slow, or wrong.
+  if (data.currency && data.symbol) {
+    currencySymbol = data.symbol;
+  }
+
   // FIX: API returns 'confirmed' for withdrawable balance, not 'available'
+  // NOTE: confirmed/pending/totalPaid arrive ALREADY converted into the
+  // creator's display currency by the server — do NOT run them through
+  // toDisplay() again, or you double-convert them.
   const available = e.confirmed ?? e.available ?? e.availableForPayout ?? 0;
   const pending   = e.pending   || 0;
   const paid      = e.totalPaid || 0;
   const total     = available + pending + paid;
-  const threshold = e.payoutThreshold || 50;
-  const pct       = Math.min((available / threshold) * 100, 100);
+
+  // payoutThreshold IS a raw USD figure from the server — convert it once,
+  // then reuse the converted value everywhere below. Mixing a raw-USD
+  // threshold with already-converted available/pending/paid was comparing
+  // different units and skewing the progress bar.
+  const thresholdUSD = e.payoutThreshold || 50;
+  const threshold    = toDisplay(thresholdUSD);
+  const pct          = Math.min((available / threshold) * 100, 100);
 
   // Overview
-  document.getElementById('overviewAvailable').textContent    = currencySymbol + toDisplay(available).toFixed(2);
-  document.getElementById('overviewPending').textContent      = currencySymbol + toDisplay(pending).toFixed(2);
-  document.getElementById('overviewPaid').textContent         = currencySymbol + toDisplay(paid).toFixed(2);
-  document.getElementById('overviewThreshold').textContent    = currencySymbol + toDisplay(threshold).toFixed(2);
+  document.getElementById('overviewAvailable').textContent    = currencySymbol + available.toFixed(2);
+  document.getElementById('overviewPending').textContent      = currencySymbol + pending.toFixed(2);
+  document.getElementById('overviewPaid').textContent         = currencySymbol + paid.toFixed(2);
+  document.getElementById('overviewThreshold').textContent    = currencySymbol + threshold.toFixed(2);
   document.getElementById('overviewThresholdBar').style.width = pct + '%';
-  document.getElementById('overviewThresholdHint').textContent= `${currencySymbol}${toDisplay(available).toFixed(2)} of ${currencySymbol}${toDisplay(threshold).toFixed(2)}`;
+  document.getElementById('overviewThresholdHint').textContent= `${currencySymbol}${available.toFixed(2)} of ${currencySymbol}${threshold.toFixed(2)}`;
 
   // Earnings page
-  document.getElementById('earningsTotal').textContent         = currencySymbol + toDisplay(total).toFixed(2);
-  document.getElementById('earningsAvailable').textContent     = currencySymbol + toDisplay(available).toFixed(2);
-  document.getElementById('earningsPending').textContent       = currencySymbol + toDisplay(pending).toFixed(2);
-  document.getElementById('earningsPaid').textContent          = currencySymbol + toDisplay(paid).toFixed(2);
-  document.getElementById('earningsThresholdLabel').textContent= `${currencySymbol}${toDisplay(available).toFixed(2)} / ${currencySymbol}${toDisplay(threshold).toFixed(2)}`;
+  document.getElementById('earningsTotal').textContent         = currencySymbol + total.toFixed(2);
+  document.getElementById('earningsAvailable').textContent     = currencySymbol + available.toFixed(2);
+  document.getElementById('earningsPending').textContent       = currencySymbol + pending.toFixed(2);
+  document.getElementById('earningsPaid').textContent          = currencySymbol + paid.toFixed(2);
+  document.getElementById('earningsThresholdLabel').textContent= `${currencySymbol}${available.toFixed(2)} / ${currencySymbol}${threshold.toFixed(2)}`;
   document.getElementById('earningsThresholdBar').style.width  = pct + '%';
   document.getElementById('earningsThresholdMsg').innerHTML    = available >= threshold
     ? '<strong style="color:var(--green)">✅ Payout available!</strong> You can request a withdrawal.'
-    : `Earn <strong style="color:var(--white)">${currencySymbol}${toDisplay(threshold - available).toFixed(2)}</strong> more to unlock payout.`;
+    : `Earn <strong style="color:var(--white)">${currencySymbol}${(threshold - available).toFixed(2)}</strong> more to unlock payout.`;
 
   // Commission rates
   if (e.platformCommissionRate !== undefined) {
@@ -6366,9 +6384,11 @@ function populateEarnings(data) {
   }
 
   // Wallet
-  document.getElementById('walletBalance').textContent       = available.toFixed(2);
-  document.getElementById('modalAvailableBalance').textContent= currencySymbol + toDisplay(available).toFixed(2);
-  document.getElementById('modalPayoutAmount').max           = available;
+  document.getElementById('walletBalance').textContent        = available.toFixed(2);
+  const walletSym = document.getElementById('walletBalanceSymbol');
+  if (walletSym) walletSym.textContent = currencySymbol;
+  document.getElementById('modalAvailableBalance').textContent= currencySymbol + available.toFixed(2);
+  document.getElementById('modalPayoutAmount').max            = available;
 
   // Ledger
   const ledger = data.recentEarnings || [];
@@ -8799,6 +8819,20 @@ async function getFlwPublicKey() {
   return _flwPublicKey;
 }
 
+// ── Fetch Paystack public key once ─────────────────────────────────
+let _pkPublicKey = null;
+async function getPaystackPublicKey() {
+  if (_pkPublicKey) return _pkPublicKey;
+  if (window.PAYSTACK_PUBLIC_KEY) return (_pkPublicKey = window.PAYSTACK_PUBLIC_KEY);
+  try {
+    const token = localStorage.getItem('token');
+    const res   = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data  = await res.json();
+    _pkPublicKey = data?.settings?.paystackPublicKey || null;
+  } catch (_) {}
+  return _pkPublicKey;
+}
+
 // ── Live fee preview ──────────────────────────────────────────────
 function updateCouponFeePreview() {
   const discount = parseFloat(document.getElementById('couponDiscount')?.value)     || 0;
@@ -9001,7 +9035,7 @@ async function createCoupon() {
   if (!productWorth || productWorth <= 0) { showToast('⚠️ Enter your average product price to compute the fee', 'amber'); return; }
   if (!quantity || quantity < 1)  { showToast('⚠️ Enter the number of uses (quantity)', 'amber'); return; }
   if (quantity > 100000)          { showToast('⚠️ Quantity cannot exceed 100,000', 'amber'); return; }
-  maxDiscountAmount: type === 'percentage'
+  const maxDiscountAmount = type === 'percentage'
             ? (parseFloat(document.getElementById('couponMaxDiscount')?.value) || null)
             : null;
   const btn = document.getElementById('createCouponBtn');
@@ -9014,7 +9048,7 @@ async function createCoupon() {
       body:    JSON.stringify({
           code, discount, type, productWorth, quantity,
           expiresAt, minPurchaseAmount: minPurchase, description,
-          allowedProductIds,
+          allowedProductIds, maxDiscountAmount,
           singleUsePerUser: document.getElementById('couponSingleUse')?.checked === true,
         }),
     });
@@ -9039,7 +9073,7 @@ async function createCoupon() {
   }
 }
 
-// ── Pay coupon fee — Step 2 (Flutterwave inline) ──────────────────
+// ── Pay coupon fee — Step 2 (Paystack inline) ──────────────────────
 async function payCouponFee() {
   if (!_pendingCoupon) return;
   const token = localStorage.getItem('token');
@@ -9047,10 +9081,10 @@ async function payCouponFee() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening payment…'; }
 
   // Get public key
-  let pubKey = await getFlwPublicKey();
+  let pubKey = await getPaystackPublicKey();
   if (!pubKey) {
     showToast('⚠️ Payment gateway not configured. Contact admin.', 'amber');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack'; }
     return;
   }
 
@@ -9066,66 +9100,57 @@ async function payCouponFee() {
   const couponSnapshot = { ..._pendingCoupon };
   const txRef          = `CPNFEE-${couponSnapshot.code}-${Date.now()}`;
 
-  // Dynamically load Flutterwave script if not present
-  if (typeof FlutterwaveCheckout === 'undefined') {
+  // Dynamically load Paystack's inline script if not present
+  if (typeof PaystackPop === 'undefined') {
     await new Promise((resolve, reject) => {
       const s  = document.createElement('script');
-      s.src    = 'https://checkout.flutterwave.com/v3.js';
+      s.src    = 'https://js.paystack.co/v1/inline.js';
       s.onload = resolve;
       s.onerror = reject;
       document.head.appendChild(s);
     }).catch(() => null);
   }
 
-  if (typeof FlutterwaveCheckout === 'undefined') {
-    showToast('❌ Flutterwave failed to load. Check your internet connection.', 'red');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+  if (typeof PaystackPop === 'undefined') {
+    showToast('❌ Paystack failed to load. Check your internet connection.', 'red');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack'; }
     return;
   }
 
-  FlutterwaveCheckout({
-    public_key:      pubKey,
-    tx_ref:          txRef,
-    amount:          amountNGN,
-    currency:        'NGN',
-    payment_options: 'card,banktransfer,ussd',
-    customer: {
-      email: userEmail,
-      name:  'UYEH Creator',
-    },
-    meta: {
+  const handler = PaystackPop.setup({
+    key:      pubKey,
+    email:    userEmail,
+    amount:   Math.round(amountNGN * 100), // Paystack expects kobo
+    currency: 'NGN',
+    ref:      txRef,
+    metadata: {
       coupon_id:   couponSnapshot._id,
       coupon_code: couponSnapshot.code,
       fee_type:    'coupon_platform_fee',
+      custom_fields: [
+        { display_name: 'Coupon Code', variable_name: 'coupon_code', value: couponSnapshot.code }
+      ],
     },
-    customizations: {
-      title:       'UYEH TECH — Coupon Fee',
-      description: `Platform fee for coupon "${couponSnapshot.code}"`,
-      logo:        'https://uyehtech.netlify.app/logo.png',
+    callback: function(resp) {
+      // Paystack's inline callback fires only on success
+      showToast('✅ Payment received! Verifying with server…', 'green');
+      _verifyCouponPayment(couponSnapshot._id, resp.reference, token);
     },
-    callback: async function(resp) {
-      if (resp.status === 'successful') {
-        showToast('✅ Payment received! Verifying with server…', 'green');
-        await _verifyCouponPayment(couponSnapshot._id, resp.transaction_id, token);
-      } else {
-        showToast('❌ Payment was not completed. Try again.', 'red');
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
-      }
-    },
-    onclose: function() {
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+    onClose: function() {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack'; }
     },
   });
+  handler.openIframe();
 }
 
-// ── Server-side verify after Flutterwave callback ─────────────────
-async function _verifyCouponPayment(couponId, transactionId, token) {
+// ── Server-side verify after Paystack callback ──────────────────────
+async function _verifyCouponPayment(couponId, reference, token) {
   const btn = document.getElementById('payCouponFeeBtn');
   try {
     const res  = await fetch(`${API_URL}/api/creator/coupons/${couponId}/pay`, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ transactionId }),
+      body:    JSON.stringify({ reference, gateway: 'paystack' }),
     });
     const data = await res.json();
     if (data.success) {
@@ -9135,11 +9160,11 @@ async function _verifyCouponPayment(couponId, transactionId, token) {
       loadCoupons();
     } else {
       showToast('❌ ' + (data.message || 'Verification failed'), 'red');
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack'; }
     }
   } catch(e) {
-    showToast('❌ Network error during verification. Contact support with your transaction ID: ' + transactionId, 'red');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Flutterwave'; }
+    showToast('❌ Network error during verification. Contact support with your reference: ' + reference, 'red');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack'; }
   }
 }
 
