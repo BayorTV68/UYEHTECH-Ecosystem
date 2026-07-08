@@ -250,6 +250,7 @@ a{text-decoration:none;color:inherit}
     <a href="/marketplace/profile" class="nav-link"><i class="fas fa-user-circle"></i>My Profile</a>
     <a href="/marketplace/settings" class="nav-link"><i class="fas fa-sliders"></i>Settings</a>
     <a href="/marketplace/creator-dashboard" class="nav-link" id="sbCreatorLink" style="display:none"><i class="fas fa-store"></i>Creator Studio</a>
+    <a href="/marketplace/affiliate" class="nav-link" id="sbAffiliateLink" style="display:none"><i class="fas fa-people-arrows"></i>Affiliate Panel</a>
     <a href="/marketplace/support" class="nav-link"><i class="fas fa-headset"></i>Help & Support</a>
   </nav>
   <div class="sb-footer">
@@ -465,26 +466,31 @@ function api(path, opts = {}) {
 
 function seedFromCache(u) {
   const name = u.fullName || u.name || 'User';
+  const cachedIsAffiliate = localStorage.getItem('uyeh_is_affiliate') === 'true';
   setEl('greetName', name.split(' ')[0]);
   setEl('sbName', name);
-  setEl('sbRole', u.isCreator ? 'Creator' : u.isAgent ? 'Agent' : 'Member');
+  setEl('sbRole', u.isCreator ? 'Creator' : u.isAgent ? 'Agent' : (cachedIsAffiliate ? 'Affiliate' : 'Member'));
   setEl('heroName', name.split(' ')[0]);
   setAvatar('sbAvatar', u.profileImage, name);
   setAvatar('tbAvatar', u.profileImage, name);
   setAvatar('heroAvatar', u.profileImage, name);
   if (u.isCreator) document.getElementById('sbCreatorLink').style.display = 'flex';
+  if (cachedIsAffiliate) document.getElementById('sbAffiliateLink').style.display = 'flex';
 }
 
 function render(d) {
   const u = d.user, s = d.stats;
   const name = u.fullName || u.name || 'User';
+  const isAffiliate = !!d.affiliate;
+  localStorage.setItem('uyeh_is_affiliate', isAffiliate ? 'true' : 'false');
 
   // Sidebar + topbar
   setEl('greetName', name.split(' ')[0]);
-  setEl('sbName', name); setEl('sbRole', u.isCreator ? 'Creator' : u.isAgent ? 'Agent' : 'Member');
+  setEl('sbName', name); setEl('sbRole', u.isCreator ? 'Creator' : u.isAgent ? 'Agent' : (isAffiliate ? 'Affiliate' : 'Member'));
   setAvatar('sbAvatar', u.profileImage, name);
   setAvatar('tbAvatar', u.profileImage, name);
   if (u.isCreator) document.getElementById('sbCreatorLink').style.display = 'flex';
+  if (isAffiliate) document.getElementById('sbAffiliateLink').style.display = 'flex';
 
   // Hero
   setEl('heroName', name.split(' ')[0]);
@@ -500,6 +506,7 @@ function render(d) {
   else badges.innerHTML += `<span class="hbadge hbadge-amber"><i class="fas fa-triangle-exclamation" style="margin-right:4px"></i>Unverified</span>`;
   if (u.isCreator)  badges.innerHTML += `<span class="hbadge hbadge-purple"><i class="fas fa-store" style="margin-right:4px"></i>Creator</span>`;
   if (u.isAgent)    badges.innerHTML += `<span class="hbadge hbadge-blue"><i class="fas fa-headset" style="margin-right:4px"></i>Agent</span>`;
+  if (isAffiliate)  badges.innerHTML += `<span class="hbadge hbadge-green"><i class="fas fa-people-arrows" style="margin-right:4px"></i>Affiliate</span>`;
 
   // Stats
   if (s) {

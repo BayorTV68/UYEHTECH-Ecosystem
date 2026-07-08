@@ -320,12 +320,116 @@ body{
       </div>
 
       <div class="form-group" style="margin-bottom:20px;">
-        <label class="form-label" for="confirmPassword">Confirm Password <sup>*</sup></label>
-        <div class="pw-wrap">
-          <input class="form-input" type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password">
-          <button type="button" class="pw-toggle" id="pwToggle2"><i class="fas fa-eye"></i></button>
-        </div>
-        <div class="field-err" id="confirmErr"></div>
+        <label class="form-label" for="country">
+          Country
+          <span style="color:var(--t3);font-size:.65rem;text-transform:none;">(sets your checkout currency — you can change this later in Settings)</span>
+        </label>
+        <select class="form-input" id="country" autocomplete="country-name">
+          <option value="">Select your country</option>
+          <optgroup label="Africa">
+            <option value="Nigeria">Nigeria</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Kenya">Kenya</option>
+            <option value="South Africa">South Africa</option>
+            <option value="Egypt">Egypt</option>
+            <option value="Ethiopia">Ethiopia</option>
+            <option value="Tanzania">Tanzania</option>
+            <option value="Uganda">Uganda</option>
+            <option value="Rwanda">Rwanda</option>
+            <option value="Senegal">Senegal</option>
+            <option value="Ivory Coast">Ivory Coast</option>
+            <option value="Cameroon">Cameroon</option>
+            <option value="Zambia">Zambia</option>
+            <option value="Zimbabwe">Zimbabwe</option>
+            <option value="Mozambique">Mozambique</option>
+            <option value="Angola">Angola</option>
+            <option value="Mali">Mali</option>
+            <option value="Burkina Faso">Burkina Faso</option>
+            <option value="Niger">Niger</option>
+            <option value="Chad">Chad</option>
+            <option value="Sudan">Sudan</option>
+            <option value="Botswana">Botswana</option>
+            <option value="Namibia">Namibia</option>
+            <option value="Madagascar">Madagascar</option>
+            <option value="Malawi">Malawi</option>
+            <option value="Mauritius">Mauritius</option>
+            <option value="Tunisia">Tunisia</option>
+            <option value="Morocco">Morocco</option>
+            <option value="Algeria">Algeria</option>
+            <option value="Libya">Libya</option>
+          </optgroup>
+          <optgroup label="Americas">
+            <option value="United States">United States</option>
+            <option value="Canada">Canada</option>
+            <option value="Brazil">Brazil</option>
+            <option value="Mexico">Mexico</option>
+            <option value="Argentina">Argentina</option>
+            <option value="Colombia">Colombia</option>
+            <option value="Chile">Chile</option>
+            <option value="Peru">Peru</option>
+            <option value="Venezuela">Venezuela</option>
+            <option value="Ecuador">Ecuador</option>
+            <option value="Jamaica">Jamaica</option>
+            <option value="Trinidad and Tobago">Trinidad and Tobago</option>
+          </optgroup>
+          <optgroup label="Europe">
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Germany">Germany</option>
+            <option value="France">France</option>
+            <option value="Italy">Italy</option>
+            <option value="Spain">Spain</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="Belgium">Belgium</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Greece">Greece</option>
+            <option value="Austria">Austria</option>
+            <option value="Ireland">Ireland</option>
+            <option value="Finland">Finland</option>
+            <option value="Norway">Norway</option>
+            <option value="Sweden">Sweden</option>
+            <option value="Denmark">Denmark</option>
+            <option value="Switzerland">Switzerland</option>
+            <option value="Poland">Poland</option>
+            <option value="Czech Republic">Czech Republic</option>
+            <option value="Hungary">Hungary</option>
+            <option value="Romania">Romania</option>
+            <option value="Russia">Russia</option>
+            <option value="Ukraine">Ukraine</option>
+            <option value="Turkey">Turkey</option>
+          </optgroup>
+          <optgroup label="Asia">
+            <option value="China">China</option>
+            <option value="Japan">Japan</option>
+            <option value="India">India</option>
+            <option value="South Korea">South Korea</option>
+            <option value="Indonesia">Indonesia</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="Singapore">Singapore</option>
+            <option value="Thailand">Thailand</option>
+            <option value="Philippines">Philippines</option>
+            <option value="Vietnam">Vietnam</option>
+            <option value="Bangladesh">Bangladesh</option>
+            <option value="Pakistan">Pakistan</option>
+            <option value="Sri Lanka">Sri Lanka</option>
+            <option value="Nepal">Nepal</option>
+            <option value="Saudi Arabia">Saudi Arabia</option>
+            <option value="United Arab Emirates">United Arab Emirates</option>
+            <option value="Qatar">Qatar</option>
+            <option value="Kuwait">Kuwait</option>
+            <option value="Bahrain">Bahrain</option>
+            <option value="Oman">Oman</option>
+            <option value="Israel">Israel</option>
+            <option value="Jordan">Jordan</option>
+            <option value="Lebanon">Lebanon</option>
+            <option value="Iraq">Iraq</option>
+            <option value="Iran">Iran</option>
+          </optgroup>
+          <optgroup label="Oceania">
+            <option value="Australia">Australia</option>
+            <option value="New Zealand">New Zealand</option>
+          </optgroup>
+        </select>
+        <div class="field-err" id="countryErr"></div>
       </div>
 
       <!-- Referral attribution row — only shown if ref code is present -->
@@ -654,14 +758,18 @@ async function createAccount() {
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
 
   try {
+    const country = document.getElementById('country').value;
+
     const payload = {
       fullName,
       email:         currentEmail,
       password,
       emailVerified: true,
     };
-    // Only include ref in payload if it exists — backend ignores null/undefined gracefully
-    if (ref) payload.ref = ref;
+    // Only include ref/country in payload if present — backend treats both as
+    // optional and ignores null/undefined gracefully either way.
+    if (ref)     payload.ref     = ref;
+    if (country) payload.country = country;
 
     const res  = await fetch(`${API_URL}/api/auth/signup`, {
       method:  'POST',
