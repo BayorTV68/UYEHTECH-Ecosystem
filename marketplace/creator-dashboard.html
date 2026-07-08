@@ -5433,6 +5433,21 @@ async function apiFetch(url, options = {}) {
     window.location.href = '/marketplace/creator-login';
     throw new Error('Unauthorized');
   }
+  // authenticateCreator responds 403 with isCreator:false specifically when
+  // the logged-in account isn't an approved, active creator (pending,
+  // rejected, suspended, or just not a creator at all) — treat that the same
+  // as an expired session instead of leaving a half-loaded dashboard behind.
+  if (res.status === 403) {
+    try {
+      const body = await res.clone().json();
+      if (body?.isCreator === false) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/marketplace/creator-login';
+        throw new Error('Not an approved creator');
+      }
+    } catch (_) { /* not JSON, or a different kind of 403 — fall through */ }
+  }
   return res;
 }
 

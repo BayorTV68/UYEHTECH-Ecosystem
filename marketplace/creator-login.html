@@ -1017,19 +1017,23 @@ async function doLogin() {
     }
 
     // ── Normal login: verify creator status then store session ─────
+    // Uses /api/creator/upgrade/status, not /api/creator/me — the latter now
+    // requires an APPROVED creator (authenticateCreator) and returns a flat
+    // 403 with no status detail for anyone not yet approved, which would
+    // break the pending/rejected/suspended messaging below.
     let creatorStatus = null;
     try {
-      const creatorRes  = await fetch(`${API_URL}/api/creator/me`, {
+      const creatorRes  = await fetch(`${API_URL}/api/creator/upgrade/status`, {
         headers: { 'Authorization': `Bearer ${data.token}` }
       });
       const creatorData = await creatorRes.json();
-      if (!creatorData.success || !creatorData.creator) {
+      if (!creatorData.success || !creatorData.hasApplication) {
         showAlert('No creator account found. Apply to become a creator first.');
         setLoading('btnLogin', false);
         setTimeout(() => { window.location.href = '/marketplace/creator-apply'; }, 2200);
         return;
       }
-      creatorStatus = creatorData.creator.applicationStatus;
+      creatorStatus = creatorData.applicationStatus;
     } catch(_) {
       showAlert('Could not verify creator status. Check your connection and try again.');
       setLoading('btnLogin', false);
@@ -1327,18 +1331,18 @@ async function creator_submitTwoFA() {
     let creatorStatus = null;
 
     try {
-      const cRes  = await fetch(`${API_URL}/api/creator/me`, {
+      const cRes  = await fetch(`${API_URL}/api/creator/upgrade/status`, {
         headers: { 'Authorization': `Bearer ${data.token}` }
       });
       const cData = await cRes.json();
-      if (!cData.success || !cData.creator) {
+      if (!cData.success || !cData.hasApplication) {
         errEl.textContent = 'No creator account linked to this profile.';
         errEl.classList.add('show');
         btn.disabled = false;
         btn.classList.remove('loading');
         return;
       }
-      creatorStatus = cData.creator.applicationStatus;
+      creatorStatus = cData.applicationStatus;
     } catch(_) {
       errEl.textContent = 'Could not verify creator status. Try again.';
       errEl.classList.add('show');
