@@ -213,6 +213,41 @@ body{
 .otp-sep{color:var(--t3);font-size:.9rem;margin:0 2px;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 #twoFAWrap{animation:fadeUp .4s cubic-bezier(.4,0,.2,1) both;}
+
+/* ── Role picker modal ── */
+.role-overlay{
+  position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+  background:rgba(4,5,7,.82);backdrop-filter:blur(6px);padding:20px;
+}
+.role-overlay.show{display:flex;animation:fadeUp .25s var(--ease) both;}
+.role-card{
+  width:100%;max-width:420px;background:var(--ink2);border:1px solid var(--line2);
+  border-radius:20px;padding:28px 26px;box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+.role-card-head{text-align:center;margin-bottom:20px;}
+.role-card-head i{font-size:1.8rem;color:var(--g);margin-bottom:10px;display:block;}
+.role-card-head h2{font-size:1.15rem;font-weight:800;margin-bottom:6px;}
+.role-card-head p{font-size:.82rem;color:var(--t2);}
+.role-options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.role-option{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;
+  padding:14px 16px;cursor:pointer;transition:all .2s var(--ease);color:var(--t1);
+}
+.role-option:hover{border-color:var(--line2);background:var(--g3);transform:translateY(-2px);}
+.role-option-icon{
+  width:40px;height:40px;flex-shrink:0;border-radius:10px;background:var(--g4);
+  color:var(--g);display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+}
+.role-option-text{flex:1;display:flex;flex-direction:column;gap:2px;}
+.role-option-label{font-weight:700;font-size:.92rem;}
+.role-option-desc{font-size:.74rem;color:var(--t2);}
+.role-option-arrow{color:var(--t3);font-size:.85rem;}
+.role-remember{
+  display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--t2);
+  justify-content:center;cursor:pointer;
+}
+.role-remember input{accent-color:var(--g);width:15px;height:15px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -340,14 +375,152 @@ body{
   </div>
 </div>
 
+<!-- ═══ Role picker — shown only when a user has more than one valid destination ═══ -->
+<div id="roleOverlay" class="role-overlay">
+  <div class="role-card">
+    <div class="role-card-head">
+      <i class="fas fa-compass"></i>
+      <h2>Where would you like to go?</h2>
+      <p>Your account has more than one dashboard — pick one to continue.</p>
+    </div>
+    <div class="role-options" id="roleOptions"></div>
+    <label class="role-remember">
+      <input type="checkbox" id="rememberRole">
+      Remember my choice for next time
+    </label>
+  </div>
+</div>
+
 <script>
 'use strict';
 const API_URL = 'https://uyehtechbackend.onrender.com';
 
+/* ══════════════════════════════════════════════════════════════
+   RETURN-TO CAPTURE
+   If the user arrived here from a page that required login (e.g.
+   a blog post, a checkout, a specific marketplace page), that page
+   should link here as /marketplace/login?return_to=/the/original/path
+   We capture it once on load and keep it in sessionStorage so it
+   survives the 2FA step too, then use it after a successful login —
+   ahead of any role-based redirect, since completing what the user
+   was already doing takes priority.
+   ══════════════════════════════════════════════════════════════ */
+const RETURN_TO_KEY = 'uyeh_return_to';
+
+(function captureReturnTo() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('return_to');
+  if (raw && isSafeReturnPath(raw)) {
+    sessionStorage.setItem(RETURN_TO_KEY, raw);
+  }
+})();
+
+// Only allow same-site relative paths — blocks open-redirect attacks via
+// "//evil.com" or "https://evil.com" style values, and blocks looping back
+// to the auth pages themselves.
+function isSafeReturnPath(path) {
+  if (typeof path !== 'string') return false;
+  if (!path.startsWith('/') || path.startsWith('//')) return false;
+  if (/^\/marketplace\/(login|signup)\b/.test(path)) return false;
+  return true;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   POST-LOGIN ROUTING
+   Priority: 1) return_to (finish what they came to do)
+             2) remembered dashboard preference
+             3) exactly one destination available → go straight there
+             4) more than one destination → show the picker
+   ══════════════════════════════════════════════════════════════ */
+const REMEMBER_KEY = 'uyeh_preferred_dashboard';
+const DASHBOARDS = {
+  member:   { label: 'Member Dashboard',   desc: 'Orders, purchases & account settings', icon: 'fa-user',        url: '/marketplace/dashboard' },
+  creator:  { label: 'Creator Dashboard',  desc: 'Manage products, sales & payouts',      icon: 'fa-store',       url: '/marketplace/creator-dashboard' },
+  affiliate:{ label: 'Affiliate Dashboard',desc: 'Referral links, clicks & commissions',  icon: 'fa-people-arrows', url: '/marketplace/affiliate' },
+};
+
+async function routeAfterLogin(user) {
+  // 1) Finish what they were doing, if we captured a valid destination
+  const returnTo = sessionStorage.getItem(RETURN_TO_KEY);
+  if (returnTo && isSafeReturnPath(returnTo)) {
+    sessionStorage.removeItem(RETURN_TO_KEY);
+    window.location.replace(returnTo);
+    return;
+  }
+
+  // 2) Figure out which dashboards this account actually has
+  const roles = ['member'];
+  if (user.isCreator) roles.push('creator');
+
+  const isAffiliate = await checkIsAffiliate();
+  if (isAffiliate) roles.push('affiliate');
+
+  // 3) A remembered preference only applies if it's still valid for this account
+  const remembered = localStorage.getItem(REMEMBER_KEY);
+  if (remembered && roles.includes(remembered)) {
+    window.location.replace(DASHBOARDS[remembered].url);
+    return;
+  }
+
+  // 4) Exactly one destination — no need to ask
+  if (roles.length === 1) {
+    window.location.replace(DASHBOARDS[roles[0]].url);
+    return;
+  }
+
+  // 5) More than one — let them choose
+  showRolePicker(roles);
+}
+
+// Lightweight existence check via the dedicated status endpoint — no more
+// pulling the full dashboard payload (earnings, links, events, payouts)
+// just to answer a yes/no question.
+async function checkIsAffiliate() {
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API_URL}/api/affiliate/status`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!r.ok) return false; // feature disabled site-wide, or a real error — either way, don't route there
+    const data = await r.json();
+    // Any existing affiliate account counts, regardless of status — a
+    // suspended or pending affiliate should still land on their dashboard
+    // to see *why*, rather than being silently treated as a plain member.
+    return !!(data.success && data.isAffiliate);
+  } catch (e) {
+    return false; // network hiccup — don't block login over this
+  }
+}
+
+function showRolePicker(roles) {
+  const wrap = document.getElementById('roleOptions');
+  wrap.innerHTML = roles.map(key => {
+    const d = DASHBOARDS[key];
+    return `
+      <button class="role-option" data-role="${key}" onclick="chooseRole('${key}')">
+        <span class="role-option-icon"><i class="fas ${d.icon}"></i></span>
+        <span class="role-option-text">
+          <span class="role-option-label">${d.label}</span>
+          <span class="role-option-desc">${d.desc}</span>
+        </span>
+        <i class="fas fa-arrow-right role-option-arrow"></i>
+      </button>`;
+  }).join('');
+  document.getElementById('roleOverlay').classList.add('show');
+}
+
+function chooseRole(key) {
+  if (document.getElementById('rememberRole').checked) {
+    localStorage.setItem(REMEMBER_KEY, key);
+  }
+  window.location.replace(DASHBOARDS[key].url);
+}
+
+
 /* ── Redirect if already logged in ── */
 (function(){
   if (localStorage.getItem('token') && localStorage.getItem('user')) {
-    window.location.replace('/marketplace/dashboard');
+    routeAfterLogin(JSON.parse(localStorage.getItem('user')));
   }
 })();
 
@@ -421,12 +594,12 @@ loginForm.addEventListener('submit', async e => {
       setLoading(false);
 
     } else if (data.success) {
-      // ── Normal login: store tokens and redirect ────────────────────────
+      // ── Normal login: store tokens and route by role / return_to ────────
       localStorage.setItem('token',        data.token);
       localStorage.setItem('refreshToken', data.refreshToken || '');
       localStorage.setItem('user',         JSON.stringify(data.user));
       showAlert('alertSuccess');
-      setTimeout(() => window.location.replace('/marketplace/dashboard'), 1200);
+      setTimeout(() => routeAfterLogin(data.user), 1200);
 
     } else {
       const msg = data.message || 'Login failed. Please try again.';
@@ -596,7 +769,7 @@ async function submitTwoFA() {
     localStorage.setItem('user',         JSON.stringify(data.user));
     document.getElementById('verifyIcon').className  = 'fas fa-check';
     document.getElementById('verifyLabel').textContent = 'Success! Redirecting…';
-    setTimeout(() => window.location.replace('/marketplace/dashboard'), 900);
+    setTimeout(() => routeAfterLogin(data.user), 900);
 
   } catch(err) {
     errTxt.textContent = 'Network error — please try again';
@@ -650,7 +823,9 @@ window.addEventListener('load', () => emailInput.focus());
 
 /* ── Back-forward cache ── */
 window.addEventListener('pageshow', e => {
-  if (e.persisted && localStorage.getItem('token')) window.location.replace('/marketplace/dashboard');
+  if (e.persisted && localStorage.getItem('token')) {
+    routeAfterLogin(JSON.parse(localStorage.getItem('user') || '{}'));
+  }
   // Clear stale 2FA pre-auth sessions on back-nav
   if (e.persisted) sessionStorage.removeItem('preAuthToken');
 });
