@@ -1786,13 +1786,31 @@ function buildProductUrl(product) {
 // ── INITIALIZE ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ Store initializing...');
-  await checkAuthentication();
   loadCart();
+  await checkAuthentication();
   await fetchUserCurrency(); // resolve BEFORE loadProducts so admin displayPrice uses correct rate
   await loadProducts();
+  resumePendingAction(); // after auth + cart + catalog are all ready
   console.log('✅ Store loaded');
 });
 
+
+// Resumes whatever the guest was trying to do before being sent to login —
+// not just returning to the page, but finishing the actual action.
+function resumePendingAction() {
+  const raw = sessionStorage.getItem('uyeh_pending_action');
+  if (!raw) return;
+  sessionStorage.removeItem('uyeh_pending_action');
+  try {
+    const action = JSON.parse(raw);
+    if (action.type === 'addToCart' && action.productId) {
+      addToCart(action.productId);
+    } else if (action.type === 'checkout') {
+      // Cart is still in memory/localStorage from before login — just continue.
+      if (cart.length) goToCheckout();
+    }
+  } catch (e) { /* malformed/stale — ignore */ }
+}
 
 // ── AUTHENTICATION ────────────────────────────────────────────────────────────
 async function checkAuthentication() {
@@ -2554,7 +2572,9 @@ function addToCart(productId) {
   // Must be logged in to purchase
   if (!currentUser) {
     showNotification('⚠️ Please login to add products to your cart');
-    setTimeout(() => window.location.href = '/marketplace/login', 1500);
+    sessionStorage.setItem('uyeh_pending_action', JSON.stringify({ type: 'addToCart', productId }));
+    const returnTo = window.location.pathname + window.location.search;
+    setTimeout(() => window.location.href = '/marketplace/login?return_to=' + encodeURIComponent(returnTo), 1500);
     return;
   }
   const product = allProducts.find(p => p._id === productId);
@@ -2654,7 +2674,9 @@ function goToCheckout() {
   if (!cart.length) { showNotification('⚠️ Your cart is empty'); return; }
   if (!currentUser) {
     showNotification('⚠️ Please login to checkout');
-    setTimeout(() => window.location.href = '/marketplace/login', 1500);
+    sessionStorage.setItem('uyeh_pending_action', JSON.stringify({ type: 'checkout' }));
+    const returnTo = window.location.pathname + window.location.search;
+    setTimeout(() => window.location.href = '/marketplace/login?return_to=' + encodeURIComponent(returnTo), 1500);
     return;
   }
 
