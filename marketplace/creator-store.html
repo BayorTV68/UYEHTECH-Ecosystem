@@ -33,6 +33,7 @@
  <!-- Fonts — aligned to UYEH TECH brand (matches affiliate dashboard) -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/navbar.css">
 
   <style>
     /* ══════════════════════════════════════════════════
@@ -118,20 +119,8 @@
       to   { transform: translateY(0);      opacity: 1; }
     }
 
-    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; transition: transform 0.3s; }
-    .logo:hover { transform: scale(1.05); }
-    .logo-icon {
-      width: 42px; height: 42px;
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; font-weight: bold; color: #fff;
-    }
-    .logo-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem; color: var(--primary);
-      text-shadow: 0 0 20px rgba(0,255,136,0.4);
-    }
+    /* .logo / .logo-icon / .logo-text removed — dead CSS, no longer has
+       matching markup now that navbar.css + navbar-block.html own the logo. */
 
     .nav-links { display: flex; list-style: none; gap: 4px; align-items: center; }
     .nav-link {
@@ -816,32 +805,8 @@
     .aff-earn-amount { font-size: 1rem; font-weight: 700; color: var(--primary); }
 
 
-    /* ══ CART NAV BUTTON ══ */
-    .nav-cart-btn {
-      position: relative; display: flex; align-items: center;
-      gap: 8px; padding: 9px 18px;
-      background: rgba(0,255,136,0.1);
-      border: 1px solid rgba(0,255,136,0.3);
-      border-radius: 25px; cursor: pointer;
-      color: var(--primary); font-family: 'Montserrat', sans-serif;
-      font-size: 0.85rem; font-weight: 700;
-      text-decoration: none; transition: all 0.25s;
-    }
-    .nav-cart-btn:hover {
-      background: rgba(0,255,136,0.2);
-      box-shadow: 0 0 16px rgba(0,255,136,0.25);
-      transform: translateY(-1px);
-    }
-    .cart-badge {
-      position: absolute; top: -7px; right: -7px;
-      background: var(--primary); color: #000;
-      font-size: 0.65rem; font-weight: 900;
-      width: 18px; height: 18px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transform: scale(0);
-      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .cart-badge.visible { opacity: 1; transform: scale(1); }
+    /* .nav-cart-btn / .cart-badge removed — dead CSS, replaced by
+       navbar.css's .cart-btn / .cart-count on the shared navbar. */
 
     /* ══ CART TOAST (bottom-right checkout nudge) ══ */
     .cart-nudge {
@@ -1278,151 +1243,133 @@
 
   <!-- ══════════════════════ NAVIGATION ══════════════════════ -->
   <nav>
-    <a href="/" class="logo">
-      <div class="logo-icon">U</div>
-      <span class="logo-text">UYEH TECH</span>
+    <a href="/index.html" id="siteLogo">
+      <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH">
     </a>
 
- <ul class="nav-links" id="navLinks">
- 
-  <!-- Home -->
-  <li>
-    <a href="/index.html" class="nav-link">Home</a>
-  </li>
- 
-  <!-- Marketplace (dropdown) -->
-  <li class="nav-item--dropdown" id="dropMarketplace">
-    <button class="nav-link active nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-      Marketplace
-      <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <div class="nav-dropdown" role="menu">
-      <div class="nav-dropdown__section">
-        <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🛍️</span>
-          <div>
-            <span class="nav-dropdown__label">Shop</span>
-            <span class="nav-dropdown__desc">Browse digital products</span>
+    <ul class="nav-links" id="navLinks">
+
+      <!-- Home -->
+      <li>
+        <a href="/index.html" class="nav-link">Home</a>
+      </li>
+
+      <!-- Marketplace (dropdown) -->
+      <li class="nav-item--dropdown" id="dropMarketplace">
+        <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+          Marketplace
+          <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="nav-dropdown" role="menu">
+          <div class="nav-dropdown__section">
+            <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
+              <span class="nav-dropdown__icon">🛍️</span>
+              <div>
+                <span class="nav-dropdown__label">Shop</span>
+                <span class="nav-dropdown__desc">Browse digital products</span>
+              </div>
+            </a>
+            <!-- Login / Sign Up removed on purpose -- handled by the
+                 guestButtons / userDropdown widget in .nav-actions,
+                 which actually reflects login state. -->
           </div>
-        </a>
-        <a href="/marketplace/login" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🔐</span>
-          <div>
-            <span class="nav-dropdown__label">Login</span>
-            <span class="nav-dropdown__desc">Access your account</span>
+        </div>
+      </li>
+
+      <!-- Creators' Hub (dropdown) -->
+      <li class="nav-item--dropdown" id="dropCreators">
+        <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+          Creators' Hub
+          <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="nav-dropdown" role="menu">
+          <div class="nav-dropdown__section">
+            <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
+              <span class="nav-dropdown__icon">👤</span>
+              <div>
+                <span class="nav-dropdown__label">About Me</span>
+                <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
+              </div>
+            </a>
+            <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
+              <span class="nav-dropdown__icon">⚙️</span>
+              <div>
+                <span class="nav-dropdown__label">Services</span>
+                <span class="nav-dropdown__desc">What I build for clients</span>
+              </div>
+            </a>
+            <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
+              <span class="nav-dropdown__icon">🗂️</span>
+              <div>
+                <span class="nav-dropdown__label">Portfolio</span>
+                <span class="nav-dropdown__desc">Projects I have delivered</span>
+              </div>
+            </a>
+            <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
+              <span class="nav-dropdown__icon">💬</span>
+              <div>
+                <span class="nav-dropdown__label">Meet Me</span>
+                <span class="nav-dropdown__desc">Personal contact page</span>
+              </div>
+            </a>
           </div>
-        </a>
-        <a href="/marketplace/signup" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🔗</span>
-          <div>
-            <span class="nav-dropdown__label">Sign Up</span>
-            <span class="nav-dropdown__desc">Create account today</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </li>
- 
-  <!-- Creators' Hub (dropdown) -->
-  <li class="nav-item--dropdown" id="dropCreators">
-    <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-      Creators' Hub
-      <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <div class="nav-dropdown" role="menu">
-      <div class="nav-dropdown__section">
-        <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">👤</span>
-          <div>
-            <span class="nav-dropdown__label">About Me</span>
-            <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
-          </div>
-        </a>
-        <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">⚙️</span>
-          <div>
-            <span class="nav-dropdown__label">Services</span>
-            <span class="nav-dropdown__desc">What I build for clients</span>
-          </div>
-        </a>
-        <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">🗂️</span>
-          <div>
-            <span class="nav-dropdown__label">Portfolio</span>
-            <span class="nav-dropdown__desc">Projects I have delivered</span>
-          </div>
-        </a>
-        <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
-          <span class="nav-dropdown__icon">💬</span>
-          <div>
-            <span class="nav-dropdown__label">Meet Me</span>
-            <span class="nav-dropdown__desc">Personal contact page</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </li>
- 
-  <!-- Blog -->
-  <li>
-    <a href="/blog/" class="nav-link">Blog</a>
-  </li>
- 
-  <!-- Contact -->
-  <li>
-    <a href="/contact" class="nav-link">Contact</a>
-  </li>
- 
-        </ul>
+        </div>
+      </li>
+
+      <!-- Blog -->
+      <li><a href="/blog/" class="nav-link">Blog</a></li>
+
+      <!-- Contact -->
+      <li><a href="/contact" class="nav-link">Contact</a></li>
+
+    </ul>
 
     <div class="nav-actions">
-      <!-- Cart button — always visible -->
-      <a href="/marketplace/checkout" class="nav-cart-btn" id="navCartBtn" title="Go to cart">
-        <i class="fas fa-shopping-cart"></i>
-        <span id="navCartLabel">Cart</span>
-        <span class="cart-badge" id="cartBadge">0</span>
+      <!-- Cart -- direct link to checkout (this page has no slide-out cart panel) -->
+      <a href="/marketplace/checkout" class="cart-btn" id="navCartBtn">
+        <i class="fas fa-shopping-cart cart-icon"></i>
+        <span class="cart-text" id="navCartLabel">Cart</span>
+        <span class="cart-count" id="cartBadge">0</span>
       </a>
 
-      <div id="guestButtons" style="display:flex;gap:10px;">
-        <a href="/marketplace/login"  class="btn-login">Login</a>
+      <!-- Guest state: shown when logged out -->
+      <div id="guestButtons" class="auth-buttons">
+        <a href="/marketplace/login" class="btn-login">Login</a>
         <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
       </div>
-      <div id="userDropdown" style="display:none;position:relative;">
-        <button onclick="document.getElementById('navDropMenu').classList.toggle('open')"
-          style="display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0;">
-          <div id="navAvatarCircle"
-            style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00c866,#00ff88);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#0a0a0a;overflow:hidden;flex-shrink:0;">
-            <img id="navAvatarImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;" />
-            <span id="navAvatarInitial"></span>
-          </div>
-          <span id="navUserName" style="color:var(--primary);font-weight:600;font-size:0.9rem;"></span>
-          <i class="fas fa-chevron-down" style="font-size:.7rem;color:var(--t2);"></i>
+
+      <!-- Logged-in state: shown when a valid token/user exists.
+           navbar.js toggles which of these two blocks is visible. -->
+      <div id="userDropdown" class="user-dropdown" style="display:none;">
+        <button class="user-avatar-btn" onclick="toggleUserMenu()">
+          <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
+          <span id="userName">User</span>
+          <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span>
         </button>
-        <div id="navDropMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--g3);border:1px solid var(--line2);border-radius:12px;min-width:180px;padding:6px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.5);">
-          <a href="/marketplace/dashboard" style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;color:var(--t1);text-decoration:none;font-size:.85rem;transition:background .15s;"
-            onmouseover="this.style.background='rgba(0,255,136,.08)'" onmouseout="this.style.background='none'">
-            <i class="fas fa-th-large" style="color:var(--primary);width:14px;text-align:center;"></i> Dashboard
-          </a>
-          <a href="/marketplace/my-products" style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;color:var(--t1);text-decoration:none;font-size:.85rem;transition:background .15s;"
-            onmouseover="this.style.background='rgba(0,255,136,.08)'" onmouseout="this.style.background='none'">
-            <i class="fas fa-box-open" style="color:var(--primary);width:14px;text-align:center;"></i> My Purchases
-          </a>
-          <hr style="border:none;border-top:1px solid var(--line2);margin:4px 8px;" />
-          <button onclick="logoutUser()" style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:8px;background:none;border:none;color:#ff6b6b;font-size:.85rem;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s;"
-            onmouseover="this.style.background='rgba(255,77,77,.08)'" onmouseout="this.style.background='none'">
-            <i class="fas fa-sign-out-alt" style="width:14px;text-align:center;"></i> Logout
-          </button>
+        <div class="user-menu" id="userMenu">
+          <div class="user-menu-header">
+            <img id="menuAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
+            <div>
+              <div class="menu-user-name" id="menuUserName">User</div>
+              <div class="menu-user-email" id="menuUserEmail">user@email.com</div>
+            </div>
+          </div>
+          <div class="user-menu-divider"></div>
+          <a href="/marketplace/dashboard" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+          <a href="/marketplace/my-products" class="user-menu-item"><i class="fas fa-box"></i><span>My Products</span></a>
+          <a href="/marketplace/orders" class="user-menu-item"><i class="fas fa-receipt"></i><span>Orders</span></a>
+          <a href="/marketplace/settings" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+          <div class="user-menu-divider"></div>
+          <button class="user-menu-item logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
         </div>
       </div>
     </div>
 
-    <div class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">
-      <span></span><span></span><span></span>
-    </div>
+    <div class="menu-toggle" id="menuToggle"><span></span><span></span><span></span></div>
   </nav>
 
   <!-- ══════════════════════ ERROR STATE ══════════════════════ -->
@@ -1751,7 +1698,8 @@
        2. BOOT
        ══════════════════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', async () => {
-      checkAuth();
+      // Auth (login state, avatar, dropdown, logout) is now handled entirely
+      // by the shared /js/navbar.js — no page-specific checkAuth() needed.
       await fetchUserCurrency(); // resolve currency before rendering product prices
 
       currentSlug = resolveSlug();
@@ -1762,50 +1710,6 @@
 
       await loadStore(currentSlug);
     });
-
-    /* ══════════════════════════════════════════════════
-       3. AUTH (lightweight — just show/hide nav)
-       ══════════════════════════════════════════════════ */
-    function checkAuth() {
-      const token = localStorage.getItem('token');
-      const user  = JSON.parse(localStorage.getItem('user') || 'null');
-      if (token && user) {
-        document.getElementById('guestButtons').style.display  = 'none';
-        document.getElementById('userDropdown').style.display  = 'block';
-        const firstName = user.fullName?.split(' ')[0] || user.name || 'Account';
-        document.getElementById('navUserName').textContent = firstName;
-
-        // Avatar: use profileImage if available, else initials
-        const avatarImg     = document.getElementById('navAvatarImg');
-        const avatarInitial = document.getElementById('navAvatarInitial');
-        if (user.profileImage) {
-          avatarImg.src = user.profileImage;
-          avatarImg.style.display = 'block';
-          avatarInitial.style.display = 'none';
-        } else {
-          avatarInitial.textContent = firstName.charAt(0).toUpperCase();
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', e => {
-          const dd = document.getElementById('navDropMenu');
-          const ud = document.getElementById('userDropdown');
-          if (dd && !ud.contains(e.target)) dd.style.display = 'none';
-        });
-
-        // Toggle open class → display
-        const menu = document.getElementById('navDropMenu');
-        const observer = new MutationObserver(() => {
-          menu.style.display = menu.classList.contains('open') ? 'block' : 'none';
-        });
-        observer.observe(menu, { attributes: true, attributeFilter: ['class'] });
-      }
-    }
-
-    function logoutUser() {
-      ['token','user','user_orders','uyehtech_cart','checkout_coupon'].forEach(k => localStorage.removeItem(k));
-      window.location.href = '/marketplace/login';
-    }
 
     /* ══════════════════════════════════════════════════
        4. LOAD STORE DATA
@@ -2417,26 +2321,31 @@
       closeProductModal();
     }
 
-    function buyNowFromModal() {
-    if (activeProductId) {
-      addToCart(activeProductId);
+    async function buyNowFromModal() {
+      if (!activeProductId) return;
+      const added = await addToCart(activeProductId);
       closeProductModal();
-      window.location.href = '/marketplace/checkout';
+      if (added) {
+        window.location.href = '/marketplace/checkout';
+      }
+      // If added is false, addToCart already showed the reason why
+      // (login required, already owned, etc.) — don't navigate anywhere.
     }
-  }
     /* ══════════════════════════════════════════════════
        10. CART (uses same localStorage format as index.html)
        ══════════════════════════════════════════════════ */
     function addToCart(id) {
       const p = allProducts.find(x => x._id === id);
-      if (!p) return;
+      if (!p) return Promise.resolve(false);
 
       // Must be logged in
       const token = localStorage.getItem('token');
       if (!token) {
         showToast('⚠️', 'Please login to add products to your cart');
-        setTimeout(() => window.location.href = '/marketplace/login', 1500);
-        return;
+        sessionStorage.setItem('uyeh_pending_action', JSON.stringify({ type: 'addToCart', productId: id }));
+        const returnTo = window.location.pathname + window.location.search;
+        setTimeout(() => window.location.href = '/marketplace/login?return_to=' + encodeURIComponent(returnTo), 1500);
+        return Promise.resolve(false);
       }
 
       let cart = JSON.parse(localStorage.getItem('uyehtech_cart') || '[]');
@@ -2446,22 +2355,23 @@
       if (exists) {
         showToast('⚠️', `${p.title} is already in your cart`);
         showCartNudge(cart.length, true);
-        return;
+        return Promise.resolve(true); // already in cart — fine for Buy Now to proceed
       }
 
       // Ownership check — don't let someone re-buy what they already own
-      fetch(`${API_URL}/api/products/${resolvedId}/ownership-check`, {
+      return fetch(`${API_URL}/api/products/${resolvedId}/ownership-check`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(r => r.json())
       .then(data => {
         if (data.owned) {
           showToast('✅', `You already own "${p.title}" — check My Products`);
-          return;
+          return false;
         }
         _csPushToCart(p, resolvedId);
+        return true;
       })
-      .catch(() => _csPushToCart(p, resolvedId));
+      .catch(() => { _csPushToCart(p, resolvedId); return true; });
     }
 
     function _csPushToCart(p, resolvedId) {
@@ -2541,14 +2451,11 @@
       const badge = document.getElementById('cartBadge');
       const label = document.getElementById('navCartLabel');
       if (!badge) return;
-      if (count > 0) {
-        badge.textContent = count > 9 ? '9+' : count;
-        badge.classList.add('visible');
-        if (label) label.textContent = count === 1 ? '1 item' : count + ' items';
-      } else {
-        badge.classList.remove('visible');
-        if (label) label.textContent = 'Cart';
-      }
+      // Now targets navbar.css's .cart-count, which always shows (matches
+      // the same badge style used on the main marketplace page) — no more
+      // .visible toggle needed, just update the number and the label.
+      badge.textContent = count > 9 ? '9+' : count;
+      if (label) label.textContent = count > 0 ? (count === 1 ? '1 item' : count + ' items') : 'Cart';
     }
 
     /* ── Show the bottom-right checkout nudge ── */
@@ -3074,6 +2981,7 @@
     }
   </script>
   
+<script src="/js/navbar.js" defer></script>
 <script src="/pwa-install.js"></script>
 <script src="/chat-widget.js"></script>
 
