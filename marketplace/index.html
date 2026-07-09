@@ -220,6 +220,9 @@
     @keyframes marqueeScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
 
     .hero-stats { display:flex; justify-content:center; gap:50px; animation: fadeInUp 0.8s ease 0.4s both; flex-wrap:wrap; }
+    .stat-clickable { cursor:pointer; transition:transform 0.2s ease, opacity 0.2s ease; border-radius:10px; padding:6px 10px; }
+    .stat-clickable:hover { transform:translateY(-3px); opacity:0.85; }
+    .stat-clickable:focus-visible { outline:2px solid var(--primary); outline-offset:3px; }
     .stat { text-align:center; }
     .stat-number { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:900; color:var(--primary); display:block; margin-bottom:5px; text-shadow:0 0 20px rgba(0,255,136,0.3); }
     .stat-label { color:var(--gray); font-size:0.9rem; }
@@ -1183,8 +1186,12 @@ nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
     </div>
 
     <div class="hero-stats">
-      <div class="stat"><span class="stat-number" id="totalProducts">—</span><span class="stat-label">Products</span></div>
-      <div class="stat"><span class="stat-number" id="totalCreators">—</span><span class="stat-label">Creators</span></div>
+      <div class="stat stat-clickable" onclick="scrollToSection('productsSection')" role="button" tabindex="0" title="Browse all products">
+        <span class="stat-number" id="totalProducts">—</span><span class="stat-label">Products</span>
+      </div>
+      <div class="stat stat-clickable" onclick="scrollToSection('creatorsSection')" role="button" tabindex="0" title="Browse all creators">
+        <span class="stat-number" id="totalCreators">—</span><span class="stat-label">Creators</span>
+      </div>
       <div class="stat"><span class="stat-number">500+</span><span class="stat-label">Happy Customers</span></div>
       <div class="stat"><span class="stat-number" id="avgRatingDisplay">4.9★</span><span class="stat-label">Avg Rating</span></div>
     </div>
@@ -1550,6 +1557,14 @@ function getMyAffCode() {
 }
 
 
+// Smoothly scrolls to a section by id — silently does nothing if the
+// section doesn't exist or is currently hidden (e.g. no creators yet).
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el || el.style.display === 'none') return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 // ── FIX 5: buildProductUrl — correct deep-links for BOTH product types ───────
 function buildProductUrl(product) {
   const code      = getMyAffCode();
@@ -1558,9 +1573,10 @@ function buildProductUrl(product) {
   let baseUrl;
 
   if (product.isCreatorProduct && product.creatorId) {
-    // Creator product → link to creator-store.html with store + product params
+    // Creator product → clean /marketplace/{slug} path (Netlify redirect),
+    // with product/ref kept as query params.
     const slug  = product.creatorId.storeSlug || product.creatorId.storeName || '';
-    baseUrl = `${STORE_BASE}/creator-store.html?store=${encodeURIComponent(slug)}&product=${productId}`;
+    baseUrl = `${STORE_BASE}${encodeURIComponent(slug)}?product=${productId}`;
   } else {
     // Admin product → link to the marketplace with product param (auto-opens modal)
     baseUrl = `${STORE_BASE}/?product=${productId}`;
@@ -1927,7 +1943,7 @@ function renderCreatorsSection(products) {
     const avatarHTML = pic ? `<img src="${esc(pic)}" alt="${esc(name)}">` : name.charAt(0).toUpperCase();
     const verified   = c.isVerified ? `<span class="creator-verified"><i class="fas fa-check-circle"></i> Verified</span>` : '';
     return `
-      <a href="/marketplace/creator-store?store=${encodeURIComponent(slug)}" class="creator-card">
+      <a href="/marketplace/${encodeURIComponent(slug)}" class="creator-card">
         <div class="creator-avatar">${avatarHTML}</div>
         <div class="creator-name">${esc(name)}</div>
         <div class="creator-products-count">${c.productCount} product${c.productCount !== 1 ? 's' : ''}</div>
@@ -2003,7 +2019,7 @@ function displayProducts(products) {
     const creatorHTML = creator
       ? `<div class="product-creator-tag">
            <i class="fas fa-store" style="font-size:0.72rem;color:var(--purple);"></i>
-           <a href="/marketplace/creator-store?store=${encodeURIComponent(creator.storeSlug || '')}" onclick="event.stopPropagation()">
+           <a href="/marketplace/${encodeURIComponent(creator.storeSlug || '')}" onclick="event.stopPropagation()">
              ${esc(creator.storeName || 'Creator')}
            </a>
          </div>` : '';
@@ -2081,8 +2097,8 @@ function viewProduct(productId) {
   const creatorSection = creator
     ? `<div style="margin-bottom:16px;padding:12px 15px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:10px;display:flex;align-items:center;gap:10px;">
          <i class="fas fa-store" style="color:var(--primary);"></i>
-         <span style="color:var(--gray-light);font-size:0.9rem;">Sold by</span>
-         <a href="/marketplace/creator-store?store=${encodeURIComponent(storeSlug)}"
+         <span style="color:var(--gray-light);font-size:0.9rem;">Owned by</span>
+         <a href="/marketplace/${encodeURIComponent(storeSlug)}"
             style="color:var(--primary);font-weight:700;text-decoration:none;">${esc(creator.storeName)}</a>
        </div>` : '';
 
