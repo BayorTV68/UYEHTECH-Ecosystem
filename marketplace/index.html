@@ -1495,7 +1495,10 @@ const STORE_BASE = 'https://uyehtech.netlify.app/marketplace/';
 let currentCategory  = 'all';
 let currentSort      = 'default';
 let cart             = [];
-let currentUser      = null;
+// currentUser lives on window.currentUser, set by the shared /js/navbar.js
+// (previously this page declared its own separate copy that never actually
+// got assigned, because navbar.js's same-named checkAuthentication silently
+// overwrote this page's version — that's what caused the login redirect loop)
 let allProducts      = [];
 let filteredProducts = [];
 let appliedCoupon    = null;
@@ -1592,7 +1595,9 @@ function buildProductUrl(product) {
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ Store initializing...');
   loadCart();
-  await checkAuthentication();
+  // Auth is handled by the shared /js/navbar.js, loaded with `defer` — which
+  // guarantees it finishes running before this DOMContentLoaded handler
+  // fires. window.currentUser is already set by the time we get here.
   await fetchUserCurrency(); // resolve BEFORE loadProducts so admin displayPrice uses correct rate
   await loadProducts();
   resumePendingAction(); // after auth + cart + catalog are all ready
@@ -1618,91 +1623,11 @@ function resumePendingAction() {
 }
 
 // ── AUTHENTICATION ────────────────────────────────────────────────────────────
-async function checkAuthentication() {
-  const token = localStorage.getItem('token');
-  const user  = localStorage.getItem('user');
-  if (!token || !user) { showGuestButtons(); return; }
-  try {
-    currentUser = JSON.parse(user);
-    showUserDropdown(currentUser);
-    // Validate token with server in the background — refresh stale user data
-    // FIX: this used to call /api/user/profile, which doesn't exist on the
-    // server (the real route is /api/profile, no "/user" segment). That 404
-    // was being treated as "token invalid", so every single page load wiped
-    // the user's login — no matter how many times they logged back in.
-    fetch(`${API_URL}/api/profile`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(r => {
-      if (r.status === 401 || r.status === 403) {
-        // Token is genuinely invalid/expired — safe to clear
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        currentUser = null;
-        showGuestButtons();
-        return null;
-      }
-      // Any other non-OK response (404, 500, rate limit, etc.) is a server-
-      // side problem, not proof the token is bad — don't log the user out
-      // over it. Just keep showing the cached state from localStorage.
-      return r.ok ? r.json() : null;
-    })
-    .then(data => {
-      if (data && data.success && data.user) {
-        // Refresh cached user object
-        currentUser = data.user;
-        localStorage.setItem('user', JSON.stringify(data.user));
-        showUserDropdown(data.user);
-      }
-    })
-    .catch(() => {}); // network error — keep showing cached state
-  } catch(e) {
-    showGuestButtons();
-  }
-}
-
-function showUserDropdown(user) {
-  document.getElementById('guestButtons').style.display  = 'none';
-  document.getElementById('userDropdown').style.display  = 'block';
-  const name     = user.name || user.fullName || 'User';
-  const email    = user.email || '';
-  const avatar   = user.profilePic || user.profileImage || user.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00ff88&color=0a0a0a`;
-  document.getElementById('userAvatar').src         = avatar;
-  document.getElementById('userName').textContent   = name.split(' ')[0];
-  document.getElementById('menuAvatar').src         = avatar;
-  document.getElementById('menuUserName').textContent = name;
-  document.getElementById('menuUserEmail').textContent = email;
-}
-
-function showGuestButtons() {
-  document.getElementById('guestButtons').style.display = 'flex';
-  document.getElementById('userDropdown').style.display = 'none';
-}
-
-function toggleUserMenu() {
-  document.getElementById('userMenu').classList.toggle('active');
-  document.getElementById('userDropdown').classList.toggle('active');
-}
-
-document.addEventListener('click', function(e) {
-  const dropdown = document.getElementById('userDropdown');
-  if (dropdown && !dropdown.contains(e.target)) {
-    document.getElementById('userMenu').classList.remove('active');
-    dropdown.classList.remove('active');
-  }
-});
-
-function handleLogout() {
-  if (confirm('Are you sure you want to logout?')) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    currentUser = null;
-    showGuestButtons();
-    showNotification('👋 Logged out successfully');
-    setTimeout(() => window.location.reload(), 1000);
-  }
-}
+// checkAuthentication(), showUserDropdown(), showGuestButtons(),
+// toggleUserMenu(), the outside-click handler, and handleLogout() all now
+// live in the shared /js/navbar.js — removed here to eliminate the exact
+// duplicate-declaration collision that caused this page's login loop.
+// window.currentUser is the single source of truth going forward.
 
 
 // ── LOAD PRODUCTS ─────────────────────────────────────────────────────────────
@@ -2207,7 +2132,7 @@ async function loadModalReviews(productId) {
       </div>`).join('') : `<div style="color:var(--t3);font-size:.82rem;text-align:center;padding:16px 0;">No reviews yet. Be the first!</div>`;
 
     // Show write-review form if logged in and has purchased this product
-    if (currentUser) {
+    if (window.currentUser) {
       const token = localStorage.getItem('token');
       const own = await fetch(`${API_URL}/api/products/${productId}/ownership-check`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -2218,7 +2143,7 @@ async function loadModalReviews(productId) {
 }
 
 async function submitModalReview(productId) {
-  if (!currentUser) { showNotification('⚠️ Please login to submit a review'); return; }
+  if (!window.currentUser) { showNotification('⚠️ Please login to submit a review'); return; }
   if (!_modalStar) { showNotification('⚠️ Please select a star rating'); return; }
   const body = document.getElementById('reviewBody')?.value?.trim();
   if (!body || body.length < 5) { showNotification('⚠️ Review must be at least 5 characters'); return; }
@@ -2375,7 +2300,7 @@ function updateCartTotals() {
 // ── FIX 3: addToCart stores creator info so checkout can identify items ───────
 function addToCart(productId) {
   // Must be logged in to purchase
-  if (!currentUser) {
+  if (!window.currentUser) {
     showNotification('⚠️ Please login to add products to your cart');
     sessionStorage.setItem('uyeh_pending_action', JSON.stringify({ type: 'addToCart', productId }));
     const returnTo = window.location.pathname + window.location.search;
@@ -2453,7 +2378,7 @@ function removeFromCart(index) {
 async function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
   if (!code) { showNotification('⚠️ Please enter a coupon code'); return; }
-  if (!currentUser) { showNotification('⚠️ Please login to apply coupons'); return; }
+  if (!window.currentUser) { showNotification('⚠️ Please login to apply coupons'); return; }
   try {
     const token    = localStorage.getItem('token');
     const subtotal = cart.reduce((s, item) => s + item.price, 0);
@@ -2477,7 +2402,7 @@ async function applyCoupon() {
 // ── goToCheckout — canonical keys, clean affiliate handoff ───────────────────
 function goToCheckout() {
   if (!cart.length) { showNotification('⚠️ Your cart is empty'); return; }
-  if (!currentUser) {
+  if (!window.currentUser) {
     showNotification('⚠️ Please login to checkout');
     sessionStorage.setItem('uyeh_pending_action', JSON.stringify({ type: 'checkout' }));
     const returnTo = window.location.pathname + window.location.search;
@@ -3586,7 +3511,7 @@ window.addEventListener('load', function() {
 })();
 </script>
 <script src="/chat-widget.js"></script>
-<script src="navbar.js"></script>
+<script src="navbar.js" defer></script>
 
 </body>
 </html>

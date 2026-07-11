@@ -1,4 +1,3 @@
-
 (function () {
   'use strict';
 
@@ -83,18 +82,27 @@
 
   /* ═══════════════════════════════════════════
      PART 2: Auth state — guest buttons vs user dropdown
+
+     currentUser lives on `window` — a real global, not scoped to this
+     IIFE — so every page can read `window.currentUser` directly instead
+     of each page maintaining its own separate copy that never gets set.
+     This is the fix for two bugs: pages whose own currentUser never got
+     assigned (login redirect loops), and this function's name previously
+     being declared again by page-level scripts and silently overwriting
+     one or the other depending on script load order.
      ═══════════════════════════════════════════ */
   var API_URL = window.API_URL || 'https://uyehtechbackend.onrender.com';
-  var currentUser = null;
+  window.currentUser = window.currentUser || null;
 
   function checkAuthentication() {
     var token = localStorage.getItem('token');
     var user  = localStorage.getItem('user');
-    if (!token || !user) { showGuestButtons(); return; }
+    if (!token || !user) { showGuestButtons(); _announceAuthReady(); return; }
 
     try {
-      currentUser = JSON.parse(user);
-      showUserDropdown(currentUser);
+      window.currentUser = JSON.parse(user);
+      showUserDropdown(window.currentUser);
+      _announceAuthReady();
 
       // Background validation — route is /api/profile (no "/user" segment).
       fetch(API_URL + '/api/profile', {
@@ -104,7 +112,7 @@
         if (r.status === 401 || r.status === 403) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          currentUser = null;
+          window.currentUser = null;
           showGuestButtons();
           return null;
         }
@@ -114,15 +122,27 @@
       })
       .then(function (data) {
         if (data && data.success && data.user) {
-          currentUser = data.user;
+          window.currentUser = data.user;
           localStorage.setItem('user', JSON.stringify(data.user));
           showUserDropdown(data.user);
         }
       })
       .catch(function () {}); // network error — keep showing cached state
     } catch (e) {
+      // Stored 'user' was corrupted/unparseable — self-heal instead of
+      // getting silently stuck showing "guest" forever on every future load.
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.currentUser = null;
       showGuestButtons();
+      _announceAuthReady();
     }
+  }
+
+  // Lets any page know the initial auth check has resolved, without having
+  // to guess script load order or duplicate this logic themselves.
+  function _announceAuthReady() {
+    window.dispatchEvent(new CustomEvent('uyeh-auth-ready', { detail: window.currentUser }));
   }
 
   function showUserDropdown(user) {
@@ -169,7 +189,7 @@
     if (confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      currentUser = null;
+      window.currentUser = null;
       showGuestButtons();
       if (typeof showNotification === 'function') {
         showNotification('👋 Logged out successfully');
@@ -196,16 +216,4 @@
   // Run auth check automatically — no per-page call needed
   checkAuthentication();
 
-}());    
-        // Smooth scroll for all links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
+}());
