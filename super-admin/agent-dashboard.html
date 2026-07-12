@@ -3632,6 +3632,62 @@ function buildWebSocketURL(params = {}) {
  * @param {object} chat - Chat object
  * @returns {string} Chat ID
  */
+// File-type icon + color, guessed from the extension (server only tells us
+// image vs. not — this fills in the rest for a much clearer file card).
+function getFileMeta(filename) {
+    const ext = (filename || '').split('.').pop().toLowerCase();
+    const map = {
+        pdf:  { icon: 'fa-file-pdf',        color: '#ef4444' },
+        doc:  { icon: 'fa-file-word',       color: '#3b82f6' }, docx: { icon: 'fa-file-word', color: '#3b82f6' },
+        xls:  { icon: 'fa-file-excel',      color: '#22c55e' }, xlsx: { icon: 'fa-file-excel', color: '#22c55e' },
+        ppt:  { icon: 'fa-file-powerpoint', color: '#f97316' }, pptx: { icon: 'fa-file-powerpoint', color: '#f97316' },
+        zip:  { icon: 'fa-file-zipper',     color: '#a855f7' }, rar: { icon: 'fa-file-zipper', color: '#a855f7' },
+        mp3:  { icon: 'fa-file-audio',      color: '#eab308' }, wav: { icon: 'fa-file-audio', color: '#eab308' },
+        mp4:  { icon: 'fa-file-video',      color: '#ec4899' }, mov: { icon: 'fa-file-video', color: '#ec4899' },
+        txt:  { icon: 'fa-file-lines',      color: '#9ca3af' },
+    };
+    return { ext, ...(map[ext] || { icon: 'fa-file', color: 'var(--primary)' }) };
+}
+
+function formatFileBytes(bytes) {
+    if (!bytes || isNaN(bytes)) return '';
+    const units = ['B','KB','MB','GB'];
+    let i = 0, n = bytes;
+    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+    return `${n.toFixed(n >= 10 || i === 0 ? 0 : 1)}${units[i]}`;
+}
+
+// Simple lightbox for chat attachments — the dashboard didn't have one at
+// all before, so image thumbnails were also opening a raw Cloudinary tab.
+function openAttachmentLightbox(url, type) {
+    let box = document.getElementById('attachLightbox');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'attachLightbox';
+        box.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;';
+        box.innerHTML = `
+            <button onclick="closeAttachmentLightbox()" style="position:absolute;top:20px;right:24px;background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;"><i class="fas fa-times"></i></button>
+            <img id="attachLightboxImg" style="display:none;max-width:90vw;max-height:80vh;border-radius:10px;object-fit:contain;">
+            <iframe id="attachLightboxPdf" style="display:none;width:90vw;height:80vh;border:none;border-radius:10px;background:#fff;"></iframe>
+            <a id="attachLightboxDownload" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--primary);color:#0a0a0a;border-radius:8px;text-decoration:none;font-weight:700;font-size:.85rem;">
+                <i class="fas fa-download"></i> Download
+            </a>`;
+        document.body.appendChild(box);
+        box.addEventListener('click', e => { if (e.target === box) closeAttachmentLightbox(); });
+    }
+    const img = document.getElementById('attachLightboxImg');
+    const pdf = document.getElementById('attachLightboxPdf');
+    if (type === 'pdf') { img.style.display = 'none'; pdf.src = url; pdf.style.display = 'block'; }
+    else                { pdf.style.display = 'none'; pdf.src = ''; img.src = url; img.style.display = 'block'; }
+    document.getElementById('attachLightboxDownload').href = url;
+    box.style.display = 'flex';
+}
+
+function closeAttachmentLightbox() {
+    const box = document.getElementById('attachLightbox');
+    if (box) box.style.display = 'none';
+}
+
 function getChatId(chat) {
     return chat.chatId || chat._id || chat.id;
 }
@@ -6707,17 +6763,29 @@ addMessageToUI(message) {
                 <div class="message-bubble" style="${message.message ? '' : 'padding:6px;background:transparent;box-shadow:none;'}">
                     ${message.message ? `<p style="margin-bottom:8px;">${ui.escapeHtml(message.message)}</p>` : ''}
                     ${imgAttachments.map(a => `
-                        <a href="${a.url}" target="_blank" rel="noopener">
-                            <img src="${a.thumbnailUrl || a.url}" alt="${ui.escapeHtml(a.filename)}"
-                                 style="max-width:240px;max-height:200px;border-radius:8px;display:block;margin:4px 0;object-fit:cover;cursor:pointer;"
-                                 onerror="this.style.display='none'">
-                        </a>`).join('')}
-                    ${fileAttachments.map(a => `
-                        <a href="${a.url}" target="_blank" rel="noopener"
-                           style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.06);border-radius:8px;text-decoration:none;color:var(--primary);font-size:.82rem;margin-top:4px;">
-                            <i class="fas fa-file" style="flex-shrink:0;"></i>
-                            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ui.escapeHtml(a.filename)}</span>
-                        </a>`).join('')}
+                        <img src="${a.thumbnailUrl || a.url}" alt="${ui.escapeHtml(a.filename)}"
+                             style="max-width:240px;max-height:200px;border-radius:8px;display:block;margin:4px 0;object-fit:cover;cursor:pointer;"
+                             onclick="openAttachmentLightbox('${a.url}','image')"
+                             onerror="this.style.display='none'">`).join('')}
+                    ${fileAttachments.map(a => {
+                        const meta  = getFileMeta(a.filename);
+                        const size  = formatFileBytes(a.bytes || a.size);
+                        const isPdf = meta.ext === 'pdf';
+                        const clickAttr = isPdf
+                            ? `onclick="openAttachmentLightbox('${a.url}','pdf')" style="cursor:pointer;"`
+                            : '';
+                        const tag = isPdf ? 'div' : 'a';
+                        const hrefAttr = isPdf ? '' : `href="${a.url}" target="_blank" rel="noopener"`;
+                        return `
+                        <${tag} ${hrefAttr} ${clickAttr}
+                           style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.06);border-radius:8px;text-decoration:none;margin-top:4px;">
+                            <span style="flex-shrink:0;width:26px;text-align:center;font-size:1.1rem;color:${meta.color};"><i class="fas ${meta.icon}"></i></span>
+                            <span style="overflow:hidden;display:flex;flex-direction:column;min-width:0;">
+                                <span style="color:#fff;font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ui.escapeHtml(a.filename)}</span>
+                                <span style="color:var(--gray);font-size:.7rem;margin-top:1px;">${size ? size + ' · ' : ''}${isPdf ? 'Click to preview' : 'Click to download'}</span>
+                            </span>
+                        </${tag}>`;
+                    }).join('')}
                 </div>`;
         } else {
             bodyHtml = `<div class="message-bubble">${ui.escapeHtml(message.message)}</div>`;
@@ -6823,6 +6891,15 @@ async sendChatMessage() {
     const userId = this.currentUser.id || this.currentUser._id;
     const senderName = this.currentUser.fullName || this.currentUser.name;
 
+    // Captured ONCE, right here, and reused below — the old code generated
+    // a fresh 'temp-' + Date.now() a second time after the network request
+    // finished and used THAT to look up the original bubble, which almost
+    // never matched (real round-trips take way longer than the 1ms it was
+    // guessing). That's why the optimistic bubble used to get stuck on
+    // "sending" forever while a second bubble appeared from the WebSocket
+    // echo — this single captured tempId is the actual fix.
+    const tempId = 'temp-' + Date.now();
+
     try {
         // Create message object
         const messageData = {
@@ -6836,7 +6913,7 @@ async sendChatMessage() {
         // 🎯 FIX #1: Add message to UI IMMEDIATELY (optimistic update)
         this.addMessageToUI({
             ...messageData,
-            _id: 'temp-' + Date.now(), // Temporary ID
+            _id: tempId,
             status: 'sending' // Show sending status
         });
 
@@ -6847,8 +6924,7 @@ async sendChatMessage() {
         const response = await api.sendMessage(chatId, messageData);
 
        if (response.success) {
-            // Update the optimistic bubble — tempId was 'temp-' + timestamp before send
-            const tempId = 'temp-' + (Date.now() - 1); // approximate — status update
+            // Reconcile the SAME bubble we just created above — no more guessing.
             this.updateMessageStatus(tempId, {
                 _id:    response.messageData?.messageId || response.messageId,
                 status: 'sent',
@@ -6863,9 +6939,9 @@ async sendChatMessage() {
     } catch (error) {
         debugLog('error', 'Failed to send message', error);
         ui.showError('Failed to send message: ' + error.message);
-        
-        // Mark the message as failed
-        this.updateMessageStatus('temp-' + Date.now(), {
+
+        // Mark the SAME bubble as failed — same fix, no more guessing.
+        this.updateMessageStatus(tempId, {
             status: 'failed'
         });
     }
@@ -6882,6 +6958,7 @@ handleIncomingMessage(data) {
     const msgId    = raw.messageId || raw._id || data.messageId;
     const chatId   = data.chatId   || raw.chatId;
     const sender   = raw.sender    || data.sender    || 'customer';
+    const senderId = raw.senderId  || data.senderId  || null;
     const msgText  = raw.message   || data.content   || '';
     const senderName = raw.senderName || data.senderName || (sender === 'customer' ? 'Customer' : 'Agent');
     const timestamp  = raw.timestamp  || data.timestamp  || new Date();
@@ -6899,6 +6976,19 @@ handleIncomingMessage(data) {
 
     // Skip internal notes (agents-only, not for customer view)
     if (raw.isInternal) return;
+
+    // If this is OUR OWN message arriving back over the socket before the
+    // HTTP response for our own send has finished, there's already a temp
+    // bubble on screen showing "sending" — reconcile it instead of adding
+    // a second bubble.
+    const myId = this.currentUser?.id || this.currentUser?._id;
+    if (sender === 'agent' && senderId === myId) {
+        const pending = document.querySelector('[data-message-id^="temp-"]');
+        if (pending) {
+            this.updateMessageStatus(pending.dataset.messageId, { _id: msgId, status: 'sent' });
+            return;
+        }
+    }
 
     // Use addMessageToUI (class method) — renders into the open modal correctly
     this.addMessageToUI({
