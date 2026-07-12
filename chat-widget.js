@@ -141,8 +141,14 @@
 .cw-reply-quote strong{color:var(--cw-g);display:block;margin-bottom:2px;font-size:10px}
 .cw-reply-quote span{color:var(--cw-muted)}
 /* attachments */
-.cw-img-attach{max-width:220px;border-radius:10px;display:block;cursor:pointer;margin-top:4px;object-fit:cover}
-.cw-file-attach{display:flex;align-items:center;gap:8px;padding:8px 11px;background:rgba(255,255,255,.05);border-radius:8px;text-decoration:none;color:var(--cw-g);font-size:12px;margin-top:4px}
+.cw-img-attach{max-width:220px;border-radius:1px;display:block;cursor:pointer;margin-top:4px;object-fit:cover}
+.cw-file-attach{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.05);border-radius:10px;text-decoration:none;margin-top:4px;transition:background .2s}
+.cw-file-attach:hover{background:rgba(255,255,255,.09)}
+.cw-file-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.cw-file-info{display:flex;flex-direction:column;min-width:0}
+.cw-file-name{color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.cw-file-hint{color:rgba(255,255,255,.45);font-size:10.5px;margin-top:1px}
+.cw-lb-download{position:absolute;bottom:24px;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--cw-g);color:#0a0a0a;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px}
 /* reactions */
 .cw-reacts{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
 .cw-react-chip{background:rgba(255,255,255,.07);border:1px solid var(--cw-rim2);border-radius:20px;padding:2px 7px;font-size:12px;cursor:pointer;transition:background .15s}
@@ -350,6 +356,10 @@
 <div id="uyeh-cw-lb">
   <button class="cw-lb-close" id="uyeh-cw-lb-close"><i class="fas fa-times"></i></button>
   <img id="uyeh-cw-lb-img" src="" alt="Full size image"/>
+  <iframe id="uyeh-cw-lb-pdf" src="" style="display:none;width:90vw;height:90vh;border:none;border-radius:10px;background:#fff;"></iframe>
+  <a id="uyeh-cw-lb-download" href="" target="_blank" rel="noopener" class="cw-lb-download" style="display:none;">
+    <i class="fas fa-download"></i> Download
+  </a>
 </div>
 <div id="uyeh-cw-toasts"></div>
 `;
@@ -537,14 +547,23 @@
         img.className = 'cw-img-attach';
         img.src = a.thumbnailUrl || a.url;
         img.alt = a.filename || 'Image';
-        img.onclick = () => _openLb(a.url);
+        img.onclick = () => _openLb(a.url, 'image');
         img.onerror = () => { img.style.display = 'none'; };
         bbl.appendChild(img);
       } else {
-        const lnk = document.createElement('a');
+        const meta   = _fileMeta(a.filename);
+        const size   = _fmtBytes(a.bytes || a.size);
+        const isPdf  = meta.ext === 'pdf';
+        const lnk = document.createElement(isPdf ? 'div' : 'a');
         lnk.className = 'cw-file-attach';
-        lnk.href = a.url; lnk.target = '_blank'; lnk.rel = 'noopener';
-        lnk.innerHTML = `<i class="fas fa-file"></i><span>${_esc(a.filename || 'File')}</span>`;
+        if (!isPdf) { lnk.href = a.url; lnk.target = '_blank'; lnk.rel = 'noopener'; }
+        else        { lnk.style.cursor = 'pointer'; lnk.onclick = () => _openLb(a.url, 'pdf'); }
+        lnk.innerHTML = `
+          <span class="cw-file-icon" style="color:${meta.color};"><i class="fas ${meta.icon}"></i></span>
+          <span class="cw-file-info">
+            <span class="cw-file-name">${_esc(a.filename || 'File')}</span>
+            <span class="cw-file-hint">${size ? size + ' · ' : ''}${isPdf ? 'Click to preview' : 'Click to download'}</span>
+          </span>`;
         bbl.appendChild(lnk);
       }
     });
@@ -623,6 +642,23 @@
       if (d.type === 'new_message' && d.message) {
         const m = d.message;
         if (_renderedIds.has(m.messageId)) return;
+
+        // This may be OUR OWN message arriving back over the socket before
+        // the HTTP response for our own /send request has finished — in
+        // that case a temp bubble is already on screen with a 'sending'
+        // clock icon. Reconcile that existing bubble instead of adding a
+        // second one (this is the fix for messages appearing twice).
+        if (m.sender === 'customer' && m.senderId === _custId) {
+          const pending = document.querySelector('.cw-row.me[data-temp-id]:not([data-msg-id])');
+          if (pending) {
+            pending.dataset.msgId = m.messageId;
+            _renderedIds.add(m.messageId);
+            const tick = pending.querySelector('.cw-tick');
+            if (tick) tick.className = 'fas fa-check-double cw-tick delivered';
+            return;
+          }
+        }
+
         _renderedIds.add(m.messageId);
         _addBubble(m);
         _hideTyping();
@@ -746,7 +782,43 @@
     return d.files || [];
   }
 
-  function _openLb(url) { $('uyeh-cw-lb-img').src = url; $('uyeh-cw-lb').classList.add('show'); }
+  function _openLb(url, type) {
+    const img = $('uyeh-cw-lb-img'), pdf = $('uyeh-cw-lb-pdf'), dl = $('uyeh-cw-lb-download');
+    if (type === 'pdf') {
+      img.style.display = 'none';
+      pdf.src = url; pdf.style.display = 'block';
+    } else {
+      pdf.style.display = 'none'; pdf.src = '';
+      img.src = url; img.style.display = 'block';
+    }
+    dl.href = url; dl.style.display = 'inline-flex';
+    $('uyeh-cw-lb').classList.add('show');
+  }
+
+  // File-type icon + label, guessed from the filename extension — the server
+  // doesn't tell us the exact kind, only that it isn't an image.
+  function _fileMeta(filename) {
+    const ext = (filename || '').split('.').pop().toLowerCase();
+    const map = {
+      pdf:  { icon: 'fa-file-pdf',       color: '#ef4444' },
+      doc:  { icon: 'fa-file-word',      color: '#3b82f6' }, docx: { icon: 'fa-file-word', color: '#3b82f6' },
+      xls:  { icon: 'fa-file-excel',     color: '#22c55e' }, xlsx: { icon: 'fa-file-excel', color: '#22c55e' },
+      ppt:  { icon: 'fa-file-powerpoint', color: '#f97316' }, pptx: { icon: 'fa-file-powerpoint', color: '#f97316' },
+      zip:  { icon: 'fa-file-zipper',    color: '#a855f7' }, rar: { icon: 'fa-file-zipper', color: '#a855f7' },
+      mp3:  { icon: 'fa-file-audio',     color: '#eab308' }, wav: { icon: 'fa-file-audio', color: '#eab308' },
+      mp4:  { icon: 'fa-file-video',     color: '#ec4899' }, mov: { icon: 'fa-file-video', color: '#ec4899' },
+      txt:  { icon: 'fa-file-lines',     color: '#9ca3af' },
+    };
+    return { ext, ...(map[ext] || { icon: 'fa-file', color: 'var(--cw-g)' }) };
+  }
+
+  function _fmtBytes(bytes) {
+    if (!bytes || isNaN(bytes)) return '';
+    const units = ['B','KB','MB','GB'];
+    let i = 0, n = bytes;
+    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+    return `${n.toFixed(n >= 10 || i === 0 ? 0 : 1)}${units[i]}`;
+  }
 
   /* ── Reset to welcome ── */
   function _resetToWelcome() {
