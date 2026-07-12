@@ -3930,6 +3930,22 @@ class APIService {
             // Parse response
             const data = await response.json();
 
+            // authenticateAgent rejects non-agent / suspended accounts with a 403
+            // and an isAgent:false or suspended:true flag — treat that the same
+            // as an expired session instead of leaving a half-loaded dashboard
+            // behind with silent console errors. This is the actual auth guard
+            // that was missing: checkAuth() only checked that *a* token exists,
+            // never that it belongs to an approved, active agent.
+            if (response.status === 403 && (data.isAgent === false || data.suspended === true)) {
+                debugLog('warn', 'Not an authorized agent — clearing token and redirecting');
+                this.clearToken();
+                if (data.suspended) {
+                    sessionStorage.setItem('agentLoginNotice', data.message || 'Your agent account has been suspended.');
+                }
+                window.location.href = 'agent-login.html';
+                throw new Error(data.message || 'Agent access required');
+            }
+
             if (!response.ok) {
                 debugLog('error', 'API Error', { status: response.status, data });
                 throw new Error(data.message || `HTTP Error ${response.status}`);
@@ -6690,12 +6706,50 @@ async assignChatToSelf(chatId) {
             }
 
             const initials = ui.getInitials(msg.senderName || (senderClass === 'customer' ? 'C' : 'A'));
-            
+
+            // This function used to render msg.message only — file-only messages
+            // (empty message text, attachments array populated) rendered as a
+            // totally blank bubble. Reusing the same attachment card + lightbox
+            // treatment addMessageToUI already has, so history and live messages
+            // look identical.
+            const attachments = msg.attachments || [];
+            const imgAttachments  = attachments.filter(a => a.resourceType === 'image');
+            const fileAttachments = attachments.filter(a => a.resourceType !== 'image');
+            const hasAttachments  = attachments.length > 0;
+
+            const attachmentsHtml = hasAttachments ? `
+                    ${imgAttachments.map(a => `
+                        <img src="${a.thumbnailUrl || a.url}" alt="${ui.escapeHtml(a.filename || 'Image')}"
+                             style="max-width:240px;max-height:200px;border-radius:8px;display:block;margin:4px 0;object-fit:cover;cursor:pointer;"
+                             onclick="openAttachmentLightbox('${a.url}','image')"
+                             onerror="this.style.display='none'">`).join('')}
+                    ${fileAttachments.map(a => {
+                        const meta  = getFileMeta(a.filename);
+                        const size  = formatFileBytes(a.bytes || a.size);
+                        const isPdf = meta.ext === 'pdf';
+                        const clickAttr = isPdf ? `onclick="openAttachmentLightbox('${a.url}','pdf')" style="cursor:pointer;"` : '';
+                        const tag = isPdf ? 'div' : 'a';
+                        const hrefAttr = isPdf ? '' : `href="${a.url}" target="_blank" rel="noopener"`;
+                        return `
+                        <${tag} ${hrefAttr} ${clickAttr}
+                           style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.06);border-radius:8px;text-decoration:none;margin-top:4px;">
+                            <span style="flex-shrink:0;width:26px;text-align:center;font-size:1.1rem;color:${meta.color};"><i class="fas ${meta.icon}"></i></span>
+                            <span style="overflow:hidden;display:flex;flex-direction:column;min-width:0;">
+                                <span style="color:#fff;font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ui.escapeHtml(a.filename || 'File')}</span>
+                                <span style="color:var(--gray);font-size:.7rem;margin-top:1px;">${size ? size + ' · ' : ''}${isPdf ? 'Click to preview' : 'Click to download'}</span>
+                            </span>
+                        </${tag}>`;
+                    }).join('')}
+            ` : '';
+
             return `
                 <div class="message ${senderClass}">
                     <div class="message-avatar">${initials}</div>
                     <div class="message-content">
-                        <div class="message-bubble">${ui.escapeHtml(msg.message)}</div>
+                        <div class="message-bubble" style="${msg.message ? '' : (hasAttachments ? 'padding:6px;background:transparent;box-shadow:none;' : '')}">
+                            ${msg.message ? ui.escapeHtml(msg.message) : ''}
+                            ${attachmentsHtml}
+                        </div>
                         <span class="message-time">${ui.formatTime(msg.timestamp)}</span>
                     </div>
                 </div>
@@ -7157,6 +7211,7 @@ async handleAgentFileSelect(event) {
                 break;
             case 'user-actions':
                 this._setupUserActionsSearch();
+                this._loadUserActionsList();
                 break;
             case 'settings':
                 this.loadSettings();
@@ -7503,6 +7558,8 @@ _setupUserActionsSearch() {
         input._bound = true;
         input.addEventListener('input', ui.debounce(async (e) => {
             const q = e.target.value.trim();
+            // Empty search box → show the default list again, not a frozen empty table.
+            if (q.length === 0) { this._loadUserActionsList(); return; }
             if (q.length < 2) return;
             try {
                 // /api/agent/users returns real registered accounts (buyers, affiliates, creators)
@@ -7511,6 +7568,21 @@ _setupUserActionsSearch() {
                 if (data.success) this._renderUserActionsTable(data.users || []);
             } catch(_) {}
         }, 400));
+    }
+}
+
+// Loads the default user list the moment the section opens — without this,
+// the table only ever populated after someone typed 2+ characters into the
+// search box, so it looked completely empty (and unusable — no Ban button
+// to click on anything) every time an agent opened this section.
+async _loadUserActionsList() {
+    const tbody = document.getElementById('userActionsTableBody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading users…</p></td></tr>`;
+    try {
+        const data = await api.get('/api/agent/users?limit=20');
+        if (data.success) this._renderUserActionsTable(data.users || []);
+    } catch (_) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Failed to load users</p></td></tr>`;
     }
 }
 
