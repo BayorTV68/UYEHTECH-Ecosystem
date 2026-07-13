@@ -11,12 +11,10 @@
 <title>Our Blog Section | UYEH TECH</title>
 <meta name="description" content="Stay updated with UYEH TECH's blog. Get expert insights on web development, design trends, coding tutorials, and digital marketing strategies.">
 <link rel="canonical" href="https://www.uyehtech.com/blog/">
-<meta name="description" content="UYEH TECH offers cutting-edge web development, mobile app development, UI/UX design, and digital marketing services. Transform your business with our expert solutions.">
-<meta name="keywords" content="web development, mobile app development, UI UX design, digital marketing, software development, UYEH TECH, technology solutions">
+<link rel="alternate" type="application/rss+xml" title="UYEH TECH Blog RSS Feed" href="https://www.uyehtech.com/blog/rss.xml">
 <meta name="author" content="UYEH TECH">
 <meta name="robots" content="index, follow">
 <meta name="language" content="English">
-<meta name="revisit-after" content="7 days">
 
 <!-- ========== OPEN GRAPH / FACEBOOK ========== -->
 <meta property="og:type" content="website">
@@ -67,13 +65,12 @@
     "@type": "PostalAddress",
     "streetAddress": "Elelenwo Port Harcourt",
     "addressLocality": "Port Harcourt",
-    "addressRegion": " ",
-    "postalCode": "Your ZIP",
-    "addressCountry": "Your Country"
+    "addressRegion": "Rivers State",
+    "addressCountry": "Nigeria"
   },
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+1-XXX-XXX-XXXX",
+    "telephone": "+234-905-565-8460",
     "contactType": "Customer Service",
     "email": "uyehtech@gmail.com",
     "availableLanguage": ["English"]
@@ -106,10 +103,53 @@
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Elelenwo",
-    "addressLocality": "port harcourt",
-    "postalCode": "Your ZIP",
+    "addressLocality": "Port Harcourt",
+    "addressRegion": "Rivers State",
     "addressCountry": "Nigeria"
   }
+}
+</script>
+
+<!-- ========== BLOG SCHEMA (new — this page had no page-specific structured data before, only sitewide Organization/Service schema) ========== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": "https://www.uyehtech.com/blog/#blog",
+  "name": "UYEH TECH Blog",
+  "description": "Deep dives into web development, design systems, digital marketing, and the technology shaping tomorrow — from the UYEH TECH team.",
+  "url": "https://www.uyehtech.com/blog/",
+  "inLanguage": "en-US",
+  "publisher": {
+    "@type": "Organization",
+    "name": "UYEH TECH",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.uyehtech.com/uyehtech-logo.png"
+    }
+  }
+}
+</script>
+
+<!-- ========== BREADCRUMB SCHEMA (new) ========== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.uyehtech.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://www.uyehtech.com/blog/"
+    }
+  ]
 }
 </script>
  
@@ -3909,9 +3949,7 @@ console.log('✅ Cookie System v2.0 Loaded');
 console.log('💡 Commands: cookieSystem.getStatus(), cookieSystem.reset()');
 </script>
 
-<script src="/pwa-install.js"></script>
 <script src="/chat-widget.js"></script>
     
 </body>
 </html>
-
