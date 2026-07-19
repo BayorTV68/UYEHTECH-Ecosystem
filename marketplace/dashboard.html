@@ -266,7 +266,19 @@ a{text-decoration:none;color:inherit}
       <div class="tb-greeting">Good <span id="greetTime">day</span>, <span id="greetName">there</span></div>
     </div>
     <div class="tb-right">
-      <button class="tb-btn" title="Notifications" onclick="location.href='/marketplace/orders'"><i class="fas fa-bell"></i></button>
+      <button class="tb-btn" title="Notifications" id="notifBellBtn" style="position:relative">
+        <i class="fas fa-bell"></i>
+        <span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;"></span>
+      </button>
+
+      <div id="notifPanel" style="display:none;position:absolute;top:calc(var(--hdr) + 8px);right:20px;width:360px;max-width:calc(100vw - 40px);max-height:480px;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:500;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);">
+          <strong style="color:var(--t1);font-size:.95em;">Notifications</strong>
+          <button id="notifMarkAllBtn" style="background:none;border:none;color:var(--g);font-size:.8em;cursor:pointer;font-weight:600;">Mark all read</button>
+        </div>
+        <div id="notifList" style="overflow-y:auto;flex:1;"></div>
+        <a href="/marketplace/orders" style="display:block;text-align:center;padding:12px;color:var(--g);font-size:.85em;text-decoration:none;border-top:1px solid var(--line);">View All</a>
+      </div>
       <a href="/marketplace/profile" class="tb-avatar" id="tbAvatar" title="My Profile">U</a>
     </div>
   </header>
@@ -394,18 +406,49 @@ a{text-decoration:none;color:inherit}
     </div>
     <div class="modal-body">
       <div class="info-box">✅ <strong>Free to join</strong> — No upfront cost<br>✅ Keep <strong>80%</strong> of every sale<br>✅ Reviewed within <strong>24–48 hours</strong></div>
-      <div class="f-group"><label class="f-label">Store Name *</label><input class="f-input" id="mName" type="text" placeholder="e.g. Alex Design Studio" oninput="updateSlug(this.value)"><div class="slug-preview" id="mSlug"></div></div>
+
+      <div class="f-group"><label class="f-label">Store Name * <span style="color:var(--t3)">(min 3 chars)</span></label><input class="f-input" id="mName" type="text" placeholder="e.g. Alex Design Studio" oninput="updateSlug(this.value); validateCreatorForm();"><div class="slug-preview" id="mSlug"></div></div>
+
       <div class="f-group"><label class="f-label">Store Description</label><textarea class="f-textarea" id="mDesc" rows="3" placeholder="What do you create and sell?"></textarea></div>
-      <div class="f-group"><label class="f-label">Why do you want to join? * <span style="color:var(--t3)">(min 20 chars)</span></label><textarea class="f-textarea" id="mMsg" rows="4" placeholder="Tell us about yourself and what you plan to sell…"></textarea></div>
+
+      <div class="f-group"><label class="f-label">Why do you want to join? * <span style="color:var(--t3)">(min 20 chars)</span></label><textarea class="f-textarea" id="mMsg" rows="4" placeholder="Tell us about yourself and what you plan to sell…" oninput="validateCreatorForm();"></textarea></div>
+
       <div class="f-grid">
         <div class="f-group"><label class="f-label">Business Type</label><select class="f-select" id="mBiz"><option value="individual">Individual</option><option value="freelancer">Freelancer</option><option value="company">Company</option></select></div>
-        <div class="f-group"><label class="f-label">Category</label><select class="f-select" id="mCat"><option value="Templates">Templates</option><option value="Courses">Courses</option><option value="Music">Music</option><option value="Software">Software</option><option value="eBooks">eBooks</option><option value="Components">Components</option><option value="Other">Other</option></select></div>
+        <div class="f-group"><label class="f-label">Country</label><input class="f-input" id="mCountry" type="text" placeholder="e.g. Nigeria"></div>
       </div>
+
+      <div class="f-grid">
+        <div class="f-group"><label class="f-label">Phone</label><input class="f-input" id="mPhone" type="tel" placeholder="e.g. +234 800 000 0000"></div>
+        <div class="f-group"><label class="f-label">Website <span style="color:var(--t3)">(optional)</span></label><input class="f-input" id="mWebsite" type="url" placeholder="https://…"></div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">Categories <span style="color:var(--t3)">(select all that apply)</span></label>
+        <div id="mCatChips" style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${['Templates','Courses','Music','Software','eBooks','Components','Video','Downloads','Other'].map(c =>
+            `<button type="button" class="cat-chip" data-cat="${c}" onclick="toggleCategoryChip(this)" style="padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--ink3);color:var(--t2);font-size:.8em;cursor:pointer;transition:.15s;">${c}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">Social Links <span style="color:var(--t3)">(optional — helps your application)</span></label>
+        <div class="f-grid">
+          <input class="f-input" id="mTwitter" type="text" placeholder="Twitter / X username">
+          <input class="f-input" id="mInstagram" type="text" placeholder="Instagram username">
+        </div>
+        <div class="f-grid" style="margin-top:8px;">
+          <input class="f-input" id="mLinkedin" type="text" placeholder="LinkedIn URL">
+          <input class="f-input" id="mYoutube" type="text" placeholder="YouTube channel URL">
+        </div>
+      </div>
+
       <div id="mErr" style="display:none;padding:10px 14px;background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.2);border-radius:8px;color:var(--red);font-size:.8rem;margin-bottom:10px"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-dim" onclick="closeCreatorModal()">Cancel</button>
-      <button class="btn btn-primary" id="mSubmit" onclick="submitCreator()"><i class="fas fa-paper-plane"></i>Submit Application</button>
+      <button class="btn btn-primary" id="mSubmit" onclick="submitCreator()" disabled style="opacity:.5;cursor:not-allowed;"><i class="fas fa-paper-plane"></i>Submit Application</button>
     </div>
   </div>
 </div>
@@ -458,7 +501,100 @@ document.addEventListener('DOMContentLoaded', async () => {
     ['token','user','user_orders'].forEach(k => localStorage.removeItem(k));
     location.href = '/marketplace/login';
   };
+
+  initNotifications();
 });
+
+// ── NOTIFICATIONS ────────────────────────────────────────────────────────
+// Previously the bell button just redirected to /marketplace/orders — no
+// panel existed at all. This wires it to the notification routes that
+// were already live on the backend but never connected to any UI.
+function initNotifications() {
+  const bellBtn   = document.getElementById('notifBellBtn');
+  const panel     = document.getElementById('notifPanel');
+  const badge     = document.getElementById('notifBadge');
+  const list      = document.getElementById('notifList');
+  const markAllBtn = document.getElementById('notifMarkAllBtn');
+
+  refreshBadge();
+
+  bellBtn.onclick = (e) => {
+    e.stopPropagation();
+    const isOpen = panel.style.display !== 'none';
+    if (isOpen) { panel.style.display = 'none'; return; }
+    panel.style.display = 'flex';
+    loadNotifications();
+  };
+
+  document.addEventListener('click', (e) => {
+    if (!panel.contains(e.target) && e.target !== bellBtn) {
+      panel.style.display = 'none';
+    }
+  });
+
+  markAllBtn.onclick = async () => {
+    try {
+      await api('/api/notifications/read-all', { method: 'POST' });
+      loadNotifications();
+      refreshBadge();
+    } catch (e) {
+      toast('Could not mark all as read', 'err');
+    }
+  };
+
+  async function refreshBadge() {
+    try {
+      const r = await api('/api/notifications/count');
+      const d = await r.json();
+      const count = d.unreadCount || 0;
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    } catch (_) { /* non-fatal — badge just stays hidden */ }
+  }
+
+  async function loadNotifications() {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--t2);font-size:.85em;">Loading…</div>';
+    try {
+      const r = await api('/api/notifications?limit=20');
+      const d = await r.json();
+      if (!d.success) throw new Error(d.message || 'Failed to load');
+
+      if (!d.notifications.length) {
+        list.innerHTML = '<div style="padding:32px 16px;text-align:center;color:var(--t2);font-size:.85em;">You\'re all caught up 🎉</div>';
+        return;
+      }
+
+      list.innerHTML = d.notifications.map(n => `
+        <div class="notif-item" data-id="${n._id}" data-url="${esc(n.data?.url || '')}"
+             style="padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;${n.read ? '' : 'background:var(--g3);'}">
+          <div style="display:flex;justify-content:space-between;gap:8px;">
+            <strong style="color:var(--t1);font-size:.85em;">${esc(n.title)}</strong>
+            ${n.read ? '' : '<span style="width:7px;height:7px;border-radius:50%;background:var(--g);flex-shrink:0;margin-top:4px;"></span>'}
+          </div>
+          <div style="color:var(--t2);font-size:.8em;margin-top:3px;line-height:1.4;">${esc(n.message)}</div>
+          <div style="color:var(--t3);font-size:.72em;margin-top:5px;">${timeAgo(new Date(n.createdAt))}</div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.notif-item').forEach(item => {
+        item.onclick = async () => {
+          const id  = item.dataset.id;
+          const url = item.dataset.url;
+          try { await api(`/api/notifications/${id}/read`, { method: 'POST' }); } catch (_) {}
+          refreshBadge();
+          if (url) location.href = url;
+        };
+      });
+
+    } catch (e) {
+      list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--red);font-size:.85em;">Could not load notifications</div>';
+    }
+  }
+}
 
 function api(path, opts = {}) {
   return fetch(API + path, { ...opts, headers: { 'Authorization': `Bearer ${_token}`, 'Content-Type': 'application/json', ...(opts.headers||{}) } });
@@ -665,23 +801,89 @@ function copyAff() {
 }
 
 // Creator modal
-function openCreatorModal()  { document.getElementById('creatorModal').classList.add('open'); }
+let _selectedCategories = [];
+
+function openCreatorModal()  {
+  document.getElementById('creatorModal').classList.add('open');
+  validateCreatorForm();
+}
 function closeCreatorModal() { document.getElementById('creatorModal').classList.remove('open'); }
+
 function updateSlug(v) {
   const s = v.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   setEl('mSlug', s ? '/' + s : '');
 }
+
+// Categories were previously a single-select dropdown wrapped in an array
+// (`categories:[document.getElementById('mCat').value]`) — the backend
+// schema stores this as a real array and accepts multiple. This lets a
+// creator actually select more than one.
+function toggleCategoryChip(btn) {
+  const cat = btn.dataset.cat;
+  const idx = _selectedCategories.indexOf(cat);
+  if (idx === -1) {
+    _selectedCategories.push(cat);
+    btn.style.background = 'var(--g4)';
+    btn.style.borderColor = 'var(--g)';
+    btn.style.color = 'var(--g)';
+  } else {
+    _selectedCategories.splice(idx, 1);
+    btn.style.background = 'var(--ink3)';
+    btn.style.borderColor = 'var(--line)';
+    btn.style.color = 'var(--t2)';
+  }
+}
+
+// Submit now starts disabled and only enables once the two fields the
+// backend actually requires (storeName ≥3 chars, applicationMessage ≥20
+// chars) are valid — previously the button was always clickable and only
+// showed an error message after the fact.
+function validateCreatorForm() {
+  const name = document.getElementById('mName').value.trim();
+  const msg  = document.getElementById('mMsg').value.trim();
+  const btn  = document.getElementById('mSubmit');
+  const valid = name.length >= 3 && msg.length >= 20;
+  btn.disabled = !valid;
+  btn.style.opacity = valid ? '1' : '.5';
+  btn.style.cursor  = valid ? 'pointer' : 'not-allowed';
+}
+
 async function submitCreator() {
   const name = document.getElementById('mName').value.trim();
   const msg  = document.getElementById('mMsg').value.trim();
   const err  = document.getElementById('mErr');
   err.style.display = 'none';
-  if (!name) { err.textContent = 'Store name is required.'; err.style.display = 'block'; return; }
+
+  // Belt-and-suspenders — button should already be disabled if this fails,
+  // but re-check in case validateCreatorForm() didn't fire for some reason.
+  if (name.length < 3) { err.textContent = 'Store name must be at least 3 characters.'; err.style.display = 'block'; return; }
   if (msg.length < 20) { err.textContent = 'Please write at least 20 characters.'; err.style.display = 'block'; return; }
+
   const btn = document.getElementById('mSubmit');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting…';
+
+  const socialLinks = {};
+  const tw = document.getElementById('mTwitter').value.trim();
+  const ig = document.getElementById('mInstagram').value.trim();
+  const li = document.getElementById('mLinkedin').value.trim();
+  const yt = document.getElementById('mYoutube').value.trim();
+  if (tw) socialLinks.twitter   = tw;
+  if (ig) socialLinks.instagram = ig;
+  if (li) socialLinks.linkedin  = li;
+  if (yt) socialLinks.youtube   = yt;
+
   try {
-    const r = await api('/api/creator/apply', { method:'POST', body: JSON.stringify({ storeName:name, storeDescription:document.getElementById('mDesc').value.trim(), applicationMessage:msg, businessType:document.getElementById('mBiz').value, categories:[document.getElementById('mCat').value] }) });
+    const r = await api('/api/creator/apply', { method:'POST', body: JSON.stringify({
+      storeName:          name,
+      storeDescription:   document.getElementById('mDesc').value.trim(),
+      applicationMessage: msg,
+      businessType:       document.getElementById('mBiz').value,
+      country:            document.getElementById('mCountry').value.trim(),
+      phone:              document.getElementById('mPhone').value.trim(),
+      website:            document.getElementById('mWebsite').value.trim(),
+      socialLinks:        socialLinks,
+      categories:         _selectedCategories,
+    }) });
     const d = await r.json();
     if (!d.success) throw new Error(d.message);
     toast('Application submitted! We\'ll review within 24–48 hours.', 'ok');
@@ -691,7 +893,7 @@ async function submitCreator() {
     setEl('cbSub','Your application is under review — we\'ll notify you within 24–48 hours.');
     banner.style.display='flex'; banner.style.cursor='default'; banner.onclick=null;
   } catch(e) { err.textContent=e.message; err.style.display='block'; }
-  finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i>Submit Application'; }
+  finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i>Submit Application'; validateCreatorForm(); }
 }
 
 // Helpers
