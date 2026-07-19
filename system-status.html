@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-                <!-- PWA manifest -->
+              <!-- PWA manifest -->
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#00ff88">
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,7 +18,7 @@
     <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
 
      <script src="/site-controller.js" defer></script>
-      <style>
+        <style>
         * {
             margin: 0;
             padding: 0;
@@ -517,7 +517,7 @@
 
     <!-- Header -->
     <div class="status-header">
-        <a href="support-center.html" class="back-link">← Back to Support Center</a>
+        <a href="/contact" class="back-link">← Back to Contact</a>
         <h1 class="status-title">System Status</h1>
         <p class="status-subtitle">Real-time monitoring of all UYEH TECH services</p>
         
@@ -617,22 +617,28 @@
         const API_BASE_URL = 'https://uyehtechbackend.onrender.com/api/status';
         const REFRESH_INTERVAL = 60000; // 60 seconds
         
-        // ✅ UPDATED: Service icons matching your actual backend services
+        // Service icons — matches the backend's ServiceStatus keys exactly
+        // (api, database, websocket, email, storage, payment)
         const serviceIcons = {
             api: '🔌',           // API Services
             database: '💾',      // MongoDB Database
             websocket: '⚡',     // WebSocket Services
-            email: '📧',         // Mailjet Email
-            storage: '💿'        // File Storage
+            email: '📧',         // Resend Email
+            storage: '💿',       // File Storage
+            payment: '💳'        // Payment Gateway
         };
 
-        // ✅ UPDATED: Service descriptions matching your actual backend
+        // Service descriptions — corrected to match what the backend
+        // actually runs. Was previously labeled "Mailjet" (icon comment)
+        // and "TERMII email and SMS" (description) — neither is real;
+        // the backend uses Resend, and has no SMS capability at all.
         const serviceDescriptions = {
             api: 'Backend REST API endpoints on Render',
             database: 'MongoDB Atlas database cluster',
             websocket: 'Real-time chat and notifications',
-            email: 'TERMII email and SMS delivery service',
-            storage: 'File upload and storage system'
+            email: 'Resend email delivery service',
+            storage: 'File upload and storage system',
+            payment: 'Paystack & Flutterwave payment processing'
         };
 
         // ========================================
@@ -697,11 +703,21 @@
             const grid = document.getElementById('servicesGrid');
             grid.innerHTML = '';
 
-            // Define the order of services
-            const serviceOrder = ['api', 'database', 'websocket', 'email', 'storage'];
+            // FIX: /api/status/current returns `services` as an ARRAY (the
+            // backend's own code even comments "← array, not object"), but
+            // this used to do `services[key]` as if it were an object keyed
+            // by serviceKey — always undefined on an array, so this grid has
+            // been silently rendering empty regardless of real backend health.
+            const servicesByKey = {};
+            (services || []).forEach(s => { servicesByKey[s.serviceKey] = s; });
+
+            // Define the order of services — 'payment' added: it's tracked
+            // on the backend (defaultServices includes it) but was missing
+            // here, so the payment gateway never showed even when healthy.
+            const serviceOrder = ['api', 'database', 'websocket', 'email', 'storage', 'payment'];
 
             serviceOrder.forEach(key => {
-                const service = services[key];
+                const service = servicesByKey[key];
                 if (!service) return;
 
                 const serviceEl = document.createElement('div');
