@@ -1,9 +1,4 @@
-/**
- * UYEH TECH — PWA Install Controller v2.1
- * Add to EVERY page before </body>:
- *   <script src="/pwa-install.js"></script>
- * NOTE: Do NOT use defer — we need to capture beforeinstallprompt immediately
- */
+
 (function () {
   'use strict';
 
@@ -16,6 +11,9 @@
   let registration   = null;
   let deferredPrompt = null;
   let newWorker      = null;
+
+  const API_URL           = 'https://uyehtechbackend.onrender.com';
+  const NOTIF_DISMISS_KEY = 'uyeh_notif_dismissed_until';
 
   // ── CAPTURE beforeinstallprompt AS EARLY AS POSSIBLE ──────────────────────
   // This listener must be registered synchronously before the event fires.
@@ -57,6 +55,13 @@
             }
           });
         });
+
+        // ── PUSH NOTIFICATIONS ──────────────────────────────────────────────
+        // This registration is a prerequisite for push, but on its own does
+        // NOT subscribe anyone. Previously nothing ever called this next step
+        // — pushSubscriptions stayed empty for every user, and admin pushes
+        // silently reached 0 recipients. This adds the missing piece.
+        initPushFlow(reg);
       })
       .catch(function(err) {
         console.warn('[PWA] SW registration failed:', err.message);
