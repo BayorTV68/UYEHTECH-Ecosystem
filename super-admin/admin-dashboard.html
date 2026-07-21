@@ -5,19 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Admin Dashboard — UYEH TECH</title>
 <meta name="robots" content="noindex, nofollow">
-<meta property="og:title" content="Admin Dashboard — UYEH TECH">
-<meta property="og:description" content="UYEH TECH internal admin panel.">
-  <meta property="og:image" content="uyehtech.com/images/uyehtech-logo.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="UYEH TECH Marketplace">
-  <meta name="twitter:description" content="Premium digital products from verified creators.">
-  <meta name="twitter:image" content="/images/uyehtech-logo.jpg">
-  <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
-  <link rel="canonical" href="https://uyehtech.com/marketplace/">
-  <meta name="robots" content="index, follow">
-  <meta name="author" content="UYEH TECH">
+<link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
+<meta name="author" content="UYEH TECH">
   <meta name="theme-color" content="#00ff88">
-   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
                  <!-- PWA manifest -->
     <link rel="manifest" href="/site.webmanifest">
@@ -92,7 +83,7 @@ body {
 
 .logo-text {
     font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 900;
     color: var(--primary);
     letter-spacing: .3px;
@@ -108,12 +99,6 @@ body {
     justify-content: center;
     font-size: 1.5rem;
     font-weight: bold;
-}
-
-.logo-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: var(--primary);
 }
 
 .admin-info {
@@ -557,6 +542,16 @@ body {
 .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+
+/* .btn-sm — small button variant referenced ~84 times throughout the
+   dashboard JS but was never defined in CSS. Was silently inheriting
+   full .btn padding (10px 20px) everywhere it was used. */
+.btn-sm {
+    padding: 5px 12px;
+    font-size: .78rem;
+    border-radius: 7px;
+    gap: 5px;
 }
 
 table {
@@ -7065,8 +7060,26 @@ async function deleteAgentApplication(appId) {
 }
 
 async function _markRefContacted(appId, refIndex) {
-    // Update reference contacted flag — stored via status note (no dedicated route)
-    showNotification(`Reference ${refIndex+1} marked as contacted`, 'success');
+    // FIX: was a silent stub — showed a success toast but wrote nothing
+    // to the database. Now records it via the existing /review route using
+    // the notes field, which is the correct mechanism for admin annotations
+    // on an application without a dedicated reference-tracking endpoint.
+    const note = `Reference ${refIndex + 1} contacted — ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`;
+    try {
+        const r = await fetch(`${API_URL}/api/admin/agent-applications/${appId}/review`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+            body: JSON.stringify({ notes: note })
+        });
+        const d = await r.json();
+        if (d.success) {
+            showNotification(`Reference ${refIndex + 1} marked as contacted`, 'success');
+        } else {
+            showNotification(d.message || 'Could not save — check manually', 'error');
+        }
+    } catch (e) {
+        showNotification('Failed to save contact record', 'error');
+    }
 }
 
 function openPromoteAgentModal(userId, userName) {
