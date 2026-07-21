@@ -720,6 +720,11 @@
                 const service = servicesByKey[key];
                 if (!service) return;
 
+                const isHealthy   = service.status === 'operational';
+                const lastChecked = service.lastChecked
+                    ? new Date(service.lastChecked).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                    : null;
+
                 const serviceEl = document.createElement('div');
                 serviceEl.className = 'service-item';
                 serviceEl.innerHTML = `
@@ -729,6 +734,11 @@
                             <div class="service-details">
                                 <div class="service-name">${service.name}</div>
                                 <div class="service-description">${serviceDescriptions[key] || service.description || ''}</div>
+                                ${!isHealthy && service.metadata?.errorMessage
+                                    ? `<div style="margin-top:6px;font-size:.78rem;color:#ff6b6b;font-weight:500;">
+                                           ⚠ ${service.metadata.errorMessage}
+                                       </div>`
+                                    : ''}
                             </div>
                         </div>
                         <div class="service-status ${service.status}">
@@ -750,6 +760,11 @@
                             <span class="metric-label">Incidents</span>
                         </div>
                     </div>
+                    ${lastChecked
+                        ? `<div style="font-size:.7rem;color:rgba(255,255,255,.3);margin-top:10px;text-align:right;">
+                               Last checked ${lastChecked}
+                           </div>`
+                        : ''}
                 `;
                 grid.appendChild(serviceEl);
             });
