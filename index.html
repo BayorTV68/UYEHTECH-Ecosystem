@@ -2982,7 +2982,7 @@ input:disabled + .cookie-slider {
       <div class="hero-stat__divider"></div>
       <div class="hero-stat">
         <span class="hero-stat__num">100%</span>
-        <span class="hero-stat__label">Automated Payouts</span>
+        <span class="hero-stat__label">Reliable &amp; Stable</span>
       </div>
       <div class="hero-stat__divider"></div>
       <div class="hero-stat">
@@ -4273,38 +4273,69 @@ const SECRET_CONFIG = {
     localStorageKey: 'uyeh_access_session'
 };
 
-// Keyboard shortcuts to open access modal
-let keys = {};
+// ── Single keyboard shortcut ──────────────────────────────────────────────
+// Reduced from two shortcuts (Ctrl+Shift+U and Ctrl+Alt+S) to one.
+// Ctrl+Shift+U is kept — more memorable, less likely to clash with
+// other browser/OS shortcuts than Ctrl+Alt+S.
+let _sKeys = {};
 document.addEventListener('keydown', function(e) {
-    keys[e.key.toLowerCase()] = true;
-    
-    // Ctrl+Shift+U or Ctrl+Alt+S
-    if ((keys['control'] && keys['shift'] && keys['u']) || 
-        (keys['control'] && keys['alt'] && keys['s'])) {
+    _sKeys[e.key.toLowerCase()] = true;
+    if (_sKeys['control'] && _sKeys['shift'] && _sKeys['u']) {
+        e.preventDefault();
         openSecretCode();
     }
 });
-
 document.addEventListener('keyup', function(e) {
-    delete keys[e.key.toLowerCase()];
+    delete _sKeys[e.key.toLowerCase()];
 });
 
-// Triple-click anywhere to open
-let clickCount = 0;
-let clickTimer = null;
-document.addEventListener('click', function(e) {
-    clickCount++;
-    
-    if (clickCount === 3) {
-        openSecretCode();
-        clickCount = 0;
+// ── Footer triple-click ───────────────────────────────────────────────────
+// Previously bound to the entire document — fired on any three clicks
+// anywhere on the page, including nav and CTA buttons.
+// Now scoped to the footer copyright area only: small, out of the way,
+// and won't fire accidentally when users are clicking through the site.
+// Works with both footer.js (.uyeh-footer-copyright) and the old inline
+// footer (.footer-copyright) — whichever is on this page.
+(function () {
+    let _ckCount = 0;
+    let _ckTimer = null;
+
+    function attachFooterTrigger() {
+        const target =
+            document.querySelector('.uyeh-footer-copyright') ||
+            document.querySelector('.footer-copyright')      ||
+            document.querySelector('.uyeh-footer-bottom');
+
+        if (!target) {
+            // footer.js renders after DOMContentLoaded — retry once
+            setTimeout(attachFooterTrigger, 800);
+            return;
+        }
+
+        // Subtle visual hint — cursor changes to crosshair on the
+        // copyright area so you know it's interactive, but nothing
+        // visible enough for a casual visitor to notice.
+        target.style.cursor = 'crosshair';
+        target.title = '';  // no tooltip
+
+        target.addEventListener('click', function () {
+            _ckCount++;
+            clearTimeout(_ckTimer);
+            if (_ckCount >= 3) {
+                openSecretCode();
+                _ckCount = 0;
+                return;
+            }
+            _ckTimer = setTimeout(() => { _ckCount = 0; }, 600);
+        });
     }
-    
-    clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => {
-        clickCount = 0;
-    }, 500);
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachFooterTrigger);
+    } else {
+        attachFooterTrigger();
+    }
+})();
 
 // Check for auto-code parameter from email
 function checkAutoCode() {
@@ -4624,7 +4655,6 @@ if (window.matchMedia('(display-mode: standalone)').matches || navigator.standal
    <script src="footer.js"></script>
 <div id="cookie-consent"></div>
  <script src="cookie.js"></script>
-
 <script src="/pwa-install.js"></script>
 <script src="/chat-widget.js"></script>
 </body>
