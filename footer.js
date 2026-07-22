@@ -2,7 +2,7 @@
  * UYEH TECH — Shared Footer Component
  * Drop in on every page:
  *   <div id="footer"></div>
- *   <script src="/footer.js"></script>
+ *   <script src="/js/footer.js"></script>
  *
  * Self-contained: injects its own CSS, renders the HTML, starts the
  * live clock, and highlights the active nav column based on current URL.
@@ -339,6 +339,77 @@
       </footer>`;
   }
 
+
+  // ─── BACK TO TOP ──────────────────────────────────────────────────────────
+
+  const bttCss = `
+    #uyeh-btt {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #00b359, #00ff88);
+      color: #0a0a0a;
+      font-size: 1.4em;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(15px);
+      transition: opacity .3s, transform .3s, visibility .3s, box-shadow .3s;
+      z-index: 990;
+      box-shadow: 0 6px 20px rgba(0,255,136,.35);
+    }
+    #uyeh-btt.uyeh-btt-show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    #uyeh-btt:hover {
+      box-shadow: 0 10px 30px rgba(0,255,136,.55);
+      transform: translateY(-3px);
+    }
+    @media (max-width: 768px) {
+      #uyeh-btt { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2em; }
+    }
+  `;
+
+  function mountBackToTop() {
+    if (document.getElementById('uyeh-btt')) return;
+
+    const s = document.createElement('style');
+    s.id = 'uyeh-btt-styles';
+    s.textContent = bttCss;
+    document.head.appendChild(s);
+
+    const btn = document.createElement('button');
+    btn.id = 'uyeh-btt';
+    btn.setAttribute('aria-label', 'Back to top');
+    btn.setAttribute('title', 'Back to top');
+    btn.innerHTML = '&#8593;';
+    document.body.appendChild(btn);
+
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          btn.classList.toggle('uyeh-btt-show', window.scrollY > 400);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    onScroll();
+  }
+
   // ─── ACTIVE LINK HIGHLIGHT ────────────────────────────────────────────────
 
   function highlightActiveLinks() {
@@ -393,6 +464,7 @@
     target.innerHTML = buildFooter();
     highlightActiveLinks();
     startClock();
+    mountBackToTop();
   }
 
   // Run after DOM is ready
