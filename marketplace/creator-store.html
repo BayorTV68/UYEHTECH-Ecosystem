@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Creator Store — UYEH TECH</title>
   <meta name="description" content="Browse this creator's digital products on UYEH TECH Marketplace." />
-   <meta property="og:url" content="https://uyehtech.com/marketplace/">
-  <meta property="og:title" content="UYEH TECH Marketplace — Premium Digital Products">
-  <meta property="og:description" content="Browse premium digital products from verified creators. Templates, courses, components, and more.">
-  <meta property="og:image" content="uyehtech.com/images/uyehtech-logo.jpg">
+   <meta property="og:url" content="https://uyehtech.com/marketplace/creators">
+  <meta property="og:title" content="Creator Store — UYEH TECH">
+  <meta property="og:description" content="Browse digital products from this verified creator on UYEH TECH Marketplace.">
+  <meta property="og:image" content="https://uyehtech.com/images/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="UYEH TECH Marketplace">
-  <meta name="twitter:description" content="Premium digital products from verified creators.">
-  <meta name="twitter:image" content="/images/uyehtech-logo.jpg">
+  <meta name="twitter:title" content="Creator Store — UYEH TECH">
+  <meta name="twitter:description" content="Browse digital products from this verified creator on UYEH TECH Marketplace.">
+  <meta name="twitter:image" content="https://uyehtech.com/images/og-image.jpg">
   <link rel="icon" href="/images/uyehtech-logo.png" type="image/png">
-  <link rel="canonical" href="https://uyehtech.com/marketplace/">
+  <link rel="canonical" href="https://uyehtech.com/marketplace/creators" id="canonicalTag">
   <meta name="robots" content="index, follow">
   <meta name="author" content="UYEH TECH">
   <meta name="theme-color" content="#00ff88">
@@ -33,7 +33,7 @@
  <!-- Fonts — aligned to UYEH TECH brand (matches affiliate dashboard) -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/marketplace/navbar.css">
 
   <style>
     /* ══════════════════════════════════════════════════
@@ -1323,7 +1323,7 @@
       <a href="/marketplace/checkout" class="cart-btn" id="navCartBtn">
         <i class="fas fa-shopping-cart cart-icon"></i>
         <span class="cart-text" id="navCartLabel">Cart</span>
-        <span class="cart-count" id="cartBadge">0</span>
+        <span class="cart-count" id="cartCount">0</span>
       </a>
 
       <!-- Guest state: shown when logged out -->
@@ -1741,6 +1741,24 @@
         checkFollowStatus();
 
         document.title = `${creatorData.storeName} — UYEH TECH`;
+
+        // Update OG/Twitter/canonical to reflect the real creator store
+        // so link previews on WhatsApp, Twitter, Facebook show the right store.
+        const _storeUrl = `https://uyehtech.com/marketplace/${encodeURIComponent(creatorData.storeSlug || '')}`;
+        const _storeDesc = creatorData.storeDescription || creatorData.bio
+          || `Browse digital products from ${creatorData.storeName} on UYEH TECH Marketplace.`;
+
+        function _setMeta(selector, attr, val) {
+          const el = document.querySelector(selector);
+          if (el) el.setAttribute(attr, val);
+        }
+        _setMeta('meta[property="og:url"]',         'content', _storeUrl);
+        _setMeta('meta[property="og:title"]',        'content', `${creatorData.storeName} — UYEH TECH`);
+        _setMeta('meta[property="og:description"]',  'content', _storeDesc);
+        _setMeta('meta[name="twitter:title"]',       'content', `${creatorData.storeName} — UYEH TECH`);
+        _setMeta('meta[name="twitter:description"]', 'content', _storeDesc);
+        const canonical = document.getElementById('canonicalTag');
+        if (canonical) canonical.setAttribute('href', _storeUrl);
 
         // Hide loader, show content
         hideLoader();
@@ -2434,12 +2452,9 @@
 
     /* ── Update cart count badge in nav ── */
     function updateCartBadge(count) {
-      const badge = document.getElementById('cartBadge');
+      const badge = document.getElementById('cartCount'); // harmonised with ecosystem convention
       const label = document.getElementById('navCartLabel');
       if (!badge) return;
-      // Now targets navbar.css's .cart-count, which always shows (matches
-      // the same badge style used on the main marketplace page) — no more
-      // .visible toggle needed, just update the number and the label.
       badge.textContent = count > 9 ? '9+' : count;
       if (label) label.textContent = count > 0 ? (count === 1 ? '1 item' : count + ' items') : 'Cart';
     }
@@ -2651,7 +2666,11 @@
             <div style="background:var(--ink3);border:1px solid var(--line);border-radius:9px;padding:11px 13px;">
               <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
                 <span style="font-size:.78rem;font-weight:600;color:var(--t1);">${rv.reviewerName}</span>
-                <span style="color:var(--amber);font-size:.8rem;">${'★'.repeat(rv.rating)}${'☆'.repeat(5-rv.rating)}</span>
+                <span style="color:var(--amber);font-size:.8rem;">${
+                  rv.rating > 0
+                    ? '★'.repeat(Math.round(rv.rating)) + '☆'.repeat(5 - Math.round(rv.rating))
+                    : '☆☆☆☆☆'
+                }</span>
               </div>
               ${rv.title ? `<div style="font-size:.78rem;font-weight:600;color:var(--t2);margin-bottom:3px;">${rv.title}</div>` : ''}
               <div style="font-size:.78rem;color:var(--t2);line-height:1.5;">${rv.body}</div>

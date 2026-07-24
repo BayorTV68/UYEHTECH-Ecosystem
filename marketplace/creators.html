@@ -536,14 +536,14 @@ nav>a:hover img{transform:scale(1.05);filter:brightness(1.2)}
      NAVIGATION
      ============================================================ -->
 <nav>
-  <a href="/index.html">
-    <img src="uyehtech logo.png" width="50px" height="50px" alt="UYEH TECH">
+  <a href="/">
+    <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH">
   </a>
       <ul class="nav-links" id="navLinks">
  
   <!-- Home -->
   <li>
-    <a href="/index.html" class="nav-link">Home</a>
+    <a href="/" class="nav-link">Home</a>
   </li>
  
   <!-- Marketplace (dropdown) -->
@@ -636,14 +636,14 @@ nav>a:hover img{transform:scale(1.05);filter:brightness(1.2)}
         </ul>
             
   <div class="nav-actions">
-    <a href="/marketplace/checkout.html" class="cart-btn">
+    <a href="/marketplace/checkout" class="cart-btn">
       <i class="fas fa-shopping-cart"></i>
       <span class="cart-text">Cart</span>
       <span class="cart-count" id="cartCount">0</span>
     </a>
     <div id="guestButtons" class="auth-buttons">
-      <a href="/marketplace/login.html" class="btn-login">Login</a>
-      <a href="/marketplace/signup.html" class="btn-signup">Sign Up</a>
+      <a href="/marketplace/login" class="btn-login">Login</a>
+      <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
     </div>
     <div id="userDropdown" class="user-dropdown" style="display:none;">
       <button class="user-avatar-btn" onclick="toggleUserMenu()">
@@ -660,9 +660,9 @@ nav>a:hover img{transform:scale(1.05);filter:brightness(1.2)}
           </div>
         </div>
         <div class="user-menu-divider"></div>
-        <a href="/marketplace/dashboard.html" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
-        <a href="/marketplace/orders.html" class="user-menu-item"><i class="fas fa-receipt"></i><span>My Orders</span></a>
-        <a href="/marketplace/settings.html" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        <a href="/marketplace/dashboard" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+        <a href="/marketplace/orders" class="user-menu-item"><i class="fas fa-receipt"></i><span>My Orders</span></a>
+        <a href="/marketplace/settings" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
         <div class="user-menu-divider"></div>
         <button class="user-menu-item logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
       </div>
@@ -758,12 +758,12 @@ nav>a:hover img{transform:scale(1.05);filter:brightness(1.2)}
     <h2 class="cta-title">Become a <span>Creator</span></h2>
     <p class="cta-sub">Turn your skills into income. Join UYEH TECH's creator network and sell your digital products to thousands of buyers worldwide.</p>
     <div class="cta-perks">
-      <div class="cta-perk"><i class="fas fa-percent"></i> Keep up to 90% revenue</div>
+      <div class="cta-perk"><i class="fas fa-percent"></i> Keep up to 80% of every sale</div>
       <div class="cta-perk"><i class="fas fa-globe"></i> Global audience</div>
       <div class="cta-perk"><i class="fas fa-chart-line"></i> Built-in analytics</div>
       <div class="cta-perk"><i class="fas fa-link"></i> Affiliate program</div>
     </div>
-    <a href="/marketplace/creator-apply.html" class="cta-btn"><i class="fas fa-rocket"></i> Apply to Become a Creator</a>
+    <a href="/marketplace/creator-apply" class="cta-btn"><i class="fas fa-rocket"></i> Apply to Become a Creator</a>
   </div>
 </div>
 
@@ -780,7 +780,7 @@ nav>a:hover img{transform:scale(1.05);filter:brightness(1.2)}
       <div class="modal-name-row" id="modalNameRow"></div>
       <p class="modal-bio" id="modalBio"></p>
       <div class="modal-stats" id="modalStats"></div>
-      <div class="modal-products-title">Recent Products</div>
+      <div class="modal-products-title">Latest Products</div>
       <div class="modal-products-grid" id="modalProds"></div>
       <div class="modal-actions" id="modalActions"></div>
     </div>
@@ -818,60 +818,15 @@ let toastTimer;
    BOOT
    ══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
-  initAuth();
+  // navbar.js runs checkAuthentication() automatically and fires
+  // 'uyeh-auth-ready' when done — no need to call initAuth() here.
   syncCartCount();
   await fetchData();
-const urlPage = parseInt(new URL(location.href).searchParams.get('page') || '1');
-if (urlPage > 1) {
-  pageShown = urlPage * PAGE_SIZE;
-}
-});
-
-/* ══════════════════════════════════════════════════
-   AUTH
-   ══════════════════════════════════════════════════ */
-function initAuth() {
-  const token = localStorage.getItem('token');
-  const user  = JSON.parse(localStorage.getItem('user') || 'null');
-  if (!token || !user) return;
-
-  document.getElementById('guestButtons').style.display = 'none';
-  document.getElementById('userDropdown').style.display = 'block';
-
-  const name  = user.fullName || user.name || 'User';
-  const email = user.email || '';
-  const pic   = user.profilePic || user.profilePhoto || user.avatar || user.profileImage ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00ff88&color=0a0a0a`;
-
-  document.getElementById('userAvatar').src       = pic;
-  document.getElementById('menuAvatar').src        = pic;
-  document.getElementById('userName').textContent  = name.split(' ')[0];
-  document.getElementById('menuUserName').textContent  = name;
-  document.getElementById('menuUserEmail').textContent = email;
-}
-
-function toggleUserMenu() {
-  const menu = document.getElementById('userMenu');
-  const drop = document.getElementById('userDropdown');
-  menu.classList.toggle('show');
-  drop.classList.toggle('open');
-}
-
-document.addEventListener('click', e => {
-  const drop = document.getElementById('userDropdown');
-  if (drop && !drop.contains(e.target)) {
-    document.getElementById('userMenu').classList.remove('show');
-    drop.classList.remove('open');
+  const urlPage = parseInt(new URL(location.href).searchParams.get('page') || '1');
+  if (urlPage > 1) {
+    pageShown = urlPage * PAGE_SIZE;
   }
 });
-
-function handleLogout() {
-  if (!confirm('Are you sure you want to logout?')) return;
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  showToast('👋', 'Logged out successfully');
-  setTimeout(() => location.reload(), 1200);
-}
 
 function syncCartCount() {
   try {
@@ -1143,7 +1098,7 @@ function cardHTML(c, idx) {
   const tagsHTML = c.categories.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join('');
 
   const rv    = c.rating || 0;
-  const stars = rv > 0 ? '★'.repeat(Math.round(rv)) + '☆'.repeat(5 - Math.round(rv)) : '★★★★★';
+  const stars = rv > 0 ? '★'.repeat(Math.round(rv)) + '☆'.repeat(5 - Math.round(rv)) : '☆☆☆☆☆';
   const isF   = following.includes(c._id);
   const delay = `animation-delay:${(idx % PAGE_SIZE) * 0.042}s`;
 
@@ -1156,7 +1111,6 @@ function cardHTML(c, idx) {
       </div>
       <div class="card-avatar-wrap">
         <div class="card-avatar">${avHTML}</div>
-        <div class="online-dot" title="Active Creator"></div>
       </div>
       <div class="card-body">
         <div class="card-head-row">
@@ -1180,7 +1134,7 @@ function cardHTML(c, idx) {
           ${c.approvedAt ? `<span class="member-since">Since ${new Date(c.approvedAt).getFullYear()}</span>` : ''}
         </div>
         <div class="card-cta" onclick="event.stopPropagation()">
-          <a href="/marketplace/creator-store.html?store=${esc(c.storeSlug)}" class="btn-visit-store" onclick="event.stopPropagation()">
+          <a href="/marketplace/${esc(c.storeSlug)}" class="btn-visit-store" onclick="event.stopPropagation()">
             <i class="fas fa-store"></i> Visit Store
           </a>
           <button class="btn-follow-card${isF ? ' following' : ''}" onclick="toggleFollow('${c._id}', this)">
@@ -1198,16 +1152,28 @@ async function toggleFollow(creatorId, btn) {
   const token = localStorage.getItem('token');
   if (!token) { showToast('⚠️', 'Please login to follow creators'); return; }
 
-  const isF      = following.includes(creatorId);
+  const isF = following.includes(creatorId);
+
+  // Update every follow button for this creator on the page (card + modal)
+  function syncButtons(nowFollowing) {
+    document.querySelectorAll(`[onclick*="toggleFollow('${creatorId}'"]`).forEach(b => {
+      if (b === btn) return; // already handled below
+      b.className  = b.className.replace(' following', '') + (nowFollowing ? ' following' : '');
+      b.innerHTML  = nowFollowing
+        ? '<i class="fas fa-check"></i> Following'
+        : '<i class="fas fa-plus"></i> Follow';
+    });
+  }
 
   if (isF) {
     following = following.filter(id => id !== creatorId);
-    btn.textContent = '+ Follow';
+    btn.innerHTML = '<i class="fas fa-plus"></i> Follow';
     btn.classList.remove('following');
+    syncButtons(false);
     showToast('👋', 'Unfollowed creator');
   } else {
     following.push(creatorId);
-    btn.textContent = '✓ Following';
+    btn.innerHTML = '<i class="fas fa-check"></i> Following';
     btn.classList.add('following');
     showToast('❤️', 'Now following this creator!');
   }
@@ -1229,65 +1195,120 @@ function openCreatorModal(creatorId) {
   const c = allCreators.find(x => x._id === creatorId);
   if (!c) return;
 
-  /* banner — always official platform banner */
+  // ── Banner: always the official UYEH TECH platform banner.
+  //    All creators share the same branded banner — intentional
+  //    design decision to keep a consistent platform identity.
   const banner = document.getElementById('modalBanner');
-  banner.innerHTML = `<button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>`;
-  const bi = document.createElement('img');
-  bi.src = '/images/official-banner.png';
-  bi.alt = 'UYEH TECH';
-  banner.insertBefore(bi, banner.firstChild);
+  banner.style.background = '';
+  banner.innerHTML = `
+    <img src="/images/official-banner.png" alt="UYEH TECH"
+         style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>`;
 
-  /* avatar */
+  // ── Avatar
   const init = (c.storeName || 'C').charAt(0).toUpperCase();
-  const av   = document.getElementById('modalAvatar');
+  const av = document.getElementById('modalAvatar');
   av.innerHTML = c.profilePic
-    ? `<img src="${esc(c.profilePic)}" alt="${esc(c.storeName)}" onerror="this.style.display='none';this.parentElement.textContent='${init}'">`
+    ? `<img src="${esc(c.profilePic)}" alt="${esc(c.storeName)}"
+            onerror="this.style.display='none';this.parentElement.textContent='${init}'">`
     : init;
 
-  /* name row */
+  // ── Name row: name + badges + location + member-since
+  const joinYear  = c.approvedAt ? new Date(c.approvedAt).getFullYear() : null;
   document.getElementById('modalNameRow').innerHTML = `
     <span class="modal-name">${esc(c.storeName)}</span>
-    ${c.isVerified  ? `<span class="badge-verified"><i class="fas fa-check-circle"></i> Verified</span>`    : ''}
-    ${c.topSeller   ? `<span class="badge-topseller"><i class="fas fa-trophy"></i> Top Seller</span>`        : ''}
-    ${c.country     ? `<span style="font-size:.8rem;color:var(--gray)"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${esc(c.country)}</span>` : ''}`;
+    ${c.isVerified ? `<span class="badge-verified"><i class="fas fa-check-circle"></i> Verified</span>` : ''}
+    ${c.topSeller  ? `<span class="badge-topseller"><i class="fas fa-trophy"></i> Top Seller</span>`    : ''}
+    ${c.isFeatured ? `<span class="badge-featured" style="background:rgba(255,200,0,.12);color:#ffc800;border:1px solid rgba(255,200,0,.25);border-radius:6px;font-size:.68rem;font-weight:700;padding:2px 8px;">⭐ Featured</span>` : ''}
+    <div style="display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap;">
+      ${c.country ? `<span style="font-size:.78rem;color:var(--gray)"><i class="fas fa-map-marker-alt" style="color:var(--primary);margin-right:3px"></i>${esc(c.country)}</span>` : ''}
+      ${joinYear  ? `<span style="font-size:.78rem;color:var(--gray)"><i class="fas fa-calendar-alt" style="color:var(--primary);margin-right:3px"></i>Member since ${joinYear}</span>` : ''}
+    </div>`;
 
-  /* bio */
-  document.getElementById('modalBio').textContent = c.storeDesc || 'Creating premium digital products on UYEH TECH Marketplace.';
+  // ── Bio
+  document.getElementById('modalBio').textContent =
+    c.storeDesc || 'Creating premium digital products on UYEH TECH Marketplace.';
 
-  /* stats */
-  const rv = c.rating || 0;
+  // ── Categories (new — was completely missing from modal)
+  const catsHTML = c.categories && c.categories.length
+    ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;">
+         ${c.categories.slice(0, 5).map(t =>
+           `<span style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.18);
+                         color:var(--primary);border-radius:20px;font-size:.7rem;
+                         font-weight:600;padding:2px 10px;">${esc(t)}</span>`
+         ).join('')}
+       </div>`
+    : '';
+  // Inject after bio
+  const bioEl = document.getElementById('modalBio');
+  let catsEl  = document.getElementById('modalCats');
+  if (!catsEl) {
+    catsEl = document.createElement('div');
+    catsEl.id = 'modalCats';
+    bioEl.parentNode.insertBefore(catsEl, bioEl.nextSibling);
+  }
+  catsEl.innerHTML = catsHTML;
+
+  // ── Stats: include visual star rating
+  const rv    = c.rating || 0;
+  const stars = rv > 0
+    ? '★'.repeat(Math.round(rv)) + '☆'.repeat(5 - Math.round(rv))
+    : '☆☆☆☆☆';
   document.getElementById('modalStats').innerHTML = `
-    <div class="m-stat"><span class="m-stat-n">${c.productCount}</span><span class="m-stat-l">Products</span></div>
-    <div class="m-stat"><span class="m-stat-n">${c.totalSales || 0}</span><span class="m-stat-l">Sales</span></div>
-    <div class="m-stat"><span class="m-stat-n">${fmtNum(c.followerCount)}</span><span class="m-stat-l">Followers</span></div>
-    <div class="m-stat"><span class="m-stat-n">${rv > 0 ? rv.toFixed(1) + '★' : 'New'}</span><span class="m-stat-l">Rating</span></div>`;
+    <div class="m-stat">
+      <span class="m-stat-n">${c.productCount}</span>
+      <span class="m-stat-l">Products</span>
+    </div>
+    <div class="m-stat">
+      <span class="m-stat-n">${fmtNum(c.totalSales || 0)}</span>
+      <span class="m-stat-l">Sales</span>
+    </div>
+    <div class="m-stat">
+      <span class="m-stat-n">${fmtNum(c.followerCount)}</span>
+      <span class="m-stat-l">Followers</span>
+    </div>
+    <div class="m-stat">
+      <span class="m-stat-n" style="font-size:.95rem;letter-spacing:1px;">${stars}</span>
+      <span class="m-stat-l">${rv > 0 ? rv.toFixed(1) + ' / 5' : 'No reviews yet'}</span>
+    </div>`;
 
-  /* recent products (up to 4) */
-  const prods = c.products.slice(0, 4);
+  // ── Latest products: sort newest first, take 4
   document.getElementById('modalProds').innerHTML = prods.length
     ? prods.map(p => {
-        const price = (p.approvedPrice || p.suggestedPrice || 0) === 0
-          ? 'Free' : `$${parseFloat(p.approvedPrice || p.suggestedPrice || 0).toFixed(2)}`;
-        const imgH  = (p.images && p.images[0])
-          ? `<img src="${esc(p.images[0])}" alt="${esc(p.title)}" onerror="this.parentElement.innerHTML='📦'">` : '📦';
+        const rawPrice  = p.approvedPrice || p.suggestedPrice || 0;
+        const price     = rawPrice === 0
+          ? '<span style="color:#00ff88;font-weight:700;">Free</span>'
+          : `<span>₦${Number(rawPrice).toLocaleString()}</span>`;
+        const imgH      = (p.images && p.images[0])
+          ? `<img src="${esc(p.images[0])}" alt="${esc(p.title)}"
+                  style="width:100%;height:100%;object-fit:cover;border-radius:8px;"
+                  onerror="this.parentElement.innerHTML='📦'">`
+          : '📦';
+        // Clean URL: /marketplace/storeSlug?product=id
+        const href = c.storeSlug
+          ? `/marketplace/${esc(c.storeSlug)}?product=${esc(p._id)}`
+          : `/marketplace/?product=${esc(p._id)}`;
         return `
-          <a href="/marketplace/creator-store.html?store=${esc(c.storeSlug)}&product=${esc(p._id)}"
-             class="modal-prod-card" onclick="closeModal()">
+          <a href="${href}" class="modal-prod-card" onclick="closeModal()">
             <div class="mpc-img">${imgH}</div>
             <div class="mpc-title">${esc(p.title)}</div>
             <div class="mpc-price">${price}</div>
           </a>`;
       }).join('')
-    : `<p style="color:var(--gray);font-size:.85rem;">No products yet.</p>`;
+    : `<p style="color:var(--gray);font-size:.85rem;text-align:center;padding:16px 0;">
+         No products listed yet.
+       </p>`;
 
-  /* actions */
-  const isF = following.includes(c._id);
+  // ── Actions: Visit Store = primary, Follow = secondary
+  const isF       = following.includes(c._id);
+  const storeHref = c.storeSlug ? `/marketplace/${esc(c.storeSlug)}` : '/marketplace/';
   document.getElementById('modalActions').innerHTML = `
-    <a href="/marketplace/creator-store.html?store=${esc(c.storeSlug)}" class="modal-btn-visit">
+    <a href="${storeHref}" class="modal-btn-visit" style="flex:2;">
       <i class="fas fa-store"></i> Visit Full Store
     </a>
-    <button class="modal-btn-follow${isF ? ' following' : ''}" onclick="toggleFollow('${c._id}', this)">
-      ${isF ? '✓ Following' : '+ Follow'}
+    <button class="modal-btn-follow${isF ? ' following' : ''}"
+            onclick="toggleFollow('${c._id}', this)" style="flex:1;">
+      ${isF ? '<i class="fas fa-check"></i> Following' : '<i class="fas fa-plus"></i> Follow'}
     </button>`;
 
   document.getElementById('modalOverlay').classList.add('active');
@@ -1303,107 +1324,7 @@ function handleOverlayClick(e) {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-/* ══════════════════════════════════════════════════
-   NAV HAMBURGER
-   ══════════════════════════════════════════════════ */
-         (function () {
-    'use strict';
- 
-    /* ── Element references ── */
-    var menuToggle  = document.getElementById('menuToggle');
-    var navLinks    = document.getElementById('navLinks');
-    var dropItems   = document.querySelectorAll('.nav-item--dropdown');
- 
-    /* ── Helper: close all dropdowns ── */
-    function closeAllDropdowns() {
-        dropItems.forEach(function (item) {
-            item.classList.remove('open');
-            var btn = item.querySelector('.nav-link--dropdown');
-            if (btn) btn.setAttribute('aria-expanded', 'false');
-        });
-    }
- 
-    /* ── Toggle a single dropdown ── */
-    function toggleDropdown(item) {
-        var isOpen  = item.classList.contains('open');
-        var btn     = item.querySelector('.nav-link--dropdown');
- 
-        closeAllDropdowns();            /* always close others first */
- 
-        if (!isOpen) {
-            item.classList.add('open');
-            if (btn) btn.setAttribute('aria-expanded', 'true');
-        }
-    }
- 
-    /* ── Attach click listeners to each dropdown trigger ── */
-    dropItems.forEach(function (item) {
-        var btn = item.querySelector('.nav-link--dropdown');
-        if (!btn) return;
- 
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleDropdown(item);
-        });
-    });
- 
-    /* ── Close on outside click ── */
-    document.addEventListener('click', function (e) {
-        var insideNav = navLinks && navLinks.contains(e.target);
-        if (!insideNav) {
-            closeAllDropdowns();
-        }
- 
-        /* Also close mobile menu if click is outside nav */
-        if (navLinks && menuToggle) {
-            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
-                menuToggle.classList.remove('active');
-                navLinks.classList.remove('active');
-            }
-        }
-    });
- 
-    /* ── Close on Escape key ── */
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            closeAllDropdowns();
-            if (menuToggle) menuToggle.classList.remove('active');
-            if (navLinks)   navLinks.classList.remove('active');
-        }
-    });
- 
-    /* ── Close dropdowns when a dropdown link is clicked (navigation) ── */
-    document.querySelectorAll('.nav-dropdown__item').forEach(function (link) {
-        link.addEventListener('click', function () {
-            closeAllDropdowns();
-            if (menuToggle) menuToggle.classList.remove('active');
-            if (navLinks)   navLinks.classList.remove('active');
-        });
-    });
- 
-    /* ── Hamburger toggle (mobile) ── */
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            this.classList.toggle('active');
-            navLinks.classList.toggle('active');
-            /* Close any open dropdown when closing mobile menu */
-            if (!navLinks.classList.contains('active')) {
-                closeAllDropdowns();
-            }
-        });
-    }
- 
-    /* ── Close mobile menu when a plain nav-link is clicked ── */
-    document.querySelectorAll('.nav-links .nav-link:not(.nav-link--dropdown)').forEach(function (link) {
-        link.addEventListener('click', function () {
-            if (menuToggle) menuToggle.classList.remove('active');
-            if (navLinks)   navLinks.classList.remove('active');
-            closeAllDropdowns();
-        });
-    });
- 
-}());
+// Hamburger + dropdown logic removed — handled by /js/navbar.js below.
 
     
         // Smooth scroll for all links
@@ -1448,6 +1369,7 @@ console.log('✅ UYEH TECH — Creators Directory loaded');
 </script>
 
    <div id="footer"></div>
+   <script src="/marketplace/navbar.js"></script>
    <script src="/footer.js"></script>
     <div id="cookie-consent"></div>
  <script src="/cookie.js"></script>
