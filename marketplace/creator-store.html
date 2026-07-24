@@ -1406,136 +1406,145 @@ nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
     <p class="loader-timeout-msg" id="loaderTimeoutMsg">Taking longer than usual…<br>Check your connection or try again.</p>
   </div>
 
-  <!-- ══════════════════════ NAVIGATION ══════════════════════ -->
-  <nav>
-    <a href="/index.html" id="siteLogo">
-      <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH">
-    </a>
+<!-- ════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════ -->
 
-    <ul class="nav-links" id="navLinks">
+<nav>
+  <a href="/index.html" id="siteLogo">
+    <img src="/images/uyehtech-logo.png" width="50px" height="50px" alt="UYEH TECH">
+  </a>
 
-      <!-- Home -->
-      <li>
-        <a href="/index.html" class="nav-link">Home</a>
-      </li>
+  <ul class="nav-links" id="navLinks">
 
-      <!-- Marketplace (dropdown) -->
-      <li class="nav-item--dropdown" id="dropMarketplace">
-        <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-          Marketplace
-          <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <div class="nav-dropdown" role="menu">
-          <div class="nav-dropdown__section">
-            <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
-              <span class="nav-dropdown__icon">🛍️</span>
-              <div>
-                <span class="nav-dropdown__label">Shop</span>
-                <span class="nav-dropdown__desc">Browse digital products</span>
-              </div>
-            </a>
-            <!-- Login / Sign Up removed on purpose -- handled by the
-                 guestButtons / userDropdown widget in .nav-actions,
-                 which actually reflects login state. -->
-          </div>
-        </div>
-      </li>
+    <!-- Home -->
+    <li>
+      <a href="/index.html" class="nav-link">Home</a>
+      <!-- CHANGE PER PAGE: add class="nav-link active" to whichever
+           link matches the current page, remove "active" from Home -->
+    </li>
 
-      <!-- Creators' Hub (dropdown) -->
-      <li class="nav-item--dropdown" id="dropCreators">
-        <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-          Creators' Hub
-          <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <div class="nav-dropdown" role="menu">
-          <div class="nav-dropdown__section">
-            <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
-              <span class="nav-dropdown__icon">👤</span>
-              <div>
-                <span class="nav-dropdown__label">About Me</span>
-                <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
-              </div>
-            </a>
-            <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
-              <span class="nav-dropdown__icon">⚙️</span>
-              <div>
-                <span class="nav-dropdown__label">Services</span>
-                <span class="nav-dropdown__desc">What I build for clients</span>
-              </div>
-            </a>
-            <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
-              <span class="nav-dropdown__icon">🗂️</span>
-              <div>
-                <span class="nav-dropdown__label">Portfolio</span>
-                <span class="nav-dropdown__desc">Projects I have delivered</span>
-              </div>
-            </a>
-            <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
-              <span class="nav-dropdown__icon">💬</span>
-              <div>
-                <span class="nav-dropdown__label">Meet Me</span>
-                <span class="nav-dropdown__desc">Personal contact page</span>
-              </div>
-            </a>
-          </div>
-        </div>
-      </li>
-
-      <!-- Blog -->
-      <li><a href="/blog/" class="nav-link">Blog</a></li>
-
-      <!-- Contact -->
-      <li><a href="/contact" class="nav-link">Contact</a></li>
-
-    </ul>
-
-    <div class="nav-actions">
-      <!-- Cart -- direct link to checkout (this page has no slide-out cart panel) -->
-      <a href="/marketplace/checkout" class="cart-btn" id="navCartBtn">
-        <i class="fas fa-shopping-cart cart-icon"></i>
-        <span class="cart-text" id="navCartLabel">Cart</span>
-        <span class="cart-count" id="cartCount">0</span>
-      </a>
-
-      <!-- Guest state: shown when logged out -->
-      <div id="guestButtons" class="auth-buttons">
-        <a href="/marketplace/login" class="btn-login">Login</a>
-        <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
-      </div>
-
-      <!-- Logged-in state: shown when a valid token/user exists.
-           navbar.js toggles which of these two blocks is visible. -->
-      <div id="userDropdown" class="user-dropdown" style="display:none;">
-        <button class="user-avatar-btn" onclick="toggleUserMenu()">
-          <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
-          <span id="userName">User</span>
-          <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span>
-        </button>
-        <div class="user-menu" id="userMenu">
-          <div class="user-menu-header">
-            <img id="menuAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
+    <!-- Marketplace (dropdown) -->
+    <li class="nav-item--dropdown" id="dropMarketplace">
+      <button class="nav-link active nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+        Marketplace
+        <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="nav-dropdown" role="menu">
+        <div class="nav-dropdown__section">
+          <a href="/marketplace/" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">🛍️</span>
             <div>
-              <div class="menu-user-name" id="menuUserName">User</div>
-              <div class="menu-user-email" id="menuUserEmail">user@email.com</div>
+              <span class="nav-dropdown__label">Shop</span>
+              <span class="nav-dropdown__desc">Browse digital products</span>
             </div>
-          </div>
-          <div class="user-menu-divider"></div>
-          <a href="/marketplace/dashboard" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
-          <a href="/marketplace/my-products" class="user-menu-item"><i class="fas fa-box"></i><span>My Products</span></a>
-          <a href="/marketplace/orders" class="user-menu-item"><i class="fas fa-receipt"></i><span>Orders</span></a>
-          <a href="/marketplace/settings" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
-          <div class="user-menu-divider"></div>
-          <button class="user-menu-item logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+          </a>
+          <!-- Login / Sign Up removed on purpose — that's handled by the
+               guestButtons / userDropdown widget in .nav-actions below,
+               which actually reflects login state. Keeping both was the
+               original bug: this dropdown never updated when a member
+               logged in. Don't add Login/Signup links back here. -->
         </div>
       </div>
+    </li>
+
+    <!-- Creators' Hub (dropdown) -->
+    <li class="nav-item--dropdown" id="dropCreators">
+      <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
+        Creators' Hub
+        <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="nav-dropdown" role="menu">
+        <div class="nav-dropdown__section">
+          <a href="/uyehtech/" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">👤</span>
+            <div>
+              <span class="nav-dropdown__label">About Me</span>
+              <span class="nav-dropdown__desc">Who is behind UYEH TECH</span>
+            </div>
+          </a>
+          <a href="/uyehtech/services" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">⚙️</span>
+            <div>
+              <span class="nav-dropdown__label">Services</span>
+              <span class="nav-dropdown__desc">What I build for clients</span>
+            </div>
+          </a>
+          <a href="/uyehtech/portfolio" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">🗂️</span>
+            <div>
+              <span class="nav-dropdown__label">Portfolio</span>
+              <span class="nav-dropdown__desc">Projects I have delivered</span>
+            </div>
+          </a>
+          <a href="/uyehtech/contact" class="nav-dropdown__item" role="menuitem">
+            <span class="nav-dropdown__icon">💬</span>
+            <div>
+              <span class="nav-dropdown__label">Meet Me</span>
+              <span class="nav-dropdown__desc">Personal contact page</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </li>
+
+    <!-- Blog -->
+    <li><a href="/blog/" class="nav-link">Blog</a></li>
+
+    <!-- Contact -->
+    <li><a href="/contact" class="nav-link">Contact</a></li>
+
+  </ul>
+
+  <div class="nav-actions">
+    <!-- CHANGE PER PAGE: remove this cart button entirely on pages that
+         don't sell anything (e.g. blog posts, the founder's portfolio
+         pages) — it calls openCart(), which must exist on the page. -->
+    <button class="cart-btn" onclick="openCart()">
+      <i class="fas fa-shopping-cart cart-icon"></i>
+      <span class="cart-text">Cart</span>
+      <span class="cart-count">0</span>
+    </button>
+
+    <!-- Guest state: shown when logged out -->
+    <div id="guestButtons" class="auth-buttons">
+      <a href="/marketplace/login" class="btn-login">Login</a>
+      <a href="/marketplace/signup" class="btn-signup">Sign Up</a>
     </div>
 
-    <div class="menu-toggle" id="menuToggle"><span></span><span></span><span></span></div>
-  </nav>
+    <!-- Logged-in state: shown when a valid token/user exists.
+         navbar.js toggles which of these two blocks is visible. -->
+    <div id="userDropdown" class="user-dropdown" style="display:none;">
+      <button class="user-avatar-btn" onclick="toggleUserMenu()">
+        <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
+        <span id="userName">User</span>
+        <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span>
+      </button>
+      <div class="user-menu" id="userMenu">
+        <div class="user-menu-header">
+          <img id="menuAvatar" src="https://ui-avatars.com/api/?name=User&background=00ff88&color=0a0a0a" alt="User">
+          <div>
+            <div class="menu-user-name" id="menuUserName">User</div>
+            <div class="menu-user-email" id="menuUserEmail">user@email.com</div>
+          </div>
+        </div>
+        <div class="user-menu-divider"></div>
+        <a href="/marketplace/dashboard" class="user-menu-item"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+        <a href="/marketplace/my-products" class="user-menu-item"><i class="fas fa-box"></i><span>My Products</span></a>
+        <a href="/marketplace/orders" class="user-menu-item"><i class="fas fa-receipt"></i><span>Orders</span></a>
+        <a href="/marketplace/settings" class="user-menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        <div class="user-menu-divider"></div>
+        <button class="user-menu-item logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-toggle" id="menuToggle"><span></span><span></span><span></span></div>
+</nav>
 
   <!-- ══════════════════════ ERROR STATE ══════════════════════ -->
   <div id="errorState">
@@ -3049,14 +3058,232 @@ nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
       }
       return code;
     }
+
+    (function () {
+  'use strict';
+
+  /* ═══════════════════════════════════════════
+     PART 1: Mobile menu + dropdown toggles
+     ═══════════════════════════════════════════ */
+  var menuToggle = document.getElementById('menuToggle');
+  var navLinks   = document.getElementById('navLinks');
+  var dropItems  = document.querySelectorAll('.nav-item--dropdown');
+
+  function closeAllDropdowns() {
+    dropItems.forEach(function (item) {
+      item.classList.remove('open');
+      var btn = item.querySelector('.nav-link--dropdown');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function toggleDropdown(item) {
+    var isOpen = item.classList.contains('open');
+    var btn    = item.querySelector('.nav-link--dropdown');
+    closeAllDropdowns();
+    if (!isOpen) {
+      item.classList.add('open');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  dropItems.forEach(function (item) {
+    var btn = item.querySelector('.nav-link--dropdown');
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleDropdown(item);
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    var insideNav = navLinks && navLinks.contains(e.target);
+    if (!insideNav) closeAllDropdowns();
+
+    if (navLinks && menuToggle) {
+      if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+        menuToggle.classList.remove('active');
+        navLinks.classList.remove('active');
+      }
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeAllDropdowns();
+      if (menuToggle) menuToggle.classList.remove('active');
+      if (navLinks)   navLinks.classList.remove('active');
+    }
+  });
+
+  document.querySelectorAll('.nav-dropdown__item').forEach(function (link) {
+    link.addEventListener('click', function () {
+      closeAllDropdowns();
+      if (menuToggle) menuToggle.classList.remove('active');
+      if (navLinks)   navLinks.classList.remove('active');
+    });
+  });
+
+  if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      this.classList.toggle('active');
+      navLinks.classList.toggle('active');
+      if (!navLinks.classList.contains('active')) closeAllDropdowns();
+    });
+  }
+
+  document.querySelectorAll('.nav-links .nav-link:not(.nav-link--dropdown)').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (menuToggle) menuToggle.classList.remove('active');
+      if (navLinks)   navLinks.classList.remove('active');
+      closeAllDropdowns();
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+     PART 2: Auth state — guest buttons vs user dropdown
+
+     currentUser lives on `window` — a real global, not scoped to this
+     IIFE — so every page can read `window.currentUser` directly instead
+     of each page maintaining its own separate copy that never gets set.
+     This is the fix for two bugs: pages whose own currentUser never got
+     assigned (login redirect loops), and this function's name previously
+     being declared again by page-level scripts and silently overwriting
+     one or the other depending on script load order.
+     ═══════════════════════════════════════════ */
+  var API_URL = window.API_URL || 'https://uyehtechbackend.onrender.com';
+  window.currentUser = window.currentUser || null;
+
+  function checkAuthentication() {
+    var token = localStorage.getItem('token');
+    var user  = localStorage.getItem('user');
+    if (!token || !user) { showGuestButtons(); _announceAuthReady(); return; }
+
+    try {
+      window.currentUser = JSON.parse(user);
+      showUserDropdown(window.currentUser);
+      _announceAuthReady();
+
+      // Background validation — route is /api/profile (no "/user" segment).
+      fetch(API_URL + '/api/profile', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.currentUser = null;
+          showGuestButtons();
+          return null;
+        }
+        // Any other non-OK status (404, 500, rate limit, offline) is a
+        // server-side problem, not proof the token is bad. Don't log out.
+        return r.ok ? r.json() : null;
+      })
+      .then(function (data) {
+        if (data && data.success && data.user) {
+          window.currentUser = data.user;
+          localStorage.setItem('user', JSON.stringify(data.user));
+          showUserDropdown(data.user);
+        }
+      })
+      .catch(function () {}); // network error — keep showing cached state
+    } catch (e) {
+      // Stored 'user' was corrupted/unparseable — self-heal instead of
+      // getting silently stuck showing "guest" forever on every future load.
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.currentUser = null;
+      showGuestButtons();
+      _announceAuthReady();
+    }
+  }
+
+  // Lets any page know the initial auth check has resolved, without having
+  // to guess script load order or duplicate this logic themselves.
+  function _announceAuthReady() {
+    window.dispatchEvent(new CustomEvent('uyeh-auth-ready', { detail: window.currentUser }));
+  }
+
+  function showUserDropdown(user) {
+    var guestEl = document.getElementById('guestButtons');
+    var userEl  = document.getElementById('userDropdown');
+    if (!guestEl || !userEl) return; // page has no auth widget — skip silently
+
+    guestEl.style.display = 'none';
+    userEl.style.display  = 'block';
+
+    var name   = user.name || user.fullName || 'User';
+    var email  = user.email || '';
+    var avatar = user.profilePic || user.profileImage || user.avatar ||
+      ('https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00ff88&color=0a0a0a');
+
+    function set(id, val, attr) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (attr) { el[attr] = val; } else { el.textContent = val; }
+    }
+    set('userAvatar', avatar, 'src');
+    set('userName', name.split(' ')[0]);
+    set('menuAvatar', avatar, 'src');
+    set('menuUserName', name);
+    set('menuUserEmail', email);
+  }
+
+  function showGuestButtons() {
+    var guestEl = document.getElementById('guestButtons');
+    var userEl  = document.getElementById('userDropdown');
+    if (!guestEl || !userEl) return;
+    guestEl.style.display = 'flex';
+    userEl.style.display  = 'none';
+  }
+
+  function toggleUserMenu() {
+    var menu = document.getElementById('userMenu');
+    var drop = document.getElementById('userDropdown');
+    if (menu) menu.classList.toggle('active');
+    if (drop) drop.classList.toggle('active');
+  }
+
+  function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.currentUser = null;
+      showGuestButtons();
+      if (typeof showNotification === 'function') {
+        showNotification('👋 Logged out successfully');
+      }
+      setTimeout(function () { window.location.reload(); }, 1000);
+    }
+  }
+
+  // Close the user menu when clicking outside it
+  document.addEventListener('click', function (e) {
+    var dropdown = document.getElementById('userDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      var menu = document.getElementById('userMenu');
+      if (menu) menu.classList.remove('active');
+      dropdown.classList.remove('active');
+    }
+  });
+
+  // Expose functions the navbar's inline onclick="" handlers call
+  window.toggleUserMenu      = toggleUserMenu;
+  window.handleLogout        = handleLogout;
+  window.checkAuthentication = checkAuthentication;
+
+  // Run auth check automatically — no per-page call needed
+  checkAuthentication();
+
+}());
   </script>
   
      <div id="footer"></div>
    <script src="/footer.js"></script>
     <div id="cookie-consent"></div>
  <script src="/cookie.js"></script>
-
-<script src="/marketplace/navbar.js" defer></script>
 <script src="/pwa-install.js"></script>
 <script src="/chat-widget.js"></script>
 
