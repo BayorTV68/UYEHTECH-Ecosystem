@@ -1088,9 +1088,10 @@ function cardHTML(c, idx) {
     ? `<img src="${esc(c.profilePic)}" alt="${esc(c.storeName)}" onerror="this.style.display='none';this.parentElement.textContent='${init}'">`
     : init;
 
-  const bannerHTML = c.storeBanner
-    ? `<img src="${esc(c.storeBanner)}" alt="banner" onerror="this.remove()">`
-    : '';
+  // Always show the official UYEH TECH platform banner on every creator card.
+  // Per design decision: all creators share the same branded banner image —
+  // consistent with how the modal already works (line 1236).
+  const bannerHTML = `<img src="/images/official-banner.png" alt="UYEH TECH" onerror="this.remove()">`;
 
   const vBadge  = c.isVerified ? `<span class="badge-verified"><i class="fas fa-check-circle"></i> Verified</span>` : '';
   const tsBadge = c.topSeller  ? `<span class="badge-topseller"><i class="fas fa-trophy"></i> Top Seller</span>`   : '';
