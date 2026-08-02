@@ -68,15 +68,15 @@
     }
 
     .ck-banner-inner {
-      padding: 20px 22px 22px;
+      padding: 28px 26px 26px;
     }
 
     /* top row */
     .ck-banner-top {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
     .ck-banner-icon-wrap {
       width: 40px; height: 40px;
@@ -116,9 +116,9 @@
     /* body */
     .ck-banner-body {
       color: rgba(255,255,255,.5);
-      font-size: .84rem;
-      line-height: 1.7;
-      margin-bottom: 18px;
+      font-size: .85rem;
+      line-height: 1.75;
+      margin-bottom: 22px;
     }
     .ck-banner-body a {
       color: #00ff88;
@@ -131,10 +131,19 @@
 
     /* buttons */
     .ck-banner-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ck-banner-actions .ck-btn-accept {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: .88rem;
+    }
+    .ck-banner-actions-secondary {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      align-items: center;
     }
     .ck-btn {
       padding: 11px 18px;
@@ -265,9 +274,9 @@
     .ck-drawer-body {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 24px;
+      padding: 24px;
       display: flex; flex-direction: column;
-      gap: 14px;
+      gap: 18px;
     }
     .ck-drawer-body::-webkit-scrollbar { width: 3px; }
     .ck-drawer-body::-webkit-scrollbar-thumb {
@@ -293,8 +302,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 15px 16px 12px;
-      gap: 12px;
+      padding: 18px 18px 14px;
+      gap: 14px;
     }
     .ck-cat-left {
       display: flex;
@@ -376,44 +385,52 @@
 
     /* description + meta */
     .ck-cat-body {
-      padding: 0 16px 15px;
+      padding: 0 18px 18px;
       border-top: 1px solid rgba(255,255,255,.05);
-      padding-top: 12px;
+      padding-top: 14px;
     }
     .ck-cat-desc {
       color: rgba(255,255,255,.45);
-      font-size: .8rem;
-      line-height: 1.65;
-      margin-bottom: 10px;
+      font-size: .82rem;
+      line-height: 1.7;
+      margin-bottom: 14px;
     }
     .ck-cat-meta {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 10px;
     }
     .ck-meta-pill {
       display: flex;
-      gap: 6px;
-      font-size: .72rem;
-      line-height: 1.5;
+      flex-direction: column;
+      gap: 3px;
+      font-size: .74rem;
+      line-height: 1.55;
     }
     .ck-meta-label {
       color: rgba(0,255,136,.7);
       font-weight: 700;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
-    .ck-meta-val { color: rgba(255,255,255,.3); }
+    .ck-meta-val { color: rgba(255,255,255,.4); }
 
     /* drawer footer */
     .ck-drawer-footer {
-      padding: 16px 24px;
+      padding: 22px 24px;
       border-top: 1px solid rgba(255,255,255,.06);
-      display: grid;
-      grid-template-columns: auto 1fr 1fr;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       flex-shrink: 0;
       background: #0c1018;
+    }
+    .ck-drawer-footer .ck-btn-accept {
+      width: 100%;
+      padding: 14px 16px;
+    }
+    .ck-drawer-footer-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
     .ck-drawer-footer .ck-btn-reject { padding: 11px 14px; }
 
@@ -425,8 +442,8 @@
       .ck-btn-accept { grid-column: span 2; }
     }
     @media (max-width: 380px) {
-      .ck-banner-actions { grid-template-columns: 1fr; }
-      .ck-btn-accept { grid-column: auto; }
+      .ck-banner-actions-secondary { grid-template-columns: 1fr; }
+      .ck-drawer-footer-secondary { grid-template-columns: 1fr; }
       #ck-drawer { width: 100vw; }
     }
   `;
@@ -508,9 +525,11 @@
       your experience. <a href="/privacy.html">Privacy Policy</a>
     </p>
     <div class="ck-banner-actions">
-      <button class="ck-btn ck-btn-accept"   onclick="cookieSystem.acceptAll()">✓ Accept All</button>
-      <button class="ck-btn ck-btn-settings" onclick="cookieSystem.showSettings()">Manage</button>
-      <button class="ck-btn ck-btn-reject"   onclick="cookieSystem.rejectAll()">Reject</button>
+      <button class="ck-btn ck-btn-accept" onclick="cookieSystem.acceptAll()">✓ Accept All</button>
+      <div class="ck-banner-actions-secondary">
+        <button class="ck-btn ck-btn-settings" onclick="cookieSystem.showSettings()">Manage</button>
+        <button class="ck-btn ck-btn-reject"   onclick="cookieSystem.rejectAll()">Reject</button>
+      </div>
     </div>
   </div>
 </div>`;
@@ -562,9 +581,11 @@
     ${CATEGORIES.map(buildCategoryCard).join('')}
   </div>
   <div class="ck-drawer-footer">
-    <button class="ck-btn ck-btn-reject"   onclick="cookieSystem.rejectAll()">Reject All</button>
-    <button class="ck-btn ck-btn-settings" onclick="cookieSystem.saveSettings()">Save</button>
-    <button class="ck-btn ck-btn-accept"   onclick="cookieSystem.acceptAll()">Accept All</button>
+    <button class="ck-btn ck-btn-accept" onclick="cookieSystem.acceptAll()">Accept All</button>
+    <div class="ck-drawer-footer-secondary">
+      <button class="ck-btn ck-btn-reject"   onclick="cookieSystem.rejectAll()">Reject All</button>
+      <button class="ck-btn ck-btn-settings" onclick="cookieSystem.saveSettings()">Save</button>
+    </div>
   </div>
 </div>`;
   }
@@ -602,8 +623,19 @@
         const el = document.getElementById(`ck-toggle-${cat.id}`);
         if (el && consent) el.checked = !!consent[cat.id];
       });
+
+      // Hide the banner while the drawer is open — otherwise it sits
+      // dimmed-but-live behind the modal for the whole interaction.
+      this.hideBanner();
+
+      // Remember what had focus so we can return it on close (a11y), and
+      // lock background scroll like a proper modal.
+      this._lastFocused = document.activeElement;
+      document.body.style.overflow = 'hidden';
+
       drawer.classList.add('ck-visible');
       if (overlay) overlay.classList.add('ck-visible');
+      document.addEventListener('keydown', this._onDrawerKeydown);
       setTimeout(() => {
         const first = drawer.querySelector('button');
         if (first) first.focus();
@@ -612,6 +644,20 @@
     closeSettings() {
       document.getElementById('ck-drawer')?.classList.remove('ck-visible');
       document.getElementById('ck-overlay')?.classList.remove('ck-visible');
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', this._onDrawerKeydown);
+
+      // Closed without choosing anything yet (X / overlay click, not
+      // Save/Accept/Reject) — bring the banner back so they can still
+      // consent without needing to refresh the page.
+      if (!this.getConsent()) this.showBanner();
+
+      if (this._lastFocused && typeof this._lastFocused.focus === 'function') {
+        this._lastFocused.focus();
+      }
+    },
+    _onDrawerKeydown(e) {
+      if (e.key === 'Escape') cookieSystem.closeSettings();
     },
 
     acceptAll() {

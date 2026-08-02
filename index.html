@@ -1049,7 +1049,7 @@ nav {
 
 /* ===== MISSION & VISION ===== */
 .mv-section {
-  padding: 100px 40px;
+  padding: 72px 40px;
   
 }
 .mv-inner {
@@ -1233,6 +1233,100 @@ nav {
   flex-shrink: 0;
 }
 
+/* Testimonials — quote card, avatar, star rating, and rotation dots.
+   Shares the same visual language as .mv-card (dark translucent surface,
+   green hairline border, hover glow) so it doesn't feel like a bolt-on. */
+.testimonial-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(0,255,136,0.15);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  padding: 44px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+}
+.testimonial-card .stars {
+  color: #00ff88;
+  font-size: 1.1rem;
+  letter-spacing: 3px;
+}
+.testimonial-text {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.55;
+  color: #fff;
+  margin: 0;
+}
+.testimonial-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+.testimonial-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00b359, #00ff88);
+  color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.testimonial-author-block {
+  text-align: left;
+}
+.testimonial-author {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.testimonial-role {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.testimonial-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+.testimonial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.testimonial-dot:hover {
+  background: rgba(0,255,136,0.4);
+}
+.testimonial-dot.active {
+  background: #00ff88;
+  width: 22px;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .testimonial-card { padding: 32px 24px; }
+  .testimonial-text { font-size: 1.08rem; }
+}
+
 @media (max-width: 900px) {
   .mv-cards { grid-template-columns: 1fr; }
   .mv-section { padding: 70px 24px; }
@@ -1246,8 +1340,43 @@ nav {
 }
 
 /* ===== MARKETPLACE ===== */
+/* Shared connector — a soft fading hairline at the top of a section,
+   standing in for the visual "bridge" that empty padding alone doesn't
+   provide. Applied to every mid-page section below so the page reads as
+   one continuous flow rather than stacked, disconnected blocks. */
+.flow-divider { position: relative; }
+.flow-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(70%, 820px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,136,0.28), transparent);
+}
+
+/* Bridges the "3 ways to use UYEH TECH" pitches (Marketplace, Creator,
+   Affiliate) into one connected path instead of 3 separate ads stacked
+   back to back. */
+.section-bridge {
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.4);
+  font-size: 0.9rem;
+}
+.section-bridge a {
+  color: #00ff88;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.section-bridge a:hover { text-decoration: underline; }
+
 .mkt-section {
-  padding: 100px 40px;
+  padding: 72px 40px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -1412,7 +1541,124 @@ nav {
   color: rgba(255,255,255,0.3);
 }
 
-@media (max-width: 768px) {
+/* Product Spotlight — live "recently added" products, sitting inside the
+   marketplace preview section. First card carries the "Just added" badge;
+   the rest are equal-weight recent items alongside it. */
+.spotlight-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.spotlight-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00ff88;
+  animation: spotlightPulse 2s infinite;
+}
+@keyframes spotlightPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,136,0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(0,255,136,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+}
+.spotlight-label {
+  color: #00ff88;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.spotlight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.spotlight-card {
+  position: relative;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(0,255,136,0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.spotlight-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0,255,136,0.35);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 30px rgba(0,255,136,0.08);
+}
+.spotlight-card--first {
+  background: rgba(0,255,136,0.04);
+  border-color: rgba(0,255,136,0.25);
+}
+.spotlight-new-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(10,10,10,0.85);
+  border: 1px solid rgba(0,255,136,0.4);
+  color: #00ff88;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 50px;
+  z-index: 2;
+}
+.spotlight-img {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  object-fit: cover;
+  background: rgba(255,255,255,0.04);
+  display: block;
+}
+.spotlight-info { padding: 18px 20px 20px; }
+.spotlight-type {
+  color: #00ff88;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.spotlight-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.spotlight-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.spotlight-price {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+}
+.spotlight-cta {
+  color: #00ff88;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 800px) {
+  .spotlight-grid { grid-template-columns: 1fr; }
   .mkt-section { padding: 70px 24px; }
   .mkt-step__arrow { display: none; }
   .mkt-step { min-width: 140px; padding: 28px 16px; }
@@ -1420,7 +1666,7 @@ nav {
 
 /* ===== CREATOR ===== */
 .creator-section {
-    padding: 100px 40px;
+    padding: 72px 40px;
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
@@ -1640,7 +1886,7 @@ nav {
 
 /* ===== AFFILIATE ===== */
 .aff-section {
-  padding: 100px 40px;
+  padding: 72px 40px;
   max-width: 1200px;
   margin: 0 auto;
   border-radius: 24px;
@@ -1769,7 +2015,7 @@ nav {
 }
 /* ===== ABOUT PREVIEW ===== */
 .ap-section {
-  padding: 100px 40px;
+  padding: 72px 40px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -1987,6 +2233,49 @@ nav {
   .ap-card { position: static; }
   .ap-section { padding: 70px 24px; }
 }
+
+.contact-cta {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+.contact-cta__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(0,255,136,0.08);
+  border: 1px solid rgba(0,255,136,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 20px;
+}
+.contact-cta__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 12px;
+}
+.contact-cta__desc {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+.contact-cta__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.contact-cta__email {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.contact-cta__email:hover { color: #00ff88; }
 </style>
 </head>
 <body>
@@ -2259,12 +2548,25 @@ nav {
 
 
 <!-- ========== MARKETPLACE PREVIEW ========== -->
-<section class="mkt-section">
+<section class="mkt-section flow-divider">
 
   <div class="mkt-header">
     <div class="mkt-label">Digital Marketplace</div>
     <h2 class="mkt-title">Shop. Download. <span>Done.</span></h2>
     <p class="mkt-desc">Browse digital products from verified creators. Pay once, download instantly. No waiting, no follow-up.</p>
+  </div>
+
+  <!-- Product Spotlight — shows real, live products so this section proves
+       itself instead of just describing itself. Sorts by createdAt client-side
+       so it works with the existing /api/products endpoint with no backend
+       changes; swap the sort for a `spotlight: true` flag later if you'd
+       rather have admin pick manually instead of "most recent". -->
+  <div id="spotlightWrap" style="display:none;max-width:1000px;margin:0 auto 64px;">
+    <div class="spotlight-header">
+      <span class="spotlight-pulse"></span>
+      <span class="spotlight-label">Featured on the marketplace</span>
+    </div>
+    <div class="spotlight-grid" id="spotlightGrid"></div>
   </div>
 
   <!-- How it works -->
@@ -2320,10 +2622,14 @@ nav {
     <span class="mkt-cta-note">No account needed to browse</span>
   </div>
 
+  <div class="section-bridge">
+    Prefer to sell instead of shop? <a href="#become-a-creator">Open your own store ↓</a>
+  </div>
+
 </section>
 
 <!-- ========== CREATOR SECTION ========== -->
-<section class="creator-section">
+<section class="creator-section flow-divider" id="become-a-creator">
 
   <!-- Background accent -->
   <div class="creator-bg-accent"></div>
@@ -2438,16 +2744,21 @@ nav {
           <span class="cc-payout__amount">$387</span>
         </div>
         <div style="text-align:center;font-size:.68rem;color:rgba(255,255,255,.3);margin-top:8px;">
-          Illustrative example — amounts shown in USD
+          Illustrative example
         </div>
       </div>
     </div>
 
   </div>
+
+  <div class="section-bridge">
+    Not ready to create products? <a href="#affiliate">Earn by referring instead ↓</a>
+  </div>
+
 </section>
 
 <!-- ========== AFFILIATE SECTION ========== -->
-<section class="aff-section">
+<section class="aff-section flow-divider" id="affiliate">
 
   <div class="aff-header">
    
@@ -2530,7 +2841,7 @@ nav {
 </section>
 
 <!-- ========== MISSION & VISION (moved here from right after Hero) ========== -->
-<section class="mv-section">
+<section class="mv-section flow-divider">
   <div class="mv-inner">
 
     <div class="mv-header">
@@ -2631,7 +2942,7 @@ nav {
 </section>
 
 <!-- ========== THE BUILDER ========== -->
-<section class="ap-section">
+<section class="ap-section flow-divider">
   <div class="ap-inner">
 
     <!-- Left: Text -->
@@ -2749,7 +3060,7 @@ nav {
 
 
 <!-- ========== TESTIMONIALS MARQUEE ========== -->
-<section class="mv-section" style="padding-top:20px;">
+<section class="mv-section flow-divider" style="padding-top:20px;">
   <div class="mv-inner" style="max-width:900px;">
 
     <div class="mv-header">
@@ -2757,91 +3068,114 @@ nav {
       <h2 class="mv-title">Real Feedback.<br><span>Real Users.</span></h2>
     </div>
 
-    <!-- Rotating testimonial — same crossfade mechanism as the hero
-         marquee, reusing the .testimonial-card CSS already defined
-         but previously unused anywhere on the page. -->
-    <div style="position:relative;min-height:260px;max-width:640px;margin:0 auto;">
+    <!-- Rotating testimonial — crossfade + dot navigation, matching the
+         .mv-card visual language used throughout the rest of the page. -->
+    <div style="position:relative;min-height:280px;max-width:640px;margin:0 auto;">
       <div id="testimonialMarquee" style="position:relative;">
 
-        <div class="testimonial-card testimonial-item active" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
-          <div class="stars">★★★★★</div>
-          <p class="testimonial-text">
-            "Bought a template within minutes of landing on the site —
-            payment went through instantly and the download was in my
-            dashboard before I even got the email confirmation."
-          </p>
-          <div class="testimonial-author">Chidinma A.</div>
-          <div class="testimonial-role">Marketplace Buyer</div>
+        <div class="testimonial-item active" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">
+              "Bought a template within minutes of landing on the site —
+              payment went through instantly and the download was in my
+              dashboard before I even got the email confirmation."
+            </p>
+            <div class="testimonial-meta">
+              <div class="testimonial-avatar">CA</div>
+              <div class="testimonial-author-block">
+                <div class="testimonial-author">Chidinma A.</div>
+                <div class="testimonial-role">Marketplace Buyer</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="testimonial-item" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
-          <div class="testimonial-card" style="height:100%;">
+          <div class="testimonial-card">
             <div class="stars">★★★★★</div>
             <p class="testimonial-text">
               "My storefront was approved within a day and my first sale
               landed a week later. The earnings dashboard actually shows
               exactly what I'm owed — no guessing."
             </p>
-            <div class="testimonial-author">Femi O.</div>
-            <div class="testimonial-role">Creator on UYEH TECH</div>
+            <div class="testimonial-meta">
+              <div class="testimonial-avatar">FO</div>
+              <div class="testimonial-author-block">
+                <div class="testimonial-author">Femi O.</div>
+                <div class="testimonial-role">Creator on UYEH TECH</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="testimonial-item" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
-          <div class="testimonial-card" style="height:100%;">
+          <div class="testimonial-card">
             <div class="stars">★★★★★</div>
             <p class="testimonial-text">
               "Shared my referral link on WhatsApp and started seeing
               commission the same week. The tiered rate actually motivates
               me to keep sharing instead of stopping after one payout."
             </p>
-            <div class="testimonial-author">Grace N.</div>
-            <div class="testimonial-role">Affiliate Partner</div>
+            <div class="testimonial-meta">
+              <div class="testimonial-avatar">GN</div>
+              <div class="testimonial-author-block">
+                <div class="testimonial-author">Grace N.</div>
+                <div class="testimonial-role">Affiliate Partner</div>
+              </div>
+            </div>
           </div>
         </div>
 
       </div>
+
+      <div class="testimonial-dots" id="testimonialDots">
+        <button class="testimonial-dot active" aria-label="Show testimonial 1"></button>
+        <button class="testimonial-dot" aria-label="Show testimonial 2"></button>
+        <button class="testimonial-dot" aria-label="Show testimonial 3"></button>
+      </div>
+    </div>
+
+    <!-- Rate Your Experience — only shown to logged-in users.
+         Three states handled by JS: no review yet (form), pending
+         (status message), approved (status message + edit option). -->
+    <div id="rateExperienceWrap" style="display:none;max-width:480px;margin:40px auto 0;text-align:center;">
+
+      <div id="rateFormState">
+        <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:14px;">
+          Used UYEH TECH? Rate your experience with the platform.
+        </p>
+        <div id="rateStars" style="display:flex;justify-content:center;gap:6px;margin-bottom:14px;font-size:1.6rem;cursor:pointer;">
+          <span data-star="1" class="rate-star">☆</span>
+          <span data-star="2" class="rate-star">☆</span>
+          <span data-star="3" class="rate-star">☆</span>
+          <span data-star="4" class="rate-star">☆</span>
+          <span data-star="5" class="rate-star">☆</span>
+        </div>
+        <textarea id="rateBody" maxlength="500" rows="3" placeholder="Tell us about your experience (min. 10 characters)…"
+          style="width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(0,255,136,.2);border-radius:10px;padding:12px 14px;color:#fff;font-size:.85rem;font-family:inherit;resize:vertical;margin-bottom:12px;"></textarea>
+        <button id="rateSubmitBtn" onclick="submitPlatformReview()"
+          style="background:#00ff88;color:#0a0a0a;border:none;padding:10px 26px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;">
+          Submit Review
+        </button>
+        <p id="rateError" style="color:#ff6b6b;font-size:.78rem;margin-top:10px;display:none;"></p>
+      </div>
+
+      <div id="rateStatusState" style="display:none;">
+        <p id="rateStatusText" style="color:rgba(255,255,255,.5);font-size:.85rem;"></p>
+        <button onclick="editPlatformReview()" style="background:none;border:none;color:#00ff88;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:8px;">
+          Edit my review
+        </button>
+      </div>
+
     </div>
 
   </div>
 </section>
 
-<!-- ========== TRUST / PAYMENT SECURITY STRIP ========== -->
-<section style="padding:50px 20px;border-top:1px solid rgba(0,255,136,.08);border-bottom:1px solid rgba(0,255,136,.08);">
-  <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:1.4rem;">🔒</span>
-      <div>
-        <div style="color:#fff;font-weight:700;font-size:.85rem;">Secured Payments</div>
-        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">Paystack &amp; Flutterwave</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:1.4rem;">⚡</span>
-      <div>
-        <div style="color:#fff;font-weight:700;font-size:.85rem;">Instant Delivery</div>
-        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">No waiting after checkout</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:1.4rem;">🛡️</span>
-      <div>
-        <div style="color:#fff;font-weight:700;font-size:.85rem;">Data Protected</div>
-        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">Encrypted &amp; never resold</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:1.4rem;">💬</span>
-      <div>
-        <div style="color:#fff;font-weight:700;font-size:.85rem;">Live Support</div>
-        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">Real people, 24/7</div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ========== FAQ ========== -->
-<section class="mv-section">
+<section class="mv-section flow-divider">
   <div class="mv-inner" style="max-width:800px;">
 
     <div class="mv-header">
@@ -2927,6 +3261,25 @@ nav {
 
     </div>
 
+  </div>
+</section>
+
+<!-- ========== CONTACT / SUPPORT ========== -->
+<section class="mv-section flow-divider" style="padding-top:56px;padding-bottom:56px;">
+  <div class="contact-cta">
+    <div class="contact-cta__icon">💬</div>
+    <h2 class="contact-cta__title">Still stuck on something?</h2>
+    <p class="contact-cta__desc">
+      Our support team answers real tickets, not bots — reach out and
+      we'll get back to you.
+    </p>
+    <div class="contact-cta__actions">
+      <a href="/marketplace/support" class="mkt-cta">
+        <span>Contact Support</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="mailto:uyehtech@gmail.com" class="contact-cta__email">or email uyehtech@gmail.com</a>
+    </div>
   </div>
 </section>
 
@@ -3902,18 +4255,241 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 3000);
 })();
 
-// Testimonial marquee — same rotation pattern as the hero marquee,
-// separate instance/selector so the two never interfere with each other.
+// Product Spotlight — fetches genuinely admin-flagged FEATURED products
+// (isFeatured: true on the server, toggled from the admin dashboard),
+// not just recently-added ones. Fails silently (keeps the block hidden)
+// rather than showing a broken section if the API is unreachable or no
+// products are currently marked featured.
 (function(){
+  const API_URL = 'https://uyehtechbackend.onrender.com';
+  const wrap = document.getElementById('spotlightWrap');
+  const grid = document.getElementById('spotlightGrid');
+  if (!wrap || !grid) return;
+
+  const token = localStorage.getItem('token');
+  const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  // featured=true is a real, existing server-side flag — no client-side
+  // sorting or guessing needed. displayPrice comes pre-converted from the
+  // server using the visitor's detected currency (USD by default).
+  fetch(`${API_URL}/api/products?featured=true&limit=3`, { headers: authHeaders })
+    .then(r => r.json())
+    .then(data => {
+      const products = data?.products || [];
+      if (!Array.isArray(products) || !products.length) return; // nothing featured right now — stay hidden
+
+      grid.innerHTML = products.map((product, i) => {
+        // Server sends displayPrice.converted when a real currency was
+        // detected; falls back to raw USD price otherwise (never null-crashes).
+        const dp = product.displayPrice;
+        const price = dp ? dp.converted : (product.price || 0);
+        const symbol = dp ? dp.symbol : '$';
+        const priceText = `${symbol}${Number(price).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+
+        const title = product.title || product.name || 'Untitled product';
+        const type = (product.productType || product.category || 'Product').replace(/\b\w/g, c => c.toUpperCase());
+        const img = product.image || product.thumbnail || product.coverImage || '';
+        const id = product._id || product.id || '';
+
+        return `
+          <a href="/marketplace/product/${encodeURIComponent(id)}" class="spotlight-card${i === 0 ? ' spotlight-card--first' : ''}">
+            ${i === 0 ? '<span class="spotlight-new-tag">⭐ Featured</span>' : ''}
+            <img class="spotlight-img" src="${escapeHtml(img)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'">
+            <div class="spotlight-info">
+              <div class="spotlight-type">${escapeHtml(type)}</div>
+              <h3 class="spotlight-title">${escapeHtml(title)}</h3>
+              <div class="spotlight-footer">
+                <span class="spotlight-price">${escapeHtml(priceText)}</span>
+                <span class="spotlight-cta">View →</span>
+              </div>
+            </div>
+          </a>
+        `;
+      }).join('');
+
+      wrap.style.display = 'block';
+    })
+    .catch(() => { /* stay hidden */ });
+})();
+
+// Testimonial marquee — crossfade with clickable dot navigation and
+// pause-on-hover so it doesn't fight someone trying to read/click a dot.
+//
+// Fetches real, admin-approved platform reviews from /api/platform-reviews.
+// These are reviews of UYEH TECH itself — not product reviews — submitted
+// by real users via the "Rate Your Experience" form further down this page.
+// If none are approved yet, the curated placeholder quotes stay visible.
+(function(){
+  const API_URL = 'https://uyehtechbackend.onrender.com';
   const items = document.querySelectorAll('#testimonialMarquee .testimonial-item');
+  const dots = document.querySelectorAll('#testimonialDots .testimonial-dot');
   if (!items.length) return;
+
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  fetch(`${API_URL}/api/platform-reviews?limit=${items.length}`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const reviews = data && data.success && Array.isArray(data.reviews) ? data.reviews : [];
+      if (!reviews.length) return; // no approved platform reviews yet — keep curated fallback
+
+      reviews.slice(0, items.length).forEach((review, i) => {
+        const card = items[i].querySelector('.testimonial-card');
+        if (!card || !review.body || !review.displayName) return; // malformed entry — keep that slot's fallback
+        card.querySelector('.stars').textContent = '★★★★★'.slice(0, Math.max(1, Math.min(5, review.rating || 5)));
+        card.querySelector('.testimonial-text').textContent = `"${review.body}"`;
+        card.querySelector('.testimonial-avatar').textContent = initials(review.displayName);
+        card.querySelector('.testimonial-author').textContent = review.displayName;
+        card.querySelector('.testimonial-role').textContent = review.roleLabel || 'Platform User';
+      });
+    })
+    .catch(() => { /* backend unreachable — curated quotes stay */ });
+
   let idx = 0;
+  let paused = false;
   items[0].style.opacity = '1';
-  setInterval(function(){
+
+  function goTo(newIdx) {
     items[idx].style.opacity = '0';
-    idx = (idx + 1) % items.length;
+    dots[idx] && dots[idx].classList.remove('active');
+    idx = newIdx;
     items[idx].style.opacity = '1';
+    dots[idx] && dots[idx].classList.add('active');
+  }
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => goTo(i));
+  });
+
+  const wrap = document.getElementById('testimonialMarquee').parentElement;
+  wrap.addEventListener('mouseenter', () => paused = true);
+  wrap.addEventListener('mouseleave', () => paused = false);
+
+  setInterval(function(){
+    if (paused) return;
+    goTo((idx + 1) % items.length);
   }, 5000); // slightly slower than the hero marquee — more text to read
+})();
+
+// Rate Your Experience — platform review submission
+(function(){
+  const API_URL = 'https://uyehtechbackend.onrender.com';
+  const wrap = document.getElementById('rateExperienceWrap');
+  if (!wrap) return;
+
+  const token = localStorage.getItem('token');
+  if (!token) return; // logged-out visitors don't see this block at all
+
+  const formState   = document.getElementById('rateFormState');
+  const statusState = document.getElementById('rateStatusState');
+  const statusText  = document.getElementById('rateStatusText');
+  const stars       = document.querySelectorAll('#rateStars .rate-star');
+  let selectedRating = 0;
+
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.star);
+      stars.forEach(s => {
+        s.textContent = parseInt(s.dataset.star) <= selectedRating ? '★' : '☆';
+        s.style.color = parseInt(s.dataset.star) <= selectedRating ? '#00ff88' : '';
+      });
+    });
+  });
+
+  function showForm() {
+    formState.style.display = 'block';
+    statusState.style.display = 'none';
+  }
+  function showStatus(review) {
+    formState.style.display = 'none';
+    statusState.style.display = 'block';
+    const label = review.status === 'approved'
+      ? '✅ Your review is live on this page. Thank you!'
+      : '🕐 Your review is pending approval.';
+    statusText.textContent = label;
+  }
+
+  window.submitPlatformReview = function() {
+    const body = document.getElementById('rateBody').value.trim();
+    const errorEl = document.getElementById('rateError');
+    errorEl.style.display = 'none';
+
+    if (!selectedRating) {
+      errorEl.textContent = 'Please select a star rating.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    if (body.length < 10) {
+      errorEl.textContent = 'Please write at least 10 characters.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('rateSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    fetch(`${API_URL}/api/platform-reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ rating: selectedRating, body })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) {
+          errorEl.textContent = data.message || 'Something went wrong.';
+          errorEl.style.display = 'block';
+          return;
+        }
+        showStatus({ status: 'pending' });
+      })
+      .catch(() => {
+        errorEl.textContent = 'Network error — please try again.';
+        errorEl.style.display = 'block';
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'Submit Review';
+      });
+  };
+
+  window.editPlatformReview = function() {
+    showForm();
+  };
+
+  // Check if this user already has a review on file
+  fetch(`${API_URL}/api/platform-reviews/me`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+    .then(r => r.json())
+    .then(data => {
+      wrap.style.display = 'block';
+      if (data.success && data.review) {
+        selectedRating = data.review.rating;
+        stars.forEach(s => {
+          s.textContent = parseInt(s.dataset.star) <= selectedRating ? '★' : '☆';
+          s.style.color = parseInt(s.dataset.star) <= selectedRating ? '#00ff88' : '';
+        });
+        document.getElementById('rateBody').value = data.review.body;
+        showStatus(data.review);
+      } else {
+        showForm();
+      }
+    })
+    .catch(() => { wrap.style.display = 'block'; showForm(); });
 })();
 
 // FAQ accordion toggle
