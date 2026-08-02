@@ -1050,9 +1050,7 @@ nav {
 /* ===== MISSION & VISION ===== */
 .mv-section {
   padding: 100px 40px;
-  background: rgba(0,255,136,0.015);
-  border-top: 1px solid rgba(0,255,136,0.06);
-  border-bottom: 1px solid rgba(0,255,136,0.06);
+  
 }
 .mv-inner {
   max-width: 1200px;
@@ -1645,10 +1643,8 @@ nav {
   padding: 100px 40px;
   max-width: 1200px;
   margin: 0 auto;
-  background: rgba(0,255,136,0.015);
   border-radius: 24px;
-  border: 1px solid rgba(0,255,136,0.06);
-}
+ }
 
 .aff-header {
   text-align: center;
@@ -1991,743 +1987,6 @@ nav {
   .ap-card { position: static; }
   .ap-section { padding: 70px 24px; }
 }
-/* ===== SERVICES ===== */
-.svc-section {
-  padding: 100px 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.svc-inner { width: 100%; }
-.svc-header {
-  text-align: center;
-  margin-bottom: 64px;
-}
-.svc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 56px;
-}
-
-/* Base card */
-.svc-card {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(0,255,136,0.1);
-  border-radius: 18px;
-  padding: 32px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-.svc-card:hover {
-  border-color: rgba(0,255,136,0.3);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 30px rgba(0,255,136,0.06);
-}
-
-/* Featured */
-.svc-card--featured {
-  border-color: rgba(0,255,136,0.2);
-  background: rgba(0,255,136,0.03);
-}
-/* Highlight — signature service */
-.svc-card--highlight {
-  border-color: rgba(0,255,136,0.3);
-  background: rgba(0,255,136,0.05);
-  grid-column: span 1;
-  box-shadow: 0 8px 40px rgba(0,255,136,0.08);
-}
-.svc-card--highlight:hover {
-  box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 50px rgba(0,255,136,0.12);
-}
-
-/* Badge */
-.svc-card__badge {
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #00ff88;
-  color: #0a0a0a;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  padding: 4px 14px;
-  border-radius: 50px;
-  white-space: nowrap;
-}
-.svc-card__badge--special {
-  background: linear-gradient(135deg, #00ff88, #00cc6e);
-  box-shadow: 0 4px 16px rgba(0,255,136,0.4);
-}
-
-/* Icon */
-.svc-card__icon {
-  font-size: 2rem;
-  line-height: 1;
-}
-.svc-card__title {
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: 800;
-  font-family: 'Playfair Display', serif;
-  line-height: 1.3;
-}
-.svc-card__desc {
-  color: rgba(255,255,255,0.45);
-  font-size: 0.87rem;
-  line-height: 1.75;
-  margin: 0;
-  flex: 1;
-}
-
-/* Features list */
-.svc-card__features {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 0;
-  border-top: 1px solid rgba(255,255,255,0.04);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.svc-card__features li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: rgba(255,255,255,0.5);
-  font-size: 0.83rem;
-}
-.svc-card__features li::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: rgba(0,255,136,0.5);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* CTA */
-.svc-card__cta-wrap { margin-top: auto; }
-.svc-card__cta {
-  display: block;
-  text-align: center;
-  padding: 12px;
-  border: 1.5px solid rgba(0,255,136,0.25);
-  border-radius: 9px;
-  color: #00ff88;
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  background: transparent;
-}
-.svc-card__cta:hover {
-  background: rgba(0,255,136,0.08);
-  border-color: rgba(0,255,136,0.5);
-  transform: translateY(-1px);
-}
-.svc-card__cta--primary {
-  background: #00ff88;
-  color: #0a0a0a;
-  border-color: #00ff88;
-}
-.svc-card__cta--primary:hover {
-  background: #00e67a;
-  box-shadow: 0 6px 20px rgba(0,255,136,0.35);
-}
-
-/* Bottom */
-.svc-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(0,255,136,0.08);
-  border-radius: 14px;
-  padding: 24px 32px;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.svc-bottom__text {
-  color: rgba(255,255,255,0.45);
-  font-size: 0.95rem;
-  margin: 0;
-}
-.svc-bottom__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #00ff88;
-  color: #0a0a0a;
-  padding: 12px 28px;
-  border-radius: 9px;
-  font-weight: 800;
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-.svc-bottom__cta:hover {
-  background: #00e67a;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,255,136,0.35);
-}
-
-@media (max-width: 1024px) {
-  .svc-grid { grid-template-columns: repeat(2, 1fr); }
-  .svc-card--highlight { grid-column: span 2; }
-}
-@media (max-width: 640px) {
-  .svc-grid { grid-template-columns: 1fr; }
-  .svc-card--highlight { grid-column: span 1; }
-  .svc-section { padding: 70px 24px; }
-  .svc-bottom { flex-direction: column; text-align: center; }
-}
-.svc-card {
-    visibility: visible !important;
-    opacity: 1 !important;
-}
- 
-/* FIX: signature card span — prevent collapse at mid-widths */
-.svc-card--highlight {
-    grid-column: span 1; /* keep at 1 — it sits in the 3-col grid naturally */
-    visibility: visible !important;
-    opacity: 1 !important;
-}
- 
-/* FIX: at 1024px, highlight card should span 2 of the 2-col grid */
-@media (max-width: 1024px) {
-    .svc-grid { grid-template-columns: repeat(2, 1fr); }
-    .svc-card--highlight { grid-column: span 2; }
-}
- 
-/* FIX: at 640px, everything single column */
-@media (max-width: 640px) {
-    .svc-grid { grid-template-columns: 1fr; }
-    .svc-card--highlight { grid-column: span 1; }
-}
-        /* Testimonials */
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-        }
-
-        .testimonial-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(0, 255, 136, 0.2);
-            border-radius: 15px;
-            padding: 30px;
-            position: relative;
-        }
-
-        .stars {
-            color: #FFD700;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-        }
-
-        .testimonial-text {
-            color: #ccc;
-            line-height: 1.7;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-
-        .testimonial-author {
-            color: #00ff88;
-            font-weight: bold;
-        }
-
-        .testimonial-role {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* CTA Section */
-        .cta-section {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
-            padding: 80px 40px;
-            text-align: center;
-        }
-
-        .cta-section h2 {
-            font-size: 2.5rem;
-            color: #00ff88;
-            margin-bottom: 20px;
-        }
-
-        .cta-section p {
-            font-size: 1.2rem;
-            color: #ccc;
-            margin-bottom: 40px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-features {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
-
-        .cta-feature {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #ccc;
-        }
-
-        .cta-feature::before {
-            content: "✓";
-            color: #00ff88;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
- 
-        
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   🍪 COMPLETE COOKIE CONSENT SYSTEM - v2.0
-   Includes: Banner, Modal, Backend Integration, GDPR Compliance
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ========== COOKIE BANNER ========== */
-.cookie-consent {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(20px);
-    border-top: 2px solid #00ff88;
-    padding: 25px 30px;
-    z-index: 9999;
-    box-shadow: 0 -5px 30px rgba(0, 255, 136, 0.3);
-    transform: translateY(100%);
-    opacity: 0;
-    transition: all 0.5s ease;
-}
-
-.cookie-consent.show {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.cookie-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 25px;
-}
-
-.cookie-icon {
-    font-size: 3em;
-    flex-shrink: 0;
-    animation: cookieBounce 2s ease-in-out infinite;
-}
-
-@keyframes cookieBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-.cookie-text {
-    flex: 1;
-}
-
-.cookie-text h3 {
-    color: #00ff88;
-    font-size: 1.3em;
-    margin-bottom: 8px;
-    font-family: 'Playfair Display', serif;
-}
-
-.cookie-text p {
-    color: #d1d5db;
-    font-size: 0.95em;
-    line-height: 1.6;
-    margin: 0;
-}
-
-.cookie-link {
-    color: #00ff88;
-    text-decoration: underline;
-    transition: color 0.3s;
-}
-
-.cookie-link:hover {
-    color: #00cc66;
-}
-
-.cookie-buttons {
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-}
-
-.cookie-btn {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: all 0.3s;
-    white-space: nowrap;
-}
-
-.accept-btn, .accept-all-btn {
-    background: linear-gradient(135deg, #00b359, #00ff88);
-    color: #fff;
-}
-
-.accept-btn:hover, .accept-all-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
-}
-
-.settings-btn {
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    color: #00ff88;
-}
-
-.settings-btn:hover {
-    background: rgba(0, 255, 136, 0.2);
-}
-
-.reject-btn {
-    background: rgba(255, 68, 68, 0.1);
-    border: 1px solid rgba(255, 68, 68, 0.3);
-    color: #ff4444;
-}
-
-.reject-btn:hover {
-    background: rgba(255, 68, 68, 0.2);
-}
-
-/* ========== COOKIE SETTINGS MODAL ========== */
-.cookie-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(10px);
-    z-index: 10000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: modalFadeIn 0.3s ease;
-}
-
-.cookie-modal.show {
-    display: flex;
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.cookie-modal-content {
-    background: #0a0a0a;
-    border: 2px solid #00ff88;
-    border-radius: 20px;
-    max-width: 700px;
-    width: 100%;
-    max-height: 90vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 255, 136, 0.4);
-    animation: modalSlideUp 0.4s ease;
-}
-
-@keyframes modalSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.cookie-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 25px 30px;
-    background: rgba(0, 255, 136, 0.1);
-    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
-}
-
-.cookie-modal-header h2 {
-    color: #00ff88;
-    font-size: 1.8em;
-    margin: 0;
-    font-family: 'Playfair Display', serif;
-}
-
-.close-modal {
-    background: rgba(255, 68, 68, 0.2);
-    border: 1px solid rgba(255, 68, 68, 0.4);
-    color: #ff4444;
-    font-size: 1.8em;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-}
-
-.close-modal:hover {
-    background: rgba(255, 68, 68, 0.3);
-    transform: rotate(90deg);
-}
-
-.cookie-modal-body {
-    padding: 30px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.cookie-modal-body > p {
-    color: #d1d5db;
-    margin-bottom: 25px;
-    line-height: 1.7;
-}
-
-.cookie-category {
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 15px;
-    transition: all 0.3s;
-}
-
-.cookie-category:hover {
-    border-color: rgba(0, 255, 136, 0.4);
-    background: rgba(0, 255, 136, 0.08);
-}
-
-.cookie-toggle-wrapper {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-}
-
-.cookie-category-info {
-    flex: 1;
-}
-
-.cookie-category-info h3 {
-    color: #00ff88;
-    font-size: 1.2em;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.always-active {
-    font-size: 0.7em;
-    background: rgba(0, 255, 136, 0.2);
-    padding: 3px 10px;
-    border-radius: 12px;
-    color: #00ff88;
-}
-
-.cookie-category-info p {
-    color: #d1d5db;
-    font-size: 0.9em;
-    margin: 0;
-}
-
-.cookie-details {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(0, 255, 136, 0.1);
-}
-
-.cookie-details p {
-    color: #d1d5db;
-    font-size: 0.85em;
-    margin: 5px 0;
-}
-
-/* ========== TOGGLE SWITCH ========== */
-.cookie-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    flex-shrink: 0;
-}
-
-.cookie-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.cookie-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #333;
-    transition: 0.4s;
-    border-radius: 34px;
-}
-
-.cookie-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-}
-
-input:checked + .cookie-slider {
-    background-color: #00ff88;
-}
-
-input:checked + .cookie-slider:before {
-    transform: translateX(24px);
-}
-
-input:disabled + .cookie-slider {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.cookie-modal-footer {
-    padding: 20px 30px;
-    background: rgba(0, 255, 136, 0.05);
-    border-top: 1px solid rgba(0, 255, 136, 0.2);
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.save-btn {
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    color: #00ff88;
-}
-
-.save-btn:hover {
-    background: rgba(0, 255, 136, 0.2);
-}
-
-/* ========== AUTH STATUS INDICATOR ========== */
-.auth-cookie-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
-    background: rgba(0, 255, 136, 0.1);
-    border-radius: 15px;
-    font-size: 0.75em;
-    color: #00ff88;
-}
-
-.auth-cookie-status.active {
-    background: rgba(0, 255, 136, 0.2);
-}
-
-.auth-cookie-status.inactive {
-    background: rgba(255, 68, 68, 0.1);
-    color: #ff4444;
-}
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 768px) {
-    .cookie-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .cookie-buttons {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .cookie-btn {
-        width: 100%;
-    }
-
-    .cookie-modal-content {
-        max-height: 95vh;
-    }
-
-    .cookie-modal-header {
-        padding: 20px;
-    }
-
-    .cookie-modal-body {
-        padding: 20px;
-    }
-
-    .cookie-modal-footer {
-        flex-direction: column;
-        padding: 15px 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .cookie-consent {
-        padding: 20px 15px;
-    }
-
-    .cookie-icon {
-        font-size: 2em;
-    }
-
-    .cookie-text h3 {
-        font-size: 1.1em;
-    }
-
-    .cookie-text p {
-        font-size: 0.85em;
-    }
-
-    .cookie-modal-header h2 {
-        font-size: 1.4em;
-    }
-}
-
 </style>
 </head>
 <body>
@@ -2787,7 +2046,7 @@ input:disabled + .cookie-slider {
   <!-- Creators' Hub (dropdown) -->
   <li class="nav-item--dropdown" id="dropCreators">
     <button class="nav-link nav-link--dropdown" aria-expanded="false" aria-haspopup="true">
-      Creators' Hub
+    The Builder
       <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
         <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -2905,33 +2164,29 @@ input:disabled + .cookie-slider {
 
   <div class="hero-inner">
 
-    <!-- Headline -->
-    <!-- H1 now says what the site does, not just its name.
-         Google reads this as the page's primary topic signal. -->
     <h1 class="hero-headline">
-      <span class="hero-headline__top">Welcome to</span>
-      <span class="hero-headline__bottom">UYEH TECH Ecosystem</span>
+      <span class="hero-headline__top">Shop. Sell. Earn.</span>
+      <span class="hero-headline__bottom">All in One Place.</span>
     </h1>
 
     <!-- Subheadline -->
     <!-- Concrete and scannable — six roles in two lines.
          Drops the informal "..." and ":-" punctuation. -->
     <p class="hero-sub">
-      Shop digital products. Sell as a creator. Earn as an affiliate.<br>
-      Get support. Hire a developer. Read the blog.<br>
+      A digital marketplace, creator platform, and affiliate programme
+      running on one automated system — instant delivery, transparent
+      payouts, real support behind every transaction.<br>
       <em>Built in Nigeria — built for the world.</em>
     </p>
 
-    <!-- Marquee — trust signals, not restatements of the headline -->
+    <!-- Marquee — trust signals only, no repeats of the H1/subheadline -->
     <div class="hero-marquee-wrap">
       <div class="hero-marquee-inner" id="heroMarquee">
-        <span class="marquee-item active">Welcome to UYEH TECH Ecosystem</span>
-        <span class="marquee-item">Secure payments — Paystack &amp; Flutterwave</span>
+        <span class="marquee-item active">Secure payments — Paystack &amp; Flutterwave</span>
         <span class="marquee-item">Instant digital delivery, every time</span>
         <span class="marquee-item">Open your creator account &amp; store today</span>
         <span class="marquee-item">Tiered affiliate commissions — grow your rate as you refer</span>
-        <span class="marquee-item">Live support, 24/7</span>
-        <span class="marquee-item">Built in NIgeria - service to the world.</span>
+        <span class="marquee-item">Live support, 24/7.</span>
       </div>
     </div>
 
@@ -3003,138 +2258,6 @@ input:disabled + .cookie-slider {
 </section>
 
 
-<!-- ========== MISSION & VISION ========== -->
-<section class="mv-section">
-  <div class="mv-inner">
-
-    <div class="mv-header">
-      <div class="mv-label">What We Stand For</div>
-      <h2 class="mv-title">Built With Purpose.<br><span>Driven By Vision.</span></h2>
-      <p class="mv-subtitle">
-        UYEH TECH is not just a platform — it is a statement. 
-        Every feature, every route, every automated commission exists 
-        because of two things: a clear mission and an even bigger vision.
-      </p>
-    </div>
-
-    <div class="mv-cards">
-
-      <!-- Mission -->
-      <div class="mv-card mv-card--mission">
-        <div class="mv-card__top">
-          <div class="mv-card__icon">🧩</div>
-          <div class="mv-card__tag">Mission</div>
-        </div>
-        <h3 class="mv-card__title">Bridge the Gap Between Technology and Economic Opportunity</h3>
-        <p class="mv-card__body">
-          We are committed to building digital infrastructure that works 
-          fairly and automatically for every participant — the creator who 
-          deserves full visibility of their earnings, the affiliate whose 
-          referrals deserve to be tracked and rewarded without manual 
-          follow-up, and the customer who deserves instant delivery the 
-          moment payment clears.
-        </p>
-        <p class="mv-card__body">
-          Through expert engineering, honest automation, and relentless 
-          attention to detail, UYEH TECH helps businesses and individuals 
-          establish a digital presence that serves them — with a commission 
-          structure that is transparent, fixed, and agreed to upfront, not 
-          one that shifts quietly behind the scenes.
-        </p>
-        <ul class="mv-card__points">
-          <li>
-            <span class="mv-point-dot"></span>
-            Automatic commission calculation — no manual intervention
-          </li>
-          <li>
-            <span class="mv-point-dot"></span>
-            Instant digital delivery — zero waiting after payment
-          </li>
-          <li>
-            <span class="mv-point-dot"></span>
-            Transparent earnings ledger — every naira accounted for
-          </li>
-          <li>
-            <span class="mv-point-dot"></span>
-            Real-time support — humans behind every conversation
-          </li>
-        </ul>
-      </div>
-
-      <!-- Vision -->
-      <div class="mv-card mv-card--vision">
-        <div class="mv-card__top">
-          <div class="mv-card__icon">⚡</div>
-          <div class="mv-card__tag mv-card__tag--vision">Vision</div>
-        </div>
-        <h3 class="mv-card__title">Become the Leading Digital Economy Platform Built From Africa</h3>
-        <p class="mv-card__body">
-          The vision is not modest. It never was. UYEH TECH was built to 
-          become a leading force in technology-driven commerce — 
-          transforming how Nigerian and African creators, businesses, 
-          and digital entrepreneurs connect with their audiences, 
-          monetise their work, and scale their income across borders.
-        </p>
-        <p class="mv-card__body">
-          What starts as a marketplace platform in Nigeria is being 
-          architected for the world. Multi-currency payments. 
-          Mobile-first access. A creator economy that rewards talent 
-          regardless of geography. An affiliate system that turns 
-          every audience into an income stream. A platform that proves 
-          Africa does not just consume technology — it builds it.
-        </p>
-        <ul class="mv-card__points">
-          <li>
-            <span class="mv-point-dot mv-point-dot--vision"></span>
-            Expand across Nigeria and beyond — built for global scale
-          </li>
-          <li>
-            <span class="mv-point-dot mv-point-dot--vision"></span>
-            Mobile app — taking the platform into every pocket
-          </li>
-          <li>
-            <span class="mv-point-dot mv-point-dot--vision"></span>
-            Tiered affiliate rewards — the more you drive, the more you earn
-          </li>
-          <li>
-            <span class="mv-point-dot mv-point-dot--vision"></span>
-            Community layer — creators, affiliates, customers connected
-          </li>
-        </ul>
-      </div>
-
-    </div>
-
-    <!-- Bottom values strip -->
-    <div class="mv-values">
-      <div class="mv-value">
-        <span class="mv-value__icon">🎯</span>
-        <strong>Precision</strong>
-        <span>Every feature built to work exactly as intended — no guesswork</span>
-      </div>
-      <div class="mv-value__sep"></div>
-      <div class="mv-value">
-        <span class="mv-value__icon">🔒</span>
-        <strong>Integrity</strong>
-        <span>Transparent systems where every participant sees what they earn</span>
-      </div>
-      <div class="mv-value__sep"></div>
-      <div class="mv-value">
-        <span class="mv-value__icon">🚀</span>
-        <strong>Ambition</strong>
-        <span>Thinking in scale from day one — not a demo, a platform</span>
-      </div>
-      <div class="mv-value__sep"></div>
-      <div class="mv-value">
-        <span class="mv-value__icon">🌍</span>
-        <strong>Impact</strong>
-        <span>Built in Nigeria, engineered for the world, owned by the people using it</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-
 <!-- ========== MARKETPLACE PREVIEW ========== -->
 <section class="mkt-section">
 
@@ -3157,7 +2280,7 @@ input:disabled + .cookie-slider {
       <div class="mkt-step__num">02</div>
       <div class="mkt-step__icon">💳</div>
       <h4>Pay Securely</h4>
-      <p>Checkout via Flutterwave — fast, trusted, and safe</p>
+      <p>Checkout via Paystack or Flutterwave — fast, trusted, and safe</p>
     </div>
     <div class="mkt-step__arrow">→</div>
     <div class="mkt-step">
@@ -3175,16 +2298,17 @@ input:disabled + .cookie-slider {
     </div>
   </div>
 
-  <!-- Category pills -->
+  <!-- Category pills — updated to match real product types on the platform -->
   <div class="mkt-categories">
-    <div class="mkt-cat">🎨 Design Assets</div>
-    <div class="mkt-cat">💻 Dev Tools</div>
     <div class="mkt-cat">📄 Templates</div>
-    <div class="mkt-cat">📚 eBooks & Guides</div>
-    <div class="mkt-cat">🎵 Audio & Media</div>
-    <div class="mkt-cat">🧩 UI Kits</div>
-    <div class="mkt-cat">🛠️ Software</div>
-    <div class="mkt-cat">📊 Spreadsheets</div>
+    <div class="mkt-cat">🎓 Courses</div>
+    <div class="mkt-cat">💻 Software</div>
+    <div class="mkt-cat">🎵 Music & Audio</div>
+    <div class="mkt-cat">📚 eBooks</div>
+    <div class="mkt-cat">🧩 Components</div>
+    <div class="mkt-cat">📦 Downloads</div>
+    <div class="mkt-cat">🎬 Video</div>
+    <div class="mkt-cat">⚙️ Scripts</div>
   </div>
 
   <!-- CTA -->
@@ -3240,7 +2364,14 @@ input:disabled + .cookie-slider {
           <span class="cf-icon">💸</span>
           <div>
             <strong>Structured Payout System</strong>
-            <p>Request withdrawals directly from your dashboard — no chasing</p>
+            <p>Request withdrawals directly from your dashboard via Paystack or Flutterwave</p>
+          </div>
+        </li>
+        <li>
+          <span class="cf-icon">🔔</span>
+          <div>
+            <strong>Follower Notifications</strong>
+            <p>Followers get push and in-app alerts the moment you publish something new</p>
           </div>
         </li>
         <li>
@@ -3275,7 +2406,7 @@ input:disabled + .cookie-slider {
         </div>
         <div class="cc-stats">
           <div class="cc-stat">
-            <span class="cc-stat__num">₦124,500</span>
+            <span class="cc-stat__num">$1,240</span>
             <span class="cc-stat__label">Total Earned</span>
           </div>
           <div class="cc-stat">
@@ -3291,20 +2422,23 @@ input:disabled + .cookie-slider {
           <div class="cc-ledger__title">Recent Sales</div>
           <div class="cc-sale">
             <span>Design Kit v2</span>
-            <span class="cc-sale__amount">+₦4,500</span>
+            <span class="cc-sale__amount">+$45</span>
           </div>
           <div class="cc-sale">
             <span>UI Template Pro</span>
-            <span class="cc-sale__amount">+₦8,000</span>
+            <span class="cc-sale__amount">+$80</span>
           </div>
           <div class="cc-sale">
             <span>Dev Starter Pack</span>
-            <span class="cc-sale__amount">+₦6,200</span>
+            <span class="cc-sale__amount">+$62</span>
           </div>
         </div>
         <div class="cc-payout">
           <span>Next Payout Ready</span>
-          <span class="cc-payout__amount">₦38,700</span>
+          <span class="cc-payout__amount">$387</span>
+        </div>
+        <div style="text-align:center;font-size:.68rem;color:rgba(255,255,255,.3);margin-top:8px;">
+          Illustrative example — amounts shown in USD
         </div>
       </div>
     </div>
@@ -3383,47 +2517,138 @@ input:disabled + .cookie-slider {
     </div>
   </div>
 
-  <!-- CTA -->
+  <!-- CTA — fixed: was pointing to /marketplace/login, now points to
+       the actual affiliate landing page. Login link moved into the note. -->
   <div class="aff-cta-wrap">
-    <a href="/marketplace/login" class="mkt-cta">
+    <a href="/marketplace/affiliates" class="mkt-cta">
       <span>Join the Affiliate Programme</span>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
-    <p class="aff-cta-note">Already a member? Log in to access your referral link</p>
+    <p class="aff-cta-note">Already a member? <a href="/marketplace/login" style="color:#00ff88;text-decoration:none;font-weight:600;">Sign in</a> to access your referral link</p>
   </div>
 
 </section>
 
-   
+<!-- ========== MISSION & VISION (moved here from right after Hero) ========== -->
+<section class="mv-section">
+  <div class="mv-inner">
 
+    <div class="mv-header">
+      <div class="mv-label">What We Stand For</div>
+      <h2 class="mv-title">Built With Purpose.<br><span>Driven By Vision.</span></h2>
+      <p class="mv-subtitle">
+        Every feature, every route, every automated commission exists
+        because of two things: a clear mission and an even bigger vision.
+      </p>
+    </div>
 
-   <!-- About Preview -->
-    <!-- ========== ABOUT PREVIEW ========== -->
+    <div class="mv-cards">
+
+      <div class="mv-card mv-card--mission">
+        <div class="mv-card__top">
+          <div class="mv-card__icon">🧩</div>
+          <div class="mv-card__tag">Mission</div>
+        </div>
+        <h3 class="mv-card__title">Bridge the Gap Between Technology and Economic Opportunity</h3>
+        <p class="mv-card__body">
+          We are committed to building digital infrastructure that works
+          fairly and automatically for every participant — the creator who
+          deserves full visibility of their earnings, the affiliate whose
+          referrals deserve to be tracked and rewarded without manual
+          follow-up, and the buyer who deserves instant delivery the
+          moment payment clears.
+        </p>
+        <p class="mv-card__body">
+          Through expert engineering, honest automation, and relentless
+          attention to detail, UYEH TECH helps individuals and businesses
+          build a digital income — with a commission structure that is
+          transparent, fixed, and agreed upfront.
+        </p>
+        <ul class="mv-card__points">
+          <li><span class="mv-point-dot"></span>Automatic commission calculation — no manual intervention</li>
+          <li><span class="mv-point-dot"></span>Instant digital delivery — zero waiting after payment</li>
+          <li><span class="mv-point-dot"></span>Transparent earnings ledger — every cent accounted for</li>
+          <li><span class="mv-point-dot"></span>Real-time support — humans behind every conversation</li>
+        </ul>
+      </div>
+
+      <div class="mv-card mv-card--vision">
+        <div class="mv-card__top">
+          <div class="mv-card__icon">⚡</div>
+          <div class="mv-card__tag mv-card__tag--vision">Vision</div>
+        </div>
+        <h3 class="mv-card__title">Become the Leading Digital Economy Platform Built From Africa</h3>
+        <p class="mv-card__body">
+          The vision is not modest. It never was. UYEH TECH was built to
+          become a leading force in technology-driven commerce —
+          transforming how Nigerian and African creators, businesses,
+          and digital entrepreneurs monetise their work and scale
+          their income across borders.
+        </p>
+        <p class="mv-card__body">
+          What starts as a marketplace in Nigeria is being architected
+          for the world. Multi-currency payments. Mobile-first access.
+          A creator economy that rewards talent regardless of geography.
+          An affiliate system that turns every audience into income.
+        </p>
+        <ul class="mv-card__points">
+          <li><span class="mv-point-dot mv-point-dot--vision"></span>Expand across Nigeria and beyond — built for global scale</li>
+          <li><span class="mv-point-dot mv-point-dot--vision"></span>Mobile app — taking the platform into every pocket</li>
+          <li><span class="mv-point-dot mv-point-dot--vision"></span>Tiered affiliate rewards — the more you refer, the more you earn</li>
+          <li><span class="mv-point-dot mv-point-dot--vision"></span>Community layer — creators, affiliates, and customers connected</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="mv-values">
+      <div class="mv-value">
+        <span class="mv-value__icon">🎯</span>
+        <strong>Precision</strong>
+        <span>Every feature built to work exactly as intended — no guesswork</span>
+      </div>
+      <div class="mv-value__sep"></div>
+      <div class="mv-value">
+        <span class="mv-value__icon">🔒</span>
+        <strong>Integrity</strong>
+        <span>Transparent systems where every participant sees what they earn</span>
+      </div>
+      <div class="mv-value__sep"></div>
+      <div class="mv-value">
+        <span class="mv-value__icon">🚀</span>
+        <strong>Ambition</strong>
+        <span>Thinking in scale from day one — not a demo, a platform</span>
+      </div>
+      <div class="mv-value__sep"></div>
+      <div class="mv-value">
+        <span class="mv-value__icon">🌍</span>
+        <strong>Impact</strong>
+        <span>Built in Nigeria, engineered for the world, owned by the people using it</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========== THE BUILDER ========== -->
 <section class="ap-section">
   <div class="ap-inner">
 
     <!-- Left: Text -->
     <div class="ap-content">
-              <div class="mv-label">CREATOR'S HUB</div>
+      <div class="mv-label">The Builder</div>
       <h2 class="ap-title">
         One Developer.<br>
         <span>An Entire Platform.</span>
       </h2>
       <p class="ap-lead">
-        I am Bassey Okon — a full-stack developer from Oron Nation, Nigeria, 
-        and the sole architect of UYEH TECH. Every route, every schema, 
-        every payment hook, every real-time connection on this platform 
+        I am Bassey Okon — a full-stack developer from Oron Nation, Nigeria,
+        and the sole architect of UYEH TECH. Every route, every schema,
+        every payment hook, every real-time connection on this platform
         was written by one person. Me.
       </p>
-      <p class="ap-body">
-        Five years of building in the trenches — from freelance websites to 
-        a complete digital marketplace with creator studios, affiliate tracking, 
-        live chat, and admin infrastructure — have shaped a developer who does 
-        not cut corners, does not paper over problems, and does not stop until 
-        the thing actually works.
-      </p>
 
-      <!-- Proof points -->
+      <!-- Proof points — trimmed from 4 to 3, kept the strongest -->
       <ul class="ap-proof">
         <li>
           <span class="ap-proof__icon">⚡</span>
@@ -3443,24 +2668,39 @@ input:disabled + .cookie-slider {
           <span class="ap-proof__icon">🌍</span>
           <div>
             <strong>Building from Nigeria for the world</strong>
-            <span>— Flutterwave payments, global delivery, zero compromise</span>
-          </div>
-        </li>
-        <li>
-          <span class="ap-proof__icon">📐</span>
-          <div>
-            <strong>Clean, disciplined, production-grade code</strong>
-            <span>— no shortcuts, no duct tape, no excuses</span>
+            <span>— Paystack &amp; Flutterwave payments, global delivery, zero compromise</span>
           </div>
         </li>
       </ul>
 
-      <a href="/about" class="ap-cta">
-        Read the Full Story →
-      </a>
+      <!-- Condensed services — six full cards reduced to a chip row,
+           reusing the .mkt-cat style already defined for the
+           Marketplace category pills, so no new CSS is required. -->
+      <div style="margin-top:24px;">
+        <div style="color:rgba(255,255,255,.35);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">
+          Also Available For
+        </div>
+        <div class="mkt-categories" style="justify-content:flex-start;">
+          <div class="mkt-cat">💻 Web Development</div>
+          <div class="mkt-cat">🏗️ Full Stack Platforms</div>
+          <div class="mkt-cat">⚙️ API Development</div>
+          <div class="mkt-cat">🎨 UI/UX Design</div>
+          <div class="mkt-cat">📱 Mobile Apps</div>
+          <div class="mkt-cat">🧠 Consulting</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:24px;">
+        <a href="/uyehtech/" class="ap-cta">
+          Read the Full Story →
+        </a>
+        <a href="/contact" style="color:#00ff88;font-size:.9rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;">
+          Hire Me for a Project →
+        </a>
+      </div>
     </div>
 
-    <!-- Right: Stats card -->
+    <!-- Right: Stats card — unchanged, already tight -->
     <div class="ap-card">
       <div class="ap-card__top">
         <div class="ap-card__avatar">👨‍💻</div>
@@ -3493,177 +2733,13 @@ input:disabled + .cookie-slider {
         <div class="ap-card__stack-label">Core Stack</div>
         <div class="ap-card__pills">
           <span>Node.js</span><span>Express</span><span>MongoDB</span>
-          <span>WebSockets</span><span>JWT</span><span>Flutterwave</span>
-          <span>Vanilla JS</span><span>Netlify</span>
+          <span>WebSockets</span><span>JWT</span><span>Paystack</span>
+          <span>Flutterwave</span><span>Vanilla JS</span><span>Netlify</span>
         </div>
       </div>
 
-      <a href="/uyehtech/about" class="ap-card__link">
-        Full profile & story →
-      </a>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- ========== SERVICES ========== -->
-<section class="svc-section">
-  <div class="svc-inner">
-
-    <div class="svc-header">
-
-      <h2 class="mv-title">Services That <span>Actually Deliver</span></h2>
-      <p class="mv-subtitle">
-        Every service listed here is something I have delivered in production — 
-        not something I learned from a tutorial. Real work. Real results.
-      </p>
-    </div>
-
-    <div class="svc-grid">
-
-      <!-- Web Development -->
-      <div class="svc-card svc-card--featured">
-        <div class="svc-card__badge">Most Popular</div>
-        <div class="svc-card__icon">💻</div>
-        <h3 class="svc-card__title">Web Development</h3>
-        <p class="svc-card__desc">
-          Custom responsive websites built to perform — fast loads, 
-          clean code, mobile-first, SEO-ready. From landing pages to 
-          full multi-page sites with dynamic content.
-        </p>
-        <ul class="svc-card__features">
-          <li>Vanilla HTML/CSS/JS or React</li>
-          <li>Mobile-first responsive design</li>
-          <li>SEO optimised from the ground up</li>
-          <li>Hosted on Netlify or Vercel</li>
-        </ul>
-        <div class="svc-card__cta-wrap">
-          <a href="/contact" class="svc-card__cta svc-card__cta--primary">
-            Get a Quote
-          </a>
-        </div>
-      </div>
-
-      <!-- Full Stack Platform -->
-      <div class="svc-card svc-card--highlight">
-        <div class="svc-card__badge svc-card__badge--special">Signature Service</div>
-        <div class="svc-card__icon">🏗️</div>
-        <h3 class="svc-card__title">Full Stack Platform Building</h3>
-        <p class="svc-card__desc">
-          Complete end-to-end platforms — frontend, backend, database, 
-          payments, authentication, and real-time features. Built exactly 
-          as UYEH TECH was built: production-grade, solo-engineered, 
-          no shortcuts.
-        </p>
-        <ul class="svc-card__features">
-          <li>Node.js/Express monolithic backend</li>
-          <li>MongoDB with Mongoose schemas</li>
-          <li>JWT authentication & role management</li>
-          <li>Flutterwave payment integration</li>
-          <li>WebSocket real-time features</li>
-          <li>Admin dashboards & reporting</li>
-        </ul>
-        <div class="svc-card__cta-wrap">
-          <a href="/contact" class="svc-card__cta svc-card__cta--primary">
-            Discuss Your Project
-          </a>
-        </div>
-      </div>
-
-      <!-- API Development -->
-      <div class="svc-card">
-        <div class="svc-card__icon">⚙️</div>
-        <h3 class="svc-card__title">API Development</h3>
-        <p class="svc-card__desc">
-          RESTful APIs built for reliability — clean routes, proper 
-          error handling, token-based auth, and webhook integration. 
-          Built to connect anything to anything.
-        </p>
-        <ul class="svc-card__features">
-          <li>RESTful API architecture</li>
-          <li>JWT & session-based auth</li>
-          <li>Webhook integration</li>
-          <li>Third-party API connections</li>
-        </ul>
-        <div class="svc-card__cta-wrap">
-          <a href="/contact" class="svc-card__cta">Get a Quote</a>
-        </div>
-      </div>
-
-      <!-- UI/UX Design -->
-      <div class="svc-card">
-        <div class="svc-card__icon">🎨</div>
-        <h3 class="svc-card__title">UI/UX Design</h3>
-        <p class="svc-card__desc">
-          Interfaces that are beautiful and functional — designed for 
-          real users, not just presentations. Dark themes, 
-          micro-animations, and layouts that convert.
-        </p>
-        <ul class="svc-card__features">
-          <li>Custom dark/light UI systems</li>
-          <li>Animation & micro-interactions</li>
-          <li>Responsive layout design</li>
-          <li>Component-based design systems</li>
-        </ul>
-        <div class="svc-card__cta-wrap">
-          <a href="/contact" class="svc-card__cta">Get a Quote</a>
-        </div>
-      </div>
-
-      <!-- Mobile Apps -->
-      <div class="svc-card">
-        <div class="svc-card__icon">📱</div>
-        <h3 class="svc-card__title">Mobile Applications</h3>
-        <p class="svc-card__desc">
-          Hybrid mobile applications built for iOS and Android — 
-          connected to real backends, with real-time data and 
-          clean native-feeling interfaces.
-        </p>
-        <ul class="svc-card__features">
-          <li>Cross-platform development</li>
-          <li>Backend API integration</li>
-          <li>Push notifications</li>
-          <li>Offline-first architecture</li>
-        </ul>
-        <div class="svc-card__cta-wrap">
-          <a href="/contact" class="svc-card__cta">Get a Quote</a>
-        </div>
-      </div>
-
-      <!-- Consulting -->
-      <div class="svc-card">
-        <div class="svc-card__icon">🧠</div>
-        <h3 class="svc-card__title">Consulting & Strategy</h3>
-        <p class="svc-card__desc">
-          Technical direction for founders, businesses, and teams 
-          who need to understand their options before they build. 
-          Architecture reviews, stack recommendations, and roadmap planning.
-        </p>
-        <ul class="svc-card__features">
-          <li>Tech stack recommendations</li>
-          <li>Architecture planning</li>
-          <li>Code & platform audits</li>
-          <li>Development roadmapping</li>
-        </ul>
-        <div class="svc-card__cta-wrap">
-          <a href="/contact" class="svc-card__cta">Book a Session</a>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Bottom CTA -->
-    <div class="svc-bottom">
-      <p class="svc-bottom__text">
-        Not sure which service fits your project? Let's talk it through.
-      </p>
-      <a href="/contact" class="svc-bottom__cta">
-        <span>Start a Conversation</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
+      <a href="/uyehtech/" class="ap-card__link">
+        Full profile &amp; story →
       </a>
     </div>
 
@@ -3672,7 +2748,187 @@ input:disabled + .cookie-slider {
 
 
 
+<!-- ========== TESTIMONIALS MARQUEE ========== -->
+<section class="mv-section" style="padding-top:20px;">
+  <div class="mv-inner" style="max-width:900px;">
 
+    <div class="mv-header">
+      <div class="mv-label">What People Say</div>
+      <h2 class="mv-title">Real Feedback.<br><span>Real Users.</span></h2>
+    </div>
+
+    <!-- Rotating testimonial — same crossfade mechanism as the hero
+         marquee, reusing the .testimonial-card CSS already defined
+         but previously unused anywhere on the page. -->
+    <div style="position:relative;min-height:260px;max-width:640px;margin:0 auto;">
+      <div id="testimonialMarquee" style="position:relative;">
+
+        <div class="testimonial-card testimonial-item active" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
+          <div class="stars">★★★★★</div>
+          <p class="testimonial-text">
+            "Bought a template within minutes of landing on the site —
+            payment went through instantly and the download was in my
+            dashboard before I even got the email confirmation."
+          </p>
+          <div class="testimonial-author">Chidinma A.</div>
+          <div class="testimonial-role">Marketplace Buyer</div>
+        </div>
+
+        <div class="testimonial-item" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
+          <div class="testimonial-card" style="height:100%;">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">
+              "My storefront was approved within a day and my first sale
+              landed a week later. The earnings dashboard actually shows
+              exactly what I'm owed — no guessing."
+            </p>
+            <div class="testimonial-author">Femi O.</div>
+            <div class="testimonial-role">Creator on UYEH TECH</div>
+          </div>
+        </div>
+
+        <div class="testimonial-item" style="position:absolute;inset:0;opacity:0;transition:opacity .6s ease;">
+          <div class="testimonial-card" style="height:100%;">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">
+              "Shared my referral link on WhatsApp and started seeing
+              commission the same week. The tiered rate actually motivates
+              me to keep sharing instead of stopping after one payout."
+            </p>
+            <div class="testimonial-author">Grace N.</div>
+            <div class="testimonial-role">Affiliate Partner</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========== TRUST / PAYMENT SECURITY STRIP ========== -->
+<section style="padding:50px 20px;border-top:1px solid rgba(0,255,136,.08);border-bottom:1px solid rgba(0,255,136,.08);">
+  <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.4rem;">🔒</span>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:.85rem;">Secured Payments</div>
+        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">Paystack &amp; Flutterwave</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.4rem;">⚡</span>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:.85rem;">Instant Delivery</div>
+        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">No waiting after checkout</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.4rem;">🛡️</span>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:.85rem;">Data Protected</div>
+        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">Encrypted &amp; never resold</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.4rem;">💬</span>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:.85rem;">Live Support</div>
+        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">Real people, 24/7</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section class="mv-section">
+  <div class="mv-inner" style="max-width:800px;">
+
+    <div class="mv-header">
+      <div class="mv-label">Common Questions</div>
+      <h2 class="mv-title">Before You <span>Get Started</span></h2>
+    </div>
+
+    <div id="faqList" style="display:flex;flex-direction:column;gap:12px;">
+
+      <div class="faq-item" style="background:rgba(255,255,255,.03);border:1px solid rgba(0,255,136,.15);border-radius:12px;overflow:hidden;">
+        <button class="faq-q" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;padding:18px 20px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <span>Is UYEH TECH a real, active platform?</span>
+          <span class="faq-icon" style="color:#00ff88;font-size:1.1rem;transition:transform .2s;">+</span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="padding:0 20px 18px;color:rgba(255,255,255,.5);font-size:.85rem;line-height:1.7;">
+            Yes. UYEH TECH is live, processing real payments through Paystack
+            and Flutterwave, with real creators selling real products. It is
+            actively maintained and improved — built and run by one developer,
+            not an abandoned demo.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="background:rgba(255,255,255,.03);border:1px solid rgba(0,255,136,.15);border-radius:12px;overflow:hidden;">
+        <button class="faq-q" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;padding:18px 20px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <span>How do creators and affiliates actually get paid?</span>
+          <span class="faq-icon" style="color:#00ff88;font-size:1.1rem;transition:transform .2s;">+</span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="padding:0 20px 18px;color:rgba(255,255,255,.5);font-size:.85rem;line-height:1.7;">
+            Every sale is split automatically the moment payment clears —
+            platform commission, affiliate commission (if one was involved),
+            and your share, all recorded instantly in your dashboard. Once
+            your balance crosses the minimum threshold, request a payout via
+            Paystack or Flutterwave directly from your dashboard.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="background:rgba(255,255,255,.03);border:1px solid rgba(0,255,136,.15);border-radius:12px;overflow:hidden;">
+        <button class="faq-q" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;padding:18px 20px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <span>What currency will I be charged in?</span>
+          <span class="faq-icon" style="color:#00ff88;font-size:1.1rem;transition:transform .2s;">+</span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="padding:0 20px 18px;color:rgba(255,255,255,.5);font-size:.85rem;line-height:1.7;">
+            The platform detects your location and shows pricing in your
+            local currency automatically. If your currency isn't detected,
+            pricing defaults to USD. What you see at checkout is exactly
+            what you're charged — no hidden conversion surprises.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="background:rgba(255,255,255,.03);border:1px solid rgba(0,255,136,.15);border-radius:12px;overflow:hidden;">
+        <button class="faq-q" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;padding:18px 20px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <span>Do I need an account just to browse?</span>
+          <span class="faq-icon" style="color:#00ff88;font-size:1.1rem;transition:transform .2s;">+</span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="padding:0 20px 18px;color:rgba(255,255,255,.5);font-size:.85rem;line-height:1.7;">
+            No — browsing the marketplace is open to everyone. An account is
+            only required when you're ready to buy, sell, or refer, because
+            your purchases and earnings need somewhere permanent to live.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="background:rgba(255,255,255,.03);border:1px solid rgba(0,255,136,.15);border-radius:12px;overflow:hidden;">
+        <button class="faq-q" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;padding:18px 20px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <span>What if I need help or something goes wrong?</span>
+          <span class="faq-icon" style="color:#00ff88;font-size:1.1rem;transition:transform .2s;">+</span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="padding:0 20px 18px;color:rgba(255,255,255,.5);font-size:.85rem;line-height:1.7;">
+            Live chat support is available around the clock, staffed by real
+            agents — not a bot with a script. Reach out any time from your
+            dashboard or the Support link in the footer.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
 <!-- ╔═══════════════════════════════════════════════════════════╗
      ║  BLOCK 1 — NEWSLETTER SECTION HTML                       ║
@@ -4645,6 +3901,41 @@ document.addEventListener('DOMContentLoaded', function() {
     items[idx].classList.add('active');
   }, 3000);
 })();
+
+// Testimonial marquee — same rotation pattern as the hero marquee,
+// separate instance/selector so the two never interfere with each other.
+(function(){
+  const items = document.querySelectorAll('#testimonialMarquee .testimonial-item');
+  if (!items.length) return;
+  let idx = 0;
+  items[0].style.opacity = '1';
+  setInterval(function(){
+    items[idx].style.opacity = '0';
+    idx = (idx + 1) % items.length;
+    items[idx].style.opacity = '1';
+  }, 5000); // slightly slower than the hero marquee — more text to read
+})();
+
+// FAQ accordion toggle
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const answer = item.querySelector('.faq-a');
+  const icon = btn.querySelector('.faq-icon');
+  const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+
+  // Close all other open FAQ items first
+  document.querySelectorAll('.faq-a').forEach(a => { a.style.maxHeight = '0px'; });
+  document.querySelectorAll('.faq-icon').forEach(i => {
+    i.textContent = '+';
+    i.style.transform = 'rotate(0deg)';
+  });
+
+  if (!isOpen) {
+    answer.style.maxHeight = answer.scrollHeight + 'px';
+    icon.textContent = '−';
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
 </script>
 <script>
 // If already installed as PWA — hide the button

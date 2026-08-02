@@ -141,13 +141,9 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
-    
     .uyeh-footer-copyright {
-      cursor: crosshair;
-      min-height: 32px;
-      display: flex;
-      align-items: center;
-      user-select: none; /* prevents text selection on rapid clicks */
+      color: rgba(255,255,255,.6);
+      font-size: .88rem;
     }
     .uyeh-footer-highlight {
       color: #00ff88;
@@ -237,7 +233,7 @@
 
   const columns = [
     {
-      title: "Creator's Hub",
+      title: "The Builder",
       links: [
         { label: 'About the Developer', href: '/uyehtech/'         },
         { label: 'Services',            href: '/uyehtech/services' },
@@ -263,14 +259,14 @@
         { label: 'Blog',          href: '/blog/'            },
         { label: 'System Status', href: '/system-status.html'},
         { label: 'Sitemap',       href: '/sitemap.html'     },
-        { label: 'Cookie Preferences', action: 'cookieSystem.showSettings()' },
+        { label: '🍪 Cookie Preferences', action: 'cookieSystem.showSettings()' },
       ],
     },
   ];
 
   const legalLinks = [
-    { label: 'Privacy Policy',  href: '/privacy-policy.html' },
-    { label: 'Terms of Service', href: '/terms-of-service.html'  },
+    { label: 'Privacy Policy',  href: '/privacy.html' },
+    { label: 'Terms of Service', href: '/terms.html'  },
   ];
 
   // ─── BUILD HTML ───────────────────────────────────────────────────────────
