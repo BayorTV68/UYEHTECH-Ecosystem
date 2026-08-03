@@ -2495,7 +2495,7 @@ nav {
 
     <!-- Secondary navigation row — all remaining ecosystem paths -->
     <div style="display:flex;gap:20px;justify-content:center;margin-top:18px;flex-wrap:wrap;">
-      <a href="/marketplace/affiliates"
+      <a href="/marketplace/affiliate"
          style="color:#8a96a8;font-size:.82rem;text-decoration:none;transition:color .2s;"
          onmouseover="this.style.color='#00ff88'" onmouseout="this.style.color='#8a96a8'">
         Earn as Affiliate →
@@ -2831,7 +2831,7 @@ nav {
   <!-- CTA — fixed: was pointing to /marketplace/login, now points to
        the actual affiliate landing page. Login link moved into the note. -->
   <div class="aff-cta-wrap">
-    <a href="/marketplace/affiliates" class="mkt-cta">
+    <a href="/marketplace/affiliate" class="mkt-cta">
       <span>Join the Affiliate Programme</span>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
@@ -3274,7 +3274,7 @@ nav {
       we'll get back to you.
     </p>
     <div class="contact-cta__actions">
-      <a href="/marketplace/support" class="mkt-cta">
+      <a href="/contact" class="mkt-cta">
         <span>Contact Support</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
@@ -4298,7 +4298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const id = product._id || product.id || '';
 
         return `
-          <a href="/marketplace/product/${encodeURIComponent(id)}" class="spotlight-card${i === 0 ? ' spotlight-card--first' : ''}">
+          <a href="/marketplace/${encodeURIComponent(id)}" class="spotlight-card${i === 0 ? ' spotlight-card--first' : ''}">
             ${i === 0 ? '<span class="spotlight-new-tag">⭐ Featured</span>' : ''}
             <img class="spotlight-img" src="${escapeHtml(img)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'">
             <div class="spotlight-info">
