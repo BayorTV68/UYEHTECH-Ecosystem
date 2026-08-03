@@ -485,6 +485,7 @@ body {
     border-radius: 14px;
     padding: 22px;
     margin-bottom: 24px;
+    overflow-x: auto;
 }
 .table-header {
     display: flex;
@@ -556,6 +557,7 @@ body {
 
 table {
     width: 100%;
+    min-width: 640px;
     border-collapse: collapse;
 }
 
@@ -3172,6 +3174,11 @@ tr:hover {
                         <i class="fas fa-star-half-alt"></i>
                         <span>Reviews</span>
                     </div>
+                    <div class="nav-item" data-page="platform-reviews">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Platform Reviews</span>
+                        <span class="nav-badge" id="pendingPlatformReviewsBadge" style="display:none;background:rgba(0,255,136,.2);color:var(--primary);">0</span>
+                    </div>
                     <div class="nav-item" data-page="creator-coupons">
                         <i class="fas fa-tags"></i>
                         <span>Creator Coupons</span>
@@ -3353,6 +3360,7 @@ tr:hover {
            <div id="logsPage" class="page-content hidden"></div>
             <div id="payoutsPage" class="page-content hidden"></div>
             <div id="reviewsPage" class="page-content hidden"></div>
+            <div id="platformReviewsPage" class="page-content hidden"></div>
             <div id="email-templatesPage" class="page-content hidden"></div>
             <div id="push-notificationsPage" class="page-content hidden"></div>
             <div id="broadcastPage" class="page-content hidden"></div>
@@ -4910,6 +4918,7 @@ function navigateTo(page) {
         case 'settings':              loadSettingsData();           break;
         case 'logs':                  loadLogsSection();            break;
         case 'reviews':               loadReviewsData();            break;
+        case 'platform-reviews':      loadPlatformReviewsData();    break;
         case 'email-templates':       loadEmailTemplates();         break;
         case 'push-notifications':    loadPushNotifications();      break;
         case 'broadcast':             loadBroadcastPage();          break;
@@ -5219,7 +5228,7 @@ async function loadDashboardData() {
                     <div class="stat-header">
                         <div>
                             <div class="stat-label">Total Revenue</div>
-                            <div class="stat-value">$${overview.totalRevenue.toFixed(2)}</div>
+                            <div class="stat-value">$${(overview.totalRevenue || 0).toFixed(2)}</div>
                         </div>
                         <div class="stat-icon">💰</div>
                     </div>
@@ -9270,18 +9279,13 @@ async function loadCreatorCoupons() {
                         <th>Code</th>
                         <th>Creator</th>
                         <th>Discount</th>
-                        <th>Qty</th>
-                        <th>Fee Paid</th>
-                        <th>TX Ref</th>
-                        <th>Payment</th>
-                        <th>Approval</th>
-                        <th>Active</th>
-                        <th>Created</th>
+                        <th>Fee</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="ccTableBody">
-                    <tr><td colspan="11" style="text-align:center;padding:30px;color:#9ca3af;">
+                    <tr><td colspan="6" style="text-align:center;padding:30px;color:#9ca3af;">
                         <i class="fas fa-spinner fa-spin"></i> Loading…
                     </td></tr>
                 </tbody>
@@ -9299,7 +9303,7 @@ async function fetchCreatorCoupons() {
     const statsRow = document.getElementById('ccStatsRow');
     if (!tbody) return;
 
-    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:30px;color:#9ca3af;">
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:#9ca3af;">
         <i class="fas fa-spinner fa-spin"></i> Loading…
     </td></tr>`;
 
@@ -9356,7 +9360,7 @@ async function fetchCreatorCoupons() {
         renderCcTable(ccState.list);
 
     } catch (e) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="11"
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6"
             style="text-align:center;padding:30px;color:#ff4444;">
             <i class="fas fa-exclamation-circle"></i> ${esc(e.message)}
         </td></tr>`;
@@ -9377,7 +9381,7 @@ function renderCcTable(coupons) {
     if (!tbody) return;
 
     if (!coupons.length) {
-        tbody.innerHTML = `<tr><td colspan="11"
+        tbody.innerHTML = `<tr><td colspan="6"
             style="text-align:center;padding:50px;color:#9ca3af;">
             <i class="fas fa-tags" style="font-size:2.2rem;display:block;margin-bottom:14px;opacity:.15;"></i>
             No coupons found for this filter.
@@ -9423,7 +9427,7 @@ function renderCcTable(coupons) {
         const createdDate = c.createdAt
             ? new Date(c.createdAt).toLocaleDateString('en-GB') : '—';
 
-        return `<tr>
+        return `<tr style="cursor:pointer;" onclick="openCcDetailModal('${c._id}')">
             <td>
                 <strong style="font-family:'DM Mono',monospace;color:#00ff88;
                     letter-spacing:.04em;font-size:.88rem;">${esc(c.code)}</strong>
@@ -9436,20 +9440,17 @@ function renderCcTable(coupons) {
                 ${c.discount}${c.type === 'percentage' ? '%' : '₦'}
                 <span style="display:block;font-size:.65rem;color:#9ca3af;">${c.type}</span>
             </td>
-            <td style="font-family:'DM Mono',monospace;">${(c.usageLimit || 0).toLocaleString()}</td>
             <td style="font-family:'DM Mono',monospace;color:#00ff88;font-weight:600;">
                 ${c.paymentFee > 0
                     ? '₦' + (c.paymentFee).toLocaleString('en-NG', { minimumFractionDigits: 2 })
                     : '—'}
             </td>
-            <td style="font-family:'DM Mono',monospace;font-size:.72rem;color:#9ca3af;">
-                ${esc(c.paymentTxRef || '—')}
+            <td>
+                <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">
+                    ${payBadge}${approvalBadge}${activeBadge}
+                </div>
             </td>
-            <td>${payBadge}</td>
-            <td>${approvalBadge}</td>
-            <td>${activeBadge}</td>
-            <td style="font-size:.78rem;color:#9ca3af;">${createdDate}</td>
-            <td>${actions}</td>
+            <td onclick="event.stopPropagation()">${actions}</td>
         </tr>`;
     }).join('');
 }
@@ -14588,16 +14589,14 @@ async function loadAffiliateEarnings() {
                 <table>
                     <thead><tr>
                         <th>#</th><th>Affiliate</th><th>Code</th><th>Tier</th>
-                        <th>Clicks</th><th>Conv.</th><th>Total Earned</th>
-                        <th>Paid Out</th><th>Pending</th>
+                        <th>Total Earned</th><th></th>
                     </tr></thead>
                     <tbody>
                         ${ranked.slice(0,30).map((a,i) => {
                             const user = a.userId || {};
-                            const earn = a.earnings || {};
                             const tier = a.tier || 'starter';
                             const tierColor = tier==='elite'?'#f59e0b':tier==='pro'?'#a78bfa':'#6b7280';
-                            return `<tr>
+                            return `<tr style="cursor:pointer;" onclick="viewAffiliateDetail('${a._id}')">
                                 <td style="font-weight:800;color:#4b5563;">${i+1}</td>
                                 <td>
                                     <div style="font-weight:600;">${esc(user.fullName||'—')}</div>
@@ -14608,13 +14607,12 @@ async function loadAffiliateEarnings() {
                                 </td>
                                 <td style="font-weight:700;color:${tierColor};text-transform:uppercase;
                                      font-size:.72rem;">${tier}</td>
-                                <td>${(a.totalClicks||0).toLocaleString()}</td>
-                                <td>${(a.totalConversions||0).toLocaleString()}</td>
                                 <td style="font-weight:700;color:var(--primary);">
                                     $${(a.totalEarnings||0).toFixed(2)}
                                 </td>
-                                <td style="color:#60a5fa;">$${(a.paidEarnings||0).toFixed(2)}</td>
-                                <td style="color:#fbbf24;">$${(a.pendingEarnings||0).toFixed(2)}</td>
+                                <td style="text-align:right;">
+                                    <i class="fas fa-chevron-right" style="color:#4b5563;font-size:.75rem;"></i>
+                                </td>
                             </tr>`;
                         }).join('')}
                     </tbody>
@@ -15162,7 +15160,9 @@ async function processAffiliatePayoutAction(payoutId, action) {
     const adminNotes = action === 'reject'
         ? (prompt('Reason for rejection (shown to affiliate):') || '')
         : '';
-    const r = await fetch(`${API_URL}/api/admin/affiliates/payouts/${payoutId}`, {
+    // FIX: was calling /api/admin/affiliates/payouts/:id — route doesn't
+        // exist. Both creator and affiliate payouts share /api/admin/payouts/:id
+        const r = await fetch(`${API_URL}/api/admin/payouts/${payoutId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
         body: JSON.stringify({ action, adminNotes })
@@ -16312,6 +16312,193 @@ async function _fetchReviews() {
     }
 }
 
+let _platformReviewsFilter = 'pending';
+let _platformReviewsPage   = 1;
+
+async function loadPlatformReviewsData(filter, page) {
+    if (filter !== undefined) _platformReviewsFilter = filter;
+    if (page   !== undefined) _platformReviewsPage   = page;
+
+    const el = document.getElementById('platformReviewsPage');
+    el.innerHTML = `
+        <div class="page-header">
+            <h1 class="page-title">Platform Reviews</h1>
+            <p class="page-subtitle">Approve or reject website testimonials submitted by real users — these power the homepage testimonial marquee</p>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
+            <select class="form-select" style="width:160px;" id="platformReviewFilterSel"
+                onchange="loadPlatformReviewsData(this.value,1)">
+                <option value="pending"  ${_platformReviewsFilter==='pending' ?'selected':''}>⏳ Pending</option>
+                <option value="approved" ${_platformReviewsFilter==='approved'?'selected':''}>✅ Approved</option>
+                <option value="rejected" ${_platformReviewsFilter==='rejected'?'selected':''}>❌ Rejected</option>
+                <option value="all"      ${_platformReviewsFilter==='all'     ?'selected':''}>All</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadPlatformReviewsData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <div id="platformReviewsTableWrap">
+            <p style="color:var(--gray);padding:20px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading reviews…
+            </p>
+        </div>`;
+
+    await _fetchPlatformReviews();
+}
+
+async function _fetchPlatformReviews() {
+    const wrap = document.getElementById('platformReviewsTableWrap');
+    if (!wrap) return;
+
+    wrap.innerHTML = `<p style="color:var(--gray);padding:20px;">
+        <i class="fas fa-spinner fa-spin"></i> Loading reviews…</p>`;
+
+    try {
+        const r = await fetch(
+            `${API_URL}/api/admin/platform-reviews?status=${_platformReviewsFilter}&page=${_platformReviewsPage}&limit=50`,
+            { headers: { 'Authorization': `Bearer ${adminToken}` } }
+        );
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+
+        const allReviews = d.reviews || [];
+        _updatePendingPlatformReviewsBadge();
+
+        if (!allReviews.length) {
+            wrap.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray);">
+                <i class="fas fa-comment-dots" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
+                No ${_platformReviewsFilter === 'all' ? '' : _platformReviewsFilter} reviews found.
+            </div>`;
+            return;
+        }
+
+        const stars = n => '★'.repeat(Math.min(n,5)) + '☆'.repeat(Math.max(0,5-n));
+
+        wrap.innerHTML = `
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 class="table-title">${allReviews.length} ${_platformReviewsFilter === 'all' ? '' : _platformReviewsFilter} review(s) — total: ${d.total || allReviews.length}</h3>
+                </div>
+                <table>
+                    <thead><tr>
+                        <th>User</th><th>Role</th><th>Rating</th>
+                        <th>Review</th><th>Date</th><th>Actions</th>
+                    </tr></thead>
+                    <tbody>
+                    ${allReviews.map(rv => `<tr id="platform-review-row-${rv._id}">
+                        <td>
+                            <div style="font-weight:600;font-size:.85rem;">${esc(rv.displayName||'—')}</div>
+                            <div style="font-size:.68rem;color:#6b7280;">${esc(rv.userId?.email||'')}</div>
+                        </td>
+                        <td style="font-size:.78rem;color:var(--primary);">
+                            ${esc(rv.roleLabel||'—')}
+                        </td>
+                        <td>
+                            <div style="color:#fbbf24;letter-spacing:-1px;">${stars(rv.rating)}</div>
+                            <div style="font-size:.7rem;color:#6b7280;">${rv.rating}/5</div>
+                        </td>
+                        <td style="max-width:280px;">
+                            <div style="font-size:.78rem;color:#9ca3af;
+                                 display:-webkit-box;-webkit-line-clamp:4;
+                                 -webkit-box-orient:vertical;overflow:hidden;">
+                                ${esc(rv.body||'No body')}
+                            </div>
+                            ${rv.adminNote?`<div style="margin-top:4px;font-size:.68rem;color:#f59e0b;">
+                                📝 Note: ${esc(rv.adminNote)}</div>`:''}
+                        </td>
+                        <td style="font-size:.72rem;color:#6b7280;">
+                            ${rv.createdAt ? new Date(rv.createdAt).toLocaleDateString() : '—'}
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                                ${rv.status !== 'approved' ? `
+                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
+                                    color:var(--primary);border-color:rgba(0,255,136,.3);"
+                                    onclick="moderatePlatformReview('${rv._id}','approved')">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>` : ''}
+                                ${rv.status !== 'rejected' ? `
+                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
+                                    color:var(--error);border-color:rgba(255,77,77,.3);"
+                                    onclick="moderatePlatformReview('${rv._id}','rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>` : ''}
+                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;"
+                                    onclick="deletePlatformReview('${rv._id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    } catch(e) {
+        wrap.innerHTML = `<p style="color:var(--error);padding:20px;">Failed to load reviews: ${e.message}</p>`;
+    }
+}
+
+async function moderatePlatformReview(reviewId, status) {
+    const note = status === 'rejected'
+        ? prompt('Optional rejection note for admin records:') || ''
+        : '';
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/platform-reviews/${reviewId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, adminNote: note })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast(`✅ Review ${status}`, 'success');
+        const row = document.getElementById(`platform-review-row-${reviewId}`);
+        if (row) row.remove();
+        _updatePendingPlatformReviewsBadge();
+    } catch(e) {
+        showToast(e.message || 'Action failed', 'error');
+    } finally { hideLoading(); }
+}
+
+async function deletePlatformReview(reviewId) {
+    if (!confirm('Permanently delete this review? This cannot be undone.')) return;
+    try {
+        showLoading();
+        const r = await fetch(`${API_URL}/api/admin/platform-reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        showToast('✅ Review deleted', 'success');
+        const row = document.getElementById(`platform-review-row-${reviewId}`);
+        if (row) row.remove();
+    } catch(e) {
+        showToast(e.message || 'Delete failed', 'error');
+    } finally { hideLoading(); }
+}
+
+// Badge shows pending count on the nav item — quiet indicator an admin
+// has reviews waiting, without needing to click into the page first.
+async function _updatePendingPlatformReviewsBadge() {
+    try {
+        const r = await fetch(`${API_URL}/api/admin/platform-reviews?status=pending&limit=1`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const d = await r.json();
+        const badge = document.getElementById('pendingPlatformReviewsBadge');
+        if (!badge) return;
+        const count = d.total || 0;
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    } catch (_) { /* non-fatal — badge just stays hidden */ }
+}
+
+// Check once on dashboard load, not just when the page is opened
+_updatePendingPlatformReviewsBadge();
+
 async function moderateReview(reviewId, status) {
     const note = status === 'rejected'
         ? prompt('Optional rejection note for admin records:') || ''
@@ -16436,7 +16623,16 @@ async function openEmailPreviewModal(key, mode) {
             headers: { 'Authorization': `Bearer ${adminToken}` }
         });
         if (!r.ok) throw new Error(`Server returned ${r.status}`);
-        const html = await r.text();
+        let html = await r.text();
+
+        if (/<head[^>]*>/i.test(html)) {
+            html = html.replace(/<head([^>]*)>/i, '<head$1><base target="_blank">');
+        } else if (/<html[^>]*>/i.test(html)) {
+            html = html.replace(/<html([^>]*)>/i, '<html$1><head><base target="_blank"></head>');
+        } else {
+            html = `<head><base target="_blank"></head>${html}`;
+        }
+
         // srcdoc injection — secure, no cross-origin issues
         iframe.srcdoc = html;
         subtitle.textContent = 'Rendered HTML — exactly what recipients see';
