@@ -3360,7 +3360,7 @@ tr:hover {
            <div id="logsPage" class="page-content hidden"></div>
             <div id="payoutsPage" class="page-content hidden"></div>
             <div id="reviewsPage" class="page-content hidden"></div>
-            <div id="platformReviewsPage" class="page-content hidden"></div>
+            <div id="platform-reviewsPage" class="page-content hidden"></div>
             <div id="email-templatesPage" class="page-content hidden"></div>
             <div id="push-notificationsPage" class="page-content hidden"></div>
             <div id="broadcastPage" class="page-content hidden"></div>
@@ -4791,6 +4791,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     loadDashboardData();
     updateNotificationBadges();
     syncGroupBadges();
+     _updatePendingPlatformReviewsBadge(); 
 });
 
 // ========== AUTHENTICATION ==========
@@ -5960,12 +5961,11 @@ async function loadUsersData(page = 1, search = '', status = 'all', role = 'all'
                         <th>User</th>
                         <th>Roles</th>
                         <th>Joined</th>
-                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="usersTable">
-                    <tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">
+                    <tr><td colspan="4" style="text-align:center;padding:30px;color:#6b7280;">
                         <i class="fas fa-spinner fa-spin"></i> Loading…
                     </td></tr>
                 </tbody>
@@ -5992,7 +5992,7 @@ async function loadUsersData(page = 1, search = '', status = 'all', role = 'all'
         if (!data.success) throw new Error(data.message);
 
         if (!data.users?.length) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">No users found</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:#6b7280;">No users found</td></tr>`;
             return;
         }
 
@@ -6007,39 +6007,32 @@ async function loadUsersData(page = 1, search = '', status = 'all', role = 'all'
                              roles.push(`<span class="ud-role-pill user">👤 User</span>`);
 
             return `
-            <tr>
+            <tr style="cursor:pointer;" onclick="viewUserDetail('${u._id}')">
                 <td>
                     <div style="display:flex;align-items:center;gap:9px;">
                         ${u.profileImage
                             ? `<img src="${esc(u.profileImage)}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.1);" onerror="this.style.display='none'">`
                             : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(0,255,136,.1);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;">👤</div>`}
                         <div>
-                            <div style="font-weight:600;color:#e5e7eb;font-size:.83rem;">${esc(u.fullName)}</div>
+                            <div style="font-weight:600;color:#e5e7eb;font-size:.83rem;">
+                                ${esc(u.fullName)}
+                                <span class="status-badge ${u.isBanned?'status-inactive':'status-active'}"
+                                    style="font-size:.6rem;margin-left:6px;vertical-align:middle;">
+                                    ${u.isBanned?'Banned':'Active'}
+                                </span>
+                                ${!u.emailVerified?'<span style="font-size:.65rem;color:#fbbf24;margin-left:2px;" title="Email not verified">⚠️</span>':''}
+                            </div>
                             <div style="font-size:.7rem;color:#6b7280;">${esc(u.email)}</div>
                         </div>
                     </div>
                 </td>
                 <td>${roles.join('')}</td>
                 <td style="font-size:.75rem;color:#9ca3af;">${fd(u.createdAt)}</td>
-                <td>
-                    <span class="status-badge ${u.isBanned?'status-inactive':'status-active'}">
-                        ${u.isBanned?'Banned':'Active'}
-                    </span>
-                    ${!u.emailVerified?'<span style="font-size:.65rem;color:#fbbf24;margin-left:4px;" title="Email not verified">⚠️</span>':''}
-                </td>
-                <td>
-                    <div class="action-btns">
-                        <button class="btn btn-secondary btn-sm" onclick="viewUserDetail('${u._id}')"
-                            style="font-size:.72rem;padding:4px 10px;">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        ${!u.isAdmin ? `
-                        <button class="action-btn ${u.isBanned?'':'danger'}"
-                            onclick="toggleBanUser('${u._id}',${!u.isBanned})"
-                            title="${u.isBanned?'Unban':'Ban'}">
-                            <i class="fas fa-${u.isBanned?'check':'ban'}"></i>
-                        </button>` : ''}
-                    </div>
+                <td onclick="event.stopPropagation()">
+                    <button class="btn btn-secondary btn-sm" onclick="viewUserDetail('${u._id}')"
+                        style="font-size:.72rem;padding:4px 10px;">
+                        <i class="fas fa-eye"></i> View
+                    </button>
                 </td>
             </tr>`;
         }).join('');
@@ -6867,20 +6860,17 @@ async function loadAgentApplications(status = 'all', page = 1) {
         const statusColors = { pending:'#fbbf24', under_review:'#3b9eff', approved:'var(--success)', rejected:'var(--error)', on_hold:'#9ca3af' };
 
         container.innerHTML = `<div class="table-container"><table><thead><tr>
-            <th>Applicant</th><th>Department</th><th>Country</th><th>Experience</th><th>Status</th><th>Submitted</th><th>Actions</th>
+            <th>Applicant</th><th>Status</th><th>Submitted</th><th>Actions</th>
         </tr></thead><tbody>
-        ${d.applications.map(app => `<tr>
+        ${d.applications.map(app => `<tr style="cursor:pointer;" onclick="viewAgentApplication('${app._id}')">
             <td>
                 <div style="font-weight:600;font-size:.85rem;">${esc((app.personal?.firstName||'')+' '+(app.personal?.lastName||''))}</div>
-                <div style="font-size:.72rem;color:var(--gray);">${esc(app.personal?.email||'—')}</div>
+                <div style="font-size:.72rem;color:var(--gray);">${esc(app.personal?.email||'—')} · ${esc(app.personal?.country||'—')}</div>
                 <div style="font-size:.65rem;font-family:monospace;color:var(--primary);">${esc(app.referenceNumber||'—')}</div>
             </td>
-            <td style="font-size:.82rem;">${esc(app.professional?.preferredDept||'—')}</td>
-            <td style="font-size:.82rem;">${esc(app.personal?.country||'—')}</td>
-            <td style="font-size:.82rem;">${esc(app.professional?.yearsExp||'—')} yrs</td>
             <td><span class="status-badge" style="color:${statusColors[app.status]||'#fff'};background:${statusColors[app.status]||'#9ca3af'}22;">${app.status?.replace('_',' ')}</span></td>
             <td style="font-size:.78rem;color:var(--gray);">${new Date(app.submittedAt).toLocaleDateString()}</td>
-            <td>
+            <td onclick="event.stopPropagation()">
                 <div class="action-btns">
                     <button class="action-btn" onclick="viewAgentApplication('${app._id}')" title="Review"><i class="fas fa-eye"></i></button>
                     <button class="action-btn" onclick="approveAgentApplication('${app._id}')" title="Approve & Create Account" style="border-color:rgba(0,255,136,.3);color:var(--primary);"><i class="fas fa-check"></i></button>
@@ -7660,7 +7650,8 @@ async function viewChatDetails(chatId) {
                             ? 'rgba(0,255,136,.1)'
                             : 'rgba(255,255,255,.07)';
                         const align = isSystem ? 'center' : isAgent ? 'flex-end' : 'flex-start';
-                        const time  = msg.timestamp ? fmtDateTime(msg.timestamp) : '';
+                        // FIX: was calling fmtDateTime()
+                        const time  = msg.timestamp ? fmtDate(msg.timestamp) : '';
                         // Render image attachments
                         const attachHTML = (msg.attachments || []).map(a => {
                             if (a.resourceType === 'image' || a.fileType?.startsWith('image/')) {
@@ -12711,26 +12702,11 @@ function renderCreatorAccounts(creators) {
                     <div class="cr-stat-num">$${(c.totalRevenue || 0).toFixed(0)}</div>
                     <div class="cr-stat-lbl">Revenue</div>
                 </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num">$${(c.pendingPayout || 0).toFixed(0)}</div>
-                    <div class="cr-stat-lbl">Pending $</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num">${c.platformCommissionRate || 20}%</div>
-                    <div class="cr-stat-lbl">Platform</div>
-                </div>
-                <div class="cr-stat">
-                    <div class="cr-stat-num">${c.affiliateCommissionRate || 10}%</div>
-                    <div class="cr-stat-lbl">Affiliate</div>
-                </div>
             </div>
 
             <div class="cr-actions">
                 <button class="btn btn-secondary btn-sm" onclick="viewCreatorDetail('${c._id}')">
                     <i class="fas fa-eye"></i> Full Detail
-                </button>
-                <button class="btn btn-secondary btn-sm" onclick="openCommissionModal('${c._id}','${esc(c.storeName)}',${c.platformCommissionRate||20},${c.affiliateCommissionRate||10})">
-                    <i class="fas fa-percent"></i> Commissions
                 </button>
                 ${status === 'approved' ? `
                 <button class="btn btn-warning btn-sm" onclick="withDebounce(this, () => suspendCreator('${c._id}','${esc(c.storeName)}',true))">
@@ -14727,7 +14703,6 @@ function renderAffiliates(affiliates) {
                         <th>Affiliate</th>
                         <th>Code</th>
                         <th>Tier / Status</th>
-                        <th>Performance</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -14743,7 +14718,7 @@ function renderAffiliates(affiliates) {
                             ? `<strong style="color:var(--primary);">${a.commissionOverride}%</strong>
                                <span style="font-size:.68rem;color:#6b7280;"> override</span>`
                             : `<span style="color:#6b7280;">default</span>`;
-                        return `<tr>
+                        return `<tr style="cursor:pointer;" onclick="viewAffiliateDetail('${a._id}')">
                             <td>
                                 <div style="font-weight:600;font-size:.84rem;">${esc(user.fullName||'—')}</div>
                                 <div style="font-size:.68rem;color:#6b7280;">${esc(user.email||'—')}</div>
@@ -14761,14 +14736,7 @@ function renderAffiliates(affiliates) {
                                 <span style="font-size:.65rem;font-weight:700;color:${tierColor};
                                      text-transform:uppercase;letter-spacing:.5px;">${tier}</span>
                             </td>
-                            <td>
-                                <div style="font-size:.75rem;color:#9ca3af;line-height:1.8;">
-                                    🖱 ${(a.totalClicks||0).toLocaleString()} clicks<br>
-                                    📦 ${(a.totalConversions||0)} conv (${convRate})<br>
-                                    💰 $${(a.totalEarnings||0).toFixed(2)} earned
-                                </div>
-                            </td>
-                            <td>
+                            <td onclick="event.stopPropagation()">
                                 <div class="action-btns" style="flex-direction:column;align-items:flex-start;gap:4px;">
                                     <button class="btn btn-secondary btn-sm" style="font-size:.68rem;"
                                         onclick="viewAffiliateDetail('${a._id}')">
@@ -15595,13 +15563,13 @@ async function _fetchAndRenderTickets(page, status, priority, assigned, search) 
         const data = await res.json();
 
         if (!data.success) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--error);">Failed to load tickets</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--error);">Failed to load tickets</td></tr>`;
             return;
         }
 
         if (!data.tickets.length) {
             tbody.innerHTML = `
-                <tr><td colspan="8">
+                <tr><td colspan="4">
                     <div class="empty-state">
                         <div class="empty-state-icon">🎫</div>
                         <h3>No Tickets Found</h3>
@@ -15617,29 +15585,20 @@ async function _fetchAndRenderTickets(page, status, priority, assigned, search) 
             const assigned  = t.assignedAgent?.fullName || `<span style="color:var(--warning);font-size:11px;">Unassigned</span>`;
             return `
             <tr style="cursor:pointer;" onclick="adminViewTicket('${t.ticketId}')">
-                <td><strong style="font-family:monospace;font-size:12px;color:var(--primary);">${t.ticketId}</strong></td>
+                <td>
+                    <strong style="font-family:monospace;font-size:12px;color:var(--primary);">${t.ticketId}</strong>
+                    <div style="font-size:11px;color:var(--gray);margin-top:2px;">${new Date(t.createdAt).toLocaleDateString()} · ${assigned}</div>
+                </td>
                 <td>
                     <div style="font-weight:600;font-size:13px;">${escapeHtml(custName)}</div>
                     <small style="color:var(--gray);">${escapeHtml(custEmail)}</small>
                 </td>
-                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(t.subject)}</td>
-                <td><span class="priority-badge priority-${t.priority}">${t.priority.toUpperCase()}</span></td>
-                <td><span class="status-badge status-${t.status}">${t.status.replace('-',' ').toUpperCase()}</span></td>
-                <td style="font-size:12px;">${assigned}</td>
-                <td style="font-size:12px;">${new Date(t.createdAt).toLocaleDateString()}</td>
+                <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    ${escapeHtml(t.subject)}
+                    <div style="margin-top:3px;"><span class="priority-badge priority-${t.priority}" style="font-size:10px;">${t.priority.toUpperCase()}</span></div>
+                </td>
                 <td>
-                    <div class="action-btns">
-                        <button class="action-btn" onclick="event.stopPropagation();adminViewTicket('${t.ticketId}')" title="Open">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn warning" onclick="event.stopPropagation();adminQuickResolve('${t.ticketId}')" title="Resolve"
-                            style="${['resolved','closed'].includes(t.status)?'opacity:0.3;pointer-events:none;':''}">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button class="action-btn danger" onclick="event.stopPropagation();adminQuickDelete('${t.ticketId}')" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+                    <span class="status-badge status-${t.status}">${t.status.replace('-',' ').toUpperCase()}</span>
                 </td>
             </tr>`;
         }).join('');
@@ -16027,6 +15986,7 @@ const PAGE_GROUP_MAP = {
     'creator-payouts':      'creator-marketplace',
     'payouts':              'creator-marketplace',
     'reviews':              'creator-marketplace',
+     'platform-reviews':     'creator-marketplace',
     
     // Services
     'blog':                 'services',
@@ -16249,59 +16209,25 @@ async function _fetchReviews() {
                 </div>
                 <table>
                     <thead><tr>
-                        <th>Reviewer</th><th>Product</th><th>Rating</th>
-                        <th>Review</th><th>Date</th><th>Actions</th>
+                        <th>Reviewer</th><th>Product</th><th>Rating</th><th>Status</th>
                     </tr></thead>
                     <tbody>
-                    ${allReviews.map(rv => `<tr id="review-row-${rv.id}">
+                    ${allReviews.map(rv => `<tr id="review-row-${rv.id}" style="cursor:pointer;"
+                        onclick='openReviewDetailModal(${JSON.stringify(rv).replace(/'/g,"&apos;")})'>
                         <td>
                             <div style="font-weight:600;font-size:.85rem;">${esc(rv.reviewerName||'—')}</div>
-                            <div style="font-size:.68rem;color:#6b7280;">${esc(rv.reviewerEmail||'')}</div>
                             ${rv.verifiedPurchase?`<div style="font-size:.68rem;color:var(--primary);">✅ Verified</div>`:''}
                         </td>
-                        <td style="font-size:.8rem;color:#9ca3af;max-width:140px;
+                        <td style="font-size:.8rem;color:#9ca3af;max-width:180px;
                              white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                             ${esc(rv.productTitle||'—')}
                         </td>
                         <td>
                             <div style="color:#fbbf24;letter-spacing:-1px;">${stars(rv.rating)}</div>
-                            <div style="font-size:.7rem;color:#6b7280;">${rv.rating}/5</div>
-                        </td>
-                        <td style="max-width:240px;">
-                            ${rv.title ? `<div style="font-weight:600;font-size:.82rem;margin-bottom:3px;">${esc(rv.title)}</div>` : ''}
-                            <div style="font-size:.78rem;color:#9ca3af;
-                                 display:-webkit-box;-webkit-line-clamp:3;
-                                 -webkit-box-orient:vertical;overflow:hidden;">
-                                ${esc(rv.body||'No body')}
-                            </div>
-                            ${rv.reply?`<div style="margin-top:6px;padding:6px 8px;
-                                background:rgba(0,255,136,.05);border-left:2px solid var(--primary);
-                                font-size:.72rem;color:#6b7280;">
-                                <strong style="color:var(--primary);">Reply:</strong> ${esc(rv.reply.body)}
-                            </div>`:''}
-                            ${rv.adminNote?`<div style="margin-top:4px;font-size:.68rem;color:#f59e0b;">
-                                📝 Note: ${esc(rv.adminNote)}</div>`:''}
-                        </td>
-                        <td style="font-size:.72rem;color:#6b7280;">
-                            ${rv.createdAt ? new Date(rv.createdAt).toLocaleDateString() : '—'}
                         </td>
                         <td>
-                            <div style="display:flex;flex-direction:column;gap:4px;">
-                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
-                                    color:var(--primary);border-color:rgba(0,255,136,.3);"
-                                    onclick="moderateReview('${rv.id}','approved')">
-                                    <i class="fas fa-check"></i> Approve
-                                </button>
-                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;
-                                    color:var(--error);border-color:rgba(255,77,77,.3);"
-                                    onclick="moderateReview('${rv.id}','rejected')">
-                                    <i class="fas fa-times"></i> Reject
-                                </button>
-                                <button class="btn btn-secondary btn-sm" style="font-size:.7rem;"
-                                    onclick="replyToReview('${rv.id}')">
-                                    <i class="fas fa-reply"></i> Reply
-                                </button>
-                            </div>
+                            <span class="status-badge" style="font-size:.68rem;">${(rv.status||'pending').toUpperCase()}</span>
+                            ${rv.reply?'<div style="font-size:.65rem;color:var(--primary);margin-top:2px;">💬 Replied</div>':''}
                         </td>
                     </tr>`).join('')}
                     </tbody>
@@ -16312,6 +16238,78 @@ async function _fetchReviews() {
     }
 }
 
+// ── NEW: Review detail modal — none existed before this patch.
+// Follows the same visual pattern as openCcDetailModal() (Creator
+// Coupons) for consistency: .cr-modal-overlay / .cr-modal classes,
+// same close-button style, same body-append approach.
+function openReviewDetailModal(rv) {
+    document.getElementById('reviewDetailModal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="cr-modal-overlay" id="reviewDetailModal" onclick="if(event.target===this)closeReviewDetailModal()">
+        <div class="cr-modal wide" style="max-width:620px;">
+
+            <h3>
+                <i class="fas fa-star" style="color:#fbbf24;"></i>
+                Review Detail
+                <button onclick="closeReviewDetailModal()" style="float:right;background:none;border:none;color:#6b7280;font-size:1.1rem;cursor:pointer;">✕</button>
+            </h3>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;">
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+                    <div style="font-size:.65rem;color:#6b7280;text-transform:uppercase;">Reviewer</div>
+                    <div style="font-size:.85rem;font-weight:600;">${esc(rv.reviewerName||'—')}</div>
+                    <div style="font-size:.72rem;color:#6b7280;">${esc(rv.reviewerEmail||'—')}</div>
+                    ${rv.verifiedPurchase?'<div style="font-size:.7rem;color:var(--primary);margin-top:3px;">✅ Verified Purchase</div>':''}
+                </div>
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+                    <div style="font-size:.65rem;color:#6b7280;text-transform:uppercase;">Product</div>
+                    <div style="font-size:.85rem;font-weight:600;">${esc(rv.productTitle||'—')}</div>
+                    <div style="color:#fbbf24;letter-spacing:-1px;margin-top:3px;">${'★'.repeat(rv.rating||0)}${'☆'.repeat(5-(rv.rating||0))} <span style="color:#6b7280;font-size:.7rem;">${rv.rating}/5</span></div>
+                </div>
+            </div>
+
+            ${rv.title?`<div style="font-weight:700;font-size:.95rem;margin-bottom:6px;">${esc(rv.title)}</div>`:''}
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:.85rem;color:#e5e7eb;line-height:1.6;margin-bottom:14px;">
+                ${esc(rv.body||'No review text')}
+            </div>
+
+            ${rv.reply?`
+            <div style="padding:10px 14px;background:rgba(0,255,136,.05);border-left:3px solid var(--primary);border-radius:0 8px 8px 0;margin-bottom:14px;">
+                <div style="font-size:.68rem;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:3px;">Creator Reply</div>
+                <div style="font-size:.82rem;color:#d1d5db;">${esc(rv.reply.body)}</div>
+            </div>`:''}
+
+            ${rv.adminNote?`
+            <div style="padding:10px 14px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;margin-bottom:14px;font-size:.8rem;color:#fbbf24;">
+                📝 <strong>Admin Note:</strong> ${esc(rv.adminNote)}
+            </div>`:''}
+
+            <div style="font-size:.72rem;color:#6b7280;margin-bottom:16px;">
+                Submitted ${rv.createdAt ? new Date(rv.createdAt).toLocaleString() : '—'}
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" style="color:var(--primary);border-color:rgba(0,255,136,.3);"
+                    onclick="moderateReview('${rv.id}','approved'); closeReviewDetailModal();">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn btn-secondary btn-sm" style="color:var(--error);border-color:rgba(255,77,77,.3);"
+                    onclick="moderateReview('${rv.id}','rejected'); closeReviewDetailModal();">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn btn-secondary btn-sm"
+                    onclick="replyToReview('${rv.id}')">
+                    <i class="fas fa-reply"></i> Reply
+                </button>
+            </div>
+
+        </div>
+    </div>`);
+}
+function closeReviewDetailModal() {
+    document.getElementById('reviewDetailModal')?.remove();
+}
+
 let _platformReviewsFilter = 'pending';
 let _platformReviewsPage   = 1;
 
@@ -16319,7 +16317,7 @@ async function loadPlatformReviewsData(filter, page) {
     if (filter !== undefined) _platformReviewsFilter = filter;
     if (page   !== undefined) _platformReviewsPage   = page;
 
-    const el = document.getElementById('platformReviewsPage');
+    const el = document.getElementById('platform-reviewsPage');
     el.innerHTML = `
         <div class="page-header">
             <h1 class="page-title">Platform Reviews</h1>
@@ -16496,8 +16494,6 @@ async function _updatePendingPlatformReviewsBadge() {
     } catch (_) { /* non-fatal — badge just stays hidden */ }
 }
 
-// Check once on dashboard load, not just when the page is opened
-_updatePendingPlatformReviewsBadge();
 
 async function moderateReview(reviewId, status) {
     const note = status === 'rejected'
@@ -16625,12 +16621,36 @@ async function openEmailPreviewModal(key, mode) {
         if (!r.ok) throw new Error(`Server returned ${r.status}`);
         let html = await r.text();
 
+        // Bulletproof link handling: <base target="_blank"> alone doesn't
+        // override a link with an EXPLICIT target="_self" hardcoded on the
+        // <a> tag itself (some email templates do this on purpose). That
+        // link would still navigate the iframe to a real URL — which is
+        // exactly what caused "back to main section shows a 404 inside
+        // itself": a link inside the rendered email was clicked, it
+        // navigated the iframe, and the target URL 404'd, rendering your
+        // site's actual 404 page inside the preview pane.
+        //
+        // This script intercepts EVERY link click inside the iframe,
+        // unconditionally, and forces it through window.open(_blank) —
+        // no navigation inside the iframe can happen no matter what
+        // target attribute an individual link declares.
+        const interceptorScript = `
+            <script>
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[href]');
+                    if (!link) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                }, true);
+            <\\/script>`;
+
         if (/<head[^>]*>/i.test(html)) {
-            html = html.replace(/<head([^>]*)>/i, '<head$1><base target="_blank">');
+            html = html.replace(/<head([^>]*)>/i, `<head$1><base target="_blank">${interceptorScript}`);
         } else if (/<html[^>]*>/i.test(html)) {
-            html = html.replace(/<html([^>]*)>/i, '<html$1><head><base target="_blank"></head>');
+            html = html.replace(/<html([^>]*)>/i, `<html$1><head><base target="_blank">${interceptorScript}</head>`);
         } else {
-            html = `<head><base target="_blank"></head>${html}`;
+            html = `<head><base target="_blank">${interceptorScript}</head>${html}`;
         }
 
         // srcdoc injection — secure, no cross-origin issues
