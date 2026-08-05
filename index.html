@@ -4297,8 +4297,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const img = product.image || product.thumbnail || product.coverImage || '';
         const id = product._id || product.id || '';
 
+        const productUrl = product.storeSlug
+          ? `/marketplace/${encodeURIComponent(product.storeSlug)}/?product=${encodeURIComponent(id)}`
+          : `/marketplace/product/${encodeURIComponent(id)}`;
+
         return `
-          <a href="/marketplace/${encodeURIComponent(id)}" class="spotlight-card${i === 0 ? ' spotlight-card--first' : ''}">
+          <a href="${productUrl}" class="spotlight-card${i === 0 ? ' spotlight-card--first' : ''}">
             ${i === 0 ? '<span class="spotlight-new-tag">⭐ Featured</span>' : ''}
             <img class="spotlight-img" src="${escapeHtml(img)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'">
             <div class="spotlight-info">

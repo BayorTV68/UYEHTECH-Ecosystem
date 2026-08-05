@@ -689,6 +689,22 @@
       window.FLUTTERWAVE_PUBLIC_KEY = s.flutterwavePublicKey;
     }
 
+    // Some pages (e.g. checkout.html) already load the Flutterwave SDK
+    // themselves in <head>. Injecting it a second time here creates two
+    // competing copies of the SDK on the same page, which breaks the
+    // checkout modal. Only inject if it's genuinely not present yet.
+    const alreadyOnPage =
+      typeof FlutterwaveCheckout !== 'undefined' ||
+      !!document.querySelector('script[src*="checkout.flutterwave.com"]');
+
+    if (alreadyOnPage) {
+      window.__uyeh_flw_loaded = true;
+      document.dispatchEvent(new CustomEvent('uyeh:flw-ready', {
+        detail: { publicKey: s.flutterwavePublicKey }
+      }));
+      return;
+    }
+
     if (
       s.flutterwavePublicKey &&
       !window.__uyeh_flw_loaded &&
@@ -708,7 +724,6 @@
         console.warn('[SiteController] Flutterwave script failed to load');
       };
       document.head.appendChild(sc);
-      window.__uyeh_flw_loaded = true;
     }
   }
 
