@@ -1479,6 +1479,8 @@ async function handleCheckout(e) {
                     throw new Error(initData.message || 'Failed to initialize payment');
                 }
 
+                console.log('🔎 initData.payment for gateway=' + initData.gateway + ':', initData.payment);
+
                 if (initData.gateway === 'paystack') {
                     makePaystackPayment({
                         publicKey:      initData.payment.publicKey,
@@ -1531,13 +1533,27 @@ function makePayment(paymentData) {
         showNotification('❌ Payment system not loaded. Please refresh the page.', 'error');
         return;
     }
+
+    // Guard: FlutterwaveCheckout fails SILENTLY (no error, no modal) if
+    // required fields are missing — surface that instead of letting it
+    // vanish with zero feedback.
+    const missing = [];
+    if (!FLUTTERWAVE_PUBLIC_KEY) missing.push('public key');
+    if (!paymentData.amount)     missing.push('amount');
+    if (!paymentData.orderReference) missing.push('transaction reference');
+    if (!paymentData.email)      missing.push('email');
+    if (missing.length) {
+        console.error('❌ Cannot open Flutterwave — missing: ' + missing.join(', '), paymentData);
+        showNotification('❌ Could not start Flutterwave payment (missing ' + missing.join(', ') + '). Please try Paystack or contact support.', 'error');
+        return;
+    }
     
     FlutterwaveCheckout({
         public_key: FLUTTERWAVE_PUBLIC_KEY,
         tx_ref: paymentData.orderReference,
         amount: paymentData.amount,
         currency: paymentData.currency || 'USD',
-        payment_options: 'card, banktransfer, ussd, mobilemoney',
+        payment_options: 'card,banktransfer,ussd,mobilemoney',
         customer: {
             email: paymentData.email,
             name: paymentData.name,
