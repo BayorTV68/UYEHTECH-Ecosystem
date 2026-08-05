@@ -1462,10 +1462,9 @@ async function handleCheckout(e) {
         } else {
             // Order requires payment — ask the server what to actually charge.
             // Never trust a client-computed amount/currency for the payment widget.
+            const chosenGateway = (document.querySelector('input[name="gateway"]:checked') || {}).value
+                || 'flutterwave';
             try {
-                const chosenGateway = (document.querySelector('input[name="gateway"]:checked') || {}).value
-                    || 'flutterwave';
-
                 const initRes = await fetch(`${API_URL}/api/orders/initialize-payment`, {
                     method: 'POST',
                     headers: {
