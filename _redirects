@@ -147,6 +147,11 @@
 # Netlify 404. That's a deliberate choice to support clean vanity links —
 # not a bug, but worth knowing if you're ever debugging a "wrong" 404.
 
+# Two-segment clean product links — /marketplace/{storeSlug}/{productId}
+# MUST come before the single-segment :storeSlug rule below, since
+# Netlify matches top-to-bottom and this is the more specific pattern.
+/marketplace/:storeSlug/:productId /marketplace/creator-store.html    200
+
 /marketplace/:storeSlug            /marketplace/creator-store.html    200
 
 # ── STEP 4: /super-admin/ — admin + agent, together ───────
