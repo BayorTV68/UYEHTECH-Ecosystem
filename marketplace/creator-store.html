@@ -1847,21 +1847,49 @@ nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
        1. SLUG RESOLUTION
        Read slug from ?slug=, ?store=, or the URL path itself
        ══════════════════════════════════════════════════ */
+    // Recognized static filenames that should NEVER be mistaken for a
+    // store slug when falling back to path-based parsing — this is what
+    // let a mangled URL fall back to treating "creator-store" itself as
+    // a slug in the original bug.
+    const RESERVED_PATH_SEGMENTS = new Set([
+      'creator-store', 'creator-store.html', 'index.html', 'login',
+      'signup', 'dashboard', 'checkout', 'orders', 'profile', 'settings',
+      'my-products', 'support', 'affiliate', 'creator-apply',
+      'creator-login', 'creator-dashboard', 'creators', 'product',
+    ]);
+
     function resolveSlug() {
       const params = new URLSearchParams(window.location.search);
       let slug = params.get('slug') || params.get('store') || '';
 
       if (!slug) {
-        // Fallback: read from path  e.g. /techshop  or  /store/creator-store.html  (won't match)
+        // /marketplace/{storeSlug}/{productId}  or  /marketplace/{storeSlug}
         const parts = window.location.pathname.split('/').filter(Boolean);
-        // If the last segment is not a known static filename, treat it as a slug
-        const last = parts[parts.length - 1] || '';
-        if (last && !last.includes('.html') && !last.includes('.') ) {
-          slug = last;
+        // parts[0] is "marketplace" — the slug is whichever segment comes
+        // right after it, NOT necessarily the last segment (the last
+        // segment may be a product ID in the two-segment format).
+        const marketplaceIdx = parts.indexOf('marketplace');
+        const candidate = marketplaceIdx !== -1 ? parts[marketplaceIdx + 1] : parts[parts.length - 1];
+
+        if (candidate && !candidate.includes('.') && !RESERVED_PATH_SEGMENTS.has(candidate)) {
+          slug = candidate;
         }
       }
 
       return slug.trim().toLowerCase();
+    }
+
+    // Reads a product ID from the clean two-segment path format
+    // (/marketplace/{storeSlug}/{productId}), used alongside the
+    // existing ?product= query param reader below.
+    function resolveProductFromPath() {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const marketplaceIdx = parts.indexOf('marketplace');
+      if (marketplaceIdx === -1) return null;
+      // Slug is parts[marketplaceIdx+1], product (if present) is the segment after that
+      const productSegment = parts[marketplaceIdx + 2];
+      if (productSegment && !productSegment.includes('.')) return productSegment;
+      return null;
     }
 
     /* ══════════════════════════════════════════════════
@@ -3013,7 +3041,11 @@ nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
     (function readAffiliateRef() {
       const params    = new URLSearchParams(window.location.search);
       const rawRef    = params.get('ref');
-      const productId = params.get('product');
+      // Product ID can now arrive two ways: ?product=ID (query param,
+      // existing format) or as the second path segment in the clean
+      // URL format (/marketplace/{storeSlug}/{productId}). Query param
+      // wins if somehow both are present.
+      const productId = params.get('product') || resolveProductFromPath();
 
       if (rawRef) {
         // ALWAYS uppercase before storing — DB codes are uppercase, attribution depends on this
@@ -3032,9 +3064,12 @@ nav > a:hover img { transform: scale(1.05); filter: brightness(1.2); }
           body:    JSON.stringify({ affiliateCode: code, productId: productId || null })
         }).catch(() => {});
 
-        // Clean URL — keep ?product= if present, drop ?ref=
-        const clean = window.location.pathname +
-          (productId ? '?product=' + productId : '');
+        const keepParams = new URLSearchParams();
+        const storeVal = params.get('store') || params.get('slug');
+        if (storeVal)  keepParams.set('store', storeVal);
+        if (productId) keepParams.set('product', productId);
+        const qs = keepParams.toString();
+        const clean = window.location.pathname + (qs ? '?' + qs : '');
         history.replaceState(null, '', clean);
       }
 

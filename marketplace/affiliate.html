@@ -1071,10 +1071,11 @@ function renderCode() {
 }
 
 function buildProductLink(p,code) {
-  // Fixed: the old two-segment path (/marketplace/:slug/:productId) has no
-  // matching route anywhere — this now matches the same pattern the
-  // marketplace homepage itself uses for creator product deep-links.
-  if(p.storeSlug&&p.productId) return `${SITE}/marketplace/creator-store?store=${encodeURIComponent(p.storeSlug)}&product=${encodeURIComponent(p.productId)}&ref=${code}`;
+  // Two-segment clean format now has full routing + parsing support —
+  // see the creator-store.html + _redirects patch. This is now the
+  // primary generated format; the old query-param format is still
+  // fully supported for backward compatibility with previously shared links.
+  if(p.storeSlug&&p.productId) return `${SITE}/marketplace/${encodeURIComponent(p.storeSlug)}/${encodeURIComponent(p.productId)}?ref=${code}`;
   if(p.storeSlug) return `${SITE}/marketplace/${p.storeSlug}?ref=${code}`;
   if(p.affiliateLink) return p.affiliateLink;
   return `${SITE}/marketplace/signup?ref=${code}`;
